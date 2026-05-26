@@ -44,5 +44,6 @@ type clusterNetworkTopologyLister struct {
 
 // NewClusterNetworkTopologyLister returns a new ClusterNetworkTopologyLister.
 func NewClusterNetworkTopologyLister(indexer cache.Indexer) ClusterNetworkTopologyLister {
-	return &clusterNetworkTopologyLister{listers.New[*schedulingv1alpha1.ClusterNetworkTopology](indexer, schedulingv1alpha1.Resource("clusternetworktopology"))}
+	_ = "STUB: not implemented"
+	return *new(ClusterNetworkTopologyLister)
 }

@@ -28,7 +28,6 @@ package mock_client
 
 import (
 	context "context"
-	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
 	grpc "google.golang.org/grpc"
@@ -49,614 +48,375 @@ type MockRuntimeServiceClientMockRecorder struct {
 
 // NewMockRuntimeServiceClient creates a new mock instance.
 func NewMockRuntimeServiceClient(ctrl *gomock.Controller) *MockRuntimeServiceClient {
-	mock := &MockRuntimeServiceClient{ctrl: ctrl}
-	mock.recorder = &MockRuntimeServiceClientMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRuntimeServiceClient) EXPECT() *MockRuntimeServiceClientMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Attach mocks base method.
+	return nil
 }
 
-// Attach mocks base method.
 func (m *MockRuntimeServiceClient) Attach(ctx context.Context, in *v1.AttachRequest, opts ...grpc.CallOption) (*v1.AttachResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Attach", varargs...)
-	ret0, _ := ret[0].(*v1.AttachResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Attach indicates an expected call of Attach.
 func (mr *MockRuntimeServiceClientMockRecorder) Attach(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Attach", reflect.TypeOf((*MockRuntimeServiceClient)(nil).Attach), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CheckpointContainer mocks base method.
 func (m *MockRuntimeServiceClient) CheckpointContainer(ctx context.Context, in *v1.CheckpointContainerRequest, opts ...grpc.CallOption) (*v1.CheckpointContainerResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CheckpointContainer", varargs...)
-	ret0, _ := ret[0].(*v1.CheckpointContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CheckpointContainer indicates an expected call of CheckpointContainer.
 func (mr *MockRuntimeServiceClientMockRecorder) CheckpointContainer(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckpointContainer", reflect.TypeOf((*MockRuntimeServiceClient)(nil).CheckpointContainer), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ContainerStats mocks base method.
 func (m *MockRuntimeServiceClient) ContainerStats(ctx context.Context, in *v1.ContainerStatsRequest, opts ...grpc.CallOption) (*v1.ContainerStatsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ContainerStats", varargs...)
-	ret0, _ := ret[0].(*v1.ContainerStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ContainerStats indicates an expected call of ContainerStats.
 func (mr *MockRuntimeServiceClientMockRecorder) ContainerStats(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStats", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ContainerStats), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ContainerStatus mocks base method.
 func (m *MockRuntimeServiceClient) ContainerStatus(ctx context.Context, in *v1.ContainerStatusRequest, opts ...grpc.CallOption) (*v1.ContainerStatusResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ContainerStatus", varargs...)
-	ret0, _ := ret[0].(*v1.ContainerStatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ContainerStatus indicates an expected call of ContainerStatus.
 func (mr *MockRuntimeServiceClientMockRecorder) ContainerStatus(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStatus", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ContainerStatus), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CreateContainer mocks base method.
 func (m *MockRuntimeServiceClient) CreateContainer(ctx context.Context, in *v1.CreateContainerRequest, opts ...grpc.CallOption) (*v1.CreateContainerResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CreateContainer", varargs...)
-	ret0, _ := ret[0].(*v1.CreateContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CreateContainer indicates an expected call of CreateContainer.
 func (mr *MockRuntimeServiceClientMockRecorder) CreateContainer(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateContainer", reflect.TypeOf((*MockRuntimeServiceClient)(nil).CreateContainer), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Exec mocks base method.
 func (m *MockRuntimeServiceClient) Exec(ctx context.Context, in *v1.ExecRequest, opts ...grpc.CallOption) (*v1.ExecResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Exec", varargs...)
-	ret0, _ := ret[0].(*v1.ExecResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Exec indicates an expected call of Exec.
 func (mr *MockRuntimeServiceClientMockRecorder) Exec(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockRuntimeServiceClient)(nil).Exec), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ExecSync mocks base method.
 func (m *MockRuntimeServiceClient) ExecSync(ctx context.Context, in *v1.ExecSyncRequest, opts ...grpc.CallOption) (*v1.ExecSyncResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ExecSync", varargs...)
-	ret0, _ := ret[0].(*v1.ExecSyncResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ExecSync indicates an expected call of ExecSync.
 func (mr *MockRuntimeServiceClientMockRecorder) ExecSync(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecSync", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ExecSync), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetContainerEvents mocks base method.
 func (m *MockRuntimeServiceClient) GetContainerEvents(ctx context.Context, in *v1.GetEventsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[v1.ContainerEventResponse], error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetContainerEvents", varargs...)
-	ret0, _ := ret[0].(grpc.ServerStreamingClient[v1.ContainerEventResponse])
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetContainerEvents indicates an expected call of GetContainerEvents.
 func (mr *MockRuntimeServiceClientMockRecorder) GetContainerEvents(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContainerEvents", reflect.TypeOf((*MockRuntimeServiceClient)(nil).GetContainerEvents), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListContainerStats mocks base method.
 func (m *MockRuntimeServiceClient) ListContainerStats(ctx context.Context, in *v1.ListContainerStatsRequest, opts ...grpc.CallOption) (*v1.ListContainerStatsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListContainerStats", varargs...)
-	ret0, _ := ret[0].(*v1.ListContainerStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListContainerStats indicates an expected call of ListContainerStats.
 func (mr *MockRuntimeServiceClientMockRecorder) ListContainerStats(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListContainerStats", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ListContainerStats), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListContainers mocks base method.
 func (m *MockRuntimeServiceClient) ListContainers(ctx context.Context, in *v1.ListContainersRequest, opts ...grpc.CallOption) (*v1.ListContainersResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListContainers", varargs...)
-	ret0, _ := ret[0].(*v1.ListContainersResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListContainers indicates an expected call of ListContainers.
 func (mr *MockRuntimeServiceClientMockRecorder) ListContainers(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListContainers", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ListContainers), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListMetricDescriptors mocks base method.
 func (m *MockRuntimeServiceClient) ListMetricDescriptors(ctx context.Context, in *v1.ListMetricDescriptorsRequest, opts ...grpc.CallOption) (*v1.ListMetricDescriptorsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListMetricDescriptors", varargs...)
-	ret0, _ := ret[0].(*v1.ListMetricDescriptorsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListMetricDescriptors indicates an expected call of ListMetricDescriptors.
 func (mr *MockRuntimeServiceClientMockRecorder) ListMetricDescriptors(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMetricDescriptors", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ListMetricDescriptors), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListPodSandbox mocks base method.
 func (m *MockRuntimeServiceClient) ListPodSandbox(ctx context.Context, in *v1.ListPodSandboxRequest, opts ...grpc.CallOption) (*v1.ListPodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListPodSandbox", varargs...)
-	ret0, _ := ret[0].(*v1.ListPodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListPodSandbox indicates an expected call of ListPodSandbox.
 func (mr *MockRuntimeServiceClientMockRecorder) ListPodSandbox(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPodSandbox", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ListPodSandbox), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListPodSandboxMetrics mocks base method.
 func (m *MockRuntimeServiceClient) ListPodSandboxMetrics(ctx context.Context, in *v1.ListPodSandboxMetricsRequest, opts ...grpc.CallOption) (*v1.ListPodSandboxMetricsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListPodSandboxMetrics", varargs...)
-	ret0, _ := ret[0].(*v1.ListPodSandboxMetricsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListPodSandboxMetrics indicates an expected call of ListPodSandboxMetrics.
 func (mr *MockRuntimeServiceClientMockRecorder) ListPodSandboxMetrics(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPodSandboxMetrics", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ListPodSandboxMetrics), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListPodSandboxStats mocks base method.
 func (m *MockRuntimeServiceClient) ListPodSandboxStats(ctx context.Context, in *v1.ListPodSandboxStatsRequest, opts ...grpc.CallOption) (*v1.ListPodSandboxStatsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListPodSandboxStats", varargs...)
-	ret0, _ := ret[0].(*v1.ListPodSandboxStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListPodSandboxStats indicates an expected call of ListPodSandboxStats.
 func (mr *MockRuntimeServiceClientMockRecorder) ListPodSandboxStats(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPodSandboxStats", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ListPodSandboxStats), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PodSandboxStats mocks base method.
 func (m *MockRuntimeServiceClient) PodSandboxStats(ctx context.Context, in *v1.PodSandboxStatsRequest, opts ...grpc.CallOption) (*v1.PodSandboxStatsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "PodSandboxStats", varargs...)
-	ret0, _ := ret[0].(*v1.PodSandboxStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PodSandboxStats indicates an expected call of PodSandboxStats.
 func (mr *MockRuntimeServiceClientMockRecorder) PodSandboxStats(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PodSandboxStats", reflect.TypeOf((*MockRuntimeServiceClient)(nil).PodSandboxStats), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PodSandboxStatus mocks base method.
 func (m *MockRuntimeServiceClient) PodSandboxStatus(ctx context.Context, in *v1.PodSandboxStatusRequest, opts ...grpc.CallOption) (*v1.PodSandboxStatusResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "PodSandboxStatus", varargs...)
-	ret0, _ := ret[0].(*v1.PodSandboxStatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PodSandboxStatus indicates an expected call of PodSandboxStatus.
 func (mr *MockRuntimeServiceClientMockRecorder) PodSandboxStatus(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PodSandboxStatus", reflect.TypeOf((*MockRuntimeServiceClient)(nil).PodSandboxStatus), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PortForward mocks base method.
 func (m *MockRuntimeServiceClient) PortForward(ctx context.Context, in *v1.PortForwardRequest, opts ...grpc.CallOption) (*v1.PortForwardResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "PortForward", varargs...)
-	ret0, _ := ret[0].(*v1.PortForwardResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PortForward indicates an expected call of PortForward.
 func (mr *MockRuntimeServiceClientMockRecorder) PortForward(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PortForward", reflect.TypeOf((*MockRuntimeServiceClient)(nil).PortForward), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveContainer mocks base method.
 func (m *MockRuntimeServiceClient) RemoveContainer(ctx context.Context, in *v1.RemoveContainerRequest, opts ...grpc.CallOption) (*v1.RemoveContainerResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "RemoveContainer", varargs...)
-	ret0, _ := ret[0].(*v1.RemoveContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemoveContainer indicates an expected call of RemoveContainer.
 func (mr *MockRuntimeServiceClientMockRecorder) RemoveContainer(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveContainer", reflect.TypeOf((*MockRuntimeServiceClient)(nil).RemoveContainer), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemovePodSandbox mocks base method.
 func (m *MockRuntimeServiceClient) RemovePodSandbox(ctx context.Context, in *v1.RemovePodSandboxRequest, opts ...grpc.CallOption) (*v1.RemovePodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "RemovePodSandbox", varargs...)
-	ret0, _ := ret[0].(*v1.RemovePodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemovePodSandbox indicates an expected call of RemovePodSandbox.
 func (mr *MockRuntimeServiceClientMockRecorder) RemovePodSandbox(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemovePodSandbox", reflect.TypeOf((*MockRuntimeServiceClient)(nil).RemovePodSandbox), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ReopenContainerLog mocks base method.
 func (m *MockRuntimeServiceClient) ReopenContainerLog(ctx context.Context, in *v1.ReopenContainerLogRequest, opts ...grpc.CallOption) (*v1.ReopenContainerLogResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ReopenContainerLog", varargs...)
-	ret0, _ := ret[0].(*v1.ReopenContainerLogResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ReopenContainerLog indicates an expected call of ReopenContainerLog.
 func (mr *MockRuntimeServiceClientMockRecorder) ReopenContainerLog(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReopenContainerLog", reflect.TypeOf((*MockRuntimeServiceClient)(nil).ReopenContainerLog), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunPodSandbox mocks base method.
 func (m *MockRuntimeServiceClient) RunPodSandbox(ctx context.Context, in *v1.RunPodSandboxRequest, opts ...grpc.CallOption) (*v1.RunPodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "RunPodSandbox", varargs...)
-	ret0, _ := ret[0].(*v1.RunPodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunPodSandbox indicates an expected call of RunPodSandbox.
 func (mr *MockRuntimeServiceClientMockRecorder) RunPodSandbox(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunPodSandbox", reflect.TypeOf((*MockRuntimeServiceClient)(nil).RunPodSandbox), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RuntimeConfig mocks base method.
 func (m *MockRuntimeServiceClient) RuntimeConfig(ctx context.Context, in *v1.RuntimeConfigRequest, opts ...grpc.CallOption) (*v1.RuntimeConfigResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "RuntimeConfig", varargs...)
-	ret0, _ := ret[0].(*v1.RuntimeConfigResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RuntimeConfig indicates an expected call of RuntimeConfig.
 func (mr *MockRuntimeServiceClientMockRecorder) RuntimeConfig(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RuntimeConfig", reflect.TypeOf((*MockRuntimeServiceClient)(nil).RuntimeConfig), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StartContainer mocks base method.
 func (m *MockRuntimeServiceClient) StartContainer(ctx context.Context, in *v1.StartContainerRequest, opts ...grpc.CallOption) (*v1.StartContainerResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "StartContainer", varargs...)
-	ret0, _ := ret[0].(*v1.StartContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StartContainer indicates an expected call of StartContainer.
 func (mr *MockRuntimeServiceClientMockRecorder) StartContainer(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartContainer", reflect.TypeOf((*MockRuntimeServiceClient)(nil).StartContainer), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Status mocks base method.
 func (m *MockRuntimeServiceClient) Status(ctx context.Context, in *v1.StatusRequest, opts ...grpc.CallOption) (*v1.StatusResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Status", varargs...)
-	ret0, _ := ret[0].(*v1.StatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Status indicates an expected call of Status.
 func (mr *MockRuntimeServiceClientMockRecorder) Status(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockRuntimeServiceClient)(nil).Status), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StopContainer mocks base method.
 func (m *MockRuntimeServiceClient) StopContainer(ctx context.Context, in *v1.StopContainerRequest, opts ...grpc.CallOption) (*v1.StopContainerResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "StopContainer", varargs...)
-	ret0, _ := ret[0].(*v1.StopContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StopContainer indicates an expected call of StopContainer.
 func (mr *MockRuntimeServiceClientMockRecorder) StopContainer(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopContainer", reflect.TypeOf((*MockRuntimeServiceClient)(nil).StopContainer), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StopPodSandbox mocks base method.
 func (m *MockRuntimeServiceClient) StopPodSandbox(ctx context.Context, in *v1.StopPodSandboxRequest, opts ...grpc.CallOption) (*v1.StopPodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "StopPodSandbox", varargs...)
-	ret0, _ := ret[0].(*v1.StopPodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StopPodSandbox indicates an expected call of StopPodSandbox.
 func (mr *MockRuntimeServiceClientMockRecorder) StopPodSandbox(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopPodSandbox", reflect.TypeOf((*MockRuntimeServiceClient)(nil).StopPodSandbox), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateContainerResources mocks base method.
 func (m *MockRuntimeServiceClient) UpdateContainerResources(ctx context.Context, in *v1.UpdateContainerResourcesRequest, opts ...grpc.CallOption) (*v1.UpdateContainerResourcesResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdateContainerResources", varargs...)
-	ret0, _ := ret[0].(*v1.UpdateContainerResourcesResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateContainerResources indicates an expected call of UpdateContainerResources.
 func (mr *MockRuntimeServiceClientMockRecorder) UpdateContainerResources(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContainerResources", reflect.TypeOf((*MockRuntimeServiceClient)(nil).UpdateContainerResources), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdatePodSandboxResources mocks base method.
 func (m *MockRuntimeServiceClient) UpdatePodSandboxResources(ctx context.Context, in *v1.UpdatePodSandboxResourcesRequest, opts ...grpc.CallOption) (*v1.UpdatePodSandboxResourcesResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdatePodSandboxResources", varargs...)
-	ret0, _ := ret[0].(*v1.UpdatePodSandboxResourcesResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdatePodSandboxResources indicates an expected call of UpdatePodSandboxResources.
 func (mr *MockRuntimeServiceClientMockRecorder) UpdatePodSandboxResources(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePodSandboxResources", reflect.TypeOf((*MockRuntimeServiceClient)(nil).UpdatePodSandboxResources), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateRuntimeConfig mocks base method.
 func (m *MockRuntimeServiceClient) UpdateRuntimeConfig(ctx context.Context, in *v1.UpdateRuntimeConfigRequest, opts ...grpc.CallOption) (*v1.UpdateRuntimeConfigResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "UpdateRuntimeConfig", varargs...)
-	ret0, _ := ret[0].(*v1.UpdateRuntimeConfigResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateRuntimeConfig indicates an expected call of UpdateRuntimeConfig.
 func (mr *MockRuntimeServiceClientMockRecorder) UpdateRuntimeConfig(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRuntimeConfig", reflect.TypeOf((*MockRuntimeServiceClient)(nil).UpdateRuntimeConfig), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Version mocks base method.
 func (m *MockRuntimeServiceClient) Version(ctx context.Context, in *v1.VersionRequest, opts ...grpc.CallOption) (*v1.VersionResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Version", varargs...)
-	ret0, _ := ret[0].(*v1.VersionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Version indicates an expected call of Version.
 func (mr *MockRuntimeServiceClientMockRecorder) Version(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Version", reflect.TypeOf((*MockRuntimeServiceClient)(nil).Version), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockRuntimeServiceServer is a mock of RuntimeServiceServer interface.
@@ -673,475 +433,387 @@ type MockRuntimeServiceServerMockRecorder struct {
 
 // NewMockRuntimeServiceServer creates a new mock instance.
 func NewMockRuntimeServiceServer(ctrl *gomock.Controller) *MockRuntimeServiceServer {
-	mock := &MockRuntimeServiceServer{ctrl: ctrl}
-	mock.recorder = &MockRuntimeServiceServerMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRuntimeServiceServer) EXPECT() *MockRuntimeServiceServerMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Attach mocks base method.
+	return nil
 }
 
-// Attach mocks base method.
 func (m *MockRuntimeServiceServer) Attach(arg0 context.Context, arg1 *v1.AttachRequest) (*v1.AttachResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Attach", arg0, arg1)
-	ret0, _ := ret[0].(*v1.AttachResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Attach indicates an expected call of Attach.
 func (mr *MockRuntimeServiceServerMockRecorder) Attach(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Attach", reflect.TypeOf((*MockRuntimeServiceServer)(nil).Attach), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CheckpointContainer mocks base method.
 func (m *MockRuntimeServiceServer) CheckpointContainer(arg0 context.Context, arg1 *v1.CheckpointContainerRequest) (*v1.CheckpointContainerResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckpointContainer", arg0, arg1)
-	ret0, _ := ret[0].(*v1.CheckpointContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CheckpointContainer indicates an expected call of CheckpointContainer.
 func (mr *MockRuntimeServiceServerMockRecorder) CheckpointContainer(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckpointContainer", reflect.TypeOf((*MockRuntimeServiceServer)(nil).CheckpointContainer), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ContainerStats mocks base method.
 func (m *MockRuntimeServiceServer) ContainerStats(arg0 context.Context, arg1 *v1.ContainerStatsRequest) (*v1.ContainerStatsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerStats", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ContainerStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ContainerStats indicates an expected call of ContainerStats.
 func (mr *MockRuntimeServiceServerMockRecorder) ContainerStats(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStats", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ContainerStats), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ContainerStatus mocks base method.
 func (m *MockRuntimeServiceServer) ContainerStatus(arg0 context.Context, arg1 *v1.ContainerStatusRequest) (*v1.ContainerStatusResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ContainerStatus", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ContainerStatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ContainerStatus indicates an expected call of ContainerStatus.
 func (mr *MockRuntimeServiceServerMockRecorder) ContainerStatus(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerStatus", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ContainerStatus), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CreateContainer mocks base method.
 func (m *MockRuntimeServiceServer) CreateContainer(arg0 context.Context, arg1 *v1.CreateContainerRequest) (*v1.CreateContainerResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateContainer", arg0, arg1)
-	ret0, _ := ret[0].(*v1.CreateContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CreateContainer indicates an expected call of CreateContainer.
 func (mr *MockRuntimeServiceServerMockRecorder) CreateContainer(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateContainer", reflect.TypeOf((*MockRuntimeServiceServer)(nil).CreateContainer), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Exec mocks base method.
 func (m *MockRuntimeServiceServer) Exec(arg0 context.Context, arg1 *v1.ExecRequest) (*v1.ExecResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exec", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ExecResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Exec indicates an expected call of Exec.
 func (mr *MockRuntimeServiceServerMockRecorder) Exec(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockRuntimeServiceServer)(nil).Exec), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ExecSync mocks base method.
 func (m *MockRuntimeServiceServer) ExecSync(arg0 context.Context, arg1 *v1.ExecSyncRequest) (*v1.ExecSyncResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExecSync", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ExecSyncResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ExecSync indicates an expected call of ExecSync.
 func (mr *MockRuntimeServiceServerMockRecorder) ExecSync(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecSync", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ExecSync), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetContainerEvents mocks base method.
 func (m *MockRuntimeServiceServer) GetContainerEvents(arg0 *v1.GetEventsRequest, arg1 grpc.ServerStreamingServer[v1.ContainerEventResponse]) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetContainerEvents", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetContainerEvents indicates an expected call of GetContainerEvents.
 func (mr *MockRuntimeServiceServerMockRecorder) GetContainerEvents(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContainerEvents", reflect.TypeOf((*MockRuntimeServiceServer)(nil).GetContainerEvents), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListContainerStats mocks base method.
 func (m *MockRuntimeServiceServer) ListContainerStats(arg0 context.Context, arg1 *v1.ListContainerStatsRequest) (*v1.ListContainerStatsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListContainerStats", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListContainerStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListContainerStats indicates an expected call of ListContainerStats.
 func (mr *MockRuntimeServiceServerMockRecorder) ListContainerStats(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListContainerStats", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ListContainerStats), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListContainers mocks base method.
 func (m *MockRuntimeServiceServer) ListContainers(arg0 context.Context, arg1 *v1.ListContainersRequest) (*v1.ListContainersResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListContainers", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListContainersResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListContainers indicates an expected call of ListContainers.
 func (mr *MockRuntimeServiceServerMockRecorder) ListContainers(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListContainers", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ListContainers), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListMetricDescriptors mocks base method.
 func (m *MockRuntimeServiceServer) ListMetricDescriptors(arg0 context.Context, arg1 *v1.ListMetricDescriptorsRequest) (*v1.ListMetricDescriptorsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListMetricDescriptors", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListMetricDescriptorsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListMetricDescriptors indicates an expected call of ListMetricDescriptors.
 func (mr *MockRuntimeServiceServerMockRecorder) ListMetricDescriptors(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMetricDescriptors", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ListMetricDescriptors), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListPodSandbox mocks base method.
 func (m *MockRuntimeServiceServer) ListPodSandbox(arg0 context.Context, arg1 *v1.ListPodSandboxRequest) (*v1.ListPodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPodSandbox", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListPodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListPodSandbox indicates an expected call of ListPodSandbox.
 func (mr *MockRuntimeServiceServerMockRecorder) ListPodSandbox(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPodSandbox", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ListPodSandbox), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListPodSandboxMetrics mocks base method.
 func (m *MockRuntimeServiceServer) ListPodSandboxMetrics(arg0 context.Context, arg1 *v1.ListPodSandboxMetricsRequest) (*v1.ListPodSandboxMetricsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPodSandboxMetrics", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListPodSandboxMetricsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListPodSandboxMetrics indicates an expected call of ListPodSandboxMetrics.
 func (mr *MockRuntimeServiceServerMockRecorder) ListPodSandboxMetrics(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPodSandboxMetrics", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ListPodSandboxMetrics), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListPodSandboxStats mocks base method.
 func (m *MockRuntimeServiceServer) ListPodSandboxStats(arg0 context.Context, arg1 *v1.ListPodSandboxStatsRequest) (*v1.ListPodSandboxStatsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPodSandboxStats", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListPodSandboxStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListPodSandboxStats indicates an expected call of ListPodSandboxStats.
 func (mr *MockRuntimeServiceServerMockRecorder) ListPodSandboxStats(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPodSandboxStats", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ListPodSandboxStats), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PodSandboxStats mocks base method.
 func (m *MockRuntimeServiceServer) PodSandboxStats(arg0 context.Context, arg1 *v1.PodSandboxStatsRequest) (*v1.PodSandboxStatsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PodSandboxStats", arg0, arg1)
-	ret0, _ := ret[0].(*v1.PodSandboxStatsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PodSandboxStats indicates an expected call of PodSandboxStats.
 func (mr *MockRuntimeServiceServerMockRecorder) PodSandboxStats(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PodSandboxStats", reflect.TypeOf((*MockRuntimeServiceServer)(nil).PodSandboxStats), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PodSandboxStatus mocks base method.
 func (m *MockRuntimeServiceServer) PodSandboxStatus(arg0 context.Context, arg1 *v1.PodSandboxStatusRequest) (*v1.PodSandboxStatusResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PodSandboxStatus", arg0, arg1)
-	ret0, _ := ret[0].(*v1.PodSandboxStatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PodSandboxStatus indicates an expected call of PodSandboxStatus.
 func (mr *MockRuntimeServiceServerMockRecorder) PodSandboxStatus(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PodSandboxStatus", reflect.TypeOf((*MockRuntimeServiceServer)(nil).PodSandboxStatus), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PortForward mocks base method.
 func (m *MockRuntimeServiceServer) PortForward(arg0 context.Context, arg1 *v1.PortForwardRequest) (*v1.PortForwardResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PortForward", arg0, arg1)
-	ret0, _ := ret[0].(*v1.PortForwardResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PortForward indicates an expected call of PortForward.
 func (mr *MockRuntimeServiceServerMockRecorder) PortForward(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PortForward", reflect.TypeOf((*MockRuntimeServiceServer)(nil).PortForward), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveContainer mocks base method.
 func (m *MockRuntimeServiceServer) RemoveContainer(arg0 context.Context, arg1 *v1.RemoveContainerRequest) (*v1.RemoveContainerResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveContainer", arg0, arg1)
-	ret0, _ := ret[0].(*v1.RemoveContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemoveContainer indicates an expected call of RemoveContainer.
 func (mr *MockRuntimeServiceServerMockRecorder) RemoveContainer(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveContainer", reflect.TypeOf((*MockRuntimeServiceServer)(nil).RemoveContainer), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemovePodSandbox mocks base method.
 func (m *MockRuntimeServiceServer) RemovePodSandbox(arg0 context.Context, arg1 *v1.RemovePodSandboxRequest) (*v1.RemovePodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemovePodSandbox", arg0, arg1)
-	ret0, _ := ret[0].(*v1.RemovePodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemovePodSandbox indicates an expected call of RemovePodSandbox.
 func (mr *MockRuntimeServiceServerMockRecorder) RemovePodSandbox(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemovePodSandbox", reflect.TypeOf((*MockRuntimeServiceServer)(nil).RemovePodSandbox), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ReopenContainerLog mocks base method.
 func (m *MockRuntimeServiceServer) ReopenContainerLog(arg0 context.Context, arg1 *v1.ReopenContainerLogRequest) (*v1.ReopenContainerLogResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReopenContainerLog", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ReopenContainerLogResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ReopenContainerLog indicates an expected call of ReopenContainerLog.
 func (mr *MockRuntimeServiceServerMockRecorder) ReopenContainerLog(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReopenContainerLog", reflect.TypeOf((*MockRuntimeServiceServer)(nil).ReopenContainerLog), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunPodSandbox mocks base method.
 func (m *MockRuntimeServiceServer) RunPodSandbox(arg0 context.Context, arg1 *v1.RunPodSandboxRequest) (*v1.RunPodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RunPodSandbox", arg0, arg1)
-	ret0, _ := ret[0].(*v1.RunPodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunPodSandbox indicates an expected call of RunPodSandbox.
 func (mr *MockRuntimeServiceServerMockRecorder) RunPodSandbox(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunPodSandbox", reflect.TypeOf((*MockRuntimeServiceServer)(nil).RunPodSandbox), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RuntimeConfig mocks base method.
 func (m *MockRuntimeServiceServer) RuntimeConfig(arg0 context.Context, arg1 *v1.RuntimeConfigRequest) (*v1.RuntimeConfigResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RuntimeConfig", arg0, arg1)
-	ret0, _ := ret[0].(*v1.RuntimeConfigResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RuntimeConfig indicates an expected call of RuntimeConfig.
 func (mr *MockRuntimeServiceServerMockRecorder) RuntimeConfig(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RuntimeConfig", reflect.TypeOf((*MockRuntimeServiceServer)(nil).RuntimeConfig), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StartContainer mocks base method.
 func (m *MockRuntimeServiceServer) StartContainer(arg0 context.Context, arg1 *v1.StartContainerRequest) (*v1.StartContainerResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StartContainer", arg0, arg1)
-	ret0, _ := ret[0].(*v1.StartContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StartContainer indicates an expected call of StartContainer.
 func (mr *MockRuntimeServiceServerMockRecorder) StartContainer(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartContainer", reflect.TypeOf((*MockRuntimeServiceServer)(nil).StartContainer), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Status mocks base method.
 func (m *MockRuntimeServiceServer) Status(arg0 context.Context, arg1 *v1.StatusRequest) (*v1.StatusResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Status", arg0, arg1)
-	ret0, _ := ret[0].(*v1.StatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Status indicates an expected call of Status.
 func (mr *MockRuntimeServiceServerMockRecorder) Status(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockRuntimeServiceServer)(nil).Status), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StopContainer mocks base method.
 func (m *MockRuntimeServiceServer) StopContainer(arg0 context.Context, arg1 *v1.StopContainerRequest) (*v1.StopContainerResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StopContainer", arg0, arg1)
-	ret0, _ := ret[0].(*v1.StopContainerResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StopContainer indicates an expected call of StopContainer.
 func (mr *MockRuntimeServiceServerMockRecorder) StopContainer(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopContainer", reflect.TypeOf((*MockRuntimeServiceServer)(nil).StopContainer), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // StopPodSandbox mocks base method.
 func (m *MockRuntimeServiceServer) StopPodSandbox(arg0 context.Context, arg1 *v1.StopPodSandboxRequest) (*v1.StopPodSandboxResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StopPodSandbox", arg0, arg1)
-	ret0, _ := ret[0].(*v1.StopPodSandboxResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // StopPodSandbox indicates an expected call of StopPodSandbox.
 func (mr *MockRuntimeServiceServerMockRecorder) StopPodSandbox(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopPodSandbox", reflect.TypeOf((*MockRuntimeServiceServer)(nil).StopPodSandbox), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateContainerResources mocks base method.
 func (m *MockRuntimeServiceServer) UpdateContainerResources(arg0 context.Context, arg1 *v1.UpdateContainerResourcesRequest) (*v1.UpdateContainerResourcesResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateContainerResources", arg0, arg1)
-	ret0, _ := ret[0].(*v1.UpdateContainerResourcesResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateContainerResources indicates an expected call of UpdateContainerResources.
 func (mr *MockRuntimeServiceServerMockRecorder) UpdateContainerResources(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContainerResources", reflect.TypeOf((*MockRuntimeServiceServer)(nil).UpdateContainerResources), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdatePodSandboxResources mocks base method.
 func (m *MockRuntimeServiceServer) UpdatePodSandboxResources(arg0 context.Context, arg1 *v1.UpdatePodSandboxResourcesRequest) (*v1.UpdatePodSandboxResourcesResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePodSandboxResources", arg0, arg1)
-	ret0, _ := ret[0].(*v1.UpdatePodSandboxResourcesResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdatePodSandboxResources indicates an expected call of UpdatePodSandboxResources.
 func (mr *MockRuntimeServiceServerMockRecorder) UpdatePodSandboxResources(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePodSandboxResources", reflect.TypeOf((*MockRuntimeServiceServer)(nil).UpdatePodSandboxResources), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateRuntimeConfig mocks base method.
 func (m *MockRuntimeServiceServer) UpdateRuntimeConfig(arg0 context.Context, arg1 *v1.UpdateRuntimeConfigRequest) (*v1.UpdateRuntimeConfigResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateRuntimeConfig", arg0, arg1)
-	ret0, _ := ret[0].(*v1.UpdateRuntimeConfigResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateRuntimeConfig indicates an expected call of UpdateRuntimeConfig.
 func (mr *MockRuntimeServiceServerMockRecorder) UpdateRuntimeConfig(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRuntimeConfig", reflect.TypeOf((*MockRuntimeServiceServer)(nil).UpdateRuntimeConfig), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Version mocks base method.
 func (m *MockRuntimeServiceServer) Version(arg0 context.Context, arg1 *v1.VersionRequest) (*v1.VersionResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Version", arg0, arg1)
-	ret0, _ := ret[0].(*v1.VersionResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Version indicates an expected call of Version.
 func (mr *MockRuntimeServiceServerMockRecorder) Version(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Version", reflect.TypeOf((*MockRuntimeServiceServer)(nil).Version), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // mustEmbedUnimplementedRuntimeServiceServer mocks base method.
 func (m *MockRuntimeServiceServer) mustEmbedUnimplementedRuntimeServiceServer() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "mustEmbedUnimplementedRuntimeServiceServer")
+	_ = "STUB: not implemented"
+	return
 }
 
 // mustEmbedUnimplementedRuntimeServiceServer indicates an expected call of mustEmbedUnimplementedRuntimeServiceServer.
 func (mr *MockRuntimeServiceServerMockRecorder) mustEmbedUnimplementedRuntimeServiceServer() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "mustEmbedUnimplementedRuntimeServiceServer", reflect.TypeOf((*MockRuntimeServiceServer)(nil).mustEmbedUnimplementedRuntimeServiceServer))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockUnsafeRuntimeServiceServer is a mock of UnsafeRuntimeServiceServer interface.
@@ -1158,26 +830,27 @@ type MockUnsafeRuntimeServiceServerMockRecorder struct {
 
 // NewMockUnsafeRuntimeServiceServer creates a new mock instance.
 func NewMockUnsafeRuntimeServiceServer(ctrl *gomock.Controller) *MockUnsafeRuntimeServiceServer {
-	mock := &MockUnsafeRuntimeServiceServer{ctrl: ctrl}
-	mock.recorder = &MockUnsafeRuntimeServiceServerMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUnsafeRuntimeServiceServer) EXPECT() *MockUnsafeRuntimeServiceServerMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// mustEmbedUnimplementedRuntimeServiceServer mocks base method.
+	return nil
 }
 
-// mustEmbedUnimplementedRuntimeServiceServer mocks base method.
 func (m *MockUnsafeRuntimeServiceServer) mustEmbedUnimplementedRuntimeServiceServer() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "mustEmbedUnimplementedRuntimeServiceServer")
+	_ = "STUB: not implemented"
+	return
 }
 
 // mustEmbedUnimplementedRuntimeServiceServer indicates an expected call of mustEmbedUnimplementedRuntimeServiceServer.
 func (mr *MockUnsafeRuntimeServiceServerMockRecorder) mustEmbedUnimplementedRuntimeServiceServer() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "mustEmbedUnimplementedRuntimeServiceServer", reflect.TypeOf((*MockUnsafeRuntimeServiceServer)(nil).mustEmbedUnimplementedRuntimeServiceServer))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockImageServiceClient is a mock of ImageServiceClient interface.
@@ -1194,114 +867,75 @@ type MockImageServiceClientMockRecorder struct {
 
 // NewMockImageServiceClient creates a new mock instance.
 func NewMockImageServiceClient(ctrl *gomock.Controller) *MockImageServiceClient {
-	mock := &MockImageServiceClient{ctrl: ctrl}
-	mock.recorder = &MockImageServiceClientMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockImageServiceClient) EXPECT() *MockImageServiceClientMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// ImageFsInfo mocks base method.
+	return nil
 }
 
-// ImageFsInfo mocks base method.
 func (m *MockImageServiceClient) ImageFsInfo(ctx context.Context, in *v1.ImageFsInfoRequest, opts ...grpc.CallOption) (*v1.ImageFsInfoResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ImageFsInfo", varargs...)
-	ret0, _ := ret[0].(*v1.ImageFsInfoResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ImageFsInfo indicates an expected call of ImageFsInfo.
 func (mr *MockImageServiceClientMockRecorder) ImageFsInfo(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageFsInfo", reflect.TypeOf((*MockImageServiceClient)(nil).ImageFsInfo), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ImageStatus mocks base method.
 func (m *MockImageServiceClient) ImageStatus(ctx context.Context, in *v1.ImageStatusRequest, opts ...grpc.CallOption) (*v1.ImageStatusResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ImageStatus", varargs...)
-	ret0, _ := ret[0].(*v1.ImageStatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ImageStatus indicates an expected call of ImageStatus.
 func (mr *MockImageServiceClientMockRecorder) ImageStatus(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageStatus", reflect.TypeOf((*MockImageServiceClient)(nil).ImageStatus), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListImages mocks base method.
 func (m *MockImageServiceClient) ListImages(ctx context.Context, in *v1.ListImagesRequest, opts ...grpc.CallOption) (*v1.ListImagesResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListImages", varargs...)
-	ret0, _ := ret[0].(*v1.ListImagesResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListImages indicates an expected call of ListImages.
 func (mr *MockImageServiceClientMockRecorder) ListImages(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImages", reflect.TypeOf((*MockImageServiceClient)(nil).ListImages), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PullImage mocks base method.
 func (m *MockImageServiceClient) PullImage(ctx context.Context, in *v1.PullImageRequest, opts ...grpc.CallOption) (*v1.PullImageResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "PullImage", varargs...)
-	ret0, _ := ret[0].(*v1.PullImageResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PullImage indicates an expected call of PullImage.
 func (mr *MockImageServiceClientMockRecorder) PullImage(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PullImage", reflect.TypeOf((*MockImageServiceClient)(nil).PullImage), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveImage mocks base method.
 func (m *MockImageServiceClient) RemoveImage(ctx context.Context, in *v1.RemoveImageRequest, opts ...grpc.CallOption) (*v1.RemoveImageResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "RemoveImage", varargs...)
-	ret0, _ := ret[0].(*v1.RemoveImageResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemoveImage indicates an expected call of RemoveImage.
 func (mr *MockImageServiceClientMockRecorder) RemoveImage(ctx, in any, opts ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveImage", reflect.TypeOf((*MockImageServiceClient)(nil).RemoveImage), varargs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockImageServiceServer is a mock of ImageServiceServer interface.
@@ -1318,101 +952,87 @@ type MockImageServiceServerMockRecorder struct {
 
 // NewMockImageServiceServer creates a new mock instance.
 func NewMockImageServiceServer(ctrl *gomock.Controller) *MockImageServiceServer {
-	mock := &MockImageServiceServer{ctrl: ctrl}
-	mock.recorder = &MockImageServiceServerMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockImageServiceServer) EXPECT() *MockImageServiceServerMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// ImageFsInfo mocks base method.
+	return nil
 }
 
-// ImageFsInfo mocks base method.
 func (m *MockImageServiceServer) ImageFsInfo(arg0 context.Context, arg1 *v1.ImageFsInfoRequest) (*v1.ImageFsInfoResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ImageFsInfo", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ImageFsInfoResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ImageFsInfo indicates an expected call of ImageFsInfo.
 func (mr *MockImageServiceServerMockRecorder) ImageFsInfo(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageFsInfo", reflect.TypeOf((*MockImageServiceServer)(nil).ImageFsInfo), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ImageStatus mocks base method.
 func (m *MockImageServiceServer) ImageStatus(arg0 context.Context, arg1 *v1.ImageStatusRequest) (*v1.ImageStatusResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ImageStatus", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ImageStatusResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ImageStatus indicates an expected call of ImageStatus.
 func (mr *MockImageServiceServerMockRecorder) ImageStatus(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ImageStatus", reflect.TypeOf((*MockImageServiceServer)(nil).ImageStatus), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ListImages mocks base method.
 func (m *MockImageServiceServer) ListImages(arg0 context.Context, arg1 *v1.ListImagesRequest) (*v1.ListImagesResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListImages", arg0, arg1)
-	ret0, _ := ret[0].(*v1.ListImagesResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ListImages indicates an expected call of ListImages.
 func (mr *MockImageServiceServerMockRecorder) ListImages(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListImages", reflect.TypeOf((*MockImageServiceServer)(nil).ListImages), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // PullImage mocks base method.
 func (m *MockImageServiceServer) PullImage(arg0 context.Context, arg1 *v1.PullImageRequest) (*v1.PullImageResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PullImage", arg0, arg1)
-	ret0, _ := ret[0].(*v1.PullImageResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PullImage indicates an expected call of PullImage.
 func (mr *MockImageServiceServerMockRecorder) PullImage(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PullImage", reflect.TypeOf((*MockImageServiceServer)(nil).PullImage), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveImage mocks base method.
 func (m *MockImageServiceServer) RemoveImage(arg0 context.Context, arg1 *v1.RemoveImageRequest) (*v1.RemoveImageResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveImage", arg0, arg1)
-	ret0, _ := ret[0].(*v1.RemoveImageResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemoveImage indicates an expected call of RemoveImage.
 func (mr *MockImageServiceServerMockRecorder) RemoveImage(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveImage", reflect.TypeOf((*MockImageServiceServer)(nil).RemoveImage), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // mustEmbedUnimplementedImageServiceServer mocks base method.
 func (m *MockImageServiceServer) mustEmbedUnimplementedImageServiceServer() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "mustEmbedUnimplementedImageServiceServer")
+	_ = "STUB: not implemented"
+	return
 }
 
 // mustEmbedUnimplementedImageServiceServer indicates an expected call of mustEmbedUnimplementedImageServiceServer.
 func (mr *MockImageServiceServerMockRecorder) mustEmbedUnimplementedImageServiceServer() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "mustEmbedUnimplementedImageServiceServer", reflect.TypeOf((*MockImageServiceServer)(nil).mustEmbedUnimplementedImageServiceServer))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockUnsafeImageServiceServer is a mock of UnsafeImageServiceServer interface.
@@ -1429,24 +1049,25 @@ type MockUnsafeImageServiceServerMockRecorder struct {
 
 // NewMockUnsafeImageServiceServer creates a new mock instance.
 func NewMockUnsafeImageServiceServer(ctrl *gomock.Controller) *MockUnsafeImageServiceServer {
-	mock := &MockUnsafeImageServiceServer{ctrl: ctrl}
-	mock.recorder = &MockUnsafeImageServiceServerMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUnsafeImageServiceServer) EXPECT() *MockUnsafeImageServiceServerMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// mustEmbedUnimplementedImageServiceServer mocks base method.
+	return nil
 }
 
-// mustEmbedUnimplementedImageServiceServer mocks base method.
 func (m *MockUnsafeImageServiceServer) mustEmbedUnimplementedImageServiceServer() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "mustEmbedUnimplementedImageServiceServer")
+	_ = "STUB: not implemented"
+	return
 }
 
 // mustEmbedUnimplementedImageServiceServer indicates an expected call of mustEmbedUnimplementedImageServiceServer.
 func (mr *MockUnsafeImageServiceServerMockRecorder) mustEmbedUnimplementedImageServiceServer() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "mustEmbedUnimplementedImageServiceServer", reflect.TypeOf((*MockUnsafeImageServiceServer)(nil).mustEmbedUnimplementedImageServiceServer))
+	_ = "STUB: not implemented"
+	return nil
 }

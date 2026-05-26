@@ -17,8 +17,6 @@ limitations under the License.
 package nodenumaresource
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/services"
@@ -37,66 +35,9 @@ type NodeResponse struct {
 	AllocatedPods              []PodAllocation    `json:"allocatedPods"`
 }
 
-func (p *Plugin) RegisterEndpoints(group *gin.RouterGroup) {
-	group.GET("/nodes/:nodeName", func(c *gin.Context) {
-		nodeName := c.Param("nodeName")
-		nodeLister := p.handle.SharedInformerFactory().Core().V1().Nodes().Lister()
-		node, err := nodeLister.Get(nodeName)
-		if err != nil {
-			services.ResponseErrorMessage(c, http.StatusInternalServerError, "%s", err.Error())
-			return
-		}
-
-		topologyOptions := p.topologyOptionsManager.GetTopologyOptions(nodeName)
-		if !topologyOptions.CPUTopology.IsValid() {
-			services.ResponseErrorMessage(c, http.StatusInternalServerError, "invalid topology, please check the NodeResourceTopology object")
-			return
-		}
-		topologyOptions.NUMATopologyPolicy = getNUMATopologyPolicy(node.Labels, topologyOptions.NUMATopologyPolicy)
-		if err := amplifyNUMANodeResources(node, &topologyOptions); err != nil {
-			services.ResponseErrorMessage(c, http.StatusInternalServerError, "failed to amplify NUMANode Resources, err: %v", err)
-			return
-		}
-
-		nodeAllocation := p.resourceManager.GetNodeAllocation(nodeName)
-		if nodeAllocation == nil {
-			services.ResponseErrorMessage(c, http.StatusNotFound, "cannot find target node")
-			return
-		}
-		resp := dumpNodeAllocation(nodeAllocation, topologyOptions)
-		c.JSON(http.StatusOK, resp)
-	})
-}
+func (p *Plugin) RegisterEndpoints(group *gin.RouterGroup) { _ = "STUB: not implemented"; return }
 
 func dumpNodeAllocation(nodeAllocation *NodeAllocation, topologyOptions TopologyOptions) *NodeResponse {
-	resp := &NodeResponse{
-		Name:            nodeAllocation.nodeName,
-		TopologyOptions: topologyOptions,
-	}
-
-	nodeAllocation.lock.RLock()
-	defer nodeAllocation.lock.RUnlock()
-	if len(nodeAllocation.allocatedPods) != 0 {
-		podAllocations := make([]PodAllocation, 0, len(nodeAllocation.allocatedPods))
-		for _, v := range nodeAllocation.allocatedPods {
-			podAllocations = append(podAllocations, v)
-		}
-		resp.AllocatedPods = podAllocations
-	}
-	resp.AvailableCPUs, resp.AllocatedCPUs = nodeAllocation.getAvailableCPUs(topologyOptions.CPUTopology, topologyOptions.MaxRefCount, topologyOptions.ReservedCPUs, cpuset.CPUSet{})
-	availableResources, allocatedResource := nodeAllocation.getAvailableNUMANodeResources(topologyOptions, nil)
-	for nodeID, v := range availableResources {
-		resp.RemainingNUMANodeResources = append(resp.RemainingNUMANodeResources, NUMANodeResource{
-			Node:      nodeID,
-			Resources: v.DeepCopy(),
-		})
-	}
-	for nodeID, v := range allocatedResource {
-		resp.AllocatedNUMANodeResources = append(resp.AllocatedNUMANodeResources, NUMANodeResource{
-			Node:      nodeID,
-			Resources: v.DeepCopy(),
-		})
-	}
-
-	return resp
+	_ = "STUB: not implemented"
+	return nil
 }

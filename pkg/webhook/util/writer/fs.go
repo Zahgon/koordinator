@@ -17,13 +17,6 @@ limitations under the License.
 package writer
 
 import (
-	"errors"
-	"fmt"
-	"os"
-	"path"
-
-	"k8s.io/klog/v2"
-
 	"github.com/koordinator-sh/koordinator/pkg/webhook/util/generator"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/util/writer/atomic"
 )
@@ -50,180 +43,62 @@ type FSCertWriterOptions struct {
 
 var _ CertWriter = &fsCertWriter{}
 
-func (ops *FSCertWriterOptions) setDefaults() {
-	if ops.CertGenerator == nil {
-		ops.CertGenerator = &generator.SelfSignedCertGenerator{}
-	}
-}
+func (ops *FSCertWriterOptions) setDefaults() { _ = "STUB: not implemented"; return }
 
-func (ops *FSCertWriterOptions) validate() error {
-	if len(ops.Path) == 0 {
-		return errors.New("path must be set in FSCertWriterOptions")
-	}
-	return nil
-}
+func (ops *FSCertWriterOptions) validate() error { _ = "STUB: not implemented"; return nil }
 
 // NewFSCertWriter constructs a CertWriter that persists the certificate on filesystem.
 func NewFSCertWriter(ops FSCertWriterOptions) (CertWriter, error) {
-	ops.setDefaults()
-	err := ops.validate()
-	if err != nil {
-		return nil, err
-	}
-	return &fsCertWriter{
-		FSCertWriterOptions: &ops,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(CertWriter), nil
 }
 
 // EnsureCert provisions certificates for a webhookClientConfig by writing the certificates in the filesystem.
 func (f *fsCertWriter) EnsureCert(dnsName string) (*generator.Artifacts, bool, error) {
+	_ = "STUB: not implemented"
 	// create or refresh cert and write it to fs
-	f.dnsName = dnsName
-	return handleCommon(f.dnsName, f)
+	return nil, false, nil
 }
 
 func (f *fsCertWriter) write() (*generator.Artifacts, error) {
-	return f.doWrite()
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (f *fsCertWriter) overwrite(_ string) (*generator.Artifacts, error) {
-	return f.doWrite()
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (f *fsCertWriter) doWrite() (*generator.Artifacts, error) {
-	certs, err := f.CertGenerator.Generate(f.dnsName)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = WriteCertsToDir(f.Path, certs); err != nil {
-		return nil, err
-	}
-	return certs, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func WriteCertsToDir(path string, certs *generator.Artifacts) error {
+	_ = "STUB: not implemented"
 	// Writer's algorithm only manages files using symbolic link.
 	// If a file is not a symbolic link, will ignore the update for it.
 	// We want to cleanup for Writer by removing old files that are not symbolic links.
-	err := prepareToWrite(path)
-	if err != nil {
-		return err
-	}
-
-	aw, err := atomic.NewAtomicWriter(path)
-	if err != nil {
-		return err
-	}
-	return aw.Write(certToProjectionMap(certs))
+	return nil
 }
 
 // prepareToWrite ensures it directory is compatible with the atomic.Writer library.
-func prepareToWrite(dir string) error {
-	_, err := os.Stat(dir)
-	switch {
-	case os.IsNotExist(err):
-		klog.Info("cert directory doesn't exist, creating", "directory", dir)
-		// TODO: figure out if we can reduce the permission. (Now it's 0777)
-		err = os.MkdirAll(dir, 0777)
-		if err != nil {
-			return fmt.Errorf("can't create dir: %v", dir)
-		}
-	case err != nil:
-		return err
-	}
+func prepareToWrite(dir string) error { _ = "STUB: not implemented"; return nil }
 
-	filenames := []string{CAKeyName, CACertName, ServerCertName, ServerCertName2, ServerKeyName, ServerKeyName2}
-	for _, f := range filenames {
-		abspath := path.Join(dir, f)
-		_, err := os.Stat(abspath)
-		if os.IsNotExist(err) {
-			continue
-		} else if err != nil {
-			klog.Error(err, "unable to stat file", "file", abspath)
-		}
-		_, err = os.Readlink(abspath)
-		// if it's not a symbolic link
-		if err != nil {
-			err = os.Remove(abspath)
-			if err != nil {
-				klog.Error(err, "unable to remove old file", "file", abspath)
-			}
-		}
-	}
-	return nil
-}
+// TODO: figure out if we can reduce the permission. (Now it's 0777)
+
+// if it's not a symbolic link
 
 func (f *fsCertWriter) read() (*generator.Artifacts, error) {
-	if err := ensureExist(f.Path); err != nil {
-		return nil, err
-	}
-	caKeyBytes, err := os.ReadFile(path.Join(f.Path, CAKeyName))
-	if err != nil {
-		return nil, err
-	}
-	caCertBytes, err := os.ReadFile(path.Join(f.Path, CACertName))
-	if err != nil {
-		return nil, err
-	}
-	certBytes, err := os.ReadFile(path.Join(f.Path, ServerCertName))
-	if err != nil {
-		return nil, err
-	}
-	keyBytes, err := os.ReadFile(path.Join(f.Path, ServerKeyName))
-	if err != nil {
-		return nil, err
-	}
-	return &generator.Artifacts{
-		CAKey:  caKeyBytes,
-		CACert: caCertBytes,
-		Cert:   certBytes,
-		Key:    keyBytes,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func ensureExist(dir string) error {
-	filenames := []string{CAKeyName, CACertName, ServerCertName, ServerCertName2, ServerKeyName, ServerKeyName2}
-	for _, filename := range filenames {
-		_, err := os.Stat(path.Join(dir, filename))
-		switch {
-		case err == nil:
-			continue
-		case os.IsNotExist(err):
-			return notFoundError{err}
-		default:
-			return err
-		}
-	}
-	return nil
-}
+func ensureExist(dir string) error { _ = "STUB: not implemented"; return nil }
 
 func certToProjectionMap(cert *generator.Artifacts) map[string]atomic.FileProjection {
+	_ = "STUB: not implemented"
 	// TODO: figure out if we can reduce the permission. (Now it's 0666)
-	return map[string]atomic.FileProjection{
-		CAKeyName: {
-			Data: cert.CAKey,
-			Mode: 0666,
-		},
-		CACertName: {
-			Data: cert.CACert,
-			Mode: 0666,
-		},
-		ServerCertName: {
-			Data: cert.Cert,
-			Mode: 0666,
-		},
-		ServerCertName2: {
-			Data: cert.Cert,
-			Mode: 0666,
-		},
-		ServerKeyName: {
-			Data: cert.Key,
-			Mode: 0666,
-		},
-		ServerKeyName2: {
-			Data: cert.Key,
-			Mode: 0666,
-		},
-	}
+	return nil
 }

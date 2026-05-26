@@ -19,11 +19,8 @@ package protocol
 import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/record"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util"
 )
 
 type KubeQOSRequet struct {
@@ -32,8 +29,8 @@ type KubeQOSRequet struct {
 }
 
 func (r *KubeQOSRequet) FromReconciler(kubeQOS corev1.PodQOSClass) {
-	r.KubeQOSClass = kubeQOS
-	r.CgroupParent = util.GetPodQoSRelativePath(kubeQOS)
+	_ = "STUB: not implemented"
+	return
 }
 
 type KubeQOSResponse struct {
@@ -48,65 +45,38 @@ type KubeQOSContext struct {
 }
 
 func (k *KubeQOSContext) RecordEvent(r record.EventRecorder, pod *corev1.Pod) {
+	_ = "STUB: not implemented"
 	//TODO: Don't record pods by QoS
+	return
 }
 
 func (k *KubeQOSContext) FromReconciler(kubeQOS corev1.PodQOSClass) {
-	k.Request.FromReconciler(kubeQOS)
+	_ = "STUB: not implemented"
+	return
 }
 
 // ReconcilerProcess generate the resource updaters but not do the update until the Update() is called.
 func (k *KubeQOSContext) ReconcilerProcess(executor resourceexecutor.ResourceUpdateExecutor) {
-	if k.executor == nil {
-		k.executor = executor
-	}
-	k.injectForOrigin()
-	k.injectForExt()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (k *KubeQOSContext) ReconcilerDone(executor resourceexecutor.ResourceUpdateExecutor) {
-	k.ReconcilerProcess(executor)
-	k.Update()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (k *KubeQOSContext) GetUpdaters() []resourceexecutor.ResourceUpdater {
-	return k.updaters
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (k *KubeQOSContext) Update() {
-	k.executor.UpdateBatch(true, k.updaters...)
-	k.updaters = nil
-}
+func (k *KubeQOSContext) Update() { _ = "STUB: not implemented"; return }
 
 func (k *KubeQOSContext) injectForOrigin() {
+	_ = "STUB: not implemented"
 	// TODO
+	return
 }
 
-func (k *KubeQOSContext) injectForExt() {
-	if k.Response.Resources.CPUBvt != nil {
-		eventHelper := audit.V(3).Group(string(k.Request.KubeQOSClass)).Reason("runtime-hooks").Message(
-			"set kubeqos bvt to %v", *k.Response.Resources.CPUBvt)
-		updater, err := injectCPUBvt(k.Request.CgroupParent, *k.Response.Resources.CPUBvt, eventHelper, k.executor)
-		if err != nil {
-			klog.Infof("set kubeqos %v bvt %v on cgroup parent %v failed, error %v", k.Request.KubeQOSClass,
-				*k.Response.Resources.CPUBvt, k.Request.CgroupParent, err)
-		} else {
-			k.updaters = append(k.updaters, updater)
-			klog.V(5).Infof("set kubeqos %v bvt %v on cgroup parent %v", k.Request.KubeQOSClass,
-				*k.Response.Resources.CPUBvt, k.Request.CgroupParent)
-		}
-	}
-	if k.Response.Resources.CPUIdle != nil {
-		eventHelper := audit.V(3).Group(string(k.Request.KubeQOSClass)).Reason("runtime-hooks").Message(
-			"set kubeqos idle to %v", *k.Response.Resources.CPUIdle)
-		updater, err := injectCPUIdle(k.Request.CgroupParent, *k.Response.Resources.CPUIdle, eventHelper, k.executor)
-		if err != nil {
-			klog.Infof("set kubeqos %v idle %v on cgroup parent %v failed, error %v", k.Request.KubeQOSClass,
-				*k.Response.Resources.CPUIdle, k.Request.CgroupParent, err)
-		} else {
-			k.updaters = append(k.updaters, updater)
-			klog.V(5).Infof("set kubeqos %v idle %v on cgroup parent %v", k.Request.KubeQOSClass,
-				*k.Response.Resources.CPUIdle, k.Request.CgroupParent)
-		}
-	}
-}
+func (k *KubeQOSContext) injectForExt() { _ = "STUB: not implemented"; return }

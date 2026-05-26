@@ -21,5 +21,6 @@ import (
 )
 
 func GetNodeAllocatable(node corev1.Node) corev1.ResourceList {
-	return node.Status.Allocatable.DeepCopy()
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList)
 }

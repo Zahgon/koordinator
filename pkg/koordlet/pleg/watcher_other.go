@@ -23,16 +23,6 @@ import (
 	"k8s.io/utils/inotify"
 )
 
-func NewWatcher() (Watcher, error) {
-	return nil, errNotSupported
-}
+func NewWatcher() (Watcher, error) { _ = "STUB: not implemented"; return *new(Watcher), nil }
 
-func TypeOf(event *inotify.Event) EventType {
-	if event.Mask&IN_CREATE != 0 && event.Mask&IN_ISDIR != 0 {
-		return DirCreated
-	}
-	if event.Mask&IN_DELETE != 0 && event.Mask&IN_ISDIR != 0 {
-		return DirRemoved
-	}
-	return UnknownType
-}
+func TypeOf(event *inotify.Event) EventType { _ = "STUB: not implemented"; return *new(EventType) }

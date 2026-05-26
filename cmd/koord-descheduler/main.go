@@ -18,15 +18,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
-
-	"github.com/spf13/pflag"
-	cliflag "k8s.io/component-base/cli/flag"
-	"k8s.io/component-base/logs"
-
-	"github.com/koordinator-sh/koordinator/cmd/koord-descheduler/app"
 
 	// Ensure metric package is initialized
 	_ "k8s.io/component-base/metrics/prometheus/clientgo"
@@ -39,21 +31,6 @@ func main() {
 	}
 }
 
-func runDeschedulerCmd() error {
-	rand.Seed(time.Now().UnixNano())
+func runDeschedulerCmd() error { _ = "STUB: not implemented"; return nil }
 
-	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
-
-	command := app.NewDeschedulerCommand()
-
-	logs.InitLogs()
-	defer logs.FlushLogs()
-
-	err := command.ParseFlags(os.Args[1:])
-	if err != nil {
-		// when fail to parse flags, return error with the usage message.
-		return fmt.Errorf("%v\n%s", err, command.UsageString())
-	}
-
-	return command.Execute()
-}
+// when fail to parse flags, return error with the usage message.

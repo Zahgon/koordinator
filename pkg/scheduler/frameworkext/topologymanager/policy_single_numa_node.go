@@ -18,11 +18,7 @@ limitations under the License.
 package topologymanager
 
 import (
-	"fmt"
-	"strings"
-
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/util/bitmask"
 )
 
 type singleNumaNodePolicy struct {
@@ -37,54 +33,27 @@ const PolicySingleNumaNode string = "single-numa-node"
 
 // NewSingleNumaNodePolicy returns single-numa-node policy.
 func NewSingleNumaNodePolicy(numaNodes []int) Policy {
-	return &singleNumaNodePolicy{numaNodes: numaNodes}
+	_ = "STUB: not implemented"
+	return *new(Policy)
 }
 
-func (p *singleNumaNodePolicy) Name() string {
-	return PolicySingleNumaNode
-}
+func (p *singleNumaNodePolicy) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (p *singleNumaNodePolicy) canAdmitPodResult(hint *NUMATopologyHint) bool {
-	return hint.Preferred
+	_ = "STUB: not implemented"
+	return false
+
+	// Return hints that have valid bitmasks with exactly one bit set.
 }
 
-// Return hints that have valid bitmasks with exactly one bit set.
 func filterSingleNumaHints(allResourcesHints [][]NUMATopologyHint) [][]NUMATopologyHint {
-	var filteredResourcesHints [][]NUMATopologyHint
-	for _, oneResourceHints := range allResourcesHints {
-		var filtered []NUMATopologyHint
-		for _, hint := range oneResourceHints {
-			if hint.NUMANodeAffinity == nil && hint.Preferred {
-				filtered = append(filtered, hint)
-			}
-			if hint.NUMANodeAffinity != nil && hint.NUMANodeAffinity.Count() == 1 && hint.Preferred {
-				filtered = append(filtered, hint)
-			}
-		}
-		filteredResourcesHints = append(filteredResourcesHints, filtered)
-	}
-	return filteredResourcesHints
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *singleNumaNodePolicy) Merge(providersHints []map[string][]NUMATopologyHint, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) (NUMATopologyHint, bool, []string) {
-	filteredHints, reasons, summary := filterProvidersHints(providersHints)
-	if len(reasons) != 0 {
-		return NUMATopologyHint{}, false, reasons
-	}
-	// Filter to only include don't care and hints with a single NUMA node.
-	singleNumaHints := filterSingleNumaHints(filteredHints)
-	bestHint := mergeFilteredHints(p.numaNodes, singleNumaHints, exclusivePolicy, allNUMANodeStatus)
-
-	defaultAffinity, _ := bitmask.NewBitMask(p.numaNodes...)
-	if bestHint.NUMANodeAffinity.IsEqual(defaultAffinity) {
-		bestHint = NUMATopologyHint{
-			Preferred: bestHint.Preferred,
-		}
-	}
-
-	admit := p.canAdmitPodResult(&bestHint)
-	if !admit {
-		return bestHint, false, []string{fmt.Sprintf(ErrNUMAHintCannotAligned, strings.Join(summary, ","))}
-	}
-	return bestHint, admit, nil
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyHint), false, nil
 }
+
+// Filter to only include don't care and hints with a single NUMA node.

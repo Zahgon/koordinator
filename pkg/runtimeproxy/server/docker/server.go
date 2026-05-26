@@ -17,26 +17,15 @@ limitations under the License.
 package docker
 
 import (
-	"bytes"
 	"context"
-	"fmt"
-	"net"
 	"net/http"
-	"net/url"
 	"regexp"
 
 	dockertypes "github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
 	dockersystem "github.com/docker/docker/api/types/system"
-	"github.com/docker/docker/client"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/apis/runtime/v1alpha1"
-	"github.com/koordinator-sh/koordinator/cmd/koord-runtime-proxy/options"
 	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/dispatcher"
-	resource_executor "github.com/koordinator-sh/koordinator/pkg/runtimeproxy/resexecutor"
-	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/server/types"
-	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/store"
 	"github.com/koordinator-sh/koordinator/pkg/util/httputil"
 )
 
@@ -53,159 +42,30 @@ type proxyDockerClient interface {
 	ContainerInspect(ctx context.Context, containerID string) (dockertypes.ContainerJSON, error)
 }
 
-func (d *RuntimeManagerDockerServer) Name() string {
-	return "RuntimeManagerDockerServer"
-}
+func (d *RuntimeManagerDockerServer) Name() string { _ = "STUB: not implemented"; return "" }
 
 func NewRuntimeManagerDockerServer() *RuntimeManagerDockerServer {
-	interceptor := &RuntimeManagerDockerServer{
-		dispatcher: dispatcher.NewRuntimeDispatcher(),
-	}
-	interceptor.router = map[*regexp.Regexp]func(context.Context, http.ResponseWriter, *http.Request){
-		regexp.MustCompile(`^/(v\d\.\d+/)?containers(/\w+)?/update$`): interceptor.HandleUpdateContainer,
-		regexp.MustCompile(`^/(v\d\.\d+/)?containers/create$`):        interceptor.HandleCreateContainer,
-		regexp.MustCompile(`^/(v\d\.\d+/)?containers(/\w+)?/start$`):  interceptor.HandleStartContainer,
-		regexp.MustCompile(`^/(v\d\.\d+/)?containers(/\w+)?/stop`):    interceptor.HandleStopContainer,
-	}
-	return interceptor
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *RuntimeManagerDockerServer) Direct(wr http.ResponseWriter, req *http.Request) string {
-	out := &bytes.Buffer{}
-	multi := &mockRespWriter{wr, out, 0}
-	d.reverseProxy.ServeHTTP(multi, req)
-	resp := out.String()
-	klog.V(5).Infof("response: %d %s, headers: %q", multi.code, resp, wr.Header())
-	return resp
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (d *RuntimeManagerDockerServer) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
-	ctx := context.TODO()
-	klog.Infof("req path: %s, req method: %s", req.URL.Path, req.Method)
-	for reg, handler := range d.router {
-		if reg.MatchString(req.URL.Path) {
-			handler(ctx, wr, req)
-			return
-		}
-	}
-	// fall back to reverse proxy
-	d.Direct(wr, req)
+	_ = "STUB: not implemented"
+	return
 }
+
+// fall back to reverse proxy
 
 func (d *RuntimeManagerDockerServer) failOver(dockerClient proxyDockerClient) error {
-	type dockerWrapper struct {
-		ContainerJSON dockercontainer.InspectResponse
-		Summary       dockercontainer.Summary
-	}
-	sandboxes := []dockerWrapper{}
-	containers := []dockerWrapper{}
-	cs, err := dockerClient.ContainerList(context.TODO(), dockercontainer.ListOptions{All: true})
-	if err != nil {
-		klog.Errorf("Failed to get container list in failover, err: %v", err)
-		return err
-	}
-	for _, c := range cs {
-		containerJson, err := dockerClient.ContainerInspect(context.TODO(), c.ID)
-		if err != nil {
-			klog.Errorf("Failed to get container detail of id %s", c.ID)
-			continue
-		}
-		runtimeResourceType := GetRuntimeResourceType(c.Labels)
-		if runtimeResourceType == resource_executor.RuntimeContainerResource {
-			containers = append(containers, dockerWrapper{
-				ContainerJSON: containerJson,
-				Summary:       c,
-			})
-		} else {
-			sandboxes = append(sandboxes, dockerWrapper{
-				ContainerJSON: containerJson,
-				Summary:       c,
-			})
-		}
-	}
-
-	// need to backup pod meta first
-	for _, s := range sandboxes {
-		labels, annos := splitLabelsAndAnnotations(s.Summary.Labels)
-		store.WritePodSandboxInfo(s.ContainerJSON.ID, &store.PodSandboxInfo{
-			PodSandboxHookRequest: &v1alpha1.PodSandboxHookRequest{
-				Labels:       labels,
-				Annotations:  annos,
-				CgroupParent: s.ContainerJSON.HostConfig.CgroupParent,
-				PodMeta: &v1alpha1.PodSandboxMetadata{
-					Name: s.ContainerJSON.Name,
-					Uid:  s.ContainerJSON.ID,
-				},
-				RuntimeHandler: "Docker",
-				Resources:      HostConfigToResource(s.ContainerJSON.HostConfig),
-			},
-		})
-	}
-
-	for _, c := range containers {
-		_, annos := splitLabelsAndAnnotations(c.Summary.Labels)
-		cInfo := &store.ContainerInfo{
-			ContainerResourceHookRequest: &v1alpha1.ContainerResourceHookRequest{
-				ContainerResources:   HostConfigToResource(c.ContainerJSON.HostConfig),
-				ContainerAnnotations: annos,
-				ContainerMeta: &v1alpha1.ContainerMetadata{
-					Name: c.ContainerJSON.Name,
-					Id:   c.ContainerJSON.ID,
-				},
-			},
-		}
-		podID := c.Summary.Labels[types.SandboxIDLabelKey]
-		podCheckPoint := store.GetPodSandboxInfo(podID)
-		if podCheckPoint != nil {
-			cInfo.ContainerResourceHookRequest.PodMeta = podCheckPoint.PodMeta
-			cInfo.ContainerResourceHookRequest.PodResources = podCheckPoint.Resources
-		}
-		if c.ContainerJSON.Config != nil {
-			cInfo.ContainerResourceHookRequest.ContainerEnvs = splitDockerEnv(c.ContainerJSON.Config.Env)
-		}
-		store.WriteContainerInfo(c.ContainerJSON.ID, cInfo)
-	}
-	info, err := dockerClient.Info(context.TODO())
-	if err != nil {
-		klog.Errorf("Failed to get docker server info, err: %v", err)
-		return err
-	}
-	d.cgroupDriver = info.CgroupDriver
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (d *RuntimeManagerDockerServer) Run() error {
-	d.reverseProxy = &httputil.ReverseProxy{
-		Director: func(req *http.Request) {
-			param := ""
-			if len(req.URL.RawQuery) > 0 {
-				param = "?" + req.URL.RawQuery
-			}
-			u, _ := url.Parse("http://docker" + req.URL.Path + param)
-			*req.URL = *u
-		},
-		Transport: &http.Transport{
-			DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
-				return net.Dial("unix", options.RemoteRuntimeServiceEndpoint)
-			}},
-	}
+// need to backup pod meta first
 
-	dockerClient, err := client.NewClientWithOpts(client.WithHost("unix://"+options.RemoteRuntimeServiceEndpoint), client.WithVersion("1.39"))
-	if err != nil {
-		return err
-	}
-
-	err = d.failOver(dockerClient)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to backup container info from backend, err: %v", err))
-	}
-
-	lis, err := net.Listen("unix", options.RuntimeProxyEndpoint)
-	if err != nil {
-		klog.Fatalf("Failed to create the lis %v", err)
-	}
-	if err := http.Serve(lis, d); err != nil {
-		klog.Fatal("ListenAndServe:", err)
-	}
-	return nil
-}
+func (d *RuntimeManagerDockerServer) Run() error { _ = "STUB: not implemented"; return nil }

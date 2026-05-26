@@ -19,16 +19,12 @@ package client
 import (
 	"context"
 	"flag"
-	"strings"
 
 	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 var (
@@ -43,37 +39,8 @@ var _ client.NewClientFunc = NewClient
 
 // NewClient creates the default caching client with disable deepcopy list from cache.
 func NewClient(config *rest.Config, options client.Options) (client.Client, error) {
-	c, err := client.New(config, options)
-	if err != nil {
-		return nil, err
-	}
-
-	uncachedGVKs := map[schema.GroupVersionKind]struct{}{}
-	for _, obj := range options.Cache.DisableFor {
-		gvk, err := apiutil.GVKForObject(obj, c.Scheme())
-		if err != nil {
-			return nil, err
-		}
-		uncachedGVKs[gvk] = struct{}{}
-	}
-
-	mgrCache := options.Cache.Reader.(cache.Cache)
-
-	return &delegatingClient{
-		scheme: c.Scheme(),
-		mapper: c.RESTMapper(),
-		Reader: &delegatingReader{
-			CacheReader:      options.Cache.Reader,
-			ClientReader:     c,
-			noDeepCopyLister: &noDeepCopyLister{cache: mgrCache, scheme: c.Scheme()},
-			scheme:           c.Scheme(),
-			uncachedGVKs:     uncachedGVKs,
-		},
-		Writer:                       c,
-		StatusClient:                 c,
-		SubResourceClientConstructor: c,
-		originClient:                 c,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(client.Client), nil
 }
 
 type delegatingClient struct {
@@ -89,22 +56,28 @@ type delegatingClient struct {
 
 // Scheme returns the scheme this client is using.
 func (d *delegatingClient) Scheme() *runtime.Scheme {
-	return d.scheme
+	_ = "STUB: not implemented"
+
+	// RESTMapper returns the rest mapper this client is using.
+	return nil
 }
 
-// RESTMapper returns the rest mapper this client is using.
 func (d *delegatingClient) RESTMapper() meta.RESTMapper {
-	return d.mapper
+	_ = "STUB: not implemented"
+
+	// GroupVersionKindFor returns the GroupVersionKind for the given object.
+	return *new(meta.RESTMapper)
 }
 
-// GroupVersionKindFor returns the GroupVersionKind for the given object.
 func (d *delegatingClient) GroupVersionKindFor(obj runtime.Object) (schema.GroupVersionKind, error) {
-	return d.originClient.GroupVersionKindFor(obj)
+	_ = "STUB: not implemented"
+	return *new(schema.GroupVersionKind), nil
 }
 
 // IsObjectNamespaced returns true if the object is namespaced.
 func (d *delegatingClient) IsObjectNamespaced(obj runtime.Object) (bool, error) {
-	return d.originClient.IsObjectNamespaced(obj)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 var _ client.Reader = &delegatingReader{}
@@ -126,61 +99,29 @@ type delegatingReader struct {
 }
 
 func (d *delegatingReader) shouldBypassCache(obj runtime.Object) (bool, error) {
-	gvk, err := apiutil.GVKForObject(obj, d.scheme)
-	if err != nil {
-		return false, err
-	}
-	// TODO: this is producing unsafe guesses that don't actually work,
-	// but it matches ~99% of the cases out there.
-	if meta.IsListType(obj) {
-		gvk.Kind = strings.TrimSuffix(gvk.Kind, "List")
-	}
-	if _, isUncached := d.uncachedGVKs[gvk]; isUncached {
-		return true, nil
-	}
-	if !d.cacheUnstructured {
-		_, isUnstructured := obj.(*unstructured.Unstructured)
-		_, isUnstructuredList := obj.(*unstructured.UnstructuredList)
-		return isUnstructured || isUnstructuredList, nil
-	}
+	_ = "STUB: not implemented"
 	return false, nil
 }
 
+// TODO: this is producing unsafe guesses that don't actually work,
+// but it matches ~99% of the cases out there.
+
 // Get retrieves an obj for a given object key from the Kubernetes Cluster.
 func (d *delegatingReader) Get(ctx context.Context, key client.ObjectKey, obj client.Object, option ...client.GetOption) error {
-	if isUncached, err := d.shouldBypassCache(obj); err != nil {
-		return err
-	} else if isUncached {
-		return d.ClientReader.Get(ctx, key, obj, option...)
-	}
-	return d.CacheReader.Get(ctx, key, obj, option...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // List retrieves list of objects for a given namespace and list options.
 func (d *delegatingReader) List(ctx context.Context, list client.ObjectList, opts ...client.ListOption) error {
-	if isUncached, err := d.shouldBypassCache(list); err != nil {
-		return err
-	} else if isUncached {
-		return d.ClientReader.List(ctx, list, opts...)
-	}
-	if !disableNoDeepCopy && isDisableDeepCopy(opts) {
-		return d.noDeepCopyLister.List(ctx, list, opts...)
-	}
-	return d.CacheReader.List(ctx, list, opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var DisableDeepCopy = disableDeepCopy{}
 
 type disableDeepCopy struct{}
 
-func (disableDeepCopy) ApplyToList(_ *client.ListOptions) {
-}
+func (disableDeepCopy) ApplyToList(_ *client.ListOptions) { _ = "STUB: not implemented"; return }
 
-func isDisableDeepCopy(opts []client.ListOption) bool {
-	for _, opt := range opts {
-		if opt == DisableDeepCopy {
-			return true
-		}
-	}
-	return false
-}
+func isDisableDeepCopy(opts []client.ListOption) bool { _ = "STUB: not implemented"; return false }

@@ -18,23 +18,16 @@ package config
 
 import (
 	"flag"
-	"strings"
 
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
-	cliflag "k8s.io/component-base/cli/flag"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 	maframework "github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/prediction"
 	qmframework "github.com/koordinator-sh/koordinator/pkg/koordlet/qosmanager/framework"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/runtimehooks"
 	statesinformerimpl "github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer/impl"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 const (
@@ -59,46 +52,11 @@ type Configuration struct {
 	FeatureGates map[string]bool
 }
 
-func NewConfiguration() *Configuration {
-	return &Configuration{
-		ConfigMapName:      DefaultKoordletConfigMapName,
-		ConfigMapNamesapce: DefaultKoordletConfigMapNamespace,
-		StatesInformerConf: statesinformerimpl.NewDefaultConfig(),
-		CollectorConf:      maframework.NewDefaultConfig(),
-		MetricCacheConf:    metriccache.NewDefaultConfig(),
-		QOSManagerConf:     qmframework.NewDefaultConfig(),
-		RuntimeHookConf:    runtimehooks.NewDefaultConfig(),
-		AuditConf:          audit.NewDefaultConfig(),
-		PredictionConf:     prediction.NewDefaultConfig(),
-	}
-}
+func NewConfiguration() *Configuration { _ = "STUB: not implemented"; return nil }
 
-func (c *Configuration) InitFlags(fs *flag.FlagSet) {
-	fs.StringVar(&c.ConfigMapName, "configmap-name", DefaultKoordletConfigMapName, "determines the name the koordlet configmap uses.")
-	fs.StringVar(&c.ConfigMapNamesapce, "configmap-namespace", DefaultKoordletConfigMapNamespace, "determines the namespace of configmap uses.")
-	system.Conf.InitFlags(fs)
-	c.StatesInformerConf.InitFlags(fs)
-	c.CollectorConf.InitFlags(fs)
-	c.MetricCacheConf.InitFlags(fs)
-	c.QOSManagerConf.InitFlags(fs)
-	c.RuntimeHookConf.InitFlags(fs)
-	c.AuditConf.InitFlags(fs)
-	c.PredictionConf.InitFlags(fs)
-	resourceexecutor.Conf.InitFlags(fs)
-	fs.Var(cliflag.NewMapStringBool(&c.FeatureGates), "feature-gates", "A set of key=value pairs that describe feature gates for alpha/experimental features. "+
-		"Options are:\n"+strings.Join(features.DefaultKoordletFeatureGate.KnownFeatures(), "\n"))
-}
+func (c *Configuration) InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
 
 func (c *Configuration) InitKubeConfigForKoordlet(kubeAPIQPS float64, kubeAPIBurst int) error {
-	cfg, err := config.GetConfig()
-	if err != nil {
-		return err
-	}
-	cfg.UserAgent = "koordlet"
-	cfg.QPS = float32(kubeAPIQPS)
-	cfg.Burst = kubeAPIBurst
-	cfg.ContentType = runtime.ContentTypeProtobuf
-	cfg.AcceptContentTypes = runtime.ContentTypeProtobuf + "," + runtime.ContentTypeJSON
-	c.KubeRestConf = cfg
+	_ = "STUB: not implemented"
 	return nil
 }

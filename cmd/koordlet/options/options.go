@@ -19,8 +19,6 @@ package options
 import (
 	"flag"
 	"net/http"
-
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -34,13 +32,9 @@ var (
 // ExtendedHTTPHandlerRegistry is the registry of extended HTTP handlers.
 var ExtendedHTTPHandlerRegistry = map[string]func() http.HandlerFunc{}
 
-func InstallExtendedHTTPHandler(mux *http.ServeMux) {
-	for path, newHandler := range ExtendedHTTPHandlerRegistry {
-		mux.HandleFunc(path, newHandler())
-		klog.V(4).Infof("extended HTTP handler is registered on path %s", path)
-	}
-}
+func InstallExtendedHTTPHandler(mux *http.ServeMux) { _ = "STUB: not implemented"; return }
 
 func RegisterHTTPHandler(path string, handler func() http.HandlerFunc) {
-	ExtendedHTTPHandlerRegistry[path] = handler
+	_ = "STUB: not implemented"
+	return
 }

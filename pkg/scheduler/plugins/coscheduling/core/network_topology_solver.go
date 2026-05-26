@@ -2,17 +2,11 @@ package core
 
 import (
 	"context"
-	"fmt"
-	"sort"
-	"strings"
-	"sync"
 
 	corev1 "k8s.io/api/core/v1"
 	fwktype "k8s.io/kube-scheduler/framework"
-	"k8s.io/kubernetes/pkg/scheduler/framework"
 	"k8s.io/kubernetes/pkg/scheduler/framework/parallelize"
 
-	"github.com/koordinator-sh/koordinator/apis/extension"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/networktopology"
@@ -60,55 +54,11 @@ func (solver *networkTopologySolverImpl) PlacePods(
 	clusterNetworkTopology *networktopology.TreeNode,
 	nodeToScore map[string]int,
 ) (map[string]string, *fwktype.Status) {
-	topologyState := TopologyStateFromContext(ctx)
-	nodeOfferSlot := solver.calculateNodeOfferSlot(ctx, cycleStates, toSchedulePods, nodes, addPod)
-	nodeToExistingNums := calculateNodeExistingPodsNum(ctx, solver.handle.Parallelizer().(parallelize.Parallelizer), extension.GetPodNetworkTopologySelector(toSchedulePods[0]), nodes)
-	nodeLayeredTopologyNodes := enumerateNodeTopologyNode(clusterNetworkTopology, len(nodes))
-	evaluateTopologyNode(nodeLayeredTopologyNodes, nodeOfferSlot, nodeToScore, nodeToExistingNums)
-	constrainOfferSlotByPodCountMultiple(clusterNetworkTopology, jobNetworkRequirements.LayerPodCountMultiple)
-
-	topologyState.MustGatheredTopologyNode = searchMustGatherSatisfiedNodes(jobNetworkRequirements, clusterNetworkTopology)
-	candidateTopologyNodes := searchOfferSlotSatisfiedNodes(jobNetworkRequirements, topologyState.MustGatheredTopologyNode)
-
-	if len(candidateTopologyNodes) > 0 {
-		sort.Slice(candidateTopologyNodes, func(i, j int) bool {
-			return topologyNodeLessFunc(candidateTopologyNodes[i], candidateTopologyNodes[j], true)
-		})
-		for _, candidate := range candidateTopologyNodes {
-			distribution := map[string]int{}
-			orderedNodes, actualSlot := distributeOfferSlot(jobNetworkRequirements.DesiredOfferSlot, candidate, distribution, jobNetworkRequirements.LayerPodCountMultiple)
-			if actualSlot >= jobNetworkRequirements.DesiredOfferSlot {
-				podToNode := distributePods(toSchedulePods, orderedNodes, distribution)
-				return podToNode, nil
-			}
-		}
-	}
-
-	var reasons []string
-	for _, node := range topologyState.MustGatheredTopologyNode {
-		reasons = append(reasons, fmt.Sprintf("topology topologyNode %s/%s: %d", node.Layer, node.Name, node.OfferSlot))
-	}
-	sort.Strings(reasons)
-
-	// Append PodCountMultiple constraint information if present
-	var podCountMultipleInfo string
-	if len(jobNetworkRequirements.LayerPodCountMultiple) > 0 {
-		var constraints []string
-		for layer, multiple := range jobNetworkRequirements.LayerPodCountMultiple {
-			constraints = append(constraints, fmt.Sprintf("%s=%d", layer, multiple))
-		}
-		sort.Strings(constraints)
-		podCountMultipleInfo = fmt.Sprintf("; podCountMultiple constraints: %s", strings.Join(constraints, ", "))
-	}
-
-	fitError := &framework.FitError{
-		NumAllNodes: len(nodes),
-		Diagnosis: framework.Diagnosis{
-			NodeToStatus: framework.NewNodeToStatus(topologyState.NodeToStatusMap, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable)),
-		},
-	}
-	return nil, fwktype.NewStatus(fwktype.Unschedulable, fmt.Sprintf(MessageNoCandidateTopologyNodes, jobNetworkRequirements.DesiredOfferSlot, strings.Join(reasons, ";"), fitError.Error())+podCountMultipleInfo)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Append PodCountMultiple constraint information if present
 
 func (solver *networkTopologySolverImpl) calculateNodeOfferSlot(
 	ctx context.Context,
@@ -117,96 +67,27 @@ func (solver *networkTopologySolverImpl) calculateNodeOfferSlot(
 	nodeInfos []fwktype.NodeInfo,
 	addPod podFunc,
 ) map[string]int {
-	topologyState := TopologyStateFromContext(ctx)
-	topologyState.NodeOfferSlot = make(map[string]int, len(nodeInfos))
-	topologyState.NodeToStatusMap = make(map[string]*fwktype.Status)
-	var statusLock sync.RWMutex
-	calculateForNode := func(nodeI int) {
-		nodeInfo := nodeInfos[nodeI]
-		cycleState := cycleStates[nodeInfo.Node().Name]
-		var offerSlot int
-		var status *fwktype.Status
-		for podI := range toSchedulePods {
-			toSchedulePod := toSchedulePods[podI]
-			status = solver.handle.RunFilterPluginsWithNominatedPods(ctx, cycleState, toSchedulePod, nodeInfo)
-			if !status.IsSuccess() {
-				break
-			}
-			if podI+1 < len(toSchedulePods) {
-				podToSchedule := toSchedulePods[podI+1]
-				assumedPod := toSchedulePod.DeepCopy()
-				assumedPod.Spec.NodeName = nodeInfo.Node().Name
-				podInfoToAdd, _ := framework.NewPodInfo(assumedPod)
-				// TODO consider pod assume on reservation
-				err := addPod(cycleState, podToSchedule, podInfoToAdd, nodeInfo)
-				if err != nil {
-					status = fwktype.AsStatus(err)
-					break
-				}
-			}
-			offerSlot += 1
-		}
-		statusLock.Lock()
-		topologyState.NodeOfferSlot[nodeInfo.Node().Name] = offerSlot
-		if !status.IsSuccess() {
-			topologyState.NodeToStatusMap[nodeInfo.Node().Name] = status
-		}
-		statusLock.Unlock()
-	}
-	solver.handle.Parallelizer().Until(ctx, len(nodeInfos), calculateForNode, OperationCalculateNodeOfferSlot)
-	return topologyState.NodeOfferSlot
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// TODO consider pod assume on reservation
 
 func calculateNodeExistingPodsNum(
 	ctx context.Context,
 	parallelizer parallelize.Parallelizer,
 	selectorKey string,
 	nodeInfos []fwktype.NodeInfo) map[string]int {
-	if selectorKey == "" {
-		return nil
-	}
-	nodeToExistingPodsNum := make(map[string]int, len(nodeInfos))
-	var mapLock sync.RWMutex
-	calculateForNode := func(nodeI int) {
-		nodeInfo := nodeInfos[nodeI]
-		podNum := 0
-		for _, podInfo := range nodeInfo.GetPods() {
-			pod := podInfo.GetPod()
-			if extension.GetPodNetworkTopologySelector(pod) == selectorKey {
-				podNum += 1
-			}
-		}
-		mapLock.Lock()
-		nodeToExistingPodsNum[nodeInfo.Node().Name] = podNum
-		mapLock.Unlock()
-	}
-	parallelizer.Until(ctx, len(nodeInfos), calculateForNode, OperationCalculateNodeExistingPodNum)
-	return nodeToExistingPodsNum
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func enumerateNodeTopologyNode(
 	clusterNetworkTopology *networktopology.TreeNode,
 	nodesNum int,
 ) map[string]*networktopology.TreeNode {
-	nodeToTopologyNodes := make(map[string]*networktopology.TreeNode, nodesNum)
-	layeredTopologyNodes := []*networktopology.TreeNode{clusterNetworkTopology}
-	for len(layeredTopologyNodes) > 0 {
-		var nextLayeredTopologyNodes []*networktopology.TreeNode
-		for _, layeredTopologyNode := range layeredTopologyNodes {
-			if layeredTopologyNode.Layer == schedulingv1alpha1.NodeTopologyLayer {
-				nodeToTopologyNodes[layeredTopologyNode.Name] = layeredTopologyNode
-				continue
-			}
-			for _, childNode := range layeredTopologyNode.Children {
-				if childNode == nil {
-					break
-				}
-				nextLayeredTopologyNodes = append(nextLayeredTopologyNodes, childNode)
-			}
-		}
-		layeredTopologyNodes = nextLayeredTopologyNodes
-	}
-	return nodeToTopologyNodes
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func evaluateTopologyNode(
@@ -215,21 +96,8 @@ func evaluateTopologyNode(
 	nodeToScore map[string]int,
 	nodeExitingPodsNum map[string]int,
 ) {
-	for nodeName, offerSlot := range nodeOfferSlot {
-		topologyNode := nodeToTopologyNodes[nodeName]
-		for topologyNode != nil {
-			topologyNode.OfferSlot += offerSlot
-			topologyNode.Score += nodeToScore[nodeName]
-			topologyNode = topologyNode.Parent
-		}
-	}
-	for nodeName, existingPodNum := range nodeExitingPodsNum {
-		topologyNode := nodeToTopologyNodes[nodeName]
-		for topologyNode != nil {
-			topologyNode.ExistingPodNum += existingPodNum
-			topologyNode = topologyNode.Parent
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // constrainOfferSlotByPodCountMultiple traverses the topology tree bottom-up
@@ -240,95 +108,32 @@ func constrainOfferSlotByPodCountMultiple(
 	root *networktopology.TreeNode,
 	layerPodCountMultiple map[schedulingv1alpha1.TopologyLayer]int,
 ) {
-	if len(layerPodCountMultiple) == 0 {
-		return
-	}
-	doConstrainOfferSlot(root, layerPodCountMultiple)
+	_ = "STUB: not implemented"
+	return
 }
 
 func doConstrainOfferSlot(
 	node *networktopology.TreeNode,
 	layerPodCountMultiple map[schedulingv1alpha1.TopologyLayer]int,
 ) {
-	if node.Layer == schedulingv1alpha1.NodeTopologyLayer {
-		if multiple := layerPodCountMultiple[node.Layer]; multiple > 1 {
-			node.OfferSlot = (node.OfferSlot / multiple) * multiple
-		}
-		return
-	}
-	constrainedSum := 0
-	for _, child := range node.Children {
-		if child != nil {
-			doConstrainOfferSlot(child, layerPodCountMultiple)
-			constrainedSum += child.OfferSlot
-		}
-	}
-	node.OfferSlot = constrainedSum
-	if multiple := layerPodCountMultiple[node.Layer]; multiple > 1 {
-		node.OfferSlot = (node.OfferSlot / multiple) * multiple
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func searchMustGatherSatisfiedNodes(
 	jobNetworkRequirements *JobTopologyRequirements,
 	clusterNetworkTopology *networktopology.TreeNode,
 ) []*networktopology.TreeNode {
-	topologyLayerMustGather := jobNetworkRequirements.TopologyLayerMustGather
-	if topologyLayerMustGather == "" {
-		return []*networktopology.TreeNode{clusterNetworkTopology}
-	}
-	mustGatherSatisfied := false
-	var mustGatherSatisfiedNodes []*networktopology.TreeNode
-	layeredTopologyNodes := []*networktopology.TreeNode{clusterNetworkTopology}
-	for !mustGatherSatisfied && len(layeredTopologyNodes) > 0 {
-		var nextLayeredTopologyNodes []*networktopology.TreeNode
-		for _, layeredTopologyNode := range layeredTopologyNodes {
-			if layeredTopologyNode.Layer == topologyLayerMustGather {
-				mustGatherSatisfied = true
-				mustGatherSatisfiedNodes = append(mustGatherSatisfiedNodes, layeredTopologyNode)
-				continue
-			}
-			for _, childNode := range layeredTopologyNode.Children {
-				if childNode == nil {
-					break
-				}
-				nextLayeredTopologyNodes = append(nextLayeredTopologyNodes, childNode)
-			}
-		}
-		layeredTopologyNodes = nextLayeredTopologyNodes
-	}
-	return mustGatherSatisfiedNodes
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func searchOfferSlotSatisfiedNodes(
 	jobNetworkRequirements *JobTopologyRequirements,
 	mustGatherSatisfiedNodes []*networktopology.TreeNode,
 ) []*networktopology.TreeNode {
-	desiredOfferSlot := jobNetworkRequirements.DesiredOfferSlot
-	var candidates []*networktopology.TreeNode
-	layeredTopologyNodes := make([]*networktopology.TreeNode, len(mustGatherSatisfiedNodes))
-	copy(layeredTopologyNodes, mustGatherSatisfiedNodes)
-	for len(layeredTopologyNodes) > 0 {
-		var nextLayeredTopologyNodes []*networktopology.TreeNode
-		var layeredCandidates []*networktopology.TreeNode
-		for _, layeredTopologyNode := range layeredTopologyNodes {
-			if layeredTopologyNode.OfferSlot < desiredOfferSlot {
-				continue
-			}
-
-			layeredCandidates = append(layeredCandidates, layeredTopologyNode)
-			for _, child := range layeredTopologyNode.Children {
-				if child != nil {
-					nextLayeredTopologyNodes = append(nextLayeredTopologyNodes, child)
-				}
-			}
-		}
-		if len(layeredCandidates) > 0 {
-			candidates = layeredCandidates
-		}
-		layeredTopologyNodes = nextLayeredTopologyNodes
-	}
-	return candidates
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var topologyNodeLessFunc = func(a, b *networktopology.TreeNode, lowerOfferSlot bool) bool {
@@ -356,40 +161,9 @@ func distributeOfferSlot(
 	distribution map[string]int,
 	layerPodCountMultiple map[schedulingv1alpha1.TopologyLayer]int,
 ) (topologyOrderedNodes []string, offerSlot int) {
+	_ = "STUB: not implemented"
 	// Calculate the maximum slot this topology node can provide
-
-	maxOfferSlot := topologyNode.OfferSlot
-	if maxOfferSlot > desiredOfferSlot {
-		maxOfferSlot = desiredOfferSlot
-	}
-
-	if multiple := layerPodCountMultiple[topologyNode.Layer]; multiple > 1 {
-		maxOfferSlot = (maxOfferSlot / multiple) * multiple
-	}
-
-	if topologyNode.Layer == schedulingv1alpha1.NodeTopologyLayer {
-		distribution[topologyNode.Name] = maxOfferSlot
-		return []string{topologyNode.Name}, maxOfferSlot
-	}
-
-	var children []*networktopology.TreeNode
-	for _, child := range topologyNode.Children {
-		if child != nil {
-			children = append(children, child)
-		}
-	}
-	sort.Slice(children, func(i, j int) bool {
-		return topologyNodeLessFunc(children[i], children[j], false)
-	})
-
-	remainingSlot := maxOfferSlot
-	for _, child := range children {
-		orderedNodesOfChild, offerSlotOfChild := distributeOfferSlot(remainingSlot, child, distribution, layerPodCountMultiple)
-		topologyOrderedNodes = append(topologyOrderedNodes, orderedNodesOfChild...)
-		remainingSlot -= offerSlotOfChild
-		offerSlot += offerSlotOfChild
-	}
-	return topologyOrderedNodes, offerSlot
+	return nil, 0
 }
 
 func distributePods(
@@ -397,28 +171,11 @@ func distributePods(
 	topologyOrderedNodes []string,
 	nodeToOfferSlot map[string]int,
 ) map[string]string {
-	sort.Slice(toSchedulePods, func(i, j int) bool {
-		return toSchedulePods[i].Name < toSchedulePods[j].Name
-	})
-	podToNode := make(map[string]string, len(toSchedulePods))
-	currentNodeIndex := 0
-	for _, pod := range toSchedulePods {
-		currentNode := topologyOrderedNodes[currentNodeIndex]
-		offerSlot := nodeToOfferSlot[currentNode]
-		for offerSlot <= 0 {
-			currentNodeIndex++
-			currentNode = topologyOrderedNodes[currentNodeIndex]
-			offerSlot = nodeToOfferSlot[currentNode]
-		}
-		podToNode[framework.GetNamespacedName(pod.Namespace, pod.Name)] = currentNode
-		offerSlot--
-		nodeToOfferSlot[currentNode] = offerSlot
-	}
-	return podToNode
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func NewNetworkTopologySolver(handle fwktype.Handle) NetworkTopologySolver {
-	return &networkTopologySolverImpl{
-		handle: handle.(frameworkext.ExtendedHandle),
-	}
+	_ = "STUB: not implemented"
+	return *new(NetworkTopologySolver)
 }

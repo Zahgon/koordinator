@@ -36,9 +36,6 @@ type Estimator interface {
 }
 
 func NewEstimator(args *config.LoadAwareSchedulingArgs, handle fwktype.Handle) (Estimator, error) {
-	factoryFn := Estimators[args.Estimator]
-	if factoryFn == nil {
-		factoryFn = NewDefaultEstimator
-	}
-	return factoryFn(args, handle)
+	_ = "STUB: not implemented"
+	return *new(Estimator), nil
 }

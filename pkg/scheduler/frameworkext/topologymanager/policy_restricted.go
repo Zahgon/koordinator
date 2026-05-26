@@ -18,11 +18,7 @@ limitations under the License.
 package topologymanager
 
 import (
-	"fmt"
-	"strings"
-
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/util/bitmask"
 )
 
 type restrictedPolicy struct {
@@ -35,28 +31,16 @@ var _ Policy = &restrictedPolicy{}
 const PolicyRestricted string = "restricted"
 
 // NewRestrictedPolicy returns restricted policy.
-func NewRestrictedPolicy(numaNodes []int) Policy {
-	return &restrictedPolicy{bestEffortPolicy{numaNodes: numaNodes}}
-}
+func NewRestrictedPolicy(numaNodes []int) Policy { _ = "STUB: not implemented"; return *new(Policy) }
 
-func (p *restrictedPolicy) Name() string {
-	return PolicyRestricted
-}
+func (p *restrictedPolicy) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (p *restrictedPolicy) canAdmitPodResult(hint *NUMATopologyHint) bool {
-	return hint.Preferred
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *restrictedPolicy) Merge(providersHints []map[string][]NUMATopologyHint, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) (NUMATopologyHint, bool, []string) {
-	filteredHints, reasons, summary := filterProvidersHints(providersHints)
-	if len(reasons) != 0 {
-		affinityAllNUMANodes, _ := bitmask.NewBitMask(p.numaNodes...)
-		return NUMATopologyHint{NUMANodeAffinity: affinityAllNUMANodes}, false, reasons
-	}
-	hint := mergeFilteredHints(p.numaNodes, filteredHints, exclusivePolicy, allNUMANodeStatus)
-	admit := p.canAdmitPodResult(&hint)
-	if !admit {
-		return hint, false, []string{fmt.Sprintf(ErrNUMAHintCannotAligned, strings.Join(summary, " & "))}
-	}
-	return hint, admit, nil
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyHint), false, nil
 }

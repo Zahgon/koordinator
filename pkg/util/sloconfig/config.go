@@ -31,12 +31,6 @@ var (
 	NodeStrategyNameNeedCheck = "false"
 )
 
-func InitFlags(fs *flag.FlagSet) {
-	fs.StringVar(&SLOCtrlConfigMap, "slo-config-name", SLOCtrlConfigMap, "determines the name the slo-controller configmap uses.")
-	fs.StringVar(&ConfigNameSpace, "config-namespace", ConfigNameSpace, "determines the namespace of configmap uses.")
-	fs.StringVar(&NodeStrategyNameNeedCheck, "node-strategy-name-need-check", NodeStrategyNameNeedCheck, "determines the sloConfig validator nodeConfig name check enable, 'true':enable, 'false':unable, default:false.")
-}
+func InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
 
-func IsNodeStrategyNameNeedCheck() bool {
-	return NodeStrategyNameNeedCheck == "true"
-}
+func IsNodeStrategyNameNeedCheck() bool { _ = "STUB: not implemented"; return false }

@@ -30,102 +30,62 @@ type Reservation struct {
 }
 
 func NewReservation(reservation *sev1alpha1.Reservation) Object {
-	return &Reservation{Reservation: reservation}
+	_ = "STUB: not implemented"
+	return *new(Object)
 }
 
-func (r *Reservation) String() string {
-	return r.Reservation.Name
-}
+func (r *Reservation) String() string { _ = "STUB: not implemented"; return "" }
 
 func (r *Reservation) OriginObject() client.Object {
-	return r.Reservation
+	_ = "STUB: not implemented"
+	return *new(client.Object)
 }
 
 func (r *Reservation) GetReservationConditions() []sev1alpha1.ReservationCondition {
-	if len(r.Status.Conditions) == 0 {
-		return nil
-	}
-	conditions := make([]sev1alpha1.ReservationCondition, 0, len(r.Status.Conditions))
-	for i := range r.Status.Conditions {
-		conditions = append(conditions, *r.Status.Conditions[i].DeepCopy())
-	}
-	return conditions
-}
-
-func (r *Reservation) QueryPreemptedPodsRefs() []corev1.ObjectReference {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (r *Reservation) GetBoundPod() *corev1.ObjectReference {
-	if len(r.Status.CurrentOwners) == 0 {
-		return nil
-	}
-	return &r.Status.CurrentOwners[0]
+func (r *Reservation) QueryPreemptedPodsRefs() []corev1.ObjectReference {
+	_ = "STUB: not implemented"
+	return nil
 }
+
+func (r *Reservation) GetBoundPod() *corev1.ObjectReference { _ = "STUB: not implemented"; return nil }
 
 func (r *Reservation) GetReservationOwners() []sev1alpha1.ReservationOwner {
-	return r.Spec.Owners
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (r *Reservation) GetScheduledNodeName() string {
-	return r.Status.NodeName
-}
+func (r *Reservation) GetScheduledNodeName() string { _ = "STUB: not implemented"; return "" }
 
 func (r *Reservation) GetPhase() sev1alpha1.ReservationPhase {
-	return r.Status.Phase
+	_ = "STUB: not implemented"
+	return *new(sev1alpha1.ReservationPhase)
 }
 
-func (r *Reservation) NeedPreemption() bool {
-	return false
-}
+func (r *Reservation) NeedPreemption() bool { _ = "STUB: not implemented"; return false }
 
 func GetReservationCondition(r Object, conditionType sev1alpha1.ReservationConditionType, reason string) *sev1alpha1.ReservationCondition {
-	conditions := r.GetReservationConditions()
-	if len(conditions) == 0 {
-		return nil
-	}
-	for i := range conditions {
-		cond := &conditions[i]
-		if cond.Type == conditionType && (reason == "" || reason == cond.Reason) {
-			return cond
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetUnschedulableCondition(r Object) *sev1alpha1.ReservationCondition {
-	return GetReservationCondition(r, sev1alpha1.ReservationConditionScheduled, sev1alpha1.ReasonReservationUnschedulable)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func IsReservationScheduled(r Object) bool {
-	if r.GetScheduledNodeName() == "" {
-		return false
-	}
-	cond := GetReservationCondition(r, sev1alpha1.ReservationConditionScheduled, sev1alpha1.ReasonReservationScheduled)
-	return cond != nil && cond.Status == sev1alpha1.ConditionStatusTrue
-}
+func IsReservationScheduled(r Object) bool { _ = "STUB: not implemented"; return false }
 
-func IsReservationPending(r Object) bool {
-	return r != nil && (r.GetPhase() == "" || r.GetPhase() == sev1alpha1.ReservationPending)
-}
+func IsReservationPending(r Object) bool { _ = "STUB: not implemented"; return false }
 
 // IsReservationAvailable checks if the reservation is scheduled on a node and its status is Available.
-func IsReservationAvailable(r Object) bool {
-	return r != nil && r.GetScheduledNodeName() != "" && r.GetPhase() == sev1alpha1.ReservationAvailable
-}
+func IsReservationAvailable(r Object) bool { _ = "STUB: not implemented"; return false }
 
-func IsReservationSucceeded(r Object) bool {
-	return r != nil && r.GetPhase() == sev1alpha1.ReservationSucceeded
-}
+func IsReservationSucceeded(r Object) bool { _ = "STUB: not implemented"; return false }
 
-func IsReservationFailed(r Object) bool {
-	return r != nil && r.GetPhase() == sev1alpha1.ReservationFailed
-}
+func IsReservationFailed(r Object) bool { _ = "STUB: not implemented"; return false }
 
-func IsReservationExpired(r Object) bool {
-	if !IsReservationFailed(r) {
-		return false
-	}
-	condition := GetReservationCondition(r, sev1alpha1.ReservationConditionReady, sev1alpha1.ReasonReservationExpired)
-	return condition != nil
-}
+func IsReservationExpired(r Object) bool { _ = "STUB: not implemented"; return false }

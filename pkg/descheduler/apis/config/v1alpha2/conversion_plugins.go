@@ -23,34 +23,11 @@ import (
 )
 
 func Convert_v1alpha2_LowNodeLoadArgs_To_config_LowNodeLoadArgs(in *LowNodeLoadArgs, out *config.LowNodeLoadArgs, s conversion.Scope) error {
-	if err := autoConvert_v1alpha2_LowNodeLoadArgs_To_config_LowNodeLoadArgs(in, out, s); err != nil {
-		return err
-	}
-
-	pool := config.LowNodeLoadNodePool{
-		Name:                   "__default_node_pool__",
-		NodeSelector:           out.NodeSelector,
-		UseDeviationThresholds: out.UseDeviationThresholds,
-		HighThresholds:         out.HighThresholds,
-		LowThresholds:          out.LowThresholds,
-		ProdHighThresholds:     out.ProdHighThresholds,
-		ProdLowThresholds:      out.ProdLowThresholds,
-		ResourceWeights:        out.ResourceWeights,
-		AnomalyCondition:       out.AnomalyCondition,
-	}
-	out.NodePools = append([]config.LowNodeLoadNodePool{pool}, out.NodePools...)
-	out.NodeSelector = nil
-	out.UseDeviationThresholds = false
-	out.HighThresholds = nil
-	out.LowThresholds = nil
-	out.ResourceWeights = nil
-	out.AnomalyCondition = nil
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func Convert_v1alpha2_CustomPriorityArgs_To_config_CustomPriorityArgs(in *CustomPriorityArgs, out *config.CustomPriorityArgs, s conversion.Scope) error {
-	if err := autoConvert_v1alpha2_CustomPriorityArgs_To_config_CustomPriorityArgs(in, out, s); err != nil {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

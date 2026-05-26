@@ -21,17 +21,11 @@ import (
 )
 
 func GetNodeMemUsageWithHotPageCache(coldPageUsageBytes uint64) (uint64, error) {
-	memInfo, err := GetMemInfo()
-	if err != nil {
-		return 0, err
-	}
-	return memInfo.MemTotal*1024 - memInfo.MemFree*1024 - coldPageUsageBytes, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func GetCgroupMemUsageWithHotPageCache(cgroupReader resourceexecutor.CgroupReader, parentDir string, coldPageUsageBytes uint64) (uint64, error) {
-	memStat, err := cgroupReader.ReadMemoryStat(parentDir)
-	if err != nil {
-		return 0, err
-	}
-	return uint64(memStat.UsageWithPageCache()) - coldPageUsageBytes, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }

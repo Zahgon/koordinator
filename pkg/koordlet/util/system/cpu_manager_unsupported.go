@@ -19,10 +19,4 @@ limitations under the License.
 
 package system
 
-import (
-	"fmt"
-)
-
-func GetKubeletCommandline(port int) ([]string, error) {
-	return nil, fmt.Errorf("unsupported")
-}
+func GetKubeletCommandline(port int) ([]string, error) { _ = "STUB: not implemented"; return nil, nil }

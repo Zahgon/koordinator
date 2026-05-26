@@ -16,15 +16,6 @@ limitations under the License.
 
 package system
 
-import (
-	"fmt"
-	"path/filepath"
-	"strconv"
-	"strings"
-
-	"k8s.io/klog/v2"
-)
-
 const ErrResourceUnsupportedPrefix = "resource is unsupported"
 
 type ResourceType string
@@ -50,71 +41,35 @@ type Resource interface {
 }
 
 func GetDefaultResourceType(subfs string, filename string) ResourceType {
-	return ResourceType(filepath.Join(subfs, filename))
+	_ = "STUB: not implemented"
+	return *new(ResourceType)
 }
 
 func ValidateResourceValue(value *int64, dynamicPath string, r Resource) bool {
-	if value == nil {
-		klog.V(5).Infof("failed to validate value, path:%s, value is nil", r.Path(dynamicPath))
-		return false
-	}
-	if valid, msg := r.IsValid(strconv.FormatInt(*value, 10)); !valid {
-		klog.V(4).Infof("failed to validate value, path:%s, msg:%s", r.Path(dynamicPath), msg)
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
-func ResourceUnsupportedErr(msg string) error {
-	return fmt.Errorf("%s, reason: %s", ErrResourceUnsupportedPrefix, msg)
-}
+func ResourceUnsupportedErr(msg string) error { _ = "STUB: not implemented"; return nil }
 
-func IsResourceUnsupportedErr(err error) bool {
-	return strings.HasPrefix(err.Error(), ErrResourceUnsupportedPrefix)
-}
+func IsResourceUnsupportedErr(err error) bool { _ = "STUB: not implemented"; return false }
 
 func SupportedIfFileExistsInKubepods(r Resource, _ string) (bool, string) {
-	p := r.Path(CgroupPathFormatter.ParentDir)
-	exists, err := PathExists(p)
-	if err != nil {
-		return false, fmt.Sprintf("cannot check if %s exists in kubepods cgroup, err: %v", r.ResourceType(), err)
-	}
-	if !exists {
-		return false, "file not exist in kubepods cgroup"
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func SupportedIfFileExists(r Resource, dynamicPath string) (bool, string) {
-	exists, err := PathExists(r.Path(dynamicPath))
-	if err != nil {
-		return false, fmt.Sprintf("cannot check if %s exists, err: %v", r.ResourceType(), err)
-	}
-	if !exists {
-		return false, "file not exist"
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func SupportedIfFileExistsInRootCgroup(filename string, subfs string) (bool, string) {
-	exists, err := PathExists(filepath.Join(Conf.CgroupRootDir, subfs, filename))
-	if err != nil {
-		return false, fmt.Sprintf("cannot check if %s exists in root cgroup, err: %v", filename, err)
-	}
-	if !exists {
-		return false, "file not exist in root cgroup"
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func CheckIfAllSupported(checkSupportedFns ...func() (bool, string)) func() (bool, string) {
-	return func() (bool, string) {
-		for _, fn := range checkSupportedFns {
-			supported, msg := fn()
-			if !supported {
-				return false, msg
-			}
-		}
-		return true, ""
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

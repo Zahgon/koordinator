@@ -20,11 +20,6 @@ import (
 	"sync"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 // ScaleMinQuotaManager The child nodes under each node will be divided into two categories, one allows
@@ -45,140 +40,33 @@ type ScaleMinQuotaManager struct {
 	quotaEnableMinQuotaScaleMap map[string]bool
 }
 
-func NewScaleMinQuotaManager() *ScaleMinQuotaManager {
-	info := &ScaleMinQuotaManager{
-		originalMinQuotaMap:            make(map[string]v1.ResourceList),
-		enableScaleSubsSumMinQuotaMap:  make(map[string]v1.ResourceList),
-		disableScaleSubsSumMinQuotaMap: make(map[string]v1.ResourceList),
-		quotaEnableMinQuotaScaleMap:    make(map[string]bool),
-	}
-	return info
-}
+func NewScaleMinQuotaManager() *ScaleMinQuotaManager { _ = "STUB: not implemented"; return nil }
 
 func (s *ScaleMinQuotaManager) update(parQuotaName, subQuotaName string, subMinQuota v1.ResourceList, enableScaleMinQuota bool) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if _, ok := s.enableScaleSubsSumMinQuotaMap[parQuotaName]; !ok {
-		s.enableScaleSubsSumMinQuotaMap[parQuotaName] = v1.ResourceList{}
-	}
-	if _, ok := s.disableScaleSubsSumMinQuotaMap[parQuotaName]; !ok {
-		s.disableScaleSubsSumMinQuotaMap[parQuotaName] = v1.ResourceList{}
-	}
-
-	// step1: delete the oldMinQuota if present
-	if enable, ok := s.quotaEnableMinQuotaScaleMap[subQuotaName]; ok {
-		if enable {
-			s.enableScaleSubsSumMinQuotaMap[parQuotaName] = quotav1.SubtractWithNonNegativeResult(s.enableScaleSubsSumMinQuotaMap[parQuotaName],
-				s.originalMinQuotaMap[subQuotaName])
-		} else {
-			s.disableScaleSubsSumMinQuotaMap[parQuotaName] = quotav1.SubtractWithNonNegativeResult(s.disableScaleSubsSumMinQuotaMap[parQuotaName],
-				s.originalMinQuotaMap[subQuotaName])
-		}
-	}
-
-	// step2: add the newMinQuota
-	if enableScaleMinQuota {
-		s.enableScaleSubsSumMinQuotaMap[parQuotaName] = quotav1.Add(s.enableScaleSubsSumMinQuotaMap[parQuotaName], subMinQuota)
-	} else {
-		s.disableScaleSubsSumMinQuotaMap[parQuotaName] = quotav1.Add(s.disableScaleSubsSumMinQuotaMap[parQuotaName], subMinQuota)
-	}
-
-	if klog.V(5).Enabled() {
-		klog.Infof("UpdateScaleMinQuota, quota: %v originalMinQuota change from %v to %v, "+
-			"enableMinQuotaScale change from %v to %v", subQuotaName,
-			util.DumpJSON(s.originalMinQuotaMap[subQuotaName]), util.DumpJSON(subMinQuota),
-			util.DumpJSON(s.quotaEnableMinQuotaScaleMap[subQuotaName]), util.DumpJSON(enableScaleMinQuota))
-	}
-
-	// step3: record the newMinQuota
-	s.originalMinQuotaMap[subQuotaName] = subMinQuota
-	s.quotaEnableMinQuotaScaleMap[subQuotaName] = enableScaleMinQuota
+	_ = "STUB: not implemented"
+	return
 }
 
+// step1: delete the oldMinQuota if present
+
+// step2: add the newMinQuota
+
+// step3: record the newMinQuota
+
 func (s *ScaleMinQuotaManager) remove(parQuotaName, subQuotaName string) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if !s.quotaEnableMinQuotaScaleMap[subQuotaName] {
-		if _, ok := s.disableScaleSubsSumMinQuotaMap[parQuotaName]; ok {
-			s.disableScaleSubsSumMinQuotaMap[parQuotaName] = quotav1.SubtractWithNonNegativeResult(s.disableScaleSubsSumMinQuotaMap[parQuotaName],
-				s.originalMinQuotaMap[subQuotaName])
-		}
-	} else {
-		if _, ok := s.enableScaleSubsSumMinQuotaMap[parQuotaName]; ok {
-			s.enableScaleSubsSumMinQuotaMap[parQuotaName] = quotav1.SubtractWithNonNegativeResult(s.enableScaleSubsSumMinQuotaMap[parQuotaName],
-				s.originalMinQuotaMap[subQuotaName])
-		}
-	}
-
-	delete(s.originalMinQuotaMap, subQuotaName)
-	delete(s.quotaEnableMinQuotaScaleMap, subQuotaName)
-
-	if klog.V(5).Enabled() {
-		klog.Infof("ScaleMinQuotaManager remove, parQuota: %v, subQuota: %v  ", parQuotaName, subQuotaName)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *ScaleMinQuotaManager) getScaledMinQuota(newTotalRes v1.ResourceList, parQuotaName, subQuotaName string) (bool, v1.ResourceList) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if newTotalRes == nil || s.originalMinQuotaMap[subQuotaName] == nil {
-		return false, nil
-	}
-	if s.disableScaleSubsSumMinQuotaMap[parQuotaName] == nil || s.enableScaleSubsSumMinQuotaMap[parQuotaName] == nil {
-		return false, nil
-	}
-
-	if !s.quotaEnableMinQuotaScaleMap[subQuotaName] {
-		return false, nil
-	}
-
-	// get the dimensions where children's minQuota sum is larger than newTotalRes
-	needScaleDimensions := make([]v1.ResourceName, 0)
-	for resName := range newTotalRes {
-		sum := quotav1.Add(s.disableScaleSubsSumMinQuotaMap[parQuotaName], s.enableScaleSubsSumMinQuotaMap[parQuotaName])
-		if newTotalRes.Name(resName, resource.DecimalSI).Cmp(*sum.Name(resName, resource.DecimalSI)) == -1 {
-			needScaleDimensions = append(needScaleDimensions, resName)
-		}
-	}
-
-	//  children's minQuota sum is smaller than totalRes in all dimensions
-	if len(needScaleDimensions) == 0 {
-		return true, s.originalMinQuotaMap[subQuotaName].DeepCopy()
-	}
-
-	// ensure the disableScale children's minQuota first
-	newMinQuota := s.originalMinQuotaMap[subQuotaName].DeepCopy()
-	for _, resourceDimension := range needScaleDimensions {
-		needScaleTotal := *newTotalRes.Name(resourceDimension, resource.DecimalSI)
-		disableTotal := s.disableScaleSubsSumMinQuotaMap[parQuotaName]
-		needScaleTotal.Sub(*disableTotal.Name(resourceDimension, resource.DecimalSI))
-
-		if needScaleTotal.Value() <= 0 {
-			newMinQuota[resourceDimension] = *resource.NewQuantity(0, resource.DecimalSI)
-		} else {
-			// if still has minQuota left, enableScaleMinQuota children partition it according to their minQuotaValue.
-			originalMinQuota := s.originalMinQuotaMap[subQuotaName]
-			originalMinQuotaValue := originalMinQuota.Name(resourceDimension, resource.DecimalSI)
-
-			enableTotal := s.enableScaleSubsSumMinQuotaMap[parQuotaName]
-			enableTotalValue := enableTotal.Name(resourceDimension, resource.DecimalSI)
-
-			newMinQuotaValue := int64(0)
-			if enableTotalValue.Value() > 0 {
-				newMinQuotaValue = int64(float64(getQuantityValue(needScaleTotal, resourceDimension)) *
-					float64(getQuantityValue(*originalMinQuotaValue, resourceDimension)) / float64(getQuantityValue(*enableTotalValue, resourceDimension)))
-			}
-
-			newMinQuota[resourceDimension] = createQuantity(newMinQuotaValue, resourceDimension)
-		}
-	}
-
-	if klog.V(5).Enabled() {
-		klog.Infof("GetScaleMinQuota, parQuota: %v, subQuota: %v, needScaleDimensions: %v, totalRes: %v, newMinQuota: %v",
-			parQuotaName, subQuotaName, needScaleDimensions, util.DumpJSON(newTotalRes), util.DumpJSON(newMinQuota))
-	}
-	return true, newMinQuota
+	_ = "STUB: not implemented"
+	return false, *new(v1.ResourceList)
 }
+
+// get the dimensions where children's minQuota sum is larger than newTotalRes
+
+//  children's minQuota sum is smaller than totalRes in all dimensions
+
+// ensure the disableScale children's minQuota first
+
+// if still has minQuota left, enableScaleMinQuota children partition it according to their minQuotaValue.

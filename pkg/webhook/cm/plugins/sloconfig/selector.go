@@ -25,41 +25,10 @@ type virtualNode = map[string] /*labelKey*/ string /*labelValue*/
 // example1: nodeSelector{MatchLabels{xx:v1}}, can generate one node {virtualNode{xx:v1}}
 // example2: nodeSelector{MatchExpressions{{xx in v1,v2}}}, can generate nodes{virtualNode{xx:v1},virtualNode{xx:v2}}
 func generateNodesByNodeSelector(nodeSelector *metav1.LabelSelector) []virtualNode {
-
-	if nodeSelector == nil {
-		return nil
-	}
-
-	virtualNodeNums := 1
-	for _, e := range nodeSelector.MatchExpressions {
-		valuesNum := len(e.Values)
-		if valuesNum > 0 {
-			virtualNodeNums = virtualNodeNums * valuesNum
-		}
-	}
-
-	virtualNodes := make([]virtualNode, virtualNodeNums)
-	//fill label with MatchLabels
-	for key, value := range nodeSelector.MatchLabels {
-		for i := range virtualNodes {
-			if virtualNodes[i] == nil {
-				virtualNodes[i] = map[string]string{}
-			}
-			virtualNodes[i][key] = value
-		}
-	}
-
-	//fill label with MatchExpressions
-	for _, e := range nodeSelector.MatchExpressions {
-		valuesNum := len(e.Values)
-		if valuesNum > 0 {
-			for i := range virtualNodes {
-				if virtualNodes[i] == nil {
-					virtualNodes[i] = map[string]string{}
-				}
-				virtualNodes[i][e.Key] = e.Values[i%valuesNum]
-			}
-		}
-	}
-	return virtualNodes
+	_ = "STUB: not implemented"
+	return nil
 }
+
+//fill label with MatchLabels
+
+//fill label with MatchExpressions

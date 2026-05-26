@@ -31,12 +31,6 @@ var (
 )
 
 func RecordNodePredictedResourceReclaimable(resourceName string, unit string, predictor string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PredictorKey] = predictor
-	labels[ResourceKey] = resourceName
-	labels[UnitKey] = unit
-	NodePredictedResourceReclaimable.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }

@@ -17,12 +17,10 @@ limitations under the License.
 package v1alpha2
 
 import (
-	"fmt"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/conversion"
 	"k8s.io/apimachinery/pkg/runtime"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config"
 )
@@ -35,73 +33,30 @@ var (
 	initPluginArgConversionScheme sync.Once
 )
 
-func GetPluginArgConversionScheme() *runtime.Scheme {
-	initPluginArgConversionScheme.Do(func() {
-		// set up the scheme used for plugin arg conversion
-		pluginArgConversionScheme = runtime.NewScheme()
-		utilruntime.Must(AddToScheme(pluginArgConversionScheme))
-		utilruntime.Must(config.AddToScheme(pluginArgConversionScheme))
-	})
-	return pluginArgConversionScheme
-}
+func GetPluginArgConversionScheme() *runtime.Scheme { _ = "STUB: not implemented"; return nil }
+
+// set up the scheme used for plugin arg conversion
 
 func Convert_v1alpha2_DeschedulerConfiguration_To_config_DeschedulerConfiguration(in *DeschedulerConfiguration, out *config.DeschedulerConfiguration, s conversion.Scope) error {
-	if err := autoConvert_v1alpha2_DeschedulerConfiguration_To_config_DeschedulerConfiguration(in, out, s); err != nil {
-		return err
-	}
-	return convertToInternalPluginConfigArgs(out)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // convertToInternalPluginConfigArgs converts PluginConfig#Args into internal
 // types using a scheme, after applying defaults.
 func convertToInternalPluginConfigArgs(out *config.DeschedulerConfiguration) error {
-	scheme := GetPluginArgConversionScheme()
-	for i := range out.Profiles {
-		prof := &out.Profiles[i]
-		for j := range prof.PluginConfig {
-			args := prof.PluginConfig[j].Args
-			if args == nil {
-				continue
-			}
-			if _, isUnknown := args.(*runtime.Unknown); isUnknown {
-				continue
-			}
-			internalArgs, err := scheme.ConvertToVersion(args, config.SchemeGroupVersion)
-			if err != nil {
-				return fmt.Errorf("converting .Profiles[%d].PluginConfig[%d].Args into internal type: %w", i, j, err)
-			}
-			prof.PluginConfig[j].Args = internalArgs
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func Convert_config_DeschedulerConfiguration_To_v1alpha2_DeschedulerConfiguration(in *config.DeschedulerConfiguration, out *DeschedulerConfiguration, s conversion.Scope) error {
-	if err := autoConvert_config_DeschedulerConfiguration_To_v1alpha2_DeschedulerConfiguration(in, out, s); err != nil {
-		return err
-	}
-	return convertToExternalPluginConfigArgs(out)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // convertToExternalPluginConfigArgs converts PluginConfig#Args into
 // external (versioned) types using a scheme.
 func convertToExternalPluginConfigArgs(out *DeschedulerConfiguration) error {
-	scheme := GetPluginArgConversionScheme()
-	for i := range out.Profiles {
-		for j := range out.Profiles[i].PluginConfig {
-			args := out.Profiles[i].PluginConfig[j].Args
-			if args.Object == nil {
-				continue
-			}
-			if _, isUnknown := args.Object.(*runtime.Unknown); isUnknown {
-				continue
-			}
-			externalArgs, err := scheme.ConvertToVersion(args.Object, SchemeGroupVersion)
-			if err != nil {
-				return err
-			}
-			out.Profiles[i].PluginConfig[j].Args.Object = externalArgs
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -27,9 +27,7 @@ var (
 	ExternalRegistry = prometheus.NewRegistry()
 )
 
-func ExternalMustRegister(metrics ...prometheus.Collector) {
-	ExternalRegistry.MustRegister(metrics...)
-}
+func ExternalMustRegister(metrics ...prometheus.Collector) { _ = "STUB: not implemented"; return }
 
 func init() {
 	ExternalMustRegister(ResourceSummaryCollectors...)

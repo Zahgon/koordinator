@@ -17,13 +17,11 @@ limitations under the License.
 package metrics
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"k8s.io/component-base/metrics"
-	"k8s.io/component-base/metrics/legacyregistry"
 	schedulermetrics "k8s.io/kubernetes/pkg/scheduler/metrics"
 
 	utilmetrics "github.com/koordinator-sh/koordinator/pkg/util/metrics"
@@ -185,103 +183,69 @@ var registerMetrics sync.Once
 
 // Register all metrics.
 func Register() {
+	_ = "STUB: not implemented"
 	// Register the metrics.
-	registerMetrics.Do(func() {
-		RegisterMetrics(metricsList...)
-		RegisterGCMetrics(gcMetricsList...)
-	})
+	return
 }
 
 // RegisterMetrics registers a list of metrics.
 // This function is exported because it is intended to be used by out-of-tree plugins to register their custom metrics.
-func RegisterMetrics(extraMetrics ...metrics.Registerable) {
-	for _, metric := range extraMetrics {
-		legacyregistry.MustRegister(metric)
-	}
-}
+func RegisterMetrics(extraMetrics ...metrics.Registerable) { _ = "STUB: not implemented"; return }
 
 // RegisterGCMetrics registers garbage collection metrics.
-func RegisterGCMetrics(gcMetrics ...prometheus.Collector) {
-	for _, metric := range gcMetrics {
-		legacyregistry.RawMustRegister(metric)
-	}
-}
+func RegisterGCMetrics(gcMetrics ...prometheus.Collector) { _ = "STUB: not implemented"; return }
 
 // RecordReservationPhase records the phase of a reservation as a metric.
 // It uses the provided name, phase, and value to set the metric with specific labels.
 func RecordReservationPhase(name string, phase string, value float64) {
-	labels := prometheus.Labels{
-		reservationNameKey:  name,
-		reservationPhaseKey: phase,
-	}
-	ReservationStatusPhase.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
-func ResetReservationPhase() {
-	ReservationStatusPhase.Reset()
-}
+func ResetReservationPhase() { _ = "STUB: not implemented"; return }
 
 // RecordReservationResourceByTypeWithUnit records the resource record of a reservation as a metric.
 func RecordReservationResourceByTypeWithUnit(name, resource, typ, unit string, value float64) {
-	labels := prometheus.Labels{
-		reservationResourceTypeKey: typ,
-		reservationNameKey:         name,
-		reservationResourceKey:     resource,
-		reservationResourceUnitKey: unit,
-	}
-	ReservationResource.WithSet(labels, value)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordElasticQuotaProcessLatency(operation string, latency time.Duration) {
-	ElasticQuotaProcessLatency.WithLabelValues(operation).Observe(latency.Seconds())
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordSecondaryDeviceNotWellPlanned(nodeName string, notWellPlanned bool) {
-	if SecondaryDeviceNotWellPlannedNodes.MetricVec == nil {
-		// only for UT
-		return
-	}
-	if notWellPlanned {
-		SecondaryDeviceNotWellPlannedNodes.WithLabelValues(nodeName).Set(1.0)
-		return
-	}
-	SecondaryDeviceNotWellPlannedNodes.DeleteLabelValues(nodeName)
+	_ = "STUB: not implemented"
+	return
 }
 
+// only for UT
+
 func RecordNextPodPluginsDeletePodFromQueue(latency time.Duration) {
-	NextPodDeleteFromQueueLatency.WithLabelValues().Observe(latency.Seconds())
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordElasticQuotaHookPluginLatency(plugin, operation string, latency time.Duration) {
-	ElasticQuotaHookPluginLatency.WithLabelValues(plugin, operation).Observe(latency.Seconds())
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordJobPreemptionDuration(jobName string, result string, latency time.Duration) {
-	labels := prometheus.Labels{
-		"jobName": jobName,
-		"result":  result,
-	}
-	JobPreemptionDuration.WithObserve(labels, latency.Seconds())
+	_ = "STUB: not implemented"
+	return
 }
 
 // GangJobSizeBucket maps a gang job size (number of attempted pods) to a
 // bounded-cardinality label value, so it can be safely used as a Prometheus
 // label without causing a cardinality explosion. Buckets are 100-wide up to
 // 1000, with a single "1000+" catch-all above that.
-func GangJobSizeBucket(n int) string {
-	const bucketWidth, maxBucketed = 100, 1000
-	switch {
-	case n <= 0:
-		return "0"
-	case n > maxBucketed:
-		return "1000+"
-	}
-	idx := (n - 1) / bucketWidth
-	return fmt.Sprintf("%d-%d", idx*bucketWidth+1, (idx+1)*bucketWidth)
-}
+func GangJobSizeBucket(n int) string { _ = "STUB: not implemented"; return "" }
 
 // RecordGangScheduleCycleDuration records how long a gang scheduling cycle
 // took, bucketed by clear reason and job size.
 func RecordGangScheduleCycleDuration(reason, jobSize string, latency time.Duration) {
-	GangScheduleCycleDuration.WithLabelValues(reason, jobSize).Observe(latency.Seconds())
+	_ = "STUB: not implemented"
+	return
 }

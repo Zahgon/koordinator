@@ -31,20 +31,6 @@ type fakeDevices struct {
 }
 
 func newFakeDevices(fake *FakeSchedulingV1alpha1) schedulingv1alpha1.DeviceInterface {
-	return &fakeDevices{
-		gentype.NewFakeClientWithList[*v1alpha1.Device, *v1alpha1.DeviceList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("devices"),
-			v1alpha1.SchemeGroupVersion.WithKind("Device"),
-			func() *v1alpha1.Device { return &v1alpha1.Device{} },
-			func() *v1alpha1.DeviceList { return &v1alpha1.DeviceList{} },
-			func(dst, src *v1alpha1.DeviceList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.DeviceList) []*v1alpha1.Device { return gentype.ToPointerSlice(list.Items) },
-			func(list *v1alpha1.DeviceList, items []*v1alpha1.Device) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.DeviceInterface)
 }

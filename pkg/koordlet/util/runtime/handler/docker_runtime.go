@@ -18,24 +18,14 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
-	"github.com/docker/docker/api/types/container"
 	dclient "github.com/docker/docker/client"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 var GetDockerClient = createDockerClient // for test
 
-func GetDockerEndpoint() string {
-	return filepath.Join(system.Conf.VarRunRootDir, "docker.sock")
-}
+func GetDockerEndpoint() string { _ = "STUB: not implemented"; return "" }
 
 type DockerRuntimeHandler struct {
 	dockerClient *dclient.Client
@@ -43,79 +33,21 @@ type DockerRuntimeHandler struct {
 }
 
 func NewDockerRuntimeHandler(endpoint string) (ContainerRuntimeHandler, error) {
-	var (
-		client     *dclient.Client
-		httpClient *http.Client
-		err        error
-	)
-
-	client, err = GetDockerClient(httpClient, endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultConnectionTimeout)
-	defer cancel()
-
-	client.NegotiateAPIVersion(ctx)
-
-	return &DockerRuntimeHandler{
-		dockerClient: client,
-		endpoint:     endpoint,
-	}, err
+	_ = "STUB: not implemented"
+	return *new(ContainerRuntimeHandler), nil
 }
 
 func createDockerClient(httpClient *http.Client, endPoint string) (*dclient.Client, error) {
-	ep := strings.TrimPrefix(endPoint, "unix://")
-
-	if _, err := os.Stat(ep); err != nil {
-		return nil, err
-	}
-
-	return dclient.NewClientWithOpts(dclient.WithHost(endPoint), dclient.WithHTTPClient(httpClient))
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *DockerRuntimeHandler) StopContainer(c context.Context, containerID string, timeout int64) error {
-	if d == nil || d.dockerClient == nil {
-		return fmt.Errorf("stop container fail! docker client is nil! containerID=%v", containerID)
-	}
-
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultConnectionTimeout)
-	defer cancel()
-
-	stopTimeout := time.Duration(timeout) * time.Second
-	stopTimeoutSeconds := int(stopTimeout.Seconds())
-
-	return d.dockerClient.ContainerStop(ctx, containerID, container.StopOptions{Timeout: &stopTimeoutSeconds})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *DockerRuntimeHandler) UpdateContainerResources(containerID string, opts UpdateOptions) error {
-	if d == nil || d.dockerClient == nil {
-		return fmt.Errorf("UpdateContainerResources fail! docker client is nil! containerID=%v", containerID)
-	}
-
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-
-	updateConfig := container.UpdateConfig{
-		Resources: container.Resources{
-			CPUPeriod:  opts.CPUPeriod,
-			CPUQuota:   opts.CPUQuota,
-			CPUShares:  opts.CPUShares,
-			CpusetCpus: opts.CpusetCpus,
-			CpusetMems: opts.CpusetMems,
-			Memory:     opts.MemoryLimitInBytes,
-		},
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultConnectionTimeout)
-	defer cancel()
-
-	_, err := d.dockerClient.ContainerUpdate(ctx, containerID, updateConfig)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }

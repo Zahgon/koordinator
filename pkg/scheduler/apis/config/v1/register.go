@@ -32,20 +32,7 @@ var (
 )
 
 // addKnownTypes registers known types to the given scheme
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypes(SchemeGroupVersion,
-		&LoadAwareSchedulingArgs{},
-		&NodeNUMAResourceArgs{},
-		&ReservationArgs{},
-		&ElasticQuotaArgs{},
-		&CoschedulingArgs{},
-		&DeviceShareArgs{},
-		&NodeResourcesFitPlusArgs{},
-		&ScarceResourceAvoidanceArgs{},
-		&SchedulingHintArgs{},
-	)
-	return nil
-}
+func addKnownTypes(scheme *runtime.Scheme) error { _ = "STUB: not implemented"; return nil }
 
 func init() {
 	// We only register manually written functions here. The registration of the

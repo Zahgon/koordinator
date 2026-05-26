@@ -17,12 +17,6 @@ limitations under the License.
 
 package histogram
 
-import (
-	"errors"
-	"fmt"
-	"math"
-)
-
 // HistogramOptions define the number and size of buckets of a histogram.
 type HistogramOptions interface {
 	// Returns the number of buckets in the histogram.
@@ -44,11 +38,8 @@ type HistogramOptions interface {
 // Requires maxValue > 0, bucketSize > 0, epsilon > 0.
 func NewLinearHistogramOptions(
 	maxValue float64, bucketSize float64, epsilon float64) (HistogramOptions, error) {
-	if maxValue <= 0.0 || bucketSize <= 0.0 || epsilon <= 0.0 {
-		return nil, errors.New("maxValue and bucketSize must both be positive")
-	}
-	numBuckets := int(math.Ceil(maxValue/bucketSize)) + 1
-	return &linearHistogramOptions{numBuckets, bucketSize, epsilon}, nil
+	_ = "STUB: not implemented"
+	return *new(HistogramOptions), nil
 }
 
 // NewExponentialHistogramOptions returns HistogramOptions describing a
@@ -63,12 +54,8 @@ func NewLinearHistogramOptions(
 // Requires maxValue > 0, firstBucketSize > 0, ratio > 1, epsilon > 0.
 func NewExponentialHistogramOptions(
 	maxValue float64, firstBucketSize float64, ratio float64, epsilon float64) (HistogramOptions, error) {
-	if maxValue <= 0.0 || firstBucketSize <= 0.0 || ratio <= 1.0 || epsilon <= 0.0 {
-		return nil, errors.New(
-			"maxValue, firstBucketSize and epsilon must be > 0.0, ratio must be > 1.0")
-	}
-	numBuckets := int(math.Ceil(log(ratio, maxValue*(ratio-1)/firstBucketSize+1))) + 1
-	return &exponentialHistogramOptions{numBuckets, firstBucketSize, ratio, epsilon}, nil
+	_ = "STUB: not implemented"
+	return *new(HistogramOptions), nil
 }
 
 type linearHistogramOptions struct {
@@ -84,69 +71,41 @@ type exponentialHistogramOptions struct {
 	epsilon         float64
 }
 
-func (o *linearHistogramOptions) NumBuckets() int {
-	return o.numBuckets
-}
+func (o *linearHistogramOptions) NumBuckets() int { _ = "STUB: not implemented"; return 0 }
 
-func (o *linearHistogramOptions) FindBucket(value float64) int {
-	bucket := int(value / o.bucketSize)
-	if bucket < 0 {
-		return 0
-	}
-	if bucket >= o.numBuckets {
-		return o.numBuckets - 1
-	}
-	return bucket
-}
+func (o *linearHistogramOptions) FindBucket(value float64) int { _ = "STUB: not implemented"; return 0 }
 
 func (o *linearHistogramOptions) GetBucketStart(bucket int) float64 {
-	if bucket < 0 || bucket >= o.numBuckets {
-		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
-	}
-	return float64(bucket) * o.bucketSize
+	_ = "STUB: not implemented"
+	return 0
 }
 
-func (o *linearHistogramOptions) Epsilon() float64 {
-	return o.epsilon
-}
+func (o *linearHistogramOptions) Epsilon() float64 { _ = "STUB: not implemented"; return 0 }
 
-func (o *exponentialHistogramOptions) NumBuckets() int {
-	return o.numBuckets
-}
+func (o *exponentialHistogramOptions) NumBuckets() int { _ = "STUB: not implemented"; return 0 }
 
 // Returns the index of the bucket for given value. This is the inverse function to
 // GetBucketStart(), which yields the following formula for the bucket index:
 //
 //	bucket(value) = floor(log(value/firstBucketSize*(ratio-1)+1) / log(ratio))
 func (o *exponentialHistogramOptions) FindBucket(value float64) int {
-	if value < o.firstBucketSize {
-		return 0
-	}
-	bucket := int(log(o.ratio, value*(o.ratio-1)/o.firstBucketSize+1))
-	if bucket >= o.numBuckets {
-		return o.numBuckets - 1
-	}
-	return bucket
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // Returns the start of the bucket with given index, according to the formula:
 //
 //	bucketStart(bucket) = firstBucketSize * (ratio^bucket - 1) / (ratio - 1).
 func (o *exponentialHistogramOptions) GetBucketStart(bucket int) float64 {
-	if bucket < 0 || bucket >= o.numBuckets {
-		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
-	}
-	if bucket == 0 {
-		return 0.0
-	}
-	return o.firstBucketSize * (math.Pow(o.ratio, float64(bucket)) - 1) / (o.ratio - 1)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (o *exponentialHistogramOptions) Epsilon() float64 {
-	return o.epsilon
+	_ = "STUB: not implemented"
+
+	// Returns the logarithm of x to given base, so that: base^log(base, x) == x.
+	return 0
 }
 
-// Returns the logarithm of x to given base, so that: base^log(base, x) == x.
-func log(base, x float64) float64 {
-	return math.Log(x) / math.Log(base)
-}
+func log(base, x float64) float64 { _ = "STUB: not implemented"; return 0 }

@@ -17,18 +17,13 @@ limitations under the License.
 package networktopology
 
 import (
-	"context"
-
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
 	clientset "k8s.io/client-go/kubernetes"
-	kubefake "k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/yaml"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	koordclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
-	koordfake "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/fake"
 	koordinatorinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
 )
 
@@ -139,25 +134,8 @@ type FakeTools struct {
 }
 
 func NewFakeTreeManager(clusterNetworkTopology *schedulingv1alpha1.ClusterNetworkTopology, nodes []*corev1.Node) (TreeManager, FakeTools) {
-	clientSet := kubefake.NewSimpleClientset()
-	informerFactory := informers.NewSharedInformerFactory(clientSet, 0)
-	nodeStore := informerFactory.Core().V1().Nodes().Informer().GetStore()
-	for i := range nodes {
-		_, _ = clientSet.CoreV1().Nodes().Create(context.TODO(), nodes[i], metav1.CreateOptions{})
-		_ = nodeStore.Add(nodes[i])
-	}
-	koordClientSet := koordfake.NewSimpleClientset()
-	koordInformerFactory := koordinatorinformers.NewSharedInformerFactory(koordClientSet, 0)
-	_, _ = koordClientSet.SchedulingV1alpha1().ClusterNetworkTopologies().Create(context.TODO(), clusterNetworkTopology, metav1.CreateOptions{})
-	store := koordInformerFactory.Scheduling().V1alpha1().ClusterNetworkTopologies().Informer().GetStore()
-	_ = store.Add(clusterNetworkTopology)
-	tm := NewTreeManager(koordInformerFactory, informerFactory, koordClientSet).(*treeManager)
-	// Pre-initialize lister and tree so tests can call Run in a goroutine without waiting for sync
-	tm.topologyLister = koordInformerFactory.Scheduling().V1alpha1().ClusterNetworkTopologies().Lister()
-	return tm, FakeTools{
-		InformerFactory:      informerFactory,
-		KoordInformerFactory: koordInformerFactory,
-		KoordClient:          koordClientSet,
-		KubeClient:           clientSet,
-	}
+	_ = "STUB: not implemented"
+	return *new(TreeManager), *new(FakeTools)
 }
+
+// Pre-initialize lister and tree so tests can call Run in a goroutine without waiting for sync

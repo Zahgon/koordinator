@@ -18,30 +18,20 @@ package descheduler
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/informers"
 	corev1informers "k8s.io/client-go/informers/core/v1"
 	clientset "k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/klog/v2"
 
 	deschedulerconfig "github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config/scheme"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config/v1alpha2"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
-	frameworkplugins "github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins"
 	frameworkruntime "github.com/koordinator-sh/koordinator/pkg/descheduler/framework/runtime"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/metrics"
-	nodeutil "github.com/koordinator-sh/koordinator/pkg/descheduler/node"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/profile"
 )
 
@@ -82,48 +72,34 @@ type Option func(*deschedulerOptions)
 // scheme group/version of the external type we converted from (for example
 // "descheduler/v1alpha2")
 func WithComponentConfigVersion(apiVersion string) Option {
-	return func(o *deschedulerOptions) {
-		o.componentConfigVersion = apiVersion
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
-func WithKubeConfig(cfg *restclient.Config) Option {
-	return func(o *deschedulerOptions) {
-		o.kubeConfig = cfg
-	}
-}
+func WithKubeConfig(cfg *restclient.Config) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 func WithProfiles(p ...deschedulerconfig.DeschedulerProfile) Option {
-	return func(o *deschedulerOptions) {
-		o.profiles = p
-		o.applyDefaultProfile = false
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
-func WithDryRun(dryRun bool) Option {
-	return func(options *deschedulerOptions) {
-		options.dryRun = dryRun
-	}
-}
+func WithDryRun(dryRun bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 func WithNodeSelector(nodeSelector *metav1.LabelSelector) Option {
-	return func(options *deschedulerOptions) {
-		options.nodeSelector = nodeSelector
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithDeschedulingInterval(interval time.Duration) Option {
-	return func(options *deschedulerOptions) {
-		options.deschedulingInterval = interval
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithFrameworkOutOfTreeRegistry sets the registry for out-of-tree plugins. Those plugins
 // will be appended to the default registry.
 func WithFrameworkOutOfTreeRegistry(registry frameworkruntime.Registry) Option {
-	return func(o *deschedulerOptions) {
-		o.outOfTreeRegistry = registry
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // FrameworkCapturer is used for registering a notify function in building framework.
@@ -131,23 +107,20 @@ type FrameworkCapturer func(deschedulerconfig.DeschedulerProfile)
 
 // WithBuildFrameworkCapturer sets a notify function for getting buildFramework details.
 func WithBuildFrameworkCapturer(fc FrameworkCapturer) Option {
-	return func(o *deschedulerOptions) {
-		o.frameworkCapturer = fc
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 type PodAssignedToNodeFn func(nodeName string) ([]*corev1.Pod, error)
 
 func WithPodAssignedToNodeFn(fn PodAssignedToNodeFn) Option {
-	return func(options *deschedulerOptions) {
-		options.podAssignedToNodeFn = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithEvictionLimiter(limiter frameworkruntime.EvictionLimiter) Option {
-	return func(options *deschedulerOptions) {
-		options.evictionLimiter = limiter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 var defaultDeschedulerOptions = deschedulerOptions{
@@ -161,181 +134,27 @@ func New(client clientset.Interface,
 	stopCh <-chan struct{},
 	opts ...Option,
 ) (*Descheduler, error) {
-	stopEverything := stopCh
-	if stopEverything == nil {
-		stopEverything = wait.NeverStop
-	}
-
-	options := defaultDeschedulerOptions
-	for _, opt := range opts {
-		opt(&options)
-	}
-
-	if options.applyDefaultProfile {
-		var versionedCfg v1alpha2.DeschedulerConfiguration
-		scheme.Scheme.Default(&versionedCfg)
-		cfg := deschedulerconfig.DeschedulerConfiguration{}
-		if err := scheme.Scheme.Convert(&versionedCfg, &cfg, nil); err != nil {
-			return nil, err
-		}
-		options.profiles = cfg.Profiles
-	}
-
-	var nodeSelector string
-	if options.nodeSelector != nil {
-		selector, err := metav1.LabelSelectorAsSelector(options.nodeSelector)
-		if err != nil {
-			return nil, err
-		}
-		nodeSelector = selector.String()
-	}
-
-	nodeInformer := informerFactory.Core().V1().Nodes()
-	podInformer := informerFactory.Core().V1().Pods()
-	namespaceInformer := informerFactory.Core().V1().Namespaces()
-	priorityClassInformer := informerFactory.Scheduling().V1().PriorityClasses()
-
-	// create the informers before starting the informer factory
-	nodeInformer.Informer()
-	podInformer.Informer()
-	namespaceInformer.Informer()
-	priorityClassInformer.Informer()
-
-	registry := frameworkplugins.NewInTreeRegistry()
-	if err := registry.Merge(options.outOfTreeRegistry); err != nil {
-		return nil, err
-	}
-
-	metrics.Register()
-
-	profiles, err := profile.NewMap(
-		context.Background(),
-		options.profiles,
-		registry,
-		recorderFactory,
-		frameworkruntime.WithDryRun(options.dryRun),
-		frameworkruntime.WithClientSet(client),
-		frameworkruntime.WithKubeConfig(options.kubeConfig),
-		frameworkruntime.WithSharedInformerFactory(informerFactory),
-		frameworkruntime.WithEvictionLimiter(options.evictionLimiter),
-		frameworkruntime.WithGetPodsAssignedToNodeFunc(podAssignedToNodeAdaptor(options.podAssignedToNodeFn)),
-		frameworkruntime.WithCaptureProfile(frameworkruntime.CaptureProfile(options.frameworkCapturer)),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("initializing profiles: %v", err)
-	}
-
-	if len(profiles) == 0 {
-		return nil, errors.New("at least one profile is required")
-	}
-
-	descheduler := &Descheduler{
-		Profiles:             profiles,
-		StopEverything:       stopEverything,
-		clientSet:            client,
-		nodeInformer:         nodeInformer,
-		deschedulingInterval: options.deschedulingInterval,
-		nodeSelector:         nodeSelector,
-		evictionLimiter:      options.evictionLimiter,
-	}
-	return descheduler, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (d *Descheduler) Start(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+// create the informers before starting the informer factory
 
-	wait.NonSlidingUntil(func() {
-		if err := d.deschedulerOnce(ctx); err != nil {
-			klog.Errorf("Error descheduling pods: %v", err)
-		}
+func (d *Descheduler) Start(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-		// If there was no interval specified, send a signal to the stopChannel to end the wait.Until loop after 1 iteration
-		if d.deschedulingInterval == 0 {
-			cancel()
-			return
-		}
-	}, d.deschedulingInterval, ctx.Done())
-	return nil
-}
+// If there was no interval specified, send a signal to the stopChannel to end the wait.Until loop after 1 iteration
 
 func (d *Descheduler) deschedulerOnce(ctx context.Context) error {
-	nodes, err := nodeutil.ReadyNodes(ctx, d.clientSet, d.nodeInformer, d.nodeSelector)
-	if err != nil {
-		return fmt.Errorf("unable to get ready nodes: %v", err)
-	}
-
-	if len(nodes) <= 1 {
-		return fmt.Errorf("the cluster size is 0 or 1 meaning eviction causes service disruption or degradation")
-	}
-
-	d.evictionLimiter.Reset()
-
-	for _, p := range d.Profiles {
-		processedNodes := sets.NewString()
-		selectedNodes, filterErr := filterNodes(p.NodeSelector(), nodes, processedNodes)
-		if filterErr != nil {
-			return filterErr
-		}
-		status := p.RunDeschedulePlugins(ctx, selectedNodes)
-		if status != nil && status.Err != nil {
-			return status.Err
-		}
-	}
-
-	for _, p := range d.Profiles {
-		processedNodes := sets.NewString()
-		selectedNodes, filterErr := filterNodes(p.NodeSelector(), nodes, processedNodes)
-		if filterErr != nil {
-			return filterErr
-		}
-		status := p.RunBalancePlugins(ctx, selectedNodes)
-		if status != nil && status.Err != nil {
-			return status.Err
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func podAssignedToNodeAdaptor(fn PodAssignedToNodeFn) framework.GetPodsAssignedToNodeFunc {
-	return func(nodeName string, filterFunc framework.FilterFunc) ([]*corev1.Pod, error) {
-		if fn == nil {
-			return nil, nil
-		}
-		pods, err := fn(nodeName)
-		if err != nil {
-			return nil, err
-		}
-		if len(pods) == 0 {
-			return nil, nil
-		}
-		result := make([]*corev1.Pod, 0, len(pods))
-		for _, v := range pods {
-			if filterFunc(v) {
-				result = append(result, v)
-			}
-		}
-		return result, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.GetPodsAssignedToNodeFunc)
 }
 
 func filterNodes(nodeSelector *metav1.LabelSelector, nodes []*corev1.Node, processedNodes sets.String) ([]*corev1.Node, error) {
-	if nodeSelector == nil {
-		return nodes, nil
-	}
-	selector, err := metav1.LabelSelectorAsSelector(nodeSelector)
-	if err != nil {
-		return nil, err
-	}
-	r := make([]*corev1.Node, 0, len(nodes))
-	for _, v := range nodes {
-		if processedNodes.Has(v.Name) {
-			continue
-		}
-		if selector.Matches(labels.Set(v.Labels)) {
-			r = append(r, v)
-		}
-	}
-	return r, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

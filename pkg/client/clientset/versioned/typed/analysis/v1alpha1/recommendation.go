@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	analysisv1alpha1 "github.com/koordinator-sh/koordinator/apis/analysis/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,14 +56,6 @@ type recommendations struct {
 
 // newRecommendations returns a Recommendations
 func newRecommendations(c *AnalysisV1alpha1Client, namespace string) *recommendations {
-	return &recommendations{
-		gentype.NewClientWithList[*analysisv1alpha1.Recommendation, *analysisv1alpha1.RecommendationList](
-			"recommendations",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			namespace,
-			func() *analysisv1alpha1.Recommendation { return &analysisv1alpha1.Recommendation{} },
-			func() *analysisv1alpha1.RecommendationList { return &analysisv1alpha1.RecommendationList{} },
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

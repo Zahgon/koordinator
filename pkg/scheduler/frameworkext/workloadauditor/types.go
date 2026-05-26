@@ -17,7 +17,6 @@ limitations under the License.
 package workloadauditor
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -76,6 +75,4 @@ type WorkloadRecord struct {
 	labelDetail string
 }
 
-func GetPodKey(pod *corev1.Pod) string {
-	return fmt.Sprintf("%s/%s/%s", pod.Namespace, pod.Name, pod.UID)
-}
+func GetPodKey(pod *corev1.Pod) string { _ = "STUB: not implemented"; return "" }

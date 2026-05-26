@@ -22,67 +22,24 @@ import (
 )
 
 func ResourceUsageScorer(resToWeightMap map[corev1.ResourceName]int64) func(requested, allocatable corev1.ResourceList) int64 {
-	return func(requested, allocatable corev1.ResourceList) int64 {
-		var nodeScore, weightSum int64
-		for resourceName, quantity := range requested {
-			weight := resToWeightMap[resourceName]
-			resourceScore := mostRequestedScore(getResourceValue(resourceName, quantity), getResourceValue(resourceName, allocatable[resourceName]))
-			nodeScore += resourceScore * weight
-			weightSum += weight
-		}
-		if weightSum == 0 {
-			return 0
-		}
-		return nodeScore / weightSum
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func ResourceUsageScorerPod(resToWeightMap map[corev1.ResourceName]int64) func(requested corev1.ResourceList, allocatable corev1.ResourceList) float64 {
-	return func(requested, allocatable corev1.ResourceList) float64 {
-		var nodeScore float64
-		var weightSum int64
-		for resourceName, quantity := range requested {
-			weight := resToWeightMap[resourceName]
-			resourceScore := mostRequestedScorePod(getResourceValue(resourceName, quantity), getResourceValue(resourceName, allocatable[resourceName]))
-			nodeScore += resourceScore * float64(weight)
-			weightSum += weight
-		}
-		if weightSum == 0 {
-			return 0
-		}
-		return nodeScore / float64(weightSum)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func mostRequestedScore(requested, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if requested > capacity {
-		// `requested` might be greater than `capacity` because pods with no
-		// requests get minimum values.
-		requested = capacity
-	}
+func mostRequestedScore(requested, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }
 
-	return (requested * 1000) / capacity
-}
+// `requested` might be greater than `capacity` because pods with no
+// requests get minimum values.
 
 // mostRequestedScorePod The closer the request is to the capacity, the higher the score.The score will be higher when requested >= ratio
-func mostRequestedScorePod(requested, capacity int64) float64 {
-	if capacity == 0 {
-		return 0
-	}
-	ratio := float64(requested) / float64(capacity)
-	if ratio >= 1 {
-		return 1/ratio + 1
-	} else {
-		return ratio
-	}
-}
+func mostRequestedScorePod(requested, capacity int64) float64 { _ = "STUB: not implemented"; return 0 }
 
 func getResourceValue(resourceName corev1.ResourceName, quantity resource.Quantity) int64 {
-	if resourceName == corev1.ResourceCPU {
-		return quantity.MilliValue()
-	}
-	return quantity.Value()
+	_ = "STUB: not implemented"
+	return 0
 }

@@ -17,14 +17,7 @@ limitations under the License.
 package system
 
 import (
-	"bufio"
-	"bytes"
-	"fmt"
 	"io"
-	"os"
-	"strings"
-
-	"k8s.io/klog/v2"
 )
 
 const psiLineFormat = "avg10=%f avg60=%f avg300=%f total=%d"
@@ -57,71 +50,18 @@ type PSIStats struct {
 
 // parsePSIStats parses the specified file for pressure stall information.
 func ParsePSIStats(r io.Reader) (PSIStats, error) {
-	psiStats := PSIStats{}
-
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		l := scanner.Text()
-		prefix := strings.Split(l, " ")[0]
-		switch prefix {
-		case "some":
-			psi := PSILine{}
-			_, err := fmt.Sscanf(l, fmt.Sprintf("some %s", psiLineFormat), &psi.Avg10, &psi.Avg60, &psi.Avg300, &psi.Total)
-			if err != nil {
-				return PSIStats{}, err
-			}
-			psiStats.Some = &psi
-		case "full":
-			psi := PSILine{}
-			_, err := fmt.Sscanf(l, fmt.Sprintf("full %s", psiLineFormat), &psi.Avg10, &psi.Avg60, &psi.Avg300, &psi.Total)
-			if err != nil {
-				return PSIStats{}, err
-			}
-			psiStats.Full = &psi
-		default:
-			return PSIStats{}, fmt.Errorf("unknown PSI prefix: %s", prefix)
-		}
-	}
-
-	// full cpu pressure not supported in old kernel versions
-	psiStats.FullSupported = true
-	if psiStats.Full == nil {
-		psiStats.FullSupported = false
-		psiStats.Full = &PSILine{}
-	}
-
-	return psiStats, nil
+	_ = "STUB: not implemented"
+	return *new(PSIStats), nil
 }
 
+// full cpu pressure not supported in old kernel versions
+
 func GetPSIByResource(paths PSIPath) (*PSIByResource, error) {
-	cpuStats, err := readPSI(paths.CPU)
-	if err != nil {
-		return nil, err
-	}
-	memStats, err := readPSI(paths.Mem)
-	if err != nil {
-		return nil, err
-	}
-	ioStats, err := readPSI(paths.IO)
-	if err != nil {
-		return nil, err
-	}
-	return &PSIByResource{
-		CPU: cpuStats,
-		Mem: memStats,
-		IO:  ioStats,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func readPSI(pressureFilePath string) (PSIStats, error) {
-	fileContents, err := os.ReadFile(pressureFilePath)
-	if err != nil {
-		return PSIStats{}, err
-	}
-	klog.V(5).Infof("read psi file contents: %s, path is %v", string(fileContents), pressureFilePath)
-	stats, err := ParsePSIStats(bytes.NewReader(fileContents))
-	if err != nil {
-		return PSIStats{}, err
-	}
-	return stats, nil
+	_ = "STUB: not implemented"
+	return *new(PSIStats), nil
 }

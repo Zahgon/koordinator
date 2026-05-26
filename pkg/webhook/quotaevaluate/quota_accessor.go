@@ -17,12 +17,7 @@ limitations under the License.
 package quotaevaluate
 
 import (
-	"context"
-
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/storage"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 	"k8s.io/utils/lru"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -49,57 +44,21 @@ type quotaAccessor struct {
 }
 
 // NewQuotaAccessor creates an object that conforms to the QuotaAccessor interface to be used to retrieve quota objects.
-func NewQuotaAccessor(c client.Client) *quotaAccessor {
-	updatedCache := lru.New(100)
-	return &quotaAccessor{
-		client:        c,
-		updatedQuotas: updatedCache,
-	}
-}
+func NewQuotaAccessor(c client.Client) *quotaAccessor { _ = "STUB: not implemented"; return nil }
 
 func (q *quotaAccessor) UpdateQuotaStatus(newQuota *v1alpha1.ElasticQuota) error {
-	err := q.client.Update(context.TODO(), newQuota)
-	if err != nil {
-		return err
-	}
-	key := newQuota.Namespace + "/" + newQuota.Name
-	q.updatedQuotas.Add(key, newQuota)
-	klog.Infof("quota acessor update status for: %v, usage: %v", key, newQuota.Status.Used)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 var etcdVersioner = storage.APIObjectVersioner{}
 
 func (q *quotaAccessor) checkCache(quota *v1alpha1.ElasticQuota) *v1alpha1.ElasticQuota {
-	key := quota.Namespace + "/" + quota.Name
-	uncastCachedQuota, ok := q.updatedQuotas.Get(key)
-	if !ok {
-		return quota
-	}
-	cachedQuota := uncastCachedQuota.(*v1alpha1.ElasticQuota)
-
-	if etcdVersioner.CompareResourceVersion(quota, cachedQuota) >= 0 {
-		q.updatedQuotas.Remove(key)
-		return quota
-	}
-	return cachedQuota
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (q *quotaAccessor) GetQuota(key string) (*v1alpha1.ElasticQuota, error) {
-	namespace, name, err := cache.SplitMetaNamespaceKey(key)
-	if err != nil {
-		return nil, err
-	}
-	quota := &v1alpha1.ElasticQuota{}
-	err = q.client.Get(context.TODO(), types.NamespacedName{
-		Namespace: namespace,
-		Name:      name,
-	}, quota)
-	if err != nil {
-		klog.Errorf("failed to find quota by name: %v, err: %v", key, err)
-		return nil, err
-	}
-
-	quotaChecked := q.checkCache(quota)
-	return quotaChecked, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -20,15 +20,11 @@ import (
 	"context"
 
 	topologyv1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
-	"k8s.io/klog/v2"
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	"github.com/koordinator-sh/koordinator/apis/extension"
 )
 
 var _ handler.TypedEventHandler[ctrlclient.Object, reconcile.Request] = &nrtHandler{}
@@ -36,81 +32,33 @@ var _ handler.TypedEventHandler[ctrlclient.Object, reconcile.Request] = &nrtHand
 type nrtHandler struct{}
 
 func (h *nrtHandler) Create(ctx context.Context, evt event.TypedCreateEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	nrt, ok := evt.Object.(*topologyv1alpha1.NodeResourceTopology)
-	if !ok {
-		return
-	}
-
-	if !isNRTCPUBasicInfoCreated(nrt) {
-		return
-	}
-
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: nrt.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (h *nrtHandler) Update(ctx context.Context, evt event.TypedUpdateEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	nrtOld, okOld := evt.ObjectOld.(*topologyv1alpha1.NodeResourceTopology)
-	nrtNew, okNew := evt.ObjectNew.(*topologyv1alpha1.NodeResourceTopology)
-	if !okOld || !okNew {
-		return
-	}
-
-	if nrtOld.ResourceVersion == nrtNew.ResourceVersion {
-		return
-	}
-
-	if !isNRTCPUBasicInfoChanged(nrtOld, nrtNew) {
-		return
-	}
-
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: nrtNew.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (h *nrtHandler) Delete(ctx context.Context, evt event.TypedDeleteEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (h *nrtHandler) Generic(ctx context.Context, evt event.TypedGenericEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func isNRTCPUBasicInfoCreated(nrt *topologyv1alpha1.NodeResourceTopology) bool {
-	info, err := extension.GetCPUBasicInfo(nrt.Annotations)
-	if err != nil {
-		klog.V(4).InfoS("failed to get CPUBasicInfo in created NRT", "node", nrt.Name, "err", err)
-		return false
-	}
-	if info == nil {
-		klog.V(6).InfoS("skip node has no CPUBasicInfo in created NRT", "node", nrt.Name)
-		return false
-	}
-
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func isNRTCPUBasicInfoChanged(nrtOld, nrtNew *topologyv1alpha1.NodeResourceTopology) bool {
-	infoNew, err := extension.GetCPUBasicInfo(nrtNew.Annotations)
-	if err != nil {
-		klog.ErrorS(err, "failed to get new CPUBasicInfo in updated NRT", "node", nrtNew.Name)
-		return false
-	}
-	infoOld, err := extension.GetCPUBasicInfo(nrtOld.Annotations)
-	if err != nil { // ignore old error
-		klog.V(4).InfoS("aborted to get old CPUBasicInfo in updated NRT", "node", nrtOld.Name, "err", err)
-		return true
-	}
-
-	isChanged, msg := isCPUBasicInfoChanged(infoOld, infoNew)
-	if isChanged {
-		klog.V(5).InfoS("got CPUBasicInfo changed in updated NRT", "node", nrtNew.Name, "message", msg)
-		return true
-	}
-
+	_ = "STUB: not implemented"
 	return false
 }
+
+// ignore old error

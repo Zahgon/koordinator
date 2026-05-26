@@ -31,22 +31,6 @@ type fakeScheduleExplanations struct {
 }
 
 func newFakeScheduleExplanations(fake *FakeSchedulingV1alpha1, namespace string) schedulingv1alpha1.ScheduleExplanationInterface {
-	return &fakeScheduleExplanations{
-		gentype.NewFakeClientWithList[*v1alpha1.ScheduleExplanation, *v1alpha1.ScheduleExplanationList](
-			fake.Fake,
-			namespace,
-			v1alpha1.SchemeGroupVersion.WithResource("scheduleexplanations"),
-			v1alpha1.SchemeGroupVersion.WithKind("ScheduleExplanation"),
-			func() *v1alpha1.ScheduleExplanation { return &v1alpha1.ScheduleExplanation{} },
-			func() *v1alpha1.ScheduleExplanationList { return &v1alpha1.ScheduleExplanationList{} },
-			func(dst, src *v1alpha1.ScheduleExplanationList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.ScheduleExplanationList) []*v1alpha1.ScheduleExplanation {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.ScheduleExplanationList, items []*v1alpha1.ScheduleExplanation) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.ScheduleExplanationInterface)
 }

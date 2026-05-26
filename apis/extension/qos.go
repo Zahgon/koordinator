@@ -28,13 +28,4 @@ const (
 	QoSNone   QoSClass = ""
 )
 
-func GetPodQoSClassByName(qos string) QoSClass {
-	q := QoSClass(qos)
-
-	switch q {
-	case QoSLSE, QoSLSR, QoSLS, QoSBE, QoSSystem:
-		return q
-	}
-
-	return QoSNone
-}
+func GetPodQoSClassByName(qos string) QoSClass { _ = "STUB: not implemented"; return *new(QoSClass) }

@@ -17,9 +17,6 @@ limitations under the License.
 package fake
 
 import (
-	"bytes"
-	"fmt"
-
 	"github.com/koordinator-sh/koordinator/pkg/webhook/util/generator"
 )
 
@@ -33,21 +30,10 @@ type CertGenerator struct {
 var _ generator.CertGenerator = &CertGenerator{}
 
 // SetCA sets the PEM-encoded CA private key and CA cert for signing the generated serving cert.
-func (cp *CertGenerator) SetCA(CAKey, CACert []byte) {
-	cp.CAKey = CAKey
-	cp.CACert = CACert
-}
+func (cp *CertGenerator) SetCA(CAKey, CACert []byte) { _ = "STUB: not implemented"; return }
 
 // Generate generates certificates by matching a common name.
 func (cp *CertGenerator) Generate(commonName string) (*generator.Artifacts, error) {
-	certs, found := cp.DNSNameToCertArtifacts[commonName]
-	if !found {
-		return nil, fmt.Errorf("failed to find common name %q in the certGenerator", commonName)
-	}
-	if cp.CAKey != nil && cp.CACert != nil &&
-		!bytes.Contains(cp.CAKey, []byte("invalid")) && !bytes.Contains(cp.CACert, []byte("invalid")) {
-		certs.CAKey = cp.CAKey
-		certs.CACert = cp.CACert
-	}
-	return certs, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

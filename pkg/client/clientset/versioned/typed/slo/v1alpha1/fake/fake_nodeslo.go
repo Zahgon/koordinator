@@ -31,20 +31,6 @@ type fakeNodeSLOs struct {
 }
 
 func newFakeNodeSLOs(fake *FakeSloV1alpha1) slov1alpha1.NodeSLOInterface {
-	return &fakeNodeSLOs{
-		gentype.NewFakeClientWithList[*v1alpha1.NodeSLO, *v1alpha1.NodeSLOList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("nodeslos"),
-			v1alpha1.SchemeGroupVersion.WithKind("NodeSLO"),
-			func() *v1alpha1.NodeSLO { return &v1alpha1.NodeSLO{} },
-			func() *v1alpha1.NodeSLOList { return &v1alpha1.NodeSLOList{} },
-			func(dst, src *v1alpha1.NodeSLOList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.NodeSLOList) []*v1alpha1.NodeSLO { return gentype.ToPointerSlice(list.Items) },
-			func(list *v1alpha1.NodeSLOList, items []*v1alpha1.NodeSLO) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(slov1alpha1.NodeSLOInterface)
 }

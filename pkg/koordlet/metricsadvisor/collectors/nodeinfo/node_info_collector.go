@@ -20,14 +20,9 @@ import (
 	"time"
 
 	"go.uber.org/atomic"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/metrics"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
-	koordletutil "github.com/koordinator-sh/koordinator/pkg/koordlet/util"
 )
 
 const (
@@ -42,83 +37,20 @@ type nodeInfoCollector struct {
 }
 
 func New(opt *framework.Options) framework.Collector {
-	return &nodeInfoCollector{
-		collectInterval: opt.Config.CollectNodeCPUInfoInterval,
-		storage:         opt.MetricCache,
-		started:         atomic.NewBool(false),
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.Collector)
 }
 
-func (n *nodeInfoCollector) Enabled() bool {
-	return true
-}
+func (n *nodeInfoCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (n *nodeInfoCollector) Setup(s *framework.Context) {}
+func (n *nodeInfoCollector) Setup(s *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (n *nodeInfoCollector) Run(stopCh <-chan struct{}) {
-	go wait.Until(n.collectNodeInfo, n.collectInterval, stopCh)
-}
+func (n *nodeInfoCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (n *nodeInfoCollector) Started() bool {
-	return n.started.Load()
-}
+func (n *nodeInfoCollector) Started() bool { _ = "STUB: not implemented"; return false }
 
-func (n *nodeInfoCollector) collectNodeInfo() {
-	started := time.Now()
+func (n *nodeInfoCollector) collectNodeInfo() { _ = "STUB: not implemented"; return }
 
-	err := n.collectNodeCPUInfo()
-	if err != nil {
-		klog.Warningf("failed to collect node CPU info, err: %s", err)
-		return
-	}
+func (n *nodeInfoCollector) collectNodeCPUInfo() error { _ = "STUB: not implemented"; return nil }
 
-	err = n.collectNodeNUMAInfo()
-	if err != nil {
-		klog.Warningf("failed to collect node NUMA info, err: %s", err)
-		return
-	}
-
-	n.started.Store(true)
-	klog.V(4).Infof("collect node info finished, elapsed %s", time.Since(started).String())
-}
-
-func (n *nodeInfoCollector) collectNodeCPUInfo() error {
-	klog.V(6).Info("start collect node cpu info")
-
-	localCPUInfo, err := koordletutil.GetLocalCPUInfo()
-	if err != nil {
-		metrics.RecordCollectNodeCPUInfoStatus(err)
-		return err
-	}
-
-	nodeCPUInfo := &metriccache.NodeCPUInfo{
-		BasicInfo:      localCPUInfo.BasicInfo,
-		ProcessorInfos: localCPUInfo.ProcessorInfos,
-		TotalInfo:      localCPUInfo.TotalInfo,
-	}
-	klog.V(6).Infof("collect cpu info finished, info: %+v", nodeCPUInfo)
-
-	n.storage.Set(metriccache.NodeCPUInfoKey, nodeCPUInfo)
-	klog.V(4).Infof("collectNodeCPUInfo finished, processors num %v", len(nodeCPUInfo.ProcessorInfos))
-	metrics.RecordCollectNodeCPUInfoStatus(nil)
-	return nil
-}
-
-func (n *nodeInfoCollector) collectNodeNUMAInfo() error {
-	klog.V(6).Info("start collect node NUMA info")
-
-	nodeNUMAInfo, err := koordletutil.GetNodeNUMAInfo()
-	if err != nil {
-		metrics.RecordCollectNodeNUMAInfoStatus(err)
-		return err
-	}
-	if features.DefaultKoordletFeatureGate.Enabled(features.HugePageReport) {
-		koordletutil.GetAndMergeHugepageToNumaInfo(nodeNUMAInfo)
-	}
-	klog.V(6).Infof("collect NUMA info successfully, info %+v", nodeNUMAInfo)
-
-	n.storage.Set(metriccache.NodeNUMAInfoKey, nodeNUMAInfo)
-	klog.V(4).Infof("collectNodeNUMAInfo finished, NUMA node num %v", len(nodeNUMAInfo.NUMAInfos))
-	metrics.RecordCollectNodeNUMAInfoStatus(nil)
-	return nil
-}
+func (n *nodeInfoCollector) collectNodeNUMAInfo() error { _ = "STUB: not implemented"; return nil }

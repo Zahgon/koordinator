@@ -36,19 +36,16 @@ type SchedulingPhase struct {
 }
 
 func (s *SchedulingPhase) Clone() fwktype.StateData {
-	return s
+	_ = "STUB: not implemented"
+	return *new(fwktype.StateData)
 }
 
 func RecordPhase(cycleState fwktype.CycleState, extensionPoint string) {
-	cycleState.Write(phaseStateKey, &SchedulingPhase{
-		extensionPoint: extensionPoint,
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func GetExtensionPointBeingExecuted(cycleState fwktype.CycleState) string {
-	s, err := cycleState.Read(phaseStateKey)
-	if err != nil || s == nil {
-		return ""
-	}
-	return s.(*SchedulingPhase).extensionPoint
+	_ = "STUB: not implemented"
+	return ""
 }

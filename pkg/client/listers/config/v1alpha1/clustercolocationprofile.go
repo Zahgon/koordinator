@@ -44,5 +44,6 @@ type clusterColocationProfileLister struct {
 
 // NewClusterColocationProfileLister returns a new ClusterColocationProfileLister.
 func NewClusterColocationProfileLister(indexer cache.Indexer) ClusterColocationProfileLister {
-	return &clusterColocationProfileLister{listers.New[*configv1alpha1.ClusterColocationProfile](indexer, configv1alpha1.Resource("clustercolocationprofile"))}
+	_ = "STUB: not implemented"
+	return *new(ClusterColocationProfileLister)
 }

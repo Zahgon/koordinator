@@ -2,33 +2,15 @@ package core
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"sort"
-	"sync"
-	"sync/atomic"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
-	"k8s.io/apimachinery/pkg/util/sets"
 	clientset "k8s.io/client-go/kubernetes"
-	corev1helpers "k8s.io/component-helpers/scheduling/corev1"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
-	apipod "k8s.io/kubernetes/pkg/api/v1/pod"
-	"k8s.io/kubernetes/pkg/scheduler/framework"
-	"k8s.io/kubernetes/pkg/scheduler/framework/parallelize"
-	"k8s.io/kubernetes/pkg/scheduler/metrics"
-	schedulerutil "k8s.io/kubernetes/pkg/scheduler/util"
 
-	"github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/workloadauditor"
-	schedulermetrics "github.com/koordinator-sh/koordinator/pkg/scheduler/metrics"
 )
 
 const (
@@ -79,18 +61,8 @@ type preemptionEvaluatorImpl struct {
 }
 
 func NewPreemptionEvaluator(handle fwktype.Handle, gangCache *GangCache, gangContextHolder *GangSchedulingContextHolder, networkTopologySolver NetworkTopologySolver) PreemptionEvaluator {
-	if handle == nil {
-		return nil
-	}
-	return &preemptionEvaluatorImpl{
-		IsEligiblePod: func(nodeInfo fwktype.NodeInfo, victim fwktype.PodInfo, preemptor *corev1.Pod) bool {
-			return extension.IsPodPreemptible(victim.GetPod()) && !extension.IsPodNonPreemptible(victim.GetPod())
-		},
-		handle:                handle.(frameworkext.ExtendedHandle),
-		gangCache:             gangCache,
-		gangContextHolder:     gangContextHolder,
-		networkTopologySolver: networkTopologySolver,
-	}
+	_ = "STUB: not implemented"
+	return *new(PreemptionEvaluator)
 }
 
 type JobPreemptionStateContextKey struct {
@@ -134,56 +106,16 @@ type JobPreemptionState struct {
 	Victims                 []v1alpha1.NodePossibleVictim `json:"victims,omitempty"`
 }
 
-func (s *JobPreemptionState) addMoreDetailForStateToMarshal() {
-	s.UnschedulablePodsNumber = len(s.unschedulablePods)
-	if s.selectVictimError != nil {
-		s.SelectVictimError = s.selectVictimError.Error()
-	}
-	for node, victimsOnNode := range s.victims {
-		nodePossibleVictims := v1alpha1.NodePossibleVictim{NodeName: node}
-		for _, pod := range victimsOnNode {
-			nodePossibleVictims.PossibleVictims = append(nodePossibleVictims.PossibleVictims, v1alpha1.PossibleVictim{
-				NamespacedName: v1alpha1.NamespacedName{
-					Name:      pod.Name,
-					Namespace: pod.Namespace,
-					UID:       string(pod.UID),
-				},
-			})
-		}
-		sort.Slice(nodePossibleVictims.PossibleVictims, func(i, j int) bool {
-			return nodePossibleVictims.PossibleVictims[i].NamespacedName.Name < nodePossibleVictims.PossibleVictims[j].NamespacedName.Name
-		})
-		s.Victims = append(s.Victims, nodePossibleVictims)
-	}
-	sort.Slice(s.Victims, func(i, j int) bool { return s.Victims[i].NodeName < s.Victims[j].NodeName })
-	if klog.V(6).Enabled() {
-		for node, victimsOnNode := range s.possibleVictims {
-			nodePossibleVictims := v1alpha1.NodePossibleVictim{NodeName: node}
-			for _, pod := range victimsOnNode {
-				nodePossibleVictims.PossibleVictims = append(nodePossibleVictims.PossibleVictims, v1alpha1.PossibleVictim{
-					NamespacedName: v1alpha1.NamespacedName{
-						Name:      pod.GetPod().Name,
-						Namespace: pod.GetPod().Namespace,
-						UID:       string(pod.GetPod().UID),
-					},
-				})
-			}
-			sort.Slice(nodePossibleVictims.PossibleVictims, func(i, j int) bool {
-				return nodePossibleVictims.PossibleVictims[i].NamespacedName.Name < nodePossibleVictims.PossibleVictims[j].NamespacedName.Name
-			})
-			s.PossibleVictims = append(s.PossibleVictims, nodePossibleVictims)
-		}
-	}
-}
+func (s *JobPreemptionState) addMoreDetailForStateToMarshal() { _ = "STUB: not implemented"; return }
 
 func preemptionStateFromContext(ctx context.Context) *JobPreemptionState {
-	jobPreemptionDiagnosis := ctx.Value(JobPreemptionStateContextKey{}).(*JobPreemptionState)
-	return jobPreemptionDiagnosis
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func contextWithJobPreemptionState(ctx context.Context, preemptionState *JobPreemptionState) context.Context {
-	ctx = context.WithValue(ctx, JobPreemptionStateContextKey{}, preemptionState)
-	return ctx
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // Preempt returns a PostFilterResult carrying suggested nominatedNodeName, along with a Status.
@@ -204,38 +136,8 @@ func contextWithJobPreemptionState(ctx context.Context, preemptionState *JobPree
 //     and the non-empty nominatedNodeName will be applied to the preemptor pod.
 
 func (ev *preemptionEvaluatorImpl) Preempt(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, m fwktype.NodeToStatusReader) (*fwktype.PostFilterResult, *fwktype.Status) {
-	preemptionState := &JobPreemptionState{
-		TerminatingPodOnNominatedNode: map[string]string{},
-		ClearNominatedNodeFailedMsg:   map[string]string{},
-	}
-	startTime := time.Now()
-	defer func() {
-		metrics.PreemptionAttempts.Inc()
-		schedulermetrics.RecordJobPreemptionDuration(preemptionState.PreemptorKey, preemptionState.Reason, time.Since(startTime))
-	}()
-	defer func() {
-		preemptionState.addMoreDetailForStateToMarshal()
-		scheduleDiagnosis := frameworkext.GetDiagnosis(state)
-		scheduleDiagnosis.PreemptionDiagnosis = &frameworkext.PreemptionDiagnosis{
-			DryRunFilterDiagnosis: &frameworkext.ScheduleDiagnosis{
-				SchedulingMode:      preemptionState.SchedulingMode,
-				AlreadyWaitForBound: len(preemptionState.allPods) - preemptionState.UnschedulablePodsNumber,
-				NodeOfferSlot:       preemptionState.NodeToOfferSlot,
-				NodeToStatusMap:     preemptionState.statusMap,
-			},
-			OtherDiagnosis: preemptionState,
-		}
-		switch preemptionState.Reason {
-		case ReasonTriggerPodPreemptSuccess:
-			scheduleDiagnosis.AuditType = workloadauditor.RecordTypePreemptNominated
-		case ReasonTerminatingVictimOnNominatedNode:
-			scheduleDiagnosis.AuditType = workloadauditor.RecordTypePreemptVictimDeleting
-		case ReasonListNode, ReasonNoNodesAvailable, ReasonNoPotentialVictims, ReasonPreemptionNotHelpful, ReasonSelectVictimsOnNodeError, ReasonPrepareCandidatesError:
-			scheduleDiagnosis.AuditType = workloadauditor.RecordTypePreemptFailure
-			scheduleDiagnosis.AuditMessage = preemptionState.Reason
-		}
-	}()
-	return ev.preempt(contextWithJobPreemptionState(ctx, preemptionState), state, pod, m)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // preempt implements the core preemption logic to help a high-priority pod (preemptor)
@@ -259,94 +161,14 @@ func (ev *preemptionEvaluatorImpl) Preempt(ctx context.Context, state fwktype.Cy
 // - Clearing nominations for lower-priority pods that may no longer fit.
 // - Sending reject signals to waiting pods via Permit plugins.
 func (ev *preemptionEvaluatorImpl) preempt(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, m fwktype.NodeToStatusReader) (*fwktype.PostFilterResult, *fwktype.Status) {
-	preemptionState := preemptionStateFromContext(ctx)
-	triggerPodKey := framework.GetNamespacedName(pod.Namespace, pod.Name)
-	preemptionState.TriggerPodKey = triggerPodKey
-	gangContext := ev.gangContextHolder.getCurrentGangSchedulingContext()
-	if gangContext != nil {
-		preemptionState.gangSchedulingContext = gangContext
-		if gangContext.preemptionMessage != "" {
-			preemptionState.Reason = ReasonAlreadyPreempted
-			preemptionState.Message = gangContext.preemptionMessage
-			return nil, fwktype.NewStatus(fwktype.Unschedulable, gangContext.preemptionMessage)
-		}
-		defer func() {
-			if preemptionState.Message == "" {
-				preemptionState.Message = preemptionState.Reason
-			}
-			gangContext.preemptionMessage = fmt.Sprintf(ReasonAlreadyPreempted, triggerPodKey, preemptionState.Message)
-		}()
-		preemptionState.PreemptorKey = gangContext.gangGroupID
-		preemptionState.allPendingPods = ev.gangCache.getPendingPods(gangContext.gangGroup.UnsortedList())
-		preemptionState.allPods = append(preemptionState.allPods, preemptionState.allPendingPods...)
-		preemptionState.allWaitingPods = ev.gangCache.getWaitingPods(gangContext.gangGroup.UnsortedList())
-		if len(preemptionState.allWaitingPods) > 0 {
-			preemptionState.allPods = append(preemptionState.allPods, preemptionState.allWaitingPods...)
-		}
-	} else {
-		preemptionState.PreemptorKey = preemptionState.TriggerPodKey
-		preemptionState.allPendingPods = []*corev1.Pod{pod}
-		preemptionState.allPods = []*corev1.Pod{pod}
-	}
-
-	if len(preemptionState.allPendingPods) == 0 {
-		preemptionState.Reason = ReasonNoPendingPods
-		return nil, fwktype.NewStatus(fwktype.Unschedulable, ReasonNoPendingPods)
-	}
-
-	diagnosis := frameworkext.GetDiagnosis(state)
-	if diagnosis.ScheduleDiagnosis != nil && diagnosis.ScheduleDiagnosis.SchedulingMode == frameworkext.JobSchedulingMode {
-		// Use UnschedulableAndUnresolvable as absentNodesStatus so that NodesForStatusCode
-		// correctly handles nodes not in the explicit map without panicking on nil.
-		m = framework.NewNodeToStatus(diagnosis.ScheduleDiagnosis.NodeToStatusMap, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable))
-	}
-
-	if ok, msg := ev.jobEligibleToPreemptOthers(ctx, pod, preemptionState.allPendingPods, m); !ok {
-		preemptionState.Reason = msg
-		return nil, fwktype.NewStatus(fwktype.Unschedulable, msg)
-	}
-
-	allNodes, err := ev.handle.SnapshotSharedLister().NodeInfos().List()
-	if err != nil {
-		preemptionState.Reason = ReasonListNode
-		return nil, fwktype.AsStatus(err)
-	}
-	if len(allNodes) == 0 {
-		preemptionState.Reason = ReasonNoNodesAvailable
-		return nil, fwktype.AsStatus(errors.New(ReasonNoNodesAvailable))
-	}
-
-	var allPendingPodUIDs []string
-	for _, pendingPod := range preemptionState.allPendingPods {
-		allPendingPodUIDs = append(allPendingPodUIDs, string(pendingPod.UID))
-	}
-	frameworkext.MakeNominatedPodsOfTheSameJob(state, allPendingPodUIDs)
-
-	podToNominatedNode, candidates, nodeToStatusMap, err := ev.findCandidates(ctx, state, allNodes, pod, m)
-	if err != nil {
-		return nil, fwktype.AsStatus(err)
-	}
-	// Return a FitError only when there are no candidates that fit the pod.
-	if len(podToNominatedNode) != len(preemptionState.allPendingPods) {
-		if preemptionState.Message == "" {
-			fitError := &framework.FitError{Pod: pod, NumAllNodes: len(allNodes), Diagnosis: framework.Diagnosis{NodeToStatus: framework.NewNodeToStatus(nodeToStatusMap, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable))}}
-			preemptionState.Reason = ReasonPreemptionNotHelpful
-			preemptionState.Message = fitError.Error()
-		}
-		ev.cancelNomination(ctx)
-		return framework.NewPostFilterResultWithNominatedNode(""), fwktype.NewStatus(fwktype.Unschedulable, preemptionState.Message)
-	}
-
-	if status := ev.prepareCandidates(ctx, candidates, pod); !status.IsSuccess() {
-		preemptionState.Reason = ReasonPrepareCandidatesError
-		preemptionState.Message = status.Message()
-		return nil, status
-	}
-	preemptionState.Reason = ReasonTriggerPodPreemptSuccess
-	preemptionState.Message = fmt.Sprintf(ReasonTriggerPodPreemptSuccess, len(preemptionState.allWaitingPods), len(preemptionState.allPods))
-	ev.makeNomination(ctx, podToNominatedNode)
-	return framework.NewPostFilterResultWithNominatedNode(podToNominatedNode[triggerPodKey]), fwktype.NewStatus(fwktype.Success)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Use UnschedulableAndUnresolvable as absentNodesStatus so that NodesForStatusCode
+// correctly handles nodes not in the explicit map without panicking on nil.
+
+// Return a FitError only when there are no candidates that fit the pod.
 
 // jobEligibleToPreemptOthers returns one bool and one string. The bool
 // indicates whether this pod should be considered for preempting other pods or
@@ -357,69 +179,31 @@ func (ev *preemptionEvaluatorImpl) preempt(ctx context.Context, state fwktype.Cy
 //     Currently, we check the node that is nominated for this pod, and as long as there are
 //     terminating pods on this node, we don't attempt to preempt more pods.
 func (ev *preemptionEvaluatorImpl) jobEligibleToPreemptOthers(ctx context.Context, triggerPod *corev1.Pod, allPendingPods []*corev1.Pod, m fwktype.NodeToStatusReader) (bool, string) {
-	if triggerPod.Spec.PreemptionPolicy != nil && *triggerPod.Spec.PreemptionPolicy == corev1.PreemptNever {
-		// TODO all pods of the same job must have the same preemptionPolicy, add a webhook for it.
-		return false, ReasonPreemptionPolicyNever
-	}
-
-	anyTerminatingPodOnNominatedNode := false
-	for _, pod := range allPendingPods {
-		if eligible, _ := ev.podEligibleToPreemptOthers(ctx, pod, m); !eligible {
-			anyTerminatingPodOnNominatedNode = true
-		}
-	}
-	if anyTerminatingPodOnNominatedNode {
-		return false, ReasonTerminatingVictimOnNominatedNode
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
+
+// TODO all pods of the same job must have the same preemptionPolicy, add a webhook for it.
 
 func (ev *preemptionEvaluatorImpl) podEligibleToPreemptOthers(ctx context.Context, pod *corev1.Pod, m fwktype.NodeToStatusReader) (bool, string) {
-	jobPreemptionState := preemptionStateFromContext(ctx)
-	nomNodeName := pod.Status.NominatedNodeName
-	if len(nomNodeName) > 0 {
-		if jobPreemptionState.TriggerPodKey == framework.GetNamespacedName(pod.Namespace, pod.Name) {
-			nominatedNodeStatus := m.Get(nomNodeName)
-			// If the pod's nominated node is considered as UnschedulableAndUnresolvable by the filters,
-			// then the pod should be considered for preempting again.
-			if nominatedNodeStatus.Code() == fwktype.UnschedulableAndUnresolvable {
-				return true, ""
-			}
-		}
-		nodeInfos := ev.handle.SnapshotSharedLister().NodeInfos()
-		if nodeInfo, _ := nodeInfos.Get(nomNodeName); nodeInfo != nil {
-			for _, p := range nodeInfo.GetPods() {
-				if ev.isPreemptionAllowed(nodeInfo, p, pod) && podTerminatingByPreemption(p.GetPod()) {
-					terminatingPodKey := framework.GetNamespacedName(p.GetPod().Namespace, p.GetPod().Name)
-					jobPreemptionState.TerminatingPodOnNominatedNode[terminatingPodKey] = nomNodeName
-					// There is a terminating pod on the nominated node.
-					return false, ReasonTerminatingVictimOnNominatedNode
-				}
-			}
-		}
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
+
+// If the pod's nominated node is considered as UnschedulableAndUnresolvable by the filters,
+// then the pod should be considered for preempting again.
+
+// There is a terminating pod on the nominated node.
 
 // isPreemptionAllowed returns whether the victim residing on nodeInfo can be preempted by the preemptor
 func (ev *preemptionEvaluatorImpl) isPreemptionAllowed(nodeInfo fwktype.NodeInfo, victim fwktype.PodInfo, preemptor *corev1.Pod) bool {
+	_ = "STUB: not implemented"
 	// The victim must have lower priority than the preemptor, in addition to any filtering implemented by IsEligiblePod
-	return corev1helpers.PodPriority(victim.GetPod()) < corev1helpers.PodPriority(preemptor) && ev.IsEligiblePod(nodeInfo, victim, preemptor)
+	return false
 }
 
 // podTerminatingByPreemption returns true if the pod is in the termination state caused by scheduler preemption.
-func podTerminatingByPreemption(p *corev1.Pod) bool {
-	if p.DeletionTimestamp == nil {
-		return false
-	}
-
-	for _, condition := range p.Status.Conditions {
-		if condition.Type == corev1.DisruptionTarget {
-			return condition.Status == corev1.ConditionTrue && condition.Reason == corev1.PodReasonPreemptionByScheduler
-		}
-	}
-	return false
-}
+func podTerminatingByPreemption(p *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
 // FindCandidates calculates a slice of preemption candidates.
 // Each candidate is executable to make the given <pod> schedulable.
@@ -430,44 +214,22 @@ func (ev *preemptionEvaluatorImpl) findCandidates(
 	pod *corev1.Pod,
 	m fwktype.NodeToStatusReader,
 ) (map[string]string, map[string][]*corev1.Pod, map[string]*fwktype.Status, error) {
-	preemptionState := preemptionStateFromContext(ctx)
-
-	startTime := time.Now()
-	potentialNodes, unschedulableNodeStatus := nodesWherePreemptionMightHelp(allNodes, m)
-	if len(potentialNodes) == 0 {
-		return nil, nil, unschedulableNodeStatus, nil
-	}
-	preemptionState.DurationOfNodeInfoClone = metav1.Duration{Duration: time.Since(startTime)}
-	startTime = time.Now()
-	nodeLevelCycleState := make(map[string]fwktype.CycleState, len(potentialNodes))
-	for _, node := range potentialNodes {
-		nodeLevelCycleState[node.Node().Name] = state.Clone()
-	}
-	preemptionState.DurationOfCycleStateClone = metav1.Duration{Duration: time.Since(startTime)}
-	return ev.dryRunPreemption(ctx, pod, nodeLevelCycleState, potentialNodes)
+	_ = "STUB: not implemented"
+	return nil, nil, nil, nil
 }
 
 // nodesWherePreemptionMightHelp returns a list of nodes with failed predicates
 // that may be satisfied by removing pods from the node.
 func nodesWherePreemptionMightHelp(nodes []fwktype.NodeInfo, m fwktype.NodeToStatusReader) ([]fwktype.NodeInfo, map[string]*fwktype.Status) {
-	var potentialNodes []fwktype.NodeInfo
-	nodeStatuses := make(map[string]*fwktype.Status)
-	unresolvableStatus := fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, "Preemption is not helpful for scheduling")
-	for _, node := range nodes {
-		nodeName := node.Node().Name
-		// We only attempt preemption on nodes with status 'Unschedulable'. For
-		// diagnostic purposes, we propagate UnschedulableAndUnresolvable if either
-		// implied by absence in map or explicitly set.
-		status := m.Get(nodeName)
-		if status.Code() == fwktype.Unschedulable {
-			// clone nodeInfo to avoid modifying the nodeInfoSnapshot
-			potentialNodes = append(potentialNodes, node.Snapshot())
-		} else if status.Code() == fwktype.UnschedulableAndUnresolvable {
-			nodeStatuses[nodeName] = unresolvableStatus
-		}
-	}
-	return potentialNodes, nodeStatuses
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// We only attempt preemption on nodes with status 'Unschedulable'. For
+// diagnostic purposes, we propagate UnschedulableAndUnresolvable if either
+// implied by absence in map or explicitly set.
+
+// clone nodeInfo to avoid modifying the nodeInfoSnapshot
 
 type podFunc = func(state fwktype.CycleState, pod *corev1.Pod, podInfo fwktype.PodInfo, nodeInfo fwktype.NodeInfo) error
 
@@ -492,69 +254,8 @@ func (ev *preemptionEvaluatorImpl) dryRunPreemption(
 	cycleStates map[string]fwktype.CycleState,
 	potentialNodes []fwktype.NodeInfo,
 ) (map[string]string, map[string][]*corev1.Pod, map[string]*fwktype.Status, error) {
-	preemptionState := preemptionStateFromContext(ctx)
-
-	removePod := func(state fwktype.CycleState, toSchedulePod *corev1.Pod, rpi fwktype.PodInfo, nodeInfo fwktype.NodeInfo) error {
-		if err := nodeInfo.RemovePod(klog.Background(), rpi.GetPod()); err != nil {
-			return err
-		}
-		status := ev.handle.RunPreFilterExtensionRemovePod(ctx, state, toSchedulePod, rpi, nodeInfo)
-		if !status.IsSuccess() {
-			return status.AsError()
-		}
-		return nil
-	}
-	startTime := time.Now()
-	potentialVictims, statusMap := ev.removePossibleVictims(triggerPod, cycleStates, potentialNodes, removePod)
-	if len(potentialVictims) == 0 {
-		return nil, nil, statusMap, nil
-	}
-	preemptionState.possibleVictims = potentialVictims
-	preemptionState.DurationOfRemovePossibleVictims = metav1.Duration{Duration: time.Since(startTime)}
-	preemptionCosts := estimatePreemptionCost(potentialVictims)
-	addPod := func(state fwktype.CycleState, toSchedulePod *corev1.Pod, api fwktype.PodInfo, nodeInfo fwktype.NodeInfo) error {
-		nodeInfo.AddPodInfo(api)
-		status := ev.handle.RunPreFilterExtensionAddPod(ctx, state, toSchedulePod, api, nodeInfo)
-		if !status.IsSuccess() {
-			return status.AsError()
-		}
-		return nil
-	}
-	pendingPods := preemptionState.allPendingPods
-	startTime = time.Now()
-	var podToNominatedNode map[string]string
-	var successPods map[string]*Placements
-	if preemptionState.gangSchedulingContext != nil && preemptionState.gangSchedulingContext.networkTopologySpec != nil {
-		networkTopologySpec := preemptionState.gangSchedulingContext.networkTopologySpec
-		var status *fwktype.Status
-		podToNominatedNode, successPods, statusMap, status = ev.PlanNodes(ctx, networkTopologySpec, pendingPods, potentialNodes, cycleStates, addPod, preemptionCosts)
-		preemptionState.statusMap = statusMap
-		preemptionState.DurationOfPlaceToSchedulePods = metav1.Duration{Duration: time.Since(startTime)}
-		preemptionState.Reason = ReasonPreemptionNotHelpful
-		preemptionState.Message = status.Message()
-		if !status.IsSuccess() {
-			return nil, nil, statusMap, nil
-		}
-	} else {
-		var unschedulablePods []*corev1.Pod
-		podToNominatedNode, successPods, unschedulablePods = ev.placeToSchedulePods(ctx, pendingPods, cycleStates, potentialNodes, preemptionCosts, addPod, statusMap)
-		preemptionState.statusMap = statusMap
-		preemptionState.DurationOfPlaceToSchedulePods = metav1.Duration{Duration: time.Since(startTime)}
-		if len(unschedulablePods) > 0 {
-			return nil, nil, statusMap, nil
-		}
-	}
-	preemptionState.PodToNominatedNode = podToNominatedNode
-	startTime = time.Now()
-	victims, err := ev.selectVictims(ctx, potentialVictims, cycleStates, successPods, addPod, removePod)
-	preemptionState.DurationOfSelectVictimsOnNode = metav1.Duration{Duration: time.Since(startTime)}
-	if err != nil {
-		preemptionState.Reason = ReasonSelectVictimsOnNodeError
-		preemptionState.selectVictimError = err
-		return nil, nil, nil, err
-	}
-	preemptionState.victims = victims
-	return podToNominatedNode, victims, nil, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil, nil
 }
 
 func (ev *preemptionEvaluatorImpl) removePossibleVictims(
@@ -563,70 +264,16 @@ func (ev *preemptionEvaluatorImpl) removePossibleVictims(
 	potentialNodes []fwktype.NodeInfo,
 	removePod podFunc,
 ) (map[string][]fwktype.PodInfo, map[string]*fwktype.Status) {
-	potentialVictims := make(map[string][]fwktype.PodInfo, len(potentialNodes))
-	victimLock := sync.Mutex{}
-	statusMap := make(map[string]*fwktype.Status)
-	statusLock := sync.Mutex{}
-	processNode := func(i int) {
-		nodeInfo := potentialNodes[i]
-		nodeName := nodeInfo.Node().Name
-		cycleState := cycleStates[nodeName]
-		var potentialVictimsOnNode []fwktype.PodInfo
-		for _, podInfo := range nodeInfo.GetPods() {
-			if ev.isPreemptionAllowed(nodeInfo, podInfo, triggerPod) {
-				potentialVictimsOnNode = append(potentialVictimsOnNode, podInfo)
-				if err := removePod(cycleState, triggerPod, podInfo, nodeInfo); err != nil {
-					statusLock.Lock()
-					statusMap[nodeName] = fwktype.AsStatus(err)
-					statusLock.Unlock()
-				}
-			}
-		}
-		if len(potentialVictimsOnNode) > 0 {
-			victimLock.Lock()
-			potentialVictims[nodeName] = potentialVictimsOnNode
-			victimLock.Unlock()
-		} else {
-			statusLock.Lock()
-			statusMap[nodeName] = fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ReasonNoPotentialVictims)
-			statusLock.Unlock()
-		}
-	}
-	ev.handle.Parallelizer().Until(context.Background(), len(potentialNodes), processNode, OperationRemovePossibleVictims)
-	return potentialVictims, statusMap
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func estimatePreemptionCost(possibleVictims map[string][]fwktype.PodInfo) map[string]int {
-	allPrioritySets := sets.NewInt()
-	for _, victims := range possibleVictims {
-		for _, victim := range victims {
-			priority := corev1helpers.PodPriority(victim.GetPod())
-			allPrioritySets.Insert(int(priority))
-		}
-	}
-	sortedPriorities := allPrioritySets.List()
-	sort.Ints(sortedPriorities)
-	priorityCosts := make(map[int]int)
-	for index, priority := range sortedPriorities {
-		priorityCosts[priority] = index
-	}
-	result := make(map[string]int)
-	for nodeName, victims := range possibleVictims {
-		cost := 0
-		jobs := sets.NewString()
-		for _, victim := range victims {
-			// estimate preemption cost in the job dimension
-			jobId := extension.GetExplanationKey(victim.GetPod().Labels)
-			if !jobs.Has(jobId) {
-				pri := corev1helpers.PodPriority(victim.GetPod())
-				cost += priorityCosts[int(pri)]
-				jobs.Insert(jobId)
-			}
-		}
-		result[nodeName] = cost
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// estimate preemption cost in the job dimension
 
 type Placements struct {
 	nodeName string
@@ -643,70 +290,17 @@ func (ev *preemptionEvaluatorImpl) placeToSchedulePods(
 	addPod podFunc,
 	statusMap map[string]*fwktype.Status,
 ) (podToNominatedNode map[string]string, successPods map[string]*Placements, unschedulablePods []*corev1.Pod) {
-	preemptionState := preemptionStateFromContext(ctx)
-	preemptionState.SchedulingMode = frameworkext.PodSchedulingMode
-
-	podToNominatedNode = make(map[string]string, len(toSchedulePods))
-	successPods = make(map[string]*Placements)
-	feasibleNodes := potentialNodes
-	assumedNodeInfos := make(map[string]fwktype.NodeInfo)
-	assumedCycleStates := make(map[string]fwktype.CycleState)
-	for i := range toSchedulePods {
-		pod := toSchedulePods[i]
-		feasibleNodes = ev.findFeasibleNodes(ctx, pod, cycleStates, feasibleNodes, assumedCycleStates, assumedNodeInfos, statusMap)
-		if len(feasibleNodes) == 0 {
-			unschedulablePods = toSchedulePods[i:]
-			break
-		}
-		selectedNode := feasibleNodes[0]
-		minCost := preemptionCosts[selectedNode.Node().Name]
-		for _, node := range feasibleNodes {
-			cost := preemptionCosts[node.Node().Name]
-			if cost < minCost {
-				selectedNode = node
-				minCost = cost
-			}
-		}
-		if i+1 < len(toSchedulePods) {
-			podToSchedule := toSchedulePods[i+1]
-			assumedPod := pod.DeepCopy()
-			assumedPod.Spec.NodeName = selectedNode.Node().Name
-			podInfoToAdd, _ := framework.NewPodInfo(assumedPod)
-			assumedCycleState := assumedCycleStates[selectedNode.Node().Name]
-			if assumedCycleState == nil {
-				// The lifecycle of assumedCycleState is one job schedule.
-				// During job preemption, there are two job schedules:
-				// 1. one to determine whether preemption is effective after removing all victims, and
-				// 2. another to determine the victim on the candidate node.
-				// Here we choose clone to avoid the modification of cycleState affecting the subsequent determination of Victim
-				assumedCycleState = cycleStates[selectedNode.Node().Name].Clone()
-			}
-			assumedNodeInfo := assumedNodeInfos[selectedNode.Node().Name]
-			if assumedNodeInfo == nil {
-				assumedNodeInfo = selectedNode.Snapshot()
-			}
-			// TODO consider pod assume on reservation
-			err := addPod(assumedCycleState, podToSchedule, podInfoToAdd, assumedNodeInfo)
-			if err != nil {
-				unschedulablePods = toSchedulePods[i:]
-				statusMap[selectedNode.Node().Name] = fwktype.AsStatus(err)
-				break
-			}
-		}
-		successPodsOnNode := successPods[selectedNode.Node().Name]
-		if successPodsOnNode == nil {
-			successPodsOnNode = &Placements{
-				nodeInfo: selectedNode,
-				nodeName: selectedNode.Node().Name,
-			}
-			successPods[selectedNode.Node().Name] = successPodsOnNode
-		}
-		successPodsOnNode.pods = append(successPodsOnNode.pods, pod)
-		podToNominatedNode[framework.GetNamespacedName(pod.Namespace, pod.Name)] = selectedNode.Node().Name
-	}
-	preemptionState.unschedulablePods = unschedulablePods
-	return
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
+
+// The lifecycle of assumedCycleState is one job schedule.
+// During job preemption, there are two job schedules:
+// 1. one to determine whether preemption is effective after removing all victims, and
+// 2. another to determine the victim on the candidate node.
+// Here we choose clone to avoid the modification of cycleState affecting the subsequent determination of Victim
+
+// TODO consider pod assume on reservation
 
 func (ev *preemptionEvaluatorImpl) findFeasibleNodes(
 	ctx context.Context,
@@ -717,32 +311,8 @@ func (ev *preemptionEvaluatorImpl) findFeasibleNodes(
 	assumedNodeInfos map[string]fwktype.NodeInfo,
 	statusMap map[string]*fwktype.Status,
 ) (feasibleNodes []fwktype.NodeInfo) {
-	var statusesLock sync.Mutex
-	feasibleNodes = make([]fwktype.NodeInfo, len(potentialNodes))
-	var feasibleNodesLen int32
-	checkNode := func(i int) {
-		nodeInfo := potentialNodes[i]
-		if assumedNodeInfo := assumedNodeInfos[nodeInfo.Node().Name]; assumedNodeInfo != nil {
-			nodeInfo = assumedNodeInfos[nodeInfo.Node().Name]
-		}
-		cycleState := cycleStates[nodeInfo.Node().Name]
-		if assumedCycleState := assumedCycleStates[nodeInfo.Node().Name]; assumedCycleState != nil {
-			cycleState = assumedCycleState
-		}
-		status := ev.handle.RunFilterPluginsWithNominatedPods(ctx, cycleState, toSchedulePod, nodeInfo)
-		if status.IsSuccess() {
-			length := atomic.AddInt32(&feasibleNodesLen, 1)
-			feasibleNodes[length-1] = nodeInfo
-		} else {
-			statusesLock.Lock()
-			statusMap[nodeInfo.Node().Name] = status
-			statusesLock.Unlock()
-		}
-	}
-	ev.handle.Parallelizer().Until(ctx, len(potentialNodes), checkNode, OperationFindFeasibleNodes)
-	feasibleNodes = feasibleNodes[:feasibleNodesLen]
-	sort.Slice(feasibleNodes, func(i, j int) bool { return feasibleNodes[i].Node().Name < feasibleNodes[j].Node().Name })
-	return feasibleNodes
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ev *preemptionEvaluatorImpl) selectVictims(
@@ -753,174 +323,33 @@ func (ev *preemptionEvaluatorImpl) selectVictims(
 	addPod podFunc,
 	removePod podFunc,
 ) (victims map[string][]*corev1.Pod, err error) {
-	reprievePod := func(state fwktype.CycleState, pods []*corev1.Pod, pi fwktype.PodInfo, nodeInfo fwktype.NodeInfo) (bool, error) {
-		if err := addPod(state, pods[0], pi, nodeInfo); err != nil {
-			return false, err
-		}
-		assumedNodeInfo := nodeInfo.Snapshot()
-		assumedCycleState := state.Clone()
-		for i := range pods {
-			pod := pods[i]
-			status := ev.handle.RunFilterPluginsWithNominatedPods(ctx, assumedCycleState, pod, assumedNodeInfo)
-			fits := status.IsSuccess()
-			if !fits {
-				if err := removePod(state, pods[0], pi, nodeInfo); err != nil {
-					return false, err
-				}
-				return false, nil
-			}
-			if i+1 < len(pods) {
-				assumedPod := pod.DeepCopy()
-				assumedPod.Spec.NodeName = assumedNodeInfo.Node().Name
-				podInfoToAdd, _ := framework.NewPodInfo(assumedPod)
-				toSchedulePod := pods[i+1]
-				if err := addPod(assumedCycleState, toSchedulePod, podInfoToAdd, assumedNodeInfo); err != nil {
-					return false, err
-				}
-			}
-		}
-		return true, nil
-	}
-	var nominatedNodes []string
-	for s := range successPods {
-		nominatedNodes = append(nominatedNodes, s)
-	}
-	victimLock := sync.Mutex{}
-	victims = make(map[string][]*corev1.Pod, len(nominatedNodes))
-	var errs []error
-	selectVictimsOnNode := func(i int) {
-		nodeName := nominatedNodes[i]
-		possibleVictimsOnNode := possibleVictims[nodeName]
-		sortVictims(possibleVictimsOnNode)
-
-		placements := successPods[nodeName]
-		pods := placements.pods
-		nodeInfo := placements.nodeInfo
-		cycleState := cycleStates[nodeName]
-
-		for _, pi := range possibleVictimsOnNode {
-			fits, err := reprievePod(cycleState, pods, pi, nodeInfo)
-			if err != nil {
-				victimLock.Lock()
-				errs = append(errs, err)
-				victimLock.Unlock()
-				break
-			} else if !fits {
-				victimLock.Lock()
-				victims[nodeName] = append(victims[nodeName], pi.GetPod())
-				victimLock.Unlock()
-			}
-		}
-	}
-	ev.handle.Parallelizer().Until(ctx, len(nominatedNodes), selectVictimsOnNode, OperationSelectVictimsOnNode)
-	return victims, utilerrors.NewAggregate(errs)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func sortVictims(victims []fwktype.PodInfo) {
-	sort.Slice(victims, func(i, j int) bool {
-		pod1 := victims[i].GetPod()
-		pod2 := victims[j].GetPod()
-		p1 := corev1helpers.PodPriority(pod1)
-		p2 := corev1helpers.PodPriority(pod2)
-		if p1 != p2 {
-			return p1 > p2
-		}
-		jobId1 := extension.GetExplanationKey(pod1.Labels)
-		jobId2 := extension.GetExplanationKey(pod2.Labels)
-		if jobId1 != jobId2 {
-			return jobId1 < jobId2
-		}
-		return pod1.Name < pod2.Name
-	})
-}
+func sortVictims(victims []fwktype.PodInfo) { _ = "STUB: not implemented"; return }
 
 func (ev *preemptionEvaluatorImpl) prepareCandidates(ctx context.Context, candidatesByNode map[string][]*corev1.Pod, triggerPod *corev1.Pod) *fwktype.Status {
-	var candidates []*corev1.Pod
-	for _, pods := range candidatesByNode {
-		for i := range pods {
-			candidates = append(candidates, pods[i])
-		}
-	}
-	preemptionState := preemptionStateFromContext(ctx)
-	startTime := time.Now()
-	defer func() {
-		preemptionState.DurationOfPrepareCandidates = metav1.Duration{Duration: time.Since(startTime)}
-	}()
-
-	cs := ev.handle.ClientSet()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	logger := klog.FromContext(ctx)
-	errCh := parallelize.NewErrorChannel()
-	ev.handle.Parallelizer().Until(ctx, len(candidates), func(i int) {
-		victimPod := candidates[i]
-		if victimPod.DeletionTimestamp != nil {
-			// If the victim Pod is already being deleted, we don't have to make another deletion api call.
-			logger.V(2).Info("Victim Pod is already deleted, skipping the API call for it", "triggerPod", preemptionState.TriggerPodKey, "preemptor", preemptionState.PreemptorKey, "node", victimPod.Spec.NodeName, "victim", klog.KObj(victimPod))
-			return
-		}
-
-		if err := ev.preemptPod(ctx, triggerPod, victimPod, frameworkext.JobRejectPlugin); err != nil && !apierrors.IsNotFound(err) {
-			errCh.SendErrorWithCancel(err, cancel)
-		}
-	}, OperationPreemptPod)
-	if err := errCh.ReceiveError(); err != nil {
-		return fwktype.AsStatus(err)
-	}
-
-	metrics.PreemptionVictims.Observe(float64(len(candidates)))
-
-	// Lower priority pods nominated to run on this node, may no longer fit on
-	// this node. So, we should remove their nomination. Removing their
-	// nomination updates these pods and moves them to the active queue. It
-	// lets scheduler find another place for them.
-	nominatedPods := ev.getLowerPriorityNominatedPods(triggerPod, candidatesByNode)
-	if err := ev.clearNominatedNodeName(ctx, cs, nominatedPods...); err != nil {
-		logger.V(5).Error(err, "Cannot clear 'NominatedNodeName' field")
-		// We do not return as this error is not critical.
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// If the victim Pod is already being deleted, we don't have to make another deletion api call.
+
+// Lower priority pods nominated to run on this node, may no longer fit on
+// this node. So, we should remove their nomination. Removing their
+// nomination updates these pods and moves them to the active queue. It
+// lets scheduler find another place for them.
+
+// We do not return as this error is not critical.
 
 func (ev *preemptionEvaluatorImpl) preemptPod(ctx context.Context, preemptor, victim *corev1.Pod, pluginName string) error {
-	logger := klog.FromContext(ctx)
-	preemptionState := preemptionStateFromContext(ctx)
-
-	// If the victim is a WaitingPod, send a reject message to the PermitPlugin.
-	// Otherwise, we should delete the victim.
-	if waitingPod := ev.handle.GetWaitingPod(victim.UID); waitingPod != nil {
-		waitingPod.Reject(pluginName, "preempted")
-		logger.V(2).Info("Preemptor pod rejected a waiting pod", "triggerPod", preemptionState.TriggerPodKey, "preemptor", preemptionState.PreemptorKey, "waitingPod", klog.KObj(victim), "node", victim.Spec.NodeName)
-	} else {
-		condition := &corev1.PodCondition{
-			Type:    corev1.DisruptionTarget,
-			Status:  corev1.ConditionTrue,
-			Reason:  corev1.PodReasonPreemptionByScheduler,
-			Message: fmt.Sprintf("%s: preempting to accommodate higher priority pods, preemptor: %s, triggerPod: %s", preemptor.Spec.SchedulerName, preemptionState.PreemptorKey, preemptionState.TriggerPodKey),
-		}
-		newStatus := victim.Status.DeepCopy()
-		updated := apipod.UpdatePodCondition(newStatus, condition)
-		if updated {
-			if err := schedulerutil.PatchPodStatus(ctx, ev.handle.ClientSet(), victim.Name, victim.Namespace, &victim.Status, newStatus); err != nil {
-				logger.Error(err, "Could not add DisruptionTarget condition due to preemption", "pod", klog.KObj(victim), "triggerPod", preemptionState.TriggerPodKey, "preemptor", preemptionState.PreemptorKey)
-				return err
-			}
-		}
-		if err := schedulerutil.DeletePod(ctx, ev.handle.ClientSet(), victim); err != nil {
-			if apierrors.IsNotFound(err) {
-				logger.V(2).Info("Victim Pod is already deleted", "triggerPod", preemptionState.TriggerPodKey, "preemptor", preemptionState.PreemptorKey, "victim", klog.KObj(victim), "node", victim.Spec.NodeName)
-			} else {
-				logger.Error(err, "Tried to preempted pod", "pod", klog.KObj(victim), "triggerPod", preemptionState.TriggerPodKey, "preemptor", preemptionState.PreemptorKey)
-			}
-			return err
-		}
-		logger.V(2).Info("Preemptor Pod preempted victim Pod", "triggerPod", preemptionState.TriggerPodKey, "preemptor", preemptionState.PreemptorKey, "victim", klog.KObj(victim), "node", victim.Spec.NodeName)
-	}
-
-	ev.handle.EventRecorder().Eventf(victim, preemptor, corev1.EventTypeNormal, "Preempted", "Preempting", "Preempted by pod %v on node %v", preemptor.UID, victim.Spec.NodeName)
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// If the victim is a WaitingPod, send a reject message to the PermitPlugin.
+// Otherwise, we should delete the victim.
 
 // getLowerPriorityNominatedPods returns pods whose priority is smaller than the
 // priority of the given "pod" and are nominated to run on the given node.
@@ -930,119 +359,40 @@ func (ev *preemptionEvaluatorImpl) preemptPod(ctx context.Context, preemptor, vi
 // worth the complexity, especially because we generally expect to have a very
 // small number of nominated pods per node.
 func (ev *preemptionEvaluatorImpl) getLowerPriorityNominatedPods(triggerPod *corev1.Pod, candidatesByNode map[string][]*corev1.Pod) []*corev1.Pod {
-	var lowerPriorityPods []*corev1.Pod
-	for nodeName := range candidatesByNode {
-		podInfos := ev.handle.NominatedPodsForNode(nodeName)
-		if len(podInfos) == 0 {
-			return nil
-		}
-		podPriority := corev1helpers.PodPriority(triggerPod)
-		for _, pi := range podInfos {
-			if corev1helpers.PodPriority(pi.GetPod()) < podPriority {
-				lowerPriorityPods = append(lowerPriorityPods, pi.GetPod())
-			}
-		}
-	}
-	return lowerPriorityPods
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // clearNominatedNodeName internally submit a patch request to API server
 // to set each pods[*].Status.NominatedNodeName> to "".
 func (ev *preemptionEvaluatorImpl) clearNominatedNodeName(ctx context.Context, cs clientset.Interface, pods ...*corev1.Pod) utilerrors.Aggregate {
-	var errs []error
-	var errLock sync.Mutex
-	ev.handle.Parallelizer().Until(ctx, len(pods), func(i int) {
-		pod := pods[i]
-		if len(pod.Status.NominatedNodeName) == 0 {
-			return
-		}
-		podStatusCopy := pod.Status.DeepCopy()
-		podStatusCopy.NominatedNodeName = ""
-		if err := schedulerutil.PatchPodStatus(ctx, cs, pod.Name, pod.Namespace, &pod.Status, podStatusCopy); err != nil {
-			errLock.Lock()
-			errs = append(errs, err)
-			errLock.Unlock()
-		}
-	}, OperationClearNominatedNode)
-	return utilerrors.NewAggregate(errs)
+	_ = "STUB: not implemented"
+	return *new(utilerrors.Aggregate)
 }
 
 func (ev *preemptionEvaluatorImpl) makeNomination(ctx context.Context, podToNominatedNode map[string]string) {
-	preemptionState := preemptionStateFromContext(ctx)
-	startTime := time.Now()
-	defer func() {
-		preemptionState.DurationOfMakeNomination = metav1.Duration{Duration: time.Since(startTime)}
-	}()
-	waitingPodToNominatedNode := makeWaitingPodToNominatedNode(preemptionState.allWaitingPods)
-	ev.rejectAllWaitingPod(ctx, preemptionState.allWaitingPods, frameworkext.JobPreemptionSuccessPlugin, preemptionState.Message)
-	ev.setAllNominatedNode(ctx, preemptionState.allPods, podToNominatedNode, waitingPodToNominatedNode)
+	_ = "STUB: not implemented"
+	return
 }
 
 func makeWaitingPodToNominatedNode(allWaitingPods []*corev1.Pod) map[string]string {
-	if len(allWaitingPods) == 0 {
-		return nil
-	}
-	podNominatedNodes := make(map[string]string, len(allWaitingPods))
-	for _, pod := range allWaitingPods {
-		podNominatedNodes[framework.GetNamespacedName(pod.Namespace, pod.Name)] = pod.Spec.NodeName
-	}
-	return podNominatedNodes
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ev *preemptionEvaluatorImpl) cancelNomination(ctx context.Context) {
-	preemptionState := preemptionStateFromContext(ctx)
-	startTime := time.Now()
-	defer func() {
-		preemptionState.DurationOfCancelNomination = metav1.Duration{Duration: time.Since(startTime)}
-	}()
-	ev.rejectAllWaitingPod(ctx, preemptionState.allWaitingPods, frameworkext.JobPreemptionFailurePlugin, preemptionState.Message)
-	ev.setAllNominatedNode(ctx, preemptionState.allPods, nil, nil)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (ev *preemptionEvaluatorImpl) rejectAllWaitingPod(_ context.Context, allWaitingPods []*corev1.Pod, pluginName, msg string) {
-	for _, pod := range allWaitingPods {
-		if waitingPod := ev.handle.GetWaitingPod(pod.UID); waitingPod != nil {
-			waitingPod.Reject(pluginName, msg)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (ev *preemptionEvaluatorImpl) setAllNominatedNode(ctx context.Context, allPods []*corev1.Pod, podNominatedNodes, waitingPodToNominatedNode map[string]string) {
-	logger := klog.FromContext(ctx)
-	jobPreemptionDiagnosis := preemptionStateFromContext(ctx)
-	client := ev.handle.ClientSet()
-	patchStatusLock := sync.Mutex{}
-	ev.handle.Parallelizer().Until(ctx, len(allPods), func(i int) {
-		pod := allPods[i]
-		podKey := framework.GetNamespacedName(pod.Namespace, pod.Name)
-		nominatedNode := podNominatedNodes[podKey]
-		if nominatedNode == "" {
-			nominatedNode = waitingPodToNominatedNode[podKey]
-		}
-		if nominatedNode == "" {
-			ev.handle.DeleteNominatedPodIfExists(pod)
-			if extendedHandle, ok := ev.handle.(frameworkext.FrameworkExtender); ok {
-				nominator := extendedHandle.GetReservationNominator()
-				if nominator != nil {
-					nominator.DeleteNominatedReservePodOrReservation(pod)
-				}
-			}
-		} else {
-			podInfo, _ := framework.NewPodInfo(pod)
-			ev.handle.AddNominatedPod(logger, podInfo,
-				&fwktype.NominatingInfo{NominatingMode: fwktype.ModeOverride, NominatedNodeName: nominatedNode})
-			// TODO nominated reservationRelated
-		}
-		if nominatedNode == pod.Status.NominatedNodeName {
-			return
-		}
-		podStatusCopy := pod.Status.DeepCopy()
-		podStatusCopy.NominatedNodeName = nominatedNode
-		err := schedulerutil.PatchPodStatus(ctx, client, pod.Name, pod.Namespace, &pod.Status, podStatusCopy)
-		if err != nil {
-			patchStatusLock.Lock()
-			jobPreemptionDiagnosis.ClearNominatedNodeFailedMsg[podKey] = err.Error()
-			patchStatusLock.Unlock()
-		}
-	}, OperationSetNominatedNode)
+	_ = "STUB: not implemented"
+	return
 }
+
+// TODO nominated reservationRelated

@@ -20,24 +20,14 @@ type notFoundError struct {
 	err error
 }
 
-func (e notFoundError) Error() string {
-	return e.err.Error()
-}
+func (e notFoundError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func isNotFound(err error) bool {
-	_, ok := err.(notFoundError)
-	return ok
-}
+func isNotFound(err error) bool { _ = "STUB: not implemented"; return false }
 
 type alreadyExistError struct {
 	err error
 }
 
-func (e alreadyExistError) Error() string {
-	return e.err.Error()
-}
+func (e alreadyExistError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func isAlreadyExists(err error) bool {
-	_, ok := err.(alreadyExistError)
-	return ok
-}
+func isAlreadyExists(err error) bool { _ = "STUB: not implemented"; return false }

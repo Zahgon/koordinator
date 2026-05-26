@@ -17,307 +17,67 @@ limitations under the License.
 package elasticquota
 
 import (
-	"context"
-	"fmt"
-	"sort"
-	"strings"
-
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
-	"github.com/koordinator-sh/koordinator/apis/extension"
-	schedulerv1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/elasticquota/core"
 )
 
 // getPodAssociateQuotaName If pod's don't have the "quota-name" label, we will use the namespace to associate pod with quota
 // group. If the plugin can't find the matched quota group, it will force the pod to associate with the "default-group".
-func (g *Plugin) getPodAssociateQuotaName(pod *v1.Pod) string {
-	quotaName := g.GetQuotaName(pod)
-	if quotaName == "" {
-		return ""
-	}
-
-	g.quotaToTreeMapLock.RLock()
-	defer g.quotaToTreeMapLock.RUnlock()
-
-	_, ok := g.quotaToTreeMap[quotaName]
-	if ok {
-		return quotaName
-	}
-
-	if k8sfeature.DefaultFeatureGate.Enabled(features.DisableDefaultQuota) {
-		return ""
-	}
-	return extension.DefaultQuotaName
-}
+func (g *Plugin) getPodAssociateQuotaName(pod *v1.Pod) string { _ = "STUB: not implemented"; return "" }
 
 // getPodAssociateQuotaNameAndTreeID will return the quota and tree related the pod
 // If pod's don't have the "quota-name" label, we will return the default quota and tree
 // If pod has a quota label which not exists, we will also return the default quota and tree
 func (g *Plugin) getPodAssociateQuotaNameAndTreeID(pod *v1.Pod) (string, string) {
-	quotaName := g.GetQuotaName(pod)
-	if quotaName == "" {
-		return "", ""
-	}
-
-	g.quotaToTreeMapLock.RLock()
-	defer g.quotaToTreeMapLock.RUnlock()
-
-	treeID, ok := g.quotaToTreeMap[quotaName]
-	if ok {
-		return quotaName, treeID
-	}
-
-	if k8sfeature.DefaultFeatureGate.Enabled(features.DisableDefaultQuota) {
-		return "", ""
-	}
-	return extension.DefaultQuotaName, treeID
+	_ = "STUB: not implemented"
+	return "", ""
 }
 
-func (g *Plugin) GetQuotaName(pod *v1.Pod) string {
-	quotaName := extension.GetQuotaName(pod)
-	if k8sfeature.DefaultFeatureGate.Enabled(features.DisableDefaultQuota) {
-		return quotaName
-	}
-
-	if quotaName != "" {
-		return quotaName
-	}
-	eq, err := g.quotaLister.ElasticQuotas(pod.Namespace).Get(pod.Namespace)
-	if err == nil && eq != nil {
-		return eq.Name
-	} else if !errors.IsNotFound(err) {
-		klog.Errorf("Failed to Get ElasticQuota %s, err: %v", pod.Namespace, err)
-	}
-
-	eqList, err := g.quotaInformer.GetIndexer().ByIndex("annotation.namespaces", pod.Namespace)
-	if err != nil {
-		return extension.DefaultQuotaName
-	}
-
-	for _, quota := range eqList {
-		eq, ok := quota.(*schedulerv1alpha1.ElasticQuota)
-		if !ok {
-			continue
-		}
-		return eq.Name
-	}
-
-	return extension.DefaultQuotaName
-}
+func (g *Plugin) GetQuotaName(pod *v1.Pod) string { _ = "STUB: not implemented"; return "" }
 
 // migrateDefaultQuotaGroupsPod traverse all the pods in DefaultQuotaGroup, if the pod's QuotaName is not DefaultQuotaName,
 // then erase the pod from DefaultQuotaGroup, Request. If the pod is Running, update Used.
-func (g *Plugin) migrateDefaultQuotaGroupsPod() {
-	if k8sfeature.DefaultFeatureGate.Enabled(features.DisableDefaultQuota) {
-		return
-	}
+func (g *Plugin) migrateDefaultQuotaGroupsPod() { _ = "STUB: not implemented"; return }
 
-	defaultQuotaInfo := g.groupQuotaManager.GetQuotaInfoByName(extension.DefaultQuotaName)
-	for _, pod := range defaultQuotaInfo.GetPodCache() {
-		quotaName, treeID := g.getPodAssociateQuotaNameAndTreeID(pod)
-		if quotaName == extension.DefaultQuotaName {
-			continue
-		}
-		curMgr := g.GetGroupQuotaManagerForTree(treeID)
-		if curMgr == nil || curMgr.GetQuotaInfoByName(quotaName) == nil {
-			continue
-		}
-		if curMgr.GetTreeID() != "" {
-			// different tree.
-			g.groupQuotaManager.OnPodDelete(extension.DefaultQuotaName, pod)
-			curMgr.OnPodAdd(quotaName, pod)
-		} else {
-			// the same tree.
-			curMgr.MigratePod(pod, extension.DefaultQuotaName, quotaName)
-		}
-	}
-}
+// different tree.
+
+// the same tree.
 
 // migratePods if a quotaGroup is deleted, migrate its pods to defaultQuotaGroup
-func (g *Plugin) migratePods(out, in string) {
-	outQuota := g.groupQuotaManager.GetQuotaInfoByName(out)
-	inQuota := g.groupQuotaManager.GetQuotaInfoByName(in)
-	if outQuota != nil && inQuota != nil {
-		for _, pod := range outQuota.GetPodCache() {
-			g.groupQuotaManager.MigratePod(pod, out, in)
-		}
-	}
-}
+func (g *Plugin) migratePods(out, in string) { _ = "STUB: not implemented"; return }
 
 // createDefaultQuotaIfNotPresent create DefaultQuotaGroup's CRD
-func (g *Plugin) createDefaultQuotaIfNotPresent() {
-	eq, err := g.client.SchedulingV1alpha1().ElasticQuotas(g.pluginArgs.QuotaGroupNamespace).Get(context.TODO(), extension.DefaultQuotaName, metav1.GetOptions{ResourceVersion: "0"})
-	if err == nil && eq != nil {
-		klog.Infof("DefaultQuota already exists, skip create it.")
-		return
-	}
-	if err != nil && !errors.IsNotFound(err) {
-		klog.Errorf("failed to get DefaultQuota, err: %v", err)
-		return
-	}
-
-	defaultElasticQuota := &schedulerv1alpha1.ElasticQuota{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        extension.DefaultQuotaName,
-			Namespace:   g.pluginArgs.QuotaGroupNamespace,
-			Annotations: make(map[string]string),
-		},
-		Spec: schedulerv1alpha1.ElasticQuotaSpec{
-			Max: g.pluginArgs.DefaultQuotaGroupMax.DeepCopy(),
-		},
-	}
-	_, err = g.client.SchedulingV1alpha1().ElasticQuotas(g.pluginArgs.QuotaGroupNamespace).
-		Create(context.TODO(), defaultElasticQuota, metav1.CreateOptions{})
-	if err != nil {
-		klog.Errorf("create default group fail, err:%v", err.Error())
-		return
-	}
-	klog.Infof("create DefaultQuota successfully")
-}
+func (g *Plugin) createDefaultQuotaIfNotPresent() { _ = "STUB: not implemented"; return }
 
 // defaultQuotaInfo and systemQuotaInfo are created once the groupQuotaManager is created, but we also want to see
 // the used/request of the two quotaGroups, so we create the two quota's CRD if not present.
-func (g *Plugin) createSystemQuotaIfNotPresent() {
-	eq, err := g.client.SchedulingV1alpha1().ElasticQuotas(g.pluginArgs.QuotaGroupNamespace).Get(context.TODO(), extension.SystemQuotaName, metav1.GetOptions{ResourceVersion: "0"})
-	if err == nil && eq != nil {
-		klog.Infof("SystemQuota already exists, skip create it.")
-		return
-	}
-	if err != nil && !errors.IsNotFound(err) {
-		klog.Errorf("failed to get SystemQuota, err: %v", err)
-		return
-	}
-
-	systemElasticQuota := &schedulerv1alpha1.ElasticQuota{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        extension.SystemQuotaName,
-			Namespace:   g.pluginArgs.QuotaGroupNamespace,
-			Annotations: make(map[string]string),
-		},
-		Spec: schedulerv1alpha1.ElasticQuotaSpec{
-			Max: g.pluginArgs.SystemQuotaGroupMax.DeepCopy(),
-		},
-	}
-	_, err = g.client.SchedulingV1alpha1().ElasticQuotas(g.pluginArgs.QuotaGroupNamespace).
-		Create(context.TODO(), systemElasticQuota, metav1.CreateOptions{})
-	if err != nil {
-		klog.Errorf("create system group fail, err:%v", err.Error())
-		return
-	}
-	klog.Infof("create SystemQuota successfully")
-}
+func (g *Plugin) createSystemQuotaIfNotPresent() { _ = "STUB: not implemented"; return }
 
 // createRootQuotaIfNotPresent create RootQuotaGroup's CRD
-func (g *Plugin) createRootQuotaIfNotPresent() {
-	eq, err := g.client.SchedulingV1alpha1().ElasticQuotas(g.pluginArgs.QuotaGroupNamespace).Get(context.TODO(), extension.RootQuotaName, metav1.GetOptions{ResourceVersion: "0"})
-	if err == nil && eq != nil {
-		klog.Infof("RootQuota already exists, skip create it.")
-		return
-	}
-	if err != nil && !errors.IsNotFound(err) {
-		klog.Errorf("failed to get RootQuota, err: %v", err)
-		return
-	}
-
-	rootElasticQuota := &schedulerv1alpha1.ElasticQuota{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        extension.RootQuotaName,
-			Namespace:   g.pluginArgs.QuotaGroupNamespace,
-			Labels:      make(map[string]string),
-			Annotations: make(map[string]string),
-		},
-	}
-	rootElasticQuota.Labels[extension.LabelQuotaIsParent] = "true"
-	rootElasticQuota.Labels[extension.LabelAllowLentResource] = "false"
-	rootElasticQuota.Labels[extension.LabelQuotaParent] = ""
-	_, err = g.client.SchedulingV1alpha1().ElasticQuotas(g.pluginArgs.QuotaGroupNamespace).
-		Create(context.TODO(), rootElasticQuota, metav1.CreateOptions{})
-	if err != nil {
-		klog.Errorf("create root group fail, err:%v", err.Error())
-		return
-	}
-	klog.Infof("create RootQuota successfully")
-}
+func (g *Plugin) createRootQuotaIfNotPresent() { _ = "STUB: not implemented"; return }
 
 func (g *Plugin) snapshotPostFilterState(quotaInfo *core.QuotaInfo, state fwktype.CycleState) *PostFilterState {
-	postFilterState := &PostFilterState{
-		quotaInfo:          quotaInfo,
-		used:               quotaInfo.GetUsed(),
-		nonPreemptibleUsed: quotaInfo.GetNonPreemptibleUsed(),
-		usedLimit:          g.getQuotaInfoUsedLimit(quotaInfo),
-	}
-	state.Write(postFilterKey, postFilterState)
-	return postFilterState
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (g *Plugin) skipPostFilterState(state fwktype.CycleState) {
-	postFilterState := &PostFilterState{
-		skip: true,
-	}
-	state.Write(postFilterKey, postFilterState)
-}
+func (g *Plugin) skipPostFilterState(state fwktype.CycleState) { _ = "STUB: not implemented"; return }
 
 func getPostFilterState(cycleState fwktype.CycleState) (*PostFilterState, error) {
-	c, err := cycleState.Read(postFilterKey)
-	if err != nil {
-		return nil, fmt.Errorf("error reading %q from cycleState: %v", postFilterKey, err)
-	}
-
-	s, ok := c.(*PostFilterState)
-	if !ok {
-		return nil, fmt.Errorf("%+v convert to ElasticQuota.postFilterState error", c)
-	}
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (g *Plugin) checkQuotaRecursive(mgr *core.GroupQuotaManager, curQuotaName string, quotaNameTopo []string, podRequest v1.ResourceList) *fwktype.Status {
-	if curQuotaName == extension.RootQuotaName {
-		return fwktype.NewStatus(fwktype.Success, "")
-	}
-
-	quotaInfo := mgr.GetQuotaInfoByName(curQuotaName)
-	if quotaInfo == nil {
-		return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("Could not find the elasticQuota %v, quotaNameTopo: %v", curQuotaName, quotaNameTopo))
-	}
-	quotaUsed := quotaInfo.GetUsed()
-	quotaUsedLimit := g.getQuotaInfoUsedLimit(quotaInfo)
-
-	newUsed := quotav1.Mask(quotav1.Add(podRequest, quotaUsed), quotav1.ResourceNames(podRequest))
-	if isLessEqual, exceedDimensions := quotav1.LessThanOrEqual(newUsed, quotaUsedLimit); !isLessEqual {
-		return fwktype.NewStatus(fwktype.Unschedulable, fmt.Sprintf("Insufficient quotas, "+
-			"quotaNameTopo: %v, runtime: %v, used: %v, pod's request: %v, exceedDimensions: %v", quotaNameTopo,
-			printResourceList(quotaUsedLimit), printResourceList(quotaUsed), printResourceList(podRequest), exceedDimensions))
-	}
-	quotaNameTopo = append([]string{quotaInfo.ParentName}, quotaNameTopo...)
-	return g.checkQuotaRecursive(mgr, quotaInfo.ParentName, quotaNameTopo, podRequest)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func printResourceList(rl v1.ResourceList) string {
-	if len(rl) == 0 {
-		return "<empty>"
-	}
-	res := make([]string, 0)
-	for k, v := range rl {
-		tmp := string(k) + ":" + v.String()
-		res = append(res, tmp)
-	}
-	sort.Slice(res, func(i, j int) bool {
-		return res[i] < res[j]
-	})
-	return strings.Join(res, ",")
-}
+func printResourceList(rl v1.ResourceList) string { _ = "STUB: not implemented"; return "" }
 
 func (g *Plugin) getQuotaInfoUsedLimit(quotaInfo *core.QuotaInfo) v1.ResourceList {
-	if g.pluginArgs.EnableRuntimeQuota {
-		return quotaInfo.GetRuntime()
-	}
-	return quotaInfo.GetMax()
+	_ = "STUB: not implemented"
+	return *new(v1.ResourceList)
 }

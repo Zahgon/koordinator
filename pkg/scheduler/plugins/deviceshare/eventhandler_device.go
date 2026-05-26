@@ -17,69 +17,28 @@ limitations under the License.
 package deviceshare
 
 import (
-	"context"
-
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-
-	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	koordinatorinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
-	frameworkexthelper "github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/helper"
 )
 
 func registerDeviceEventHandler(deviceCache *nodeDeviceCache, koordSharedInformerFactory koordinatorinformers.SharedInformerFactory) {
-	deviceInformer := koordSharedInformerFactory.Scheduling().V1alpha1().Devices().Informer()
-	eventHandler := cache.ResourceEventHandlerFuncs{
-		AddFunc:    deviceCache.onDeviceAdd,
-		UpdateFunc: deviceCache.onDeviceUpdate,
-		DeleteFunc: deviceCache.onDeviceDelete,
-	}
-	// make sure Device resources are loaded before Pods
-	frameworkexthelper.ForceSyncFromInformer(context.TODO().Done(), koordSharedInformerFactory, deviceInformer, eventHandler)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (n *nodeDeviceCache) onDeviceAdd(obj interface{}) {
-	device, ok := obj.(*schedulingv1alpha1.Device)
-	if !ok {
-		klog.Errorf("device cache add failed to parse, obj %T", obj)
-		return
-	}
-	n.updateNodeDevice(device.Name, device)
-	klog.V(4).InfoS("device cache added", "Device", klog.KObj(device))
-}
+// make sure Device resources are loaded before Pods
+
+func (n *nodeDeviceCache) onDeviceAdd(obj interface{}) { _ = "STUB: not implemented"; return }
 
 func (n *nodeDeviceCache) onDeviceUpdate(oldObj, newObj interface{}) {
-	_, oldOK := oldObj.(*schedulingv1alpha1.Device)
-	newD, newOK := newObj.(*schedulingv1alpha1.Device)
-	if !oldOK || !newOK {
-		klog.Errorf("device cache update failed to parse, oldObj %T, newObj %T", oldObj, newObj)
-		return
-	}
-	n.updateNodeDevice(newD.Name, newD)
-	klog.V(4).InfoS("device cache updated", "Device", klog.KObj(newD))
+	_ = "STUB: not implemented"
+	return
 }
 
-func (n *nodeDeviceCache) onDeviceDelete(obj interface{}) {
-	var device *schedulingv1alpha1.Device
-	switch t := obj.(type) {
-	case *schedulingv1alpha1.Device:
-		device = t
-	case cache.DeletedFinalStateUnknown:
-		var ok bool
-		device, ok = t.Obj.(*schedulingv1alpha1.Device)
-		if !ok {
-			return
-		}
-	default:
-		return
-	}
+func (n *nodeDeviceCache) onDeviceDelete(obj interface{}) { _ = "STUB: not implemented"; return }
 
-	//
-	// The user may accidentally delete the Device CRD object,
-	// and then the Device CRD object will be recreated by koordlet/DevicePlugin.
-	// During this period, the internal state can only be marked as invalid,
-	// otherwise the GPU may be repeatedly allocated to different Pods.
-	//
-	n.invalidateNodeDevice(device)
-	klog.V(4).InfoS("device invalided", "Device", klog.KObj(device))
-}
+//
+// The user may accidentally delete the Device CRD object,
+// and then the Device CRD object will be recreated by koordlet/DevicePlugin.
+// During this period, the internal state can only be marked as invalid,
+// otherwise the GPU may be repeatedly allocated to different Pods.
+//

@@ -23,18 +23,16 @@ type SnapshotControllerMetrics testutil.Metrics
 
 // Equal returns true if all metrics are the same as the arguments.
 func (m *SnapshotControllerMetrics) Equal(o SnapshotControllerMetrics) bool {
-	return (*testutil.Metrics)(m).Equal(testutil.Metrics(o))
+	_ = "STUB: not implemented"
+	return false
 }
 
 func newSnapshotControllerMetrics() SnapshotControllerMetrics {
-	result := testutil.NewMetrics()
-	return SnapshotControllerMetrics(result)
+	_ = "STUB: not implemented"
+	return *new(SnapshotControllerMetrics)
 }
 
 func parseSnapshotControllerMetrics(data string) (SnapshotControllerMetrics, error) {
-	result := newSnapshotControllerMetrics()
-	if err := testutil.ParseMetrics(data, (*testutil.Metrics)(&result)); err != nil {
-		return SnapshotControllerMetrics{}, err
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(SnapshotControllerMetrics), nil
 }

@@ -17,11 +17,6 @@ limitations under the License.
 package indexer
 
 import (
-	"fmt"
-
-	"k8s.io/client-go/tools/cache"
-
-	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	koordinatorinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
 )
 
@@ -36,25 +31,13 @@ func init() {
 
 // reservationStatusNodeNameIndexFunc is an index function that indexes based on a reservation's status.nodeName
 func reservationStatusNodeNameIndexFunc(obj interface{}) ([]string, error) {
-	r, ok := obj.(*schedulingv1alpha1.Reservation)
-	if !ok {
-		return []string{}, nil
-	}
-	if len(r.Status.NodeName) <= 0 {
-		return []string{}, nil
-	}
-	return []string{r.Status.NodeName}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func addReservationIndexer(koordinatorSharedInformerFactory koordinatorinformers.SharedInformerFactory) error {
-	reservationInterface := koordinatorSharedInformerFactory.Scheduling().V1alpha1().Reservations()
-	reservationInformer := reservationInterface.Informer()
-	// index reservation with status.nodeName; avoid duplicate add
-	if reservationInformer.GetIndexer().GetIndexers()[ReservationStatusNodeNameIndex] == nil {
-		err := reservationInformer.AddIndexers(cache.Indexers{ReservationStatusNodeNameIndex: reservationStatusNodeNameIndexFunc})
-		if err != nil {
-			return fmt.Errorf("failed to add indexer, err: %s", err)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// index reservation with status.nodeName; avoid duplicate add

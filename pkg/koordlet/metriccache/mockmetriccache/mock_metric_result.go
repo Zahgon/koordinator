@@ -27,7 +27,6 @@
 package mock_metriccache
 
 import (
-	reflect "reflect"
 	time "time"
 
 	metriccache "github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
@@ -49,56 +48,45 @@ type MockMetricResultMockRecorder struct {
 
 // NewMockMetricResult creates a new mock instance.
 func NewMockMetricResult(ctrl *gomock.Controller) *MockMetricResult {
-	mock := &MockMetricResult{ctrl: ctrl}
-	mock.recorder = &MockMetricResultMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMetricResult) EXPECT() *MockMetricResultMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// AddSeries mocks base method.
+	return nil
 }
 
-// AddSeries mocks base method.
 func (m *MockMetricResult) AddSeries(arg0 storage.Series) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddSeries", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AddSeries indicates an expected call of AddSeries.
 func (mr *MockMetricResultMockRecorder) AddSeries(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSeries", reflect.TypeOf((*MockMetricResult)(nil).AddSeries), arg0)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetKind mocks base method.
-func (m *MockMetricResult) GetKind() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetKind")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
+func (m *MockMetricResult) GetKind() string { _ = "STUB: not implemented"; return "" }
 
 // GetKind indicates an expected call of GetKind.
 func (mr *MockMetricResultMockRecorder) GetKind() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKind", reflect.TypeOf((*MockMetricResult)(nil).GetKind))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetProperties mocks base method.
-func (m *MockMetricResult) GetProperties() map[string]string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProperties")
-	ret0, _ := ret[0].(map[string]string)
-	return ret0
-}
+func (m *MockMetricResult) GetProperties() map[string]string { _ = "STUB: not implemented"; return nil }
 
 // GetProperties indicates an expected call of GetProperties.
 func (mr *MockMetricResultMockRecorder) GetProperties() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProperties", reflect.TypeOf((*MockMetricResult)(nil).GetProperties))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockAggregateResultFactory is a mock of AggregateResultFactory interface.
@@ -115,28 +103,27 @@ type MockAggregateResultFactoryMockRecorder struct {
 
 // NewMockAggregateResultFactory creates a new mock instance.
 func NewMockAggregateResultFactory(ctrl *gomock.Controller) *MockAggregateResultFactory {
-	mock := &MockAggregateResultFactory{ctrl: ctrl}
-	mock.recorder = &MockAggregateResultFactoryMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAggregateResultFactory) EXPECT() *MockAggregateResultFactoryMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// New mocks base method.
+	return nil
 }
 
-// New mocks base method.
 func (m *MockAggregateResultFactory) New(meta metriccache.MetricMeta) metriccache.AggregateResult {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "New", meta)
-	ret0, _ := ret[0].(metriccache.AggregateResult)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(metriccache.AggregateResult)
 }
 
 // New indicates an expected call of New.
 func (mr *MockAggregateResultFactoryMockRecorder) New(meta any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "New", reflect.TypeOf((*MockAggregateResultFactory)(nil).New), meta)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockAggregateResult is a mock of AggregateResult interface.
@@ -153,97 +140,79 @@ type MockAggregateResultMockRecorder struct {
 
 // NewMockAggregateResult creates a new mock instance.
 func NewMockAggregateResult(ctrl *gomock.Controller) *MockAggregateResult {
-	mock := &MockAggregateResult{ctrl: ctrl}
-	mock.recorder = &MockAggregateResultMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAggregateResult) EXPECT() *MockAggregateResultMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// AddSeries mocks base method.
+	return nil
 }
 
-// AddSeries mocks base method.
 func (m *MockAggregateResult) AddSeries(arg0 storage.Series) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddSeries", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AddSeries indicates an expected call of AddSeries.
 func (mr *MockAggregateResultMockRecorder) AddSeries(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSeries", reflect.TypeOf((*MockAggregateResult)(nil).AddSeries), arg0)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Count mocks base method.
-func (m *MockAggregateResult) Count() int {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Count")
-	ret0, _ := ret[0].(int)
-	return ret0
-}
+func (m *MockAggregateResult) Count() int { _ = "STUB: not implemented"; return 0 }
 
 // Count indicates an expected call of Count.
 func (mr *MockAggregateResultMockRecorder) Count() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockAggregateResult)(nil).Count))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetKind mocks base method.
-func (m *MockAggregateResult) GetKind() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetKind")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
+func (m *MockAggregateResult) GetKind() string { _ = "STUB: not implemented"; return "" }
 
 // GetKind indicates an expected call of GetKind.
 func (mr *MockAggregateResultMockRecorder) GetKind() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKind", reflect.TypeOf((*MockAggregateResult)(nil).GetKind))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetProperties mocks base method.
 func (m *MockAggregateResult) GetProperties() map[string]string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProperties")
-	ret0, _ := ret[0].(map[string]string)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetProperties indicates an expected call of GetProperties.
 func (mr *MockAggregateResultMockRecorder) GetProperties() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProperties", reflect.TypeOf((*MockAggregateResult)(nil).GetProperties))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // TimeRangeDuration mocks base method.
 func (m *MockAggregateResult) TimeRangeDuration() time.Duration {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TimeRangeDuration")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 // TimeRangeDuration indicates an expected call of TimeRangeDuration.
 func (mr *MockAggregateResultMockRecorder) TimeRangeDuration() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeRangeDuration", reflect.TypeOf((*MockAggregateResult)(nil).TimeRangeDuration))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Value mocks base method.
 func (m *MockAggregateResult) Value(t metriccache.AggregationType) (float64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Value", t)
-	ret0, _ := ret[0].(float64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // Value indicates an expected call of Value.
 func (mr *MockAggregateResultMockRecorder) Value(t any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Value", reflect.TypeOf((*MockAggregateResult)(nil).Value), t)
+	_ = "STUB: not implemented"
+	return nil
 }

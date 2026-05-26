@@ -48,14 +48,11 @@ var (
 )
 
 func RecordNodeResourceRunPluginStatus(pluginName string, isSucceeded bool, reason string) {
-	labels := map[string]string{}
-	labels[PluginKey] = pluginName
-	NodeResourceRunPluginStatus.With(withNodeStatusLabels(labels, isSucceeded, reason)).Inc()
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeExtendedResourceAllocatableInternal(node *corev1.Node, resourceName string, unit string, value float64) {
-	labels := genNodeLabels(node)
-	labels[ResourceKey] = resourceName
-	labels[UnitKey] = unit
-	NodeExtendedResourceAllocatableInternal.WithSet(labels, value)
+	_ = "STUB: not implemented"
+	return
 }

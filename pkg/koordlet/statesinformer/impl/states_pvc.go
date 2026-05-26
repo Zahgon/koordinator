@@ -17,20 +17,11 @@ limitations under the License.
 package impl
 
 import (
-	"context"
 	"sync"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiruntime "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/watch"
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/features"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 const (
@@ -45,89 +36,32 @@ type pvcInformer struct {
 	volumeNameMap map[string]string
 }
 
-func NewPVCInformer() *pvcInformer {
-	return &pvcInformer{
-		volumeNameMap: map[string]string{},
-	}
-}
+func NewPVCInformer() *pvcInformer { _ = "STUB: not implemented"; return nil }
 
 func (s *pvcInformer) GetVolumeName(pvcNamespace, pvcName string) string {
-	s.pvcRWMutex.RLock()
-	defer s.pvcRWMutex.RUnlock()
-	return s.volumeNameMap[util.GetNamespacedName(pvcNamespace, pvcName)]
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (s *pvcInformer) Setup(ctx *PluginOption, state *PluginState) {
-	s.pvcInformer = newPVCInformer(ctx.KubeClient)
-	s.pvcInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			pvc, ok := obj.(*corev1.PersistentVolumeClaim)
-			if ok {
-				s.updateVolumeNameMap(pvc)
-				klog.Infof("add PVC %s", util.GetNamespacedName(pvc.Namespace, pvc.Name))
-			} else {
-				klog.Errorf("pvc informer add func parse PVC failed")
-			}
-		},
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			pvc, ok := newObj.(*corev1.PersistentVolumeClaim)
-			if ok {
-				s.updateVolumeNameMap(pvc)
-				klog.Infof("update PVC %s", util.GetNamespacedName(pvc.Namespace, pvc.Name))
-			} else {
-				klog.Errorf("pvc informer update func parse PVC failed")
-			}
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
-func (s *pvcInformer) Start(stopCh <-chan struct{}) {
-	if !features.DefaultKoordletFeatureGate.Enabled(features.BlkIOReconcile) {
-		klog.V(4).Infof("feature %v is not enabled, skip running pvc informer", features.BlkIOReconcile)
-		return
-	}
-	klog.V(2).Infof("starting node pvc informer")
-	go s.pvcInformer.Run(stopCh)
-	klog.V(2).Infof("node pvc informer started")
-}
+func (s *pvcInformer) Start(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
 func (s *pvcInformer) HasSynced() bool {
+	_ = "STUB: not implemented"
 	// TODO add interface to check whether a plugin is enabled
-	if !features.DefaultKoordletFeatureGate.Enabled(features.BlkIOReconcile) {
-		klog.V(5).Infof("feature %v is not enabled, has sync return true", features.BlkIOReconcile)
-		return true
-	}
-	if s.pvcInformer == nil {
-		return false
-	}
-	synced := s.pvcInformer.HasSynced()
-	klog.V(5).Infof("node pvc informer has synced %v", synced)
-	return synced
+	return false
 }
 
 func (s *pvcInformer) updateVolumeNameMap(pvc *corev1.PersistentVolumeClaim) {
-	s.pvcRWMutex.Lock()
-	defer s.pvcRWMutex.Unlock()
-
-	if pvc == nil {
-		return
-	}
-
-	s.volumeNameMap[util.GetNamespacedName(pvc.Namespace, pvc.Name)] = pvc.Spec.VolumeName
+	_ = "STUB: not implemented"
+	return
 }
 
 func newPVCInformer(client clientset.Interface) cache.SharedIndexInformer {
-	return cache.NewSharedIndexInformer(
-		&cache.ListWatch{
-			ListFunc: func(options metav1.ListOptions) (apiruntime.Object, error) {
-				return client.CoreV1().PersistentVolumeClaims(metav1.NamespaceAll).List(context.TODO(), options)
-			},
-			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-				return client.CoreV1().PersistentVolumeClaims(metav1.NamespaceAll).Watch(context.TODO(), options)
-			},
-		},
-		&corev1.PersistentVolumeClaim{},
-		time.Hour*12,
-		cache.Indexers{},
-	)
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }

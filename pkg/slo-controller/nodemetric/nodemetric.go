@@ -17,26 +17,12 @@ limitations under the License.
 package nodemetric
 
 import (
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 )
 
 func (r *NodeMetricReconciler) initNodeMetric(node *corev1.Node, nodeMetric *slov1alpha1.NodeMetric) error {
-	if node == nil || nodeMetric == nil {
-		return fmt.Errorf("both Node and NodeMetric should not be empty")
-	}
-
-	nodeMetricSpec, err := r.getNodeMetricSpec(node, nil)
-	if err != nil {
-		return err
-	}
-
-	nodeMetric.Spec = *nodeMetricSpec
-	nodeMetric.SetName(node.GetName())
-	nodeMetric.SetNamespace(node.GetNamespace())
-
+	_ = "STUB: not implemented"
 	return nil
 }

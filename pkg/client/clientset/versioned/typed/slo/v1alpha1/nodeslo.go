@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -56,15 +55,4 @@ type nodeSLOs struct {
 }
 
 // newNodeSLOs returns a NodeSLOs
-func newNodeSLOs(c *SloV1alpha1Client) *nodeSLOs {
-	return &nodeSLOs{
-		gentype.NewClientWithList[*slov1alpha1.NodeSLO, *slov1alpha1.NodeSLOList](
-			"nodeslos",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			"",
-			func() *slov1alpha1.NodeSLO { return &slov1alpha1.NodeSLO{} },
-			func() *slov1alpha1.NodeSLOList { return &slov1alpha1.NodeSLOList{} },
-		),
-	}
-}
+func newNodeSLOs(c *SloV1alpha1Client) *nodeSLOs { _ = "STUB: not implemented"; return nil }

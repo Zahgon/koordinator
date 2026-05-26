@@ -44,5 +44,6 @@ type reservationLister struct {
 
 // NewReservationLister returns a new ReservationLister.
 func NewReservationLister(indexer cache.Indexer) ReservationLister {
-	return &reservationLister{listers.New[*schedulingv1alpha1.Reservation](indexer, schedulingv1alpha1.Resource("reservation"))}
+	_ = "STUB: not implemented"
+	return *new(ReservationLister)
 }

@@ -17,7 +17,6 @@ limitations under the License.
 package client
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/discovery"
 	kubeclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -34,33 +33,9 @@ type GenericClientset struct {
 
 // newForConfig creates a new Clientset for the given config.
 func newForConfig(c *rest.Config) (*GenericClientset, error) {
-	cWithProtobuf := rest.CopyConfig(c)
-	cWithProtobuf.ContentType = runtime.ContentTypeProtobuf
-	cWithProtobuf.AcceptContentTypes = runtime.ContentTypeProtobuf + "," + runtime.ContentTypeJSON
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(cWithProtobuf)
-	if err != nil {
-		return nil, err
-	}
-	kubeClient, err := kubeclientset.NewForConfig(cWithProtobuf)
-	if err != nil {
-		return nil, err
-	}
-	koordinatorClient, err := koordinatorclientset.NewForConfig(c)
-	if err != nil {
-		return nil, err
-	}
-	return &GenericClientset{
-		DiscoveryClient:   discoveryClient,
-		KubeClient:        kubeClient,
-		KoordinatorClient: koordinatorClient,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // newForConfig creates a new Clientset for the given config.
-func newForConfigOrDie(c *rest.Config) *GenericClientset {
-	gc, err := newForConfig(c)
-	if err != nil {
-		panic(err)
-	}
-	return gc
-}
+func newForConfigOrDie(c *rest.Config) *GenericClientset { _ = "STUB: not implemented"; return nil }

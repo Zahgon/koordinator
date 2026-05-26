@@ -20,10 +20,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
 )
@@ -39,48 +36,38 @@ type gpuCollector struct {
 }
 
 func New(opt *framework.Options) framework.DeviceCollector {
-	return &gpuCollector{
-		enabled:         features.DefaultKoordletFeatureGate.Enabled(features.Accelerators),
-		collectInterval: opt.Config.CollectResUsedInterval,
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.DeviceCollector)
 }
 
-func (g *gpuCollector) Shutdown() {
-	if err := g.gpuDeviceManager.shutdown(); err != nil {
-		klog.Warningf("gpu collector shutdown failed, error %v", err)
-	}
-}
+func (g *gpuCollector) Shutdown() { _ = "STUB: not implemented"; return }
 
-func (g *gpuCollector) Enabled() bool {
-	return g.enabled
-}
+func (g *gpuCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (g *gpuCollector) Setup(fra *framework.Context) {
-	g.gpuDeviceManager = initGPUDeviceManager()
-}
+func (g *gpuCollector) Setup(fra *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (g *gpuCollector) Run(stopCh <-chan struct{}) {
-	go wait.Until(g.gpuDeviceManager.collectGPUUsage, g.collectInterval, stopCh)
-}
+func (g *gpuCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (g *gpuCollector) Started() bool {
-	return g.gpuDeviceManager.started()
-}
+func (g *gpuCollector) Started() bool { _ = "STUB: not implemented"; return false }
 
 func (g *gpuCollector) Infos() metriccache.Devices {
-	return g.gpuDeviceManager.deviceInfos()
+	_ = "STUB: not implemented"
+	return *new(metriccache.Devices)
 }
 
 func (g *gpuCollector) GetNodeMetric() ([]metriccache.MetricSample, error) {
-	return g.gpuDeviceManager.getNodeGPUUsage(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (g *gpuCollector) GetPodMetric(uid, podParentDir string, cs []corev1.ContainerStatus) ([]metriccache.MetricSample, error) {
-	return g.gpuDeviceManager.getPodGPUUsage(uid, podParentDir, cs)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (g *gpuCollector) GetContainerMetric(ContainerID, podParentDir string, c *corev1.ContainerStatus) ([]metriccache.MetricSample, error) {
-	return g.gpuDeviceManager.getContainerGPUUsage(ContainerID, podParentDir, c)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type GPUDeviceManager interface {
@@ -95,28 +82,28 @@ type GPUDeviceManager interface {
 
 type dummyDeviceManager struct{}
 
-func (d *dummyDeviceManager) started() bool {
-	return true
-}
+func (d *dummyDeviceManager) started() bool { _ = "STUB: not implemented"; return false }
 
 func (d *dummyDeviceManager) deviceInfos() metriccache.Devices {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(metriccache.Devices)
 }
 
-func (d *dummyDeviceManager) collectGPUUsage() {}
+func (d *dummyDeviceManager) collectGPUUsage() { _ = "STUB: not implemented"; return }
 
 func (d *dummyDeviceManager) getNodeGPUUsage() []metriccache.MetricSample {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (d *dummyDeviceManager) getPodGPUUsage(uid, podParentDir string, cs []corev1.ContainerStatus) ([]metriccache.MetricSample, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func (d *dummyDeviceManager) getContainerGPUUsage(containerID, podParentDir string, c *corev1.ContainerStatus) ([]metriccache.MetricSample, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func (d *dummyDeviceManager) shutdown() error {
-	return nil
-}
+func (d *dummyDeviceManager) shutdown() error { _ = "STUB: not implemented"; return nil }

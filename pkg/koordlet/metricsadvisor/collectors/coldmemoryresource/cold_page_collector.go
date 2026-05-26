@@ -17,10 +17,7 @@ limitations under the License.
 package coldmemoryresource
 
 import (
-	"go.uber.org/atomic"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 const (
@@ -31,34 +28,20 @@ type nonColdPageCollector struct {
 }
 
 func New(opt *framework.Options) framework.Collector {
+	_ = "STUB: not implemented"
 	// check whether support kidled cold page info collector
-	if system.IsKidledSupport() {
-		kidledConfig := system.NewDefaultKidledConfig()
-		return &kidledcoldPageCollector{
-			collectInterval: opt.Config.ColdPageCollectorInterval,
-			cgroupReader:    opt.CgroupReader,
-			statesInformer:  opt.StatesInformer,
-			// TODO(BUPT-wxq): implement podFilter for the VM-based pods and containers
-			podFilter:    framework.DefaultPodFilter,
-			appendableDB: opt.MetricCache,
-			metricDB:     opt.MetricCache,
-			started:      atomic.NewBool(false),
-			coldBoundary: kidledConfig.KidledColdBoundary,
-		}
-	}
-	// TODO(BUPT-wxq): check kstaled cold page collector
-	// nonCollector does nothing
-	return &nonColdPageCollector{}
+	return *new(framework.Collector)
 }
 
-func (n *nonColdPageCollector) Run(stopCh <-chan struct{}) {}
+// TODO(BUPT-wxq): implement podFilter for the VM-based pods and containers
 
-func (n *nonColdPageCollector) Started() bool {
-	return false
-}
+// TODO(BUPT-wxq): check kstaled cold page collector
+// nonCollector does nothing
 
-func (n *nonColdPageCollector) Enabled() bool {
-	return false
-}
+func (n *nonColdPageCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (n *nonColdPageCollector) Setup(c1 *framework.Context) {}
+func (n *nonColdPageCollector) Started() bool { _ = "STUB: not implemented"; return false }
+
+func (n *nonColdPageCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
+
+func (n *nonColdPageCollector) Setup(c1 *framework.Context) { _ = "STUB: not implemented"; return }

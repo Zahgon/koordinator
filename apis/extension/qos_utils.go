@@ -18,7 +18,6 @@ package extension
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/kubectl/pkg/util/qos"
 )
 
 // NOTE: functions in this file can be overwritten for extension
@@ -30,49 +29,29 @@ var QoSClassForGuaranteed = QoSLSR
 
 // GetPodQoSClassWithDefault gets the pod's QoSClass with the default config.
 func GetPodQoSClassWithDefault(pod *corev1.Pod) QoSClass {
-	qosClass := GetPodQoSClassRaw(pod)
-	if qosClass != QoSNone {
-		return qosClass
-	}
-
-	return GetPodQoSClassWithKubeQoS(GetKubeQosClass(pod))
+	_ = "STUB: not implemented"
+	return *new(QoSClass)
 }
 
 // GetPodQoSClassWithKubeQoS returns the default QoSClass according to its kubernetes QoSClass when the pod does not
 // specify a koordinator QoSClass explicitly.
 // https://koordinator.sh/docs/architecture/qos#koordinator-qos-vs-kubernetes-qos
 func GetPodQoSClassWithKubeQoS(kubeQOS corev1.PodQOSClass) QoSClass {
-	switch kubeQOS {
-	case corev1.PodQOSGuaranteed:
-		return QoSClassForGuaranteed
-	case corev1.PodQOSBurstable:
-		return QoSLS
-	case corev1.PodQOSBestEffort:
-		return QoSBE
-	}
-	// should never reach here
-	return QoSNone
+	_ = "STUB: not implemented"
+	return *new(QoSClass)
 }
 
-func GetPodQoSClassRaw(pod *corev1.Pod) QoSClass {
-	if pod == nil || pod.Labels == nil {
-		return QoSNone
-	}
-	return GetQoSClassByAttrs(pod.Labels, pod.Annotations)
-}
+// should never reach here
+
+func GetPodQoSClassRaw(pod *corev1.Pod) QoSClass { _ = "STUB: not implemented"; return *new(QoSClass) }
 
 func GetQoSClassByAttrs(labels, annotations map[string]string) QoSClass {
+	_ = "STUB: not implemented"
 	// annotations are for old format adaption reason
-	if q, exist := labels[LabelPodQoS]; exist {
-		return GetPodQoSClassByName(q)
-	}
-	return QoSNone
+	return *new(QoSClass)
 }
 
 func GetKubeQosClass(pod *corev1.Pod) corev1.PodQOSClass {
-	qosClass := pod.Status.QOSClass
-	if len(qosClass) > 0 {
-		return qosClass
-	}
-	return qos.GetPodQOS(pod)
+	_ = "STUB: not implemented"
+	return *new(corev1.PodQOSClass)
 }

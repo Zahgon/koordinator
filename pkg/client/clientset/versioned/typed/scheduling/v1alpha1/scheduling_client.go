@@ -21,8 +21,6 @@ package v1alpha1
 import (
 	http "net/http"
 
-	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -41,81 +39,60 @@ type SchedulingV1alpha1Client struct {
 }
 
 func (c *SchedulingV1alpha1Client) ClusterNetworkTopologies() ClusterNetworkTopologyInterface {
-	return newClusterNetworkTopologies(c)
+	_ = "STUB: not implemented"
+	return *new(ClusterNetworkTopologyInterface)
 }
 
 func (c *SchedulingV1alpha1Client) Devices() DeviceInterface {
-	return newDevices(c)
+	_ = "STUB: not implemented"
+	return *new(DeviceInterface)
 }
 
 func (c *SchedulingV1alpha1Client) PodMigrationJobs() PodMigrationJobInterface {
-	return newPodMigrationJobs(c)
+	_ = "STUB: not implemented"
+	return *new(PodMigrationJobInterface)
 }
 
 func (c *SchedulingV1alpha1Client) Reservations() ReservationInterface {
-	return newReservations(c)
+	_ = "STUB: not implemented"
+	return *new(ReservationInterface)
 }
 
 func (c *SchedulingV1alpha1Client) ScheduleExplanations(namespace string) ScheduleExplanationInterface {
-	return newScheduleExplanations(c, namespace)
+	_ = "STUB: not implemented"
+	return *new(ScheduleExplanationInterface)
 }
 
 // NewForConfig creates a new SchedulingV1alpha1Client for the given config.
 // NewForConfig is equivalent to NewForConfigAndClient(c, httpClient),
 // where httpClient was generated with rest.HTTPClientFor(c).
 func NewForConfig(c *rest.Config) (*SchedulingV1alpha1Client, error) {
-	config := *c
-	setConfigDefaults(&config)
-	httpClient, err := rest.HTTPClientFor(&config)
-	if err != nil {
-		return nil, err
-	}
-	return NewForConfigAndClient(&config, httpClient)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewForConfigAndClient creates a new SchedulingV1alpha1Client for the given config and http client.
 // Note the http client provided takes precedence over the configured transport values.
 func NewForConfigAndClient(c *rest.Config, h *http.Client) (*SchedulingV1alpha1Client, error) {
-	config := *c
-	setConfigDefaults(&config)
-	client, err := rest.RESTClientForConfigAndClient(&config, h)
-	if err != nil {
-		return nil, err
-	}
-	return &SchedulingV1alpha1Client{client}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewForConfigOrDie creates a new SchedulingV1alpha1Client for the given config and
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *SchedulingV1alpha1Client {
-	client, err := NewForConfig(c)
-	if err != nil {
-		panic(err)
-	}
-	return client
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // New creates a new SchedulingV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *SchedulingV1alpha1Client {
-	return &SchedulingV1alpha1Client{c}
-}
+func New(c rest.Interface) *SchedulingV1alpha1Client { _ = "STUB: not implemented"; return nil }
 
-func setConfigDefaults(config *rest.Config) {
-	gv := schedulingv1alpha1.SchemeGroupVersion
-	config.GroupVersion = &gv
-	config.APIPath = "/apis"
-	config.NegotiatedSerializer = rest.CodecFactoryForGeneratedClient(scheme.Scheme, scheme.Codecs).WithoutConversion()
-
-	if config.UserAgent == "" {
-		config.UserAgent = rest.DefaultKubernetesUserAgent()
-	}
-}
+func setConfigDefaults(config *rest.Config) { _ = "STUB: not implemented"; return }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *SchedulingV1alpha1Client) RESTClient() rest.Interface {
-	if c == nil {
-		return nil
-	}
-	return c.restClient
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

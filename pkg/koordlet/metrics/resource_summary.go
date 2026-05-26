@@ -63,69 +63,30 @@ var (
 )
 
 func RecordNodeResourceAllocatable(resourceName string, unit string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[ResourceKey] = resourceName
-	labels[UnitKey] = unit
-	NodeResourceAllocatable.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeResourcePriorityReclaimable(resourceName string, unit string, priority string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PriorityKey] = priority
-	labels[ResourceKey] = resourceName
-	labels[UnitKey] = unit
-	NodeResourcePriorityReclaimable.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeResourcePriorityReclaimableStatus(priority string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PriorityKey] = priority
-	NodeResourcePriorityReclaimableStatus.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordContainerResourceRequests(resourceName string, unit string, status *corev1.ContainerStatus, pod *corev1.Pod, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[ResourceKey] = resourceName
-	labels[UnitKey] = unit
-	labels[PodUID] = string(pod.UID)
-	labels[PodName] = pod.Name
-	labels[PodNamespace] = pod.Namespace
-	labels[ContainerID] = status.ContainerID
-	labels[ContainerName] = status.Name
-	ContainerResourceRequests.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
-func ResetContainerResourceRequests() {
-	ContainerResourceRequests.Reset()
-}
+func ResetContainerResourceRequests() { _ = "STUB: not implemented"; return }
 
 func RecordContainerResourceLimits(resourceName string, unit string, status *corev1.ContainerStatus, pod *corev1.Pod, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[ResourceKey] = resourceName
-	labels[UnitKey] = unit
-	labels[PodUID] = string(pod.UID)
-	labels[PodName] = pod.Name
-	labels[PodNamespace] = pod.Namespace
-	labels[ContainerID] = status.ContainerID
-	labels[ContainerName] = status.Name
-	ContainerResourceLimits.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
-func ResetContainerResourceLimits() {
-	ContainerResourceLimits.Reset()
-}
+func ResetContainerResourceLimits() { _ = "STUB: not implemented"; return }

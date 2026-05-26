@@ -62,30 +62,21 @@ func init() {
 }
 
 func RecordElasticQuotaMetric(gaugeVec *metrics.GaugeVec, resources corev1.ResourceList, field string, labels map[string]string) {
-	for resourceName, quantity := range resources {
-		switch resourceName {
-		case corev1.ResourceCPU:
-			recordResourceMetric(gaugeVec, quantity.MilliValue(), string(resourceName), field, labels)
-		default:
-			recordResourceMetric(gaugeVec, quantity.Value(), string(resourceName), field, labels)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func recordResourceMetric(gaugeVec *metrics.GaugeVec, value int64, resourceName, field string, labels map[string]string) {
-	labels["resource"] = resourceName
-	labels["field"] = field
-	gaugeVec.With(labels).Set(float64(value))
+	_ = "STUB: not implemented"
+	return
 }
 
 func DeleteElasticQuotaMetric(gaugeVec *metrics.GaugeVec, resources corev1.ResourceList, field string, labels map[string]string) {
-	for resourceName := range resources {
-		deleteResourceMetric(gaugeVec, string(resourceName), field, labels)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func deleteResourceMetric(gaugeVec *metrics.GaugeVec, resourceName, field string, labels map[string]string) {
-	labels["resource"] = resourceName
-	labels["field"] = field
-	gaugeVec.Delete(labels)
+	_ = "STUB: not implemented"
+	return
 }

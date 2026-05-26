@@ -17,16 +17,6 @@ limitations under the License.
 
 package metrics
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-
-	"k8s.io/component-base/metrics/testutil"
-
-	e2elog "github.com/koordinator-sh/koordinator/test/e2e/framework/log"
-)
-
 const (
 	// Cluster Autoscaler metrics names
 	caFunctionMetric      = "cluster_autoscaler_function_duration_seconds_bucket"
@@ -36,94 +26,25 @@ const (
 // ComponentCollection is metrics collection of components.
 type ComponentCollection Collection
 
-func (m *ComponentCollection) filterMetrics() {
-	apiServerMetrics := make(APIServerMetrics)
-	for _, metric := range interestingAPIServerMetrics {
-		apiServerMetrics[metric] = (*m).APIServerMetrics[metric]
-	}
-	controllerManagerMetrics := make(ControllerManagerMetrics)
-	for _, metric := range interestingControllerManagerMetrics {
-		controllerManagerMetrics[metric] = (*m).ControllerManagerMetrics[metric]
-	}
-	kubeletMetrics := make(map[string]KubeletMetrics)
-	for kubelet, grabbed := range (*m).KubeletMetrics {
-		kubeletMetrics[kubelet] = make(KubeletMetrics)
-		for _, metric := range interestingKubeletMetrics {
-			kubeletMetrics[kubelet][metric] = grabbed[metric]
-		}
-	}
-	(*m).APIServerMetrics = apiServerMetrics
-	(*m).ControllerManagerMetrics = controllerManagerMetrics
-	(*m).KubeletMetrics = kubeletMetrics
-}
+func (m *ComponentCollection) filterMetrics() { _ = "STUB: not implemented"; return }
 
 // PrintHumanReadable returns e2e metrics with JSON format.
-func (m *ComponentCollection) PrintHumanReadable() string {
-	buf := bytes.Buffer{}
-	for _, interestingMetric := range interestingAPIServerMetrics {
-		buf.WriteString(fmt.Sprintf("For %v:\n", interestingMetric))
-		for _, sample := range (*m).APIServerMetrics[interestingMetric] {
-			buf.WriteString(fmt.Sprintf("\t%v\n", testutil.PrintSample(sample)))
-		}
-	}
-	for _, interestingMetric := range interestingControllerManagerMetrics {
-		buf.WriteString(fmt.Sprintf("For %v:\n", interestingMetric))
-		for _, sample := range (*m).ControllerManagerMetrics[interestingMetric] {
-			buf.WriteString(fmt.Sprintf("\t%v\n", testutil.PrintSample(sample)))
-		}
-	}
-	for _, interestingMetric := range interestingClusterAutoscalerMetrics {
-		buf.WriteString(fmt.Sprintf("For %v:\n", interestingMetric))
-		for _, sample := range (*m).ClusterAutoscalerMetrics[interestingMetric] {
-			buf.WriteString(fmt.Sprintf("\t%v\n", testutil.PrintSample(sample)))
-		}
-	}
-	for kubelet, grabbed := range (*m).KubeletMetrics {
-		buf.WriteString(fmt.Sprintf("For %v:\n", kubelet))
-		for _, interestingMetric := range interestingKubeletMetrics {
-			buf.WriteString(fmt.Sprintf("\tFor %v:\n", interestingMetric))
-			for _, sample := range grabbed[interestingMetric] {
-				buf.WriteString(fmt.Sprintf("\t\t%v\n", testutil.PrintSample(sample)))
-			}
-		}
-	}
-	return buf.String()
-}
+func (m *ComponentCollection) PrintHumanReadable() string { _ = "STUB: not implemented"; return "" }
 
 // PrettyPrintJSON converts metrics to JSON format.
 // TODO: This function should be replaced with framework.PrettyPrintJSON after solving
 // circulary dependency between core framework and this metrics subpackage.
-func PrettyPrintJSON(metrics interface{}) string {
-	output := &bytes.Buffer{}
-	if err := json.NewEncoder(output).Encode(metrics); err != nil {
-		e2elog.Logf("Error building encoder: %v", err)
-		return ""
-	}
-	formatted := &bytes.Buffer{}
-	if err := json.Indent(formatted, output.Bytes(), "", "  "); err != nil {
-		e2elog.Logf("Error indenting: %v", err)
-		return ""
-	}
-	return string(formatted.Bytes())
-}
+func PrettyPrintJSON(metrics interface{}) string { _ = "STUB: not implemented"; return "" }
 
 // PrintJSON returns e2e metrics with JSON format.
-func (m *ComponentCollection) PrintJSON() string {
-	m.filterMetrics()
-	return PrettyPrintJSON(m)
-}
+func (m *ComponentCollection) PrintJSON() string { _ = "STUB: not implemented"; return "" }
 
 // SummaryKind returns the summary of e2e metrics.
-func (m *ComponentCollection) SummaryKind() string {
-	return "ComponentCollection"
-}
+func (m *ComponentCollection) SummaryKind() string { _ = "STUB: not implemented"; return "" }
 
 // ComputeClusterAutoscalerMetricsDelta computes the change in cluster
 // autoscaler metrics.
 func (m *ComponentCollection) ComputeClusterAutoscalerMetricsDelta(before Collection) {
-	if beforeSamples, found := before.ClusterAutoscalerMetrics[caFunctionMetric]; found {
-		if afterSamples, found := m.ClusterAutoscalerMetrics[caFunctionMetric]; found {
-			testutil.ComputeHistogramDelta(beforeSamples, afterSamples, caFunctionMetricLabel)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }

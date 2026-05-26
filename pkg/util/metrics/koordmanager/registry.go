@@ -36,10 +36,6 @@ var (
 	InternalRegistry = legacyregistry.DefaultGatherer
 )
 
-func ExternalMustRegister(cs ...prometheus.Collector) {
-	ExternalRegistry.MustRegister(cs...)
-}
+func ExternalMustRegister(cs ...prometheus.Collector) { _ = "STUB: not implemented"; return }
 
-func InternalMustRegister(cs ...prometheus.Collector) {
-	legacyregistry.RawMustRegister(cs...)
-}
+func InternalMustRegister(cs ...prometheus.Collector) { _ = "STUB: not implemented"; return }

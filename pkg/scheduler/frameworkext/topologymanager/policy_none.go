@@ -27,18 +27,16 @@ var _ Policy = &nonePolicy{}
 const PolicyNone string = "none"
 
 // NewNonePolicy returns none policy.
-func NewNonePolicy() Policy {
-	return &nonePolicy{}
-}
+func NewNonePolicy() Policy { _ = "STUB: not implemented"; return *new(Policy) }
 
-func (p *nonePolicy) Name() string {
-	return PolicyNone
-}
+func (p *nonePolicy) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (p *nonePolicy) canAdmitPodResult(hint *NUMATopologyHint) bool {
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *nonePolicy) Merge(providersHints []map[string][]NUMATopologyHint, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) (NUMATopologyHint, bool, []string) {
-	return NUMATopologyHint{}, p.canAdmitPodResult(nil), nil
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyHint), false, nil
 }

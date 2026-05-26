@@ -17,11 +17,6 @@ limitations under the License.
 package util
 
 import (
-	"path/filepath"
-
-	corev1 "k8s.io/api/core/v1"
-
-	ext "github.com/koordinator-sh/koordinator/apis/extension"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 )
 
@@ -31,30 +26,10 @@ const (
 )
 
 func GetHostAppCgroupRelativePath(hostAppSpec *slov1alpha1.HostApplicationSpec) string {
-	if hostAppSpec == nil {
-		return ""
-	}
-	if hostAppSpec.CgroupPath == nil {
-		cgroupBaseDir := ""
-		switch hostAppSpec.QoS {
-		case ext.QoSLSE, ext.QoSLSR, ext.QoSLS:
-			cgroupBaseDir = defaultHostLSCgroupDir
-		case ext.QoSBE:
-			cgroupBaseDir = defaultHostBECgroupDir
-			// empty string for QoSNone as default
-		}
-		return filepath.Join(cgroupBaseDir, hostAppSpec.Name)
-	} else {
-		cgroupBaseDir := ""
-		switch hostAppSpec.CgroupPath.Base {
-		case slov1alpha1.CgroupBaseTypeKubepods:
-			cgroupBaseDir = GetPodQoSRelativePath(corev1.PodQOSGuaranteed)
-		case slov1alpha1.CgroupBaseTypeKubeBurstable:
-			cgroupBaseDir = GetPodQoSRelativePath(corev1.PodQOSBurstable)
-		case slov1alpha1.CgroupBaseTypeKubeBesteffort:
-			cgroupBaseDir = GetPodQoSRelativePath(corev1.PodQOSBestEffort)
-			// empty string for CgroupBaseTypeRoot as default
-		}
-		return filepath.Join(cgroupBaseDir, hostAppSpec.CgroupPath.ParentDir, hostAppSpec.CgroupPath.RelativePath)
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// empty string for QoSNone as default
+
+// empty string for CgroupBaseTypeRoot as default

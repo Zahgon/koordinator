@@ -44,5 +44,6 @@ type deviceLister struct {
 
 // NewDeviceLister returns a new DeviceLister.
 func NewDeviceLister(indexer cache.Indexer) DeviceLister {
-	return &deviceLister{listers.New[*schedulingv1alpha1.Device](indexer, schedulingv1alpha1.Resource("device"))}
+	_ = "STUB: not implemented"
+	return *new(DeviceLister)
 }

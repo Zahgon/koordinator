@@ -33,6 +33,6 @@ type PodLatencyData struct {
 // LatencySlice is an array of PodLatencyData which encapsulates pod startup latency information.
 type LatencySlice []PodLatencyData
 
-func (a LatencySlice) Len() int           { return len(a) }
-func (a LatencySlice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a LatencySlice) Less(i, j int) bool { return a[i].Latency < a[j].Latency }
+func (a LatencySlice) Len() int           { _ = "STUB: not implemented"; return 0 }
+func (a LatencySlice) Swap(i, j int)      { _ = "STUB: not implemented"; return }
+func (a LatencySlice) Less(i, j int) bool { _ = "STUB: not implemented"; return false }

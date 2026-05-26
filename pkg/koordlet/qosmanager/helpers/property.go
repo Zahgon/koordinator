@@ -19,50 +19,23 @@ package helpers
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 )
 
 func GetPodResourceQoSByQoSClass(pod *corev1.Pod, strategy *slov1alpha1.ResourceQOSStrategy) *slov1alpha1.ResourceQOS {
-	if strategy == nil {
-		return nil
-	}
-	var resourceQoS *slov1alpha1.ResourceQOS
-	podQoS := apiext.GetPodQoSClassWithDefault(pod)
-	switch podQoS {
-	case apiext.QoSLSE:
-		// currently LSE pods use the same strategy with LSR
-		resourceQoS = strategy.LSRClass
-	case apiext.QoSLSR:
-		resourceQoS = strategy.LSRClass
-	case apiext.QoSLS:
-		resourceQoS = strategy.LSClass
-	case apiext.QoSBE:
-		resourceQoS = strategy.BEClass
-	case apiext.QoSSystem:
-		resourceQoS = strategy.SystemClass
-	default:
-		// should never reach here
-	}
-	return resourceQoS
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// currently LSE pods use the same strategy with LSR
+
+// should never reach here
 
 // GetKubeQoSResourceQoSByQoSClass gets pod config by mapping kube qos into koordinator qos.
 // https://koordinator.sh/docs/core-concepts/qos/#koordinator-qos-vs-kubernetes-qos
 func GetKubeQoSResourceQoSByQoSClass(qosClass corev1.PodQOSClass, strategy *slov1alpha1.ResourceQOSStrategy) *slov1alpha1.ResourceQOS {
+	_ = "STUB: not implemented"
 	// NOTE: only used for static qos resource calculation here, and it may be incorrect mapping for dynamic qos
 	// resource, e.g. qos class of a LS pod can be corev1.PodQOSGuaranteed
-	if strategy == nil {
-		return nil
-	}
-	var resourceQoS *slov1alpha1.ResourceQOS
-	switch qosClass {
-	case corev1.PodQOSGuaranteed:
-		resourceQoS = strategy.LSRClass
-	case corev1.PodQOSBurstable:
-		resourceQoS = strategy.LSClass
-	case corev1.PodQOSBestEffort:
-		resourceQoS = strategy.BEClass
-	}
-	return resourceQoS
+	return nil
 }

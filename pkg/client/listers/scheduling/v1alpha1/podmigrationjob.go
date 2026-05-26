@@ -44,5 +44,6 @@ type podMigrationJobLister struct {
 
 // NewPodMigrationJobLister returns a new PodMigrationJobLister.
 func NewPodMigrationJobLister(indexer cache.Indexer) PodMigrationJobLister {
-	return &podMigrationJobLister{listers.New[*schedulingv1alpha1.PodMigrationJob](indexer, schedulingv1alpha1.Resource("podmigrationjob"))}
+	_ = "STUB: not implemented"
+	return *new(PodMigrationJobLister)
 }

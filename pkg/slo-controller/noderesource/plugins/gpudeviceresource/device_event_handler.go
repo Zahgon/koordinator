@@ -18,16 +18,12 @@ package gpudeviceresource
 
 import (
 	"context"
-	"reflect"
 
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
 
 var _ handler.EventHandler = &DeviceHandler{}
@@ -35,38 +31,21 @@ var _ handler.EventHandler = &DeviceHandler{}
 type DeviceHandler struct{}
 
 func (d *DeviceHandler) Create(ctx context.Context, e event.TypedCreateEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	device := e.Object.(*schedulingv1alpha1.Device)
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: device.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *DeviceHandler) Update(ctx context.Context, e event.TypedUpdateEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	newDevice := e.ObjectNew.(*schedulingv1alpha1.Device)
-	oldDevice := e.ObjectOld.(*schedulingv1alpha1.Device)
-	if reflect.DeepEqual(newDevice.Spec, oldDevice.Spec) {
-		return
-	}
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: newDevice.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *DeviceHandler) Delete(ctx context.Context, e event.TypedDeleteEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	device, ok := e.Object.(*schedulingv1alpha1.Device)
-	if !ok {
-		return
-	}
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: device.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *DeviceHandler) Generic(ctx context.Context, e event.TypedGenericEvent[ctrlclient.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+	return
 }

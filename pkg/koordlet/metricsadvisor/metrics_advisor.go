@@ -17,14 +17,8 @@ limitations under the License.
 package metricsadvisor
 
 import (
-	"time"
-
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/klog/v2"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
 )
 
@@ -39,98 +33,14 @@ type metricAdvisor struct {
 }
 
 func NewMetricAdvisor(cfg *framework.Config, statesInformer statesinformer.StatesInformer, metricCache metriccache.MetricCache) MetricAdvisor {
-	opt := &framework.Options{
-		Config:         cfg,
-		StatesInformer: statesInformer,
-		MetricCache:    metricCache,
-		CgroupReader:   resourceexecutor.NewCgroupReader(),
-		PodFilters:     podFilters,
-	}
-	ctx := &framework.Context{
-		DeviceCollectors: make(map[string]framework.DeviceCollector, len(devicePlugins)),
-		Collectors:       make(map[string]framework.Collector, len(collectorPlugins)),
-		State:            framework.NewSharedState(),
-	}
-	for name, device := range devicePlugins {
-		ctx.DeviceCollectors[name] = device(opt)
-	}
-	for name, collector := range collectorPlugins {
-		ctx.Collectors[name] = collector(opt)
-	}
-
-	c := &metricAdvisor{
-		options: opt,
-		context: ctx,
-	}
-	return c
+	_ = "STUB: not implemented"
+	return *new(MetricAdvisor)
 }
 
-func (m *metricAdvisor) HasSynced() bool {
-	return framework.CollectorsHasStarted(m.context.Collectors)
-}
+func (m *metricAdvisor) HasSynced() bool { _ = "STUB: not implemented"; return false }
 
-func (m *metricAdvisor) Run(stopCh <-chan struct{}) error {
-	defer utilruntime.HandleCrash()
-	if m.options.Config.CollectResUsedInterval < time.Second {
-		klog.Infof("CollectResUsedInterval is %v, metric collector is disabled",
-			m.options.Config.CollectResUsedInterval)
-		return nil
-	}
+func (m *metricAdvisor) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }
 
-	defer m.shutdown()
-	m.setup()
+func (m *metricAdvisor) setup() { _ = "STUB: not implemented"; return }
 
-	defer klog.Info("shutting down metric advisor")
-	klog.Info("Starting collector for NodeMetric")
-
-	for name, dc := range m.context.DeviceCollectors {
-		klog.V(4).Infof("ready to start device collector %v", name)
-		if !dc.Enabled() {
-			klog.V(4).Infof("device collector %v is not enabled, skip running", name)
-			continue
-		}
-		go dc.Run(stopCh)
-		klog.V(4).Infof("device collector %v start", name)
-	}
-
-	for name, collector := range m.context.Collectors {
-		klog.V(4).Infof("ready to start collector %v", name)
-		if !collector.Enabled() {
-			klog.V(4).Infof("collector %v is not enabled, skip running", name)
-			continue
-		}
-		go collector.Run(stopCh)
-		klog.V(4).Infof("collector %v start", name)
-	}
-
-	klog.Info("Starting successfully")
-	<-stopCh
-	return nil
-}
-
-func (m *metricAdvisor) setup() {
-	for name, dc := range m.context.DeviceCollectors {
-		if !dc.Enabled() {
-			klog.V(4).Infof("device collector %v is not enabled, skip setup", name)
-			continue
-		}
-		dc.Setup(m.context)
-	}
-	for name, collector := range m.context.Collectors {
-		if !collector.Enabled() {
-			klog.V(4).Infof("collector %v is not enabled, skip setup", name)
-			continue
-		}
-		collector.Setup(m.context)
-	}
-}
-
-func (m *metricAdvisor) shutdown() {
-	for name, dc := range m.context.DeviceCollectors {
-		if !dc.Enabled() {
-			klog.V(4).Infof("device collector %v is not enabled, skip shutdown", name)
-			continue
-		}
-		dc.Shutdown()
-	}
-}
+func (m *metricAdvisor) shutdown() { _ = "STUB: not implemented"; return }

@@ -16,9 +16,5 @@ limitations under the License.
 
 package slocontroller
 
-import "github.com/onsi/ginkgo/v2"
-
 // SIGDescribe describes SIG information
-func SIGDescribe(text string, body func()) bool {
-	return ginkgo.Describe("[slo-controller] "+text, body)
-}
+func SIGDescribe(text string, body func()) bool { _ = "STUB: not implemented"; return false }

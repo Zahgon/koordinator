@@ -17,8 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"strconv"
-
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -58,56 +56,22 @@ var KnownPriorityClasses = []PriorityClass{
 }
 
 func GetPodPriorityClassByName(priorityClass string) PriorityClass {
-	p := PriorityClass(priorityClass)
-
-	switch p {
-	case PriorityProd, PriorityMid, PriorityBatch, PriorityFree:
-		return p
-	}
-
-	return PriorityNone
+	_ = "STUB: not implemented"
+	return *new(PriorityClass)
 }
 
 func GetPodPriorityClassRaw(pod *corev1.Pod) PriorityClass {
-	if pod == nil {
-		return PriorityNone
-	}
-	if p, ok := pod.Labels[LabelPodPriorityClass]; ok {
-		return GetPodPriorityClassByName(p)
-	}
-	if pod.Spec.Priority == nil {
-		return PriorityNone
-	}
-	return getPriorityClassByPriority(pod.Spec.Priority)
+	_ = "STUB: not implemented"
+	return *new(PriorityClass)
 }
 
 func getPriorityClassByPriority(priority *int32) PriorityClass {
-	if priority == nil {
-		return PriorityNone
-	}
-
-	p := *priority
-	if p >= PriorityProdValueMin && p <= PriorityProdValueMax {
-		return PriorityProd
-	} else if p >= PriorityMidValueMin && p <= PriorityMidValueMax {
-		return PriorityMid
-	} else if p >= PriorityBatchValueMin && p <= PriorityBatchValueMax {
-		return PriorityBatch
-	} else if p >= PriorityFreeValueMin && p <= PriorityFreeValueMax {
-		return PriorityFree
-	}
-
-	return DefaultPriorityClass
+	_ = "STUB: not implemented"
+	return *new(PriorityClass)
 }
 
 // GetPodSubPriority get pod's sub-priority in Koordinator from label
 func GetPodSubPriority(labels map[string]string) (int32, error) {
-	if s := labels[LabelPodPriority]; s != "" {
-		val, err := strconv.ParseInt(s, 0, 32)
-		if err != nil {
-			return 0, err
-		}
-		return int32(val), nil
-	}
+	_ = "STUB: not implemented"
 	return 0, nil
 }

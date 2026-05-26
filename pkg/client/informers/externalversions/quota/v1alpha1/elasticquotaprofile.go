@@ -19,16 +19,11 @@ limitations under the License.
 package v1alpha1
 
 import (
-	context "context"
 	time "time"
 
-	apisquotav1alpha1 "github.com/koordinator-sh/koordinator/apis/quota/v1alpha1"
 	versioned "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions/internalinterfaces"
 	quotav1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/listers/quota/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	runtime "k8s.io/apimachinery/pkg/runtime"
-	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
 )
 
@@ -49,54 +44,29 @@ type elasticQuotaProfileInformer struct {
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
 func NewElasticQuotaProfileInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredElasticQuotaProfileInformer(client, namespace, resyncPeriod, indexers, nil)
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 // NewFilteredElasticQuotaProfileInformer constructs a new informer for ElasticQuotaProfile type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
 func NewFilteredElasticQuotaProfileInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
-	return cache.NewSharedIndexInformer(
-		cache.ToListWatcherWithWatchListSemantics(&cache.ListWatch{
-			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
-				if tweakListOptions != nil {
-					tweakListOptions(&options)
-				}
-				return client.QuotaV1alpha1().ElasticQuotaProfiles(namespace).List(context.Background(), options)
-			},
-			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
-				if tweakListOptions != nil {
-					tweakListOptions(&options)
-				}
-				return client.QuotaV1alpha1().ElasticQuotaProfiles(namespace).Watch(context.Background(), options)
-			},
-			ListWithContextFunc: func(ctx context.Context, options v1.ListOptions) (runtime.Object, error) {
-				if tweakListOptions != nil {
-					tweakListOptions(&options)
-				}
-				return client.QuotaV1alpha1().ElasticQuotaProfiles(namespace).List(ctx, options)
-			},
-			WatchFuncWithContext: func(ctx context.Context, options v1.ListOptions) (watch.Interface, error) {
-				if tweakListOptions != nil {
-					tweakListOptions(&options)
-				}
-				return client.QuotaV1alpha1().ElasticQuotaProfiles(namespace).Watch(ctx, options)
-			},
-		}, client),
-		&apisquotav1alpha1.ElasticQuotaProfile{},
-		resyncPeriod,
-		indexers,
-	)
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func (f *elasticQuotaProfileInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredElasticQuotaProfileInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func (f *elasticQuotaProfileInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&apisquotav1alpha1.ElasticQuotaProfile{}, f.defaultInformer)
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func (f *elasticQuotaProfileInformer) Lister() quotav1alpha1.ElasticQuotaProfileLister {
-	return quotav1alpha1.NewElasticQuotaProfileLister(f.Informer().GetIndexer())
+	_ = "STUB: not implemented"
+	return *new(quotav1alpha1.ElasticQuotaProfileLister)
 }

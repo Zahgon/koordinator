@@ -25,46 +25,4 @@ type GangSummary struct {
 	HasGangInit            bool             `json:"hasGangInit"`
 }
 
-func (gang *Gang) GetGangSummary() *GangSummary {
-	gangSummary := &GangSummary{
-		Children:               sets.New[string](),
-		PendingChildren:        sets.New[string](),
-		WaitingForBindChildren: sets.New[string](),
-		BoundChildren:          sets.New[string](),
-	}
-
-	if gang == nil {
-		return gangSummary
-	}
-
-	gang.lock.RLock()
-	defer gang.lock.RUnlock()
-
-	gangSummary.Name = gang.Name
-	gangSummary.WaitTime = gang.WaitTime
-	gangSummary.CreateTime = gang.CreateTime
-	gangSummary.Mode = gang.Mode
-	gangSummary.GangMatchPolicy = gang.GangMatchPolicy
-	gangSummary.MinRequiredNumber = gang.MinRequiredNumber
-	gangSummary.TotalChildrenNum = gang.TotalChildrenNum
-	gangSummary.OnceResourceSatisfied = gang.GangGroupInfo.isGangOnceResourceSatisfied()
-	gangSummary.GangGroupInfo = gang.GangGroupInfo
-	gangSummary.GangFrom = gang.GangFrom
-	gangSummary.HasGangInit = gang.HasGangInit
-	gangSummary.GangGroup = append(gangSummary.GangGroup, gang.GangGroup...)
-
-	for podName := range gang.Children {
-		gangSummary.Children.Insert(podName)
-	}
-	for podName := range gang.PendingChildren {
-		gangSummary.PendingChildren.Insert(podName)
-	}
-	for podName := range gang.WaitingForBindChildren {
-		gangSummary.WaitingForBindChildren.Insert(podName)
-	}
-	for podName := range gang.BoundChildren {
-		gangSummary.BoundChildren.Insert(podName)
-	}
-
-	return gangSummary
-}
+func (gang *Gang) GetGangSummary() *GangSummary { _ = "STUB: not implemented"; return nil }

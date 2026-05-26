@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	quotav1alpha1 "github.com/koordinator-sh/koordinator/apis/quota/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,14 +56,6 @@ type elasticQuotaProfiles struct {
 
 // newElasticQuotaProfiles returns a ElasticQuotaProfiles
 func newElasticQuotaProfiles(c *QuotaV1alpha1Client, namespace string) *elasticQuotaProfiles {
-	return &elasticQuotaProfiles{
-		gentype.NewClientWithList[*quotav1alpha1.ElasticQuotaProfile, *quotav1alpha1.ElasticQuotaProfileList](
-			"elasticquotaprofiles",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			namespace,
-			func() *quotav1alpha1.ElasticQuotaProfile { return &quotav1alpha1.ElasticQuotaProfile{} },
-			func() *quotav1alpha1.ElasticQuotaProfileList { return &quotav1alpha1.ElasticQuotaProfileList{} },
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

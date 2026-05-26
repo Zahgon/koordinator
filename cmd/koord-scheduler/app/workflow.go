@@ -23,7 +23,6 @@ import (
 	kubeclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/events"
-	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler"
 
 	koordclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
@@ -56,10 +55,6 @@ func RunWorkflow(
 	sched *scheduler.Scheduler,
 	wf CustomWorkflow,
 ) {
-	if wf != nil {
-		klog.InfoS("Run the custom workflow, the default scheduler workflow is disabled", "name", wf.Name())
-		wf.Run(ctx)
-		return
-	}
-	sched.Run(ctx)
+	_ = "STUB: not implemented"
+	return
 }

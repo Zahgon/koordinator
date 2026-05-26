@@ -41,13 +41,11 @@ type podMutateBuilder struct {
 }
 
 func (b *podMutateBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *podMutateBuilder) Build() admission.Handler {
-	return &PodMutatingHandler{
-		Client:  b.mgr.GetClient(),
-		Decoder: admission.NewDecoder(b.mgr.GetScheme()),
-	}
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

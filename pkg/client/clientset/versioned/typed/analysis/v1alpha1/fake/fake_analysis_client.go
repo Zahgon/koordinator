@@ -29,12 +29,13 @@ type FakeAnalysisV1alpha1 struct {
 }
 
 func (c *FakeAnalysisV1alpha1) Recommendations(namespace string) v1alpha1.RecommendationInterface {
-	return newFakeRecommendations(c, namespace)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.RecommendationInterface)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeAnalysisV1alpha1) RESTClient() rest.Interface {
-	var ret *rest.RESTClient
-	return ret
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

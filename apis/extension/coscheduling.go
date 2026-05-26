@@ -17,13 +17,10 @@ limitations under the License.
 package extension
 
 import (
-	"strconv"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 )
 
 const (
@@ -75,58 +72,21 @@ const (
 	LabelLightweightCoschedulingPodGroupMinAvailable = "pod-group.scheduling.sigs.k8s.io/min-available"
 )
 
-func GetGangMinNum(pod *corev1.Pod) (int, error) {
-	minRequiredNum, err := strconv.ParseInt(pod.Annotations[AnnotationGangMinNum], 10, 32)
-	if err != nil {
-		return 0, err
-	}
-	return int(minRequiredNum), nil
-}
+func GetGangMinNum(pod *corev1.Pod) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
-func GetGangTotalNum(obj metav1.Object) (int, error) {
-	totalNumStr := obj.GetAnnotations()[AnnotationGangTotalNum]
-	if totalNumStr == "" {
-		return 0, nil
-	}
-	totalNum, err := strconv.ParseInt(totalNumStr, 10, 32)
-	if err != nil {
-		return 0, err
-	}
-	return int(totalNum), nil
-}
+func GetGangTotalNum(obj metav1.Object) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
-func GetGangName(pod *corev1.Pod) string {
-	if pod == nil {
-		return ""
-	}
-	var gangName string
-	if gangName = pod.Labels[v1alpha1.PodGroupLabel]; gangName == "" {
-		// nolint:staticcheck // SA1019: extension.LabelLightweightCoschedulingPodGroupName is deprecated
-		if gangName = pod.Labels[LabelLightweightCoschedulingPodGroupName]; gangName == "" {
-			gangName = pod.Annotations[AnnotationGangName]
-		}
-	}
-	return gangName
-}
+func GetGangName(pod *corev1.Pod) string { _ = "STUB: not implemented"; return "" }
 
-func IsGangPod(pod *corev1.Pod) bool {
-	return GetGangName(pod) != ""
-}
+// nolint:staticcheck // SA1019: extension.LabelLightweightCoschedulingPodGroupName is deprecated
 
-func GetGangMatchPolicy(obj metav1.Object) string {
-	policy := obj.GetAnnotations()[AnnotationGangMatchPolicy]
-	if policy != "" {
-		return policy
-	}
-	return obj.GetAnnotations()[AnnotationAliasGangMatchPolicy]
-}
+func IsGangPod(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
+
+func GetGangMatchPolicy(obj metav1.Object) string { _ = "STUB: not implemented"; return "" }
 
 func GetGangWaitTime(pod *corev1.Pod) (time.Duration, error) {
-	waitTimeStr := pod.Annotations[AnnotationGangWaitTime]
-	if waitTimeStr == "" {
-		return 0, nil
-	}
-	return time.ParseDuration(waitTimeStr)
+	_ = "STUB: not implemented"
+	return *new(time.Duration), nil
 }
 
 const (

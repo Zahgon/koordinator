@@ -17,35 +17,17 @@ limitations under the License.
 package arbitrator
 
 import (
-	"context"
-	"fmt"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
-	k8spodutil "k8s.io/kubernetes/pkg/api/v1/pod"
-	kubecontroller "k8s.io/kubernetes/pkg/controller"
 	"k8s.io/utils/clock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	k8sdeschedulerapi "sigs.k8s.io/descheduler/pkg/api"
 
 	sev1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	deschedulerconfig "github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/controllers/migration/controllerfinder"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/controllers/migration/util"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/controllers/options"
-	evictionsutil "github.com/koordinator-sh/koordinator/pkg/descheduler/evictions"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/fieldindex"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins/kubernetes/defaultevictor"
-	nodeutil "github.com/koordinator-sh/koordinator/pkg/descheduler/node"
-	podutil "github.com/koordinator-sh/koordinator/pkg/descheduler/pod"
-	pkgutil "github.com/koordinator-sh/koordinator/pkg/util"
-	utilclient "github.com/koordinator-sh/koordinator/pkg/util/client"
 )
 
 type filter struct {
@@ -65,508 +47,93 @@ type filter struct {
 }
 
 func newEvictionGateSet(gates []deschedulerconfig.EvictionGate) map[deschedulerconfig.EvictionGate]struct{} {
-	if len(gates) == 0 {
-		return nil
-	}
-	m := make(map[deschedulerconfig.EvictionGate]struct{}, len(gates))
-	for _, g := range gates {
-		m[g] = struct{}{}
-	}
-	return m
-}
-
-func (f *filter) isEvictionGateSkipped(gate deschedulerconfig.EvictionGate) bool {
-	if f == nil || f.skipEvictionGates == nil {
-		return false
-	}
-	_, ok := f.skipEvictionGates[gate]
-	return ok
-}
-
-func newFilter(args *deschedulerconfig.MigrationControllerArgs, handle framework.Handle) (*filter, error) {
-	controllerFinder, err := controllerfinder.New(options.Manager)
-	if err != nil {
-		return nil, err
-	}
-	f := &filter{
-		client:                     options.Manager.GetClient(),
-		args:                       args,
-		controllerFinder:           controllerFinder,
-		clock:                      clock.RealClock{},
-		arbitratedPodMigrationJobs: map[types.UID]bool{},
-		skipEvictionGates:          newEvictionGateSet(args.SkipEvictionGates),
-	}
-	if err := f.initFilters(args, handle); err != nil {
-		return nil, err
-	}
-	return f, nil
-}
-
-func (f *filter) initFilters(args *deschedulerconfig.MigrationControllerArgs, handle framework.Handle) error {
-	// Derive effective configuration based on SkipEvictionGates (Skip has the highest priority).
-	nodeFit := args.NodeFit
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateNodeFit) {
-		nodeFit = false
-	}
-
-	labelSelector := args.LabelSelector
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateLabelSelector) {
-		labelSelector = nil
-	}
-
-	var priority *int32
-	var priorityThreshold *k8sdeschedulerapi.PriorityThreshold
-	if !f.isEvictionGateSkipped(deschedulerconfig.EvictionGatePriorityThreshold) && args.PriorityThreshold != nil {
-		priorityThreshold = &k8sdeschedulerapi.PriorityThreshold{
-			Name:  args.PriorityThreshold.Name,
-			Value: args.PriorityThreshold.Value,
-		}
-		priority = args.PriorityThreshold.Value
-	}
-
-	evictLocalStoragePods := args.EvictLocalStoragePods
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateLocalStorage) {
-		evictLocalStoragePods = true
-	}
-
-	evictSystemCriticalPods := args.EvictSystemCriticalPods
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateSystemCritical) {
-		evictSystemCriticalPods = true
-	}
-
-	ignorePvcPods := args.IgnorePvcPods
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGatePVC) {
-		ignorePvcPods = false
-	}
-
-	evictFailedBarePods := args.EvictFailedBarePods
-	evictAllBarePods := args.EvictAllBarePods
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateBarePods) {
-		// NOTE: DefaultEvictorArgs (used by PreEvictionFilter) only supports EvictFailedBarePods.
-		// We still bypass bare-pod ownerRef constraints in our main filter via evictAllBarePods=true.
-		evictFailedBarePods = true
-		evictAllBarePods = true
-	}
-
-	defaultEvictorArgs := &defaultevictor.DefaultEvictorArgs{
-		NodeFit:                 nodeFit,
-		NodeSelector:            args.NodeSelector,
-		EvictLocalStoragePods:   evictLocalStoragePods,
-		EvictSystemCriticalPods: evictSystemCriticalPods,
-		IgnorePvcPods:           ignorePvcPods,
-		EvictFailedBarePods:     evictFailedBarePods,
-		LabelSelector:           labelSelector,
-		PriorityThreshold:       priorityThreshold,
-	}
-	defaultEvictor, err := defaultevictor.New(context.TODO(), defaultEvictorArgs, handle)
-	if err != nil {
-		return err
-	}
-
-	var includedNamespaces, excludedNamespaces sets.String
-	if args.Namespaces != nil && !f.isEvictionGateSkipped(deschedulerconfig.EvictionGateNamespaces) {
-		includedNamespaces = sets.NewString(args.Namespaces.Include...)
-		excludedNamespaces = sets.NewString(args.Namespaces.Exclude...)
-	}
-	nodeGetter := func() ([]*corev1.Node, error) {
-		nodes, err := nodeutil.ReadyNodes(context.TODO(), handle.ClientSet(), handle.SharedInformerFactory().Core().V1().Nodes(), defaultEvictorArgs.NodeSelector)
-		if err != nil {
-			return nil, err
-		}
-		return nodes, nil
-	}
-	filterPlugin, err := evictionsutil.NewEvictorFilter(nodeGetter, handle.GetPodsAssignedToNodeFunc(), evictLocalStoragePods,
-		evictSystemCriticalPods, ignorePvcPods, evictFailedBarePods, evictAllBarePods,
-		evictionsutil.WithLabelSelector(labelSelector), evictionsutil.WithPriorityThreshold(priority))
-	if err != nil {
-		return err
-	}
-	wrapFilterFuncs := podutil.WrapFilterFuncs(util.FilterPodWithMaxEvictionCost, filterPlugin.Filter)
-	if !f.isEvictionGateSkipped(deschedulerconfig.EvictionGateExpectedReplicas) {
-		wrapFilterFuncs = podutil.WrapFilterFuncs(wrapFilterFuncs, f.filterExpectedReplicas)
-	}
-	podFilter, err := podutil.NewOptions().
-		WithFilter(wrapFilterFuncs).
-		WithNamespaces(includedNamespaces).
-		WithoutNamespaces(excludedNamespaces).
-		BuildFilterFunc()
-	if err != nil {
-		return err
-	}
-	var retryableFilterFuncs []framework.FilterFunc
-	if !f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingGlobally) {
-		retryableFilterFuncs = append(retryableFilterFuncs, f.filterMaxMigratingGlobally)
-	}
-	if !f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingPerNode) {
-		retryableFilterFuncs = append(retryableFilterFuncs, f.filterMaxMigratingPerNode)
-	}
-	if !f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingPerNamespace) {
-		retryableFilterFuncs = append(retryableFilterFuncs, f.filterMaxMigratingPerNamespace)
-	}
-	if !f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingPerWorkload) ||
-		!f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxUnavailablePerWorkload) {
-		retryableFilterFuncs = append(retryableFilterFuncs, f.filterMaxMigratingOrUnavailablePerWorkload)
-	}
-
-	retryablePodFilters := podutil.WrapFilterFuncs(retryableFilterFuncs...)
-	f.retryablePodFilter = func(pod *corev1.Pod) bool {
-		return evictionsutil.HaveEvictAnnotation(pod) || retryablePodFilters(pod)
-	}
-	f.nonRetryablePodFilter = func(pod *corev1.Pod) bool {
-		// any annotated as evictable pod pass non-retryable filter
-		return evictionsutil.HaveEvictAnnotation(pod) || podFilter(pod)
-	}
-	f.defaultFilterPlugin = defaultEvictor.(framework.FilterPlugin)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (f *filter) reservationFilter(pod *corev1.Pod) bool {
-	if sev1alpha1.PodMigrationJobMode(f.args.DefaultJobMode) != sev1alpha1.PodMigrationJobModeReservationFirst {
-		return true
-	}
-
-	if pkgutil.IsIn(f.args.SchedulerNames, pod.Spec.SchedulerName) {
-		return true
-	}
-
-	klog.Errorf("Pod %q can not be migrated by ReservationFirst mode because pod.schedulerName=%s but scheduler of pmj controller assigned is %s", klog.KObj(pod), pod.Spec.SchedulerName, f.args.SchedulerNames)
+func (f *filter) isEvictionGateSkipped(gate deschedulerconfig.EvictionGate) bool {
+	_ = "STUB: not implemented"
 	return false
 }
 
+func newFilter(args *deschedulerconfig.MigrationControllerArgs, handle framework.Handle) (*filter, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (f *filter) initFilters(args *deschedulerconfig.MigrationControllerArgs, handle framework.Handle) error {
+	_ = "STUB: not implemented"
+	// Derive effective configuration based on SkipEvictionGates (Skip has the highest priority).
+	return nil
+}
+
+// NOTE: DefaultEvictorArgs (used by PreEvictionFilter) only supports EvictFailedBarePods.
+// We still bypass bare-pod ownerRef constraints in our main filter via evictAllBarePods=true.
+
+// any annotated as evictable pod pass non-retryable filter
+
+func (f *filter) reservationFilter(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
+
 func (f *filter) forEachAvailableMigrationJobs(listOpts *client.ListOptions, handler func(job *sev1alpha1.PodMigrationJob) bool, expectedPhaseContexts ...phaseContext) {
-	jobList := &sev1alpha1.PodMigrationJobList{}
-	err := f.client.List(context.TODO(), jobList, listOpts, utilclient.DisableDeepCopy)
-	if err != nil {
-		klog.Errorf("failed to get PodMigrationJobList, err: %v", err)
-		return
-	}
-
-	if len(expectedPhaseContexts) == 0 {
-		expectedPhaseContexts = []phaseContext{
-			{phase: sev1alpha1.PodMigrationJobRunning, checkArbitration: false},
-			{phase: sev1alpha1.PodMigrationJobPending, checkArbitration: false},
-		}
-	}
-
-	for i := range jobList.Items {
-		job := &jobList.Items[i]
-		phase := job.Status.Phase
-		if phase == "" {
-			phase = sev1alpha1.PodMigrationJobPending
-		}
-		found := false
-		for _, v := range expectedPhaseContexts {
-			if phase == v.phase && (!v.checkArbitration || f.checkJobPassedArbitration(job.UID)) {
-				found = true
-				break
-			}
-		}
-		if found && !handler(job) {
-			break
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *filter) filterExistingPodMigrationJob(pod *corev1.Pod) bool {
-	return !f.existingPodMigrationJob(pod)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (f *filter) existingPodMigrationJob(pod *corev1.Pod, expectedPhaseContexts ...phaseContext) bool {
-	opts := &client.ListOptions{FieldSelector: fields.OneTermEqualSelector(fieldindex.IndexJobByPodUID, string(pod.UID))}
-	existing := false
-	f.forEachAvailableMigrationJobs(opts, func(job *sev1alpha1.PodMigrationJob) bool {
-		if podRef := job.Spec.PodRef; podRef != nil && podRef.UID == pod.UID {
-			existing = true
-		}
-		return !existing
-	}, expectedPhaseContexts...)
-
-	if !existing {
-		opts = &client.ListOptions{FieldSelector: fields.OneTermEqualSelector(fieldindex.IndexJobPodNamespacedName, fmt.Sprintf("%s/%s", pod.Namespace, pod.Name))}
-		f.forEachAvailableMigrationJobs(opts, func(job *sev1alpha1.PodMigrationJob) bool {
-			if podRef := job.Spec.PodRef; podRef != nil && podRef.Namespace == pod.Namespace && podRef.Name == pod.Name {
-				existing = true
-			}
-			return !existing
-		}, expectedPhaseContexts...)
-	}
-	return existing
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (f *filter) filterMaxMigratingGlobally(pod *corev1.Pod) bool {
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingGlobally) {
-		return true
-	}
-	if f.args.MaxMigratingGlobally == nil || *f.args.MaxMigratingGlobally <= 0 {
-		return true
-	}
-
-	var expectedPhaseContexts []phaseContext
-	if checkPodArbitrating(pod) {
-		expectedPhaseContexts = []phaseContext{
-			{phase: sev1alpha1.PodMigrationJobRunning, checkArbitration: false},
-			{phase: sev1alpha1.PodMigrationJobPending, checkArbitration: true},
-		}
-	}
-
-	count := 0
-	listOpts := &client.ListOptions{}
-	f.forEachAvailableMigrationJobs(listOpts, func(job *sev1alpha1.PodMigrationJob) bool {
-		if podRef := job.Spec.PodRef; podRef != nil && podRef.UID != pod.UID {
-			count++
-		}
-		return true
-	}, expectedPhaseContexts...)
-
-	maxMigratingGlobally := int(*f.args.MaxMigratingGlobally)
-	exceeded := count >= maxMigratingGlobally
-	if exceeded {
-		klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod),
-			"checks", "maxMigratingGlobally", "count", count, "maxMigratingGlobally", maxMigratingGlobally)
-	}
-	return !exceeded
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (f *filter) filterMaxMigratingPerNode(pod *corev1.Pod) bool {
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingPerNode) {
-		return true
-	}
-	if pod.Spec.NodeName == "" || f.args.MaxMigratingPerNode == nil || *f.args.MaxMigratingPerNode <= 0 {
-		return true
-	}
-
-	podList := &corev1.PodList{}
-	listOpts := &client.ListOptions{FieldSelector: fields.OneTermEqualSelector(fieldindex.IndexPodByNodeName, pod.Spec.NodeName)}
-	err := f.client.List(context.TODO(), podList, listOpts, utilclient.DisableDeepCopy)
-	if err != nil {
-		return true
-	}
-	if len(podList.Items) == 0 {
-		return true
-	}
-
-	var expectedPhaseContexts []phaseContext
-	if checkPodArbitrating(pod) {
-		expectedPhaseContexts = []phaseContext{
-			{phase: sev1alpha1.PodMigrationJobRunning, checkArbitration: false},
-			{phase: sev1alpha1.PodMigrationJobPending, checkArbitration: true},
-		}
-	}
-
-	count := 0
-	for i := range podList.Items {
-		v := &podList.Items[i]
-		if v.UID != pod.UID &&
-			v.Spec.NodeName == pod.Spec.NodeName &&
-			f.existingPodMigrationJob(v, expectedPhaseContexts...) {
-			count++
-		}
-	}
-
-	maxMigratingPerNode := int(*f.args.MaxMigratingPerNode)
-	exceeded := count >= maxMigratingPerNode
-	if exceeded {
-		klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod),
-			"checks", "maxMigratingPerNode", "node", pod.Spec.NodeName, "count", count, "maxMigratingPerNode", maxMigratingPerNode)
-	}
-	return !exceeded
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (f *filter) filterMaxMigratingPerNamespace(pod *corev1.Pod) bool {
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingPerNamespace) {
-		return true
-	}
-	if f.args.MaxMigratingPerNamespace == nil || *f.args.MaxMigratingPerNamespace <= 0 {
-		return true
-	}
-
-	var expectedPhaseContexts []phaseContext
-	if checkPodArbitrating(pod) {
-		expectedPhaseContexts = []phaseContext{
-			{phase: sev1alpha1.PodMigrationJobRunning, checkArbitration: false},
-			{phase: sev1alpha1.PodMigrationJobPending, checkArbitration: true},
-		}
-	}
-
-	opts := &client.ListOptions{FieldSelector: fields.OneTermEqualSelector(fieldindex.IndexJobByPodNamespace, pod.Namespace)}
-	count := 0
-	f.forEachAvailableMigrationJobs(opts, func(job *sev1alpha1.PodMigrationJob) bool {
-		if podRef := job.Spec.PodRef; podRef != nil && podRef.UID != pod.UID && podRef.Namespace == pod.Namespace {
-			count++
-		}
-		return true
-	}, expectedPhaseContexts...)
-
-	maxMigratingPerNamespace := int(*f.args.MaxMigratingPerNamespace)
-	exceeded := count >= maxMigratingPerNamespace
-	if exceeded {
-		klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod),
-			"checks", "maxMigratingPerNamespace", "namespace", pod.Namespace, "count", count, "maxMigratingPerNamespace", maxMigratingPerNamespace)
-	}
-	return !exceeded
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (f *filter) filterMaxMigratingOrUnavailablePerWorkload(pod *corev1.Pod) bool {
-	skipMaxMigratingPerWorkload := f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxMigratingPerWorkload)
-	skipMaxUnavailablePerWorkload := f.isEvictionGateSkipped(deschedulerconfig.EvictionGateMaxUnavailablePerWorkload)
-	if skipMaxMigratingPerWorkload && skipMaxUnavailablePerWorkload {
-		return true
-	}
-
-	ownerRef := metav1.GetControllerOf(pod)
-	if ownerRef == nil {
-		return true
-	}
-	pods, expectedReplicas, err := f.controllerFinder.GetPodsForRef(ownerRef, pod.Namespace, nil, false)
-	if err != nil {
-		return false
-	}
-
-	maxMigrating := 0
-	if !skipMaxMigratingPerWorkload {
-		maxMigrating, err = util.GetMaxMigrating(int(expectedReplicas), f.args.MaxMigratingPerWorkload)
-		if err != nil {
-			return false
-		}
-	}
-	maxUnavailable := 0
-	if !skipMaxUnavailablePerWorkload {
-		maxUnavailable, err = util.GetMaxUnavailable(int(expectedReplicas), f.args.MaxUnavailablePerWorkload)
-		if err != nil {
-			return false
-		}
-	}
-
-	var expectedPhaseContext []phaseContext
-	if checkPodArbitrating(pod) {
-		expectedPhaseContext = []phaseContext{
-			{phase: sev1alpha1.PodMigrationJobRunning, checkArbitration: false},
-			{phase: sev1alpha1.PodMigrationJobPending, checkArbitration: true},
-		}
-	}
-	opts := &client.ListOptions{FieldSelector: fields.OneTermEqualSelector(fieldindex.IndexJobByPodNamespace, pod.Namespace)}
-	migratingPods := map[types.NamespacedName]struct{}{}
-	f.forEachAvailableMigrationJobs(opts, func(job *sev1alpha1.PodMigrationJob) bool {
-		podRef := job.Spec.PodRef
-		if podRef == nil || podRef.UID == pod.UID {
-			return true
-		}
-
-		podNamespacedName := types.NamespacedName{
-			Namespace: podRef.Namespace,
-			Name:      podRef.Name,
-		}
-		p := &corev1.Pod{}
-		err := f.client.Get(context.TODO(), podNamespacedName, p)
-		if err != nil {
-			klog.Errorf("Failed to get Pod %q, err: %v", podNamespacedName, err)
-		} else {
-			innerPodOwnerRef := metav1.GetControllerOf(p)
-			if innerPodOwnerRef != nil && innerPodOwnerRef.UID == ownerRef.UID {
-				migratingPods[podNamespacedName] = struct{}{}
-			}
-		}
-		return true
-	}, expectedPhaseContext...)
-
-	if !skipMaxMigratingPerWorkload && len(migratingPods) > 0 {
-		exceeded := len(migratingPods) >= maxMigrating
-		if exceeded {
-			klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod),
-				"checks", "maxMigratingPerWorkload", "owner", fmt.Sprintf("%s/%s/%s(%s)", ownerRef.Name, ownerRef.Kind, ownerRef.APIVersion, ownerRef.UID),
-				"migratingPods", len(migratingPods), "maxMigratingPerWorkload", maxMigrating)
-			return false
-		}
-	}
-
-	if skipMaxUnavailablePerWorkload {
-		return true
-	}
-	unavailablePods := f.getUnavailablePods(pods)
-	mergeUnavailableAndMigratingPods(unavailablePods, migratingPods)
-	exceeded := len(unavailablePods) >= maxUnavailable
-	if exceeded {
-		klog.V(4).Infof("The workload %s/%s/%s(%s) of Pod %q has %d unavailable Pods that exceed MaxUnavailablePerWorkload %d",
-			ownerRef.Name, ownerRef.Kind, ownerRef.APIVersion, ownerRef.UID, klog.KObj(pod), len(unavailablePods), maxUnavailable)
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (f *filter) filterExpectedReplicas(pod *corev1.Pod) bool {
-	if f.isEvictionGateSkipped(deschedulerconfig.EvictionGateExpectedReplicas) {
-		return true
-	}
-	ownerRef := metav1.GetControllerOf(pod)
-	if ownerRef == nil {
-		return true
-	}
-	_, expectedReplicas, err := f.controllerFinder.GetPodsForRef(ownerRef, pod.Namespace, nil, false)
-	if err != nil {
-		klog.Errorf("filterExpectedReplicas, getPodsForRef err: %s", err.Error())
-		return false
-	}
-
-	maxMigrating, err := util.GetMaxMigrating(int(expectedReplicas), f.args.MaxMigratingPerWorkload)
-	if err != nil {
-		klog.Errorf("filterExpectedReplicas, getMaxMigrating err: %s", err.Error())
-		return false
-	}
-	maxUnavailable, err := util.GetMaxUnavailable(int(expectedReplicas), f.args.MaxUnavailablePerWorkload)
-	if err != nil {
-		klog.Errorf("filterExpectedReplicas, getMaxUnavailable err: %s", err.Error())
-		return false
-	}
-	if f.args.SkipCheckExpectedReplicas == nil || !*f.args.SkipCheckExpectedReplicas {
-		// TODO(joseph): There are f few special scenarios where should we allow eviction?
-		if expectedReplicas == 1 || int(expectedReplicas) == maxMigrating || int(expectedReplicas) == maxUnavailable {
-			klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod), "checks", "expectedReplicas",
-				"owner", fmt.Sprintf("%s/%s/%s(%s)", ownerRef.Name, ownerRef.Kind, ownerRef.APIVersion, ownerRef.UID),
-				"maxMigrating", maxMigrating, "maxUnavailable", maxUnavailable, "expectedReplicas", expectedReplicas)
-			return false
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
+// TODO(joseph): There are f few special scenarios where should we allow eviction?
+
 func (f *filter) getUnavailablePods(pods []*corev1.Pod) map[types.NamespacedName]struct{} {
-	unavailablePods := make(map[types.NamespacedName]struct{})
-	for _, pod := range pods {
-		if kubecontroller.IsPodActive(pod) && k8spodutil.IsPodReady(pod) {
-			continue
-		}
-		k := types.NamespacedName{
-			Namespace: pod.Namespace,
-			Name:      pod.Name,
-		}
-		unavailablePods[k] = struct{}{}
-	}
-	return unavailablePods
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func mergeUnavailableAndMigratingPods(unavailablePods, migratingPods map[types.NamespacedName]struct{}) {
-	for k, v := range migratingPods {
-		unavailablePods[k] = v
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *filter) checkJobPassedArbitration(uid types.UID) bool {
-	f.arbitratedMapLock.Lock()
-	defer f.arbitratedMapLock.Unlock()
-	return f.arbitratedPodMigrationJobs[uid]
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (f *filter) markJobPassedArbitration(uid types.UID) {
-	f.arbitratedMapLock.Lock()
-	defer f.arbitratedMapLock.Unlock()
-	f.arbitratedPodMigrationJobs[uid] = true
-}
+func (f *filter) markJobPassedArbitration(uid types.UID) { _ = "STUB: not implemented"; return }
 
-func (f *filter) removeJobPassedArbitration(uid types.UID) {
-	f.arbitratedMapLock.Lock()
-	defer f.arbitratedMapLock.Unlock()
-	delete(f.arbitratedPodMigrationJobs, uid)
-}
+func (f *filter) removeJobPassedArbitration(uid types.UID) { _ = "STUB: not implemented"; return }
 
 type phaseContext struct {
 	phase            sev1alpha1.PodMigrationJobPhase

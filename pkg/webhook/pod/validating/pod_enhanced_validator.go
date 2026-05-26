@@ -18,28 +18,14 @@ package validating
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
-	"reflect"
-	"strings"
 	"sync"
 	"time"
 
-	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
-
-	"github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/features"
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	utilfeature "github.com/koordinator-sh/koordinator/pkg/util/feature"
 )
 
 const (
@@ -65,35 +51,11 @@ var (
 )
 
 func (h *PodValidatingHandler) podEnhancedValidate(ctx context.Context, req admission.Request) (string, error) {
-	if !utilfeature.DefaultFeatureGate.Enabled(features.EnablePodEnhancedValidator) {
-		return "", nil
-	}
-
-	newPod := &corev1.Pod{}
-	switch req.Operation {
-	case admissionv1.Create, admissionv1.Update:
-		if err := h.Decoder.DecodeRaw(req.Object, newPod); err != nil {
-			return "", err
-		}
-	default:
-		return "", nil
-	}
-
-	reason, err := h.PodEnhancedValidator.ValidatePod(newPod)
-	if err != nil {
-		return reason, err
-	}
+	_ = "STUB: not implemented"
 	return "", nil
 }
 
-func InitFlags(fs *flag.FlagSet) {
-	fs.StringVar(&PodEnhancedValidatorConfigNamespace, "pod-enhanced-validator-config-namespace",
-		PodEnhancedValidatorConfigNamespace, "The namespace for the pod-enhanced-validator configuration.")
-	fs.StringVar(&PodEnhancedValidatorConfigName, "pod-enhanced-validator-config-name",
-		PodEnhancedValidatorConfigName, "The name for the pod-enhanced-validator configuration.")
-	fs.DurationVar(&PodEnhancedValidatorReconcileInterval, "pod-enhanced-validator-reconcile-interval",
-		DefaultConfReconcileInterval, "The reconcile interval for the pod-enhanced-validator configuration.")
-}
+func InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
 
 // ValidationRule defines a single validation rule
 type ValidationRule struct {
@@ -111,10 +73,8 @@ type ValidationRule struct {
 
 // isNamespaceWhitelisted checks if a namespace is in the whitelist using the cached map
 func (r *ValidationRule) isNamespaceWhitelisted(namespace string) bool {
-	if r.namespaceWhitelistSet == nil {
-		return false
-	}
-	return r.namespaceWhitelistSet.Has(namespace)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // PodEnhancedValidatorConfig defines the configuration for pod enhanced validation
@@ -137,181 +97,80 @@ type PodEnhancedValidator struct {
 }
 
 func NewPodEnhancedValidator(client client.Client) *PodEnhancedValidator {
-	return &PodEnhancedValidator{
-		client:          client,
-		configName:      PodEnhancedValidatorConfigName,
-		configNamespace: PodEnhancedValidatorConfigNamespace,
-		config:          DefaultPodEnhancedValidatorConf,
-	}
-}
-
-// ensureConfigSynced ensures the config synchronization is started (lazy loading)
-func (m *PodEnhancedValidator) ensureConfigSynced() {
-	m.startOnce.Do(func() {
-		klog.V(4).Infof("Starting PodEnhancedValidator with lazy initialization")
-
-		// sync configuration immediately
-		if err := m.syncConfig(); err != nil {
-			klog.Errorf("Failed to sync config during initialization: %v", err)
-		}
-
-		// start periodic configuration synchronization
-		go wait.Until(func() {
-			if err := m.syncConfig(); err != nil {
-				klog.Errorf("Failed to sync config for pod-enhanced-validator: %v", err)
-			}
-		}, PodEnhancedValidatorReconcileInterval, wait.NeverStop)
-	})
-}
-
-// syncConfig synchronizes the configuration from the ConfigMap
-func (m *PodEnhancedValidator) syncConfig() error {
-	cm := &corev1.ConfigMap{}
-	key := types.NamespacedName{
-		Namespace: m.configNamespace,
-		Name:      m.configName,
-	}
-
-	err := m.client.Get(context.Background(), key, cm)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// ConfigMap not found, reset to default config
-			m.updateConfig(DefaultPodEnhancedValidatorConf)
-			klog.Info("pod-enhanced-validator configmap not found, reset to default config")
-			return nil
-		}
-		return err
-	}
-
-	m.handleConfigMapUpdate(cm)
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// ensureConfigSynced ensures the config synchronization is started (lazy loading)
+func (m *PodEnhancedValidator) ensureConfigSynced() { _ = "STUB: not implemented"; return }
+
+// sync configuration immediately
+
+// start periodic configuration synchronization
+
+// syncConfig synchronizes the configuration from the ConfigMap
+func (m *PodEnhancedValidator) syncConfig() error { _ = "STUB: not implemented"; return nil }
+
+// ConfigMap not found, reset to default config
+
 // handleConfigMapUpdate handles configmap update events
 func (m *PodEnhancedValidator) handleConfigMapUpdate(cm *corev1.ConfigMap) {
-	config, err := m.parseConfig(cm)
-	if err != nil {
-		klog.Errorf("failed to parse config for pod-enhanced-validator, err=%v", err)
-		return
-	}
-
-	m.updateConfig(config)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *PodEnhancedValidator) updateConfig(config *PodEnhancedValidatorConfig) {
-	m.Lock()
-	defer m.Unlock()
-
-	// check if the config has changed
-	if reflect.DeepEqual(m.config, config) {
-		klog.V(4).Infof("skip updating unchanged config for pod-enhanced-validator")
-		return
-	}
-
-	m.config = config
-
-	klog.Infof("updated pod-enhanced-validator config with %d rules: enable=%v",
-		len(config.Rules), config.Enable)
+	_ = "STUB: not implemented"
+	return
 }
+
+// check if the config has changed
 
 // parseConfig parses configmap data
 func (m *PodEnhancedValidator) parseConfig(cm *corev1.ConfigMap) (*PodEnhancedValidatorConfig, error) {
-	var config PodEnhancedValidatorConfig
-
-	// parse enable field with case-insensitive comparison
-	if enableData, ok := cm.Data[ConfigKeyEnable]; ok {
-		enableData = strings.ToLower(strings.TrimSpace(enableData))
-		config.Enable = enableData == "true"
-	}
-
-	// parse rules field
-	if rulesData, ok := cm.Data[ConfigKeyRules]; ok {
-		var rules []ValidationRule
-		if err := json.Unmarshal([]byte(rulesData), &rules); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal validation rules: %w", err)
-		}
-		config.Rules = rules
-	} else {
-		config.Rules = []ValidationRule{} // default to empty rules if not specified
-	}
-
-	// build namespace whitelist sets for all validation rules
-	m.buildNamespaceWhitelistSet(&config)
-
-	return &config, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// parse enable field with case-insensitive comparison
+
+// parse rules field
+
+// default to empty rules if not specified
+
+// build namespace whitelist sets for all validation rules
 
 // buildNamespaceWhitelistSet builds namespace whitelist sets for all validation rules
 func (m *PodEnhancedValidator) buildNamespaceWhitelistSet(config *PodEnhancedValidatorConfig) {
-	for i := range config.Rules {
-		rule := &config.Rules[i]
-
-		// Build namespace whitelist set
-		if len(rule.NamespaceWhitelist) > 0 {
-			rule.namespaceWhitelistSet = sets.New[string]()
-			for _, ns := range rule.NamespaceWhitelist {
-				if ns != "" {
-					rule.namespaceWhitelistSet.Insert(ns)
-				}
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Build namespace whitelist set
 
 // GetConfig returns the current configuration
 func (m *PodEnhancedValidator) GetConfig() *PodEnhancedValidatorConfig {
+	_ = "STUB: not implemented"
 	// lazy loading: start only when actually needed
-	m.ensureConfigSynced()
-
-	m.RLock()
-	defer m.RUnlock()
-	return m.config
+	return nil
 }
 
 // ValidatePod validates a pod against all configured rules
 func (m *PodEnhancedValidator) ValidatePod(pod *corev1.Pod) (string, error) {
-	config := m.GetConfig()
-	if !config.Enable {
-		return "", nil
-	}
-	// skip validation for pods with the skip-enhanced-validation label
-	if pod.Labels[extension.LabelPodSkipEnhancedValidation] == "true" {
-		return "", nil
-	}
-	// validate pod against all rules
-	for _, rule := range config.Rules {
-		// check if namespace is whitelisted for this rule
-		if rule.isNamespaceWhitelisted(pod.Namespace) {
-			if klog.V(4).Enabled() {
-				klog.Infof("pod %s is in whitelisted namespace for rule %s", util.GetPodKey(pod), rule.Name)
-			}
-			continue
-		}
-
-		// validate required labels
-		if err := m.validateRequiredLabels(pod, rule); err != nil {
-			return fmt.Sprintf("validation rule '%s' failed: %v", rule.Name, err), err
-		}
-	}
+	_ = "STUB: not implemented"
 	return "", nil
 }
 
+// skip validation for pods with the skip-enhanced-validation label
+
+// validate pod against all rules
+
+// check if namespace is whitelisted for this rule
+
+// validate required labels
+
 // validateRequiredLabels validates that all required labels are present
 func (m *PodEnhancedValidator) validateRequiredLabels(pod *corev1.Pod, rule ValidationRule) error {
-	var missingLabels []string
-
-	for _, key := range rule.RequiredLabels {
-		if _, exists := pod.Labels[key]; !exists {
-			missingLabels = append(missingLabels, key)
-		}
-	}
-
-	if len(missingLabels) > 0 {
-		if len(missingLabels) == 1 {
-			return fmt.Errorf("required label '%s' is missing", missingLabels[0])
-		}
-		return fmt.Errorf("required labels are missing: %v", missingLabels)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }

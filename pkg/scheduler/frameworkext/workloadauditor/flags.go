@@ -17,7 +17,6 @@ limitations under the License.
 package workloadauditor
 
 import (
-	"strings"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -36,14 +35,7 @@ var (
 )
 
 // AddFlags registers the workloadAuditorImpl command-line flags.
-func AddFlags(fs *pflag.FlagSet) {
-	fs.BoolVar(&WorkloadAuditorEnabled, "enable-workload-auditor", WorkloadAuditorEnabled, "enable workload auditor for tracking scheduling lifecycle and detecting anomalies")
-	fs.StringVar(&WorkloadAuditorMetricLabels, "workload-auditor-metric-labels", WorkloadAuditorMetricLabels, "comma-separated metricLabel=podLabelKey pairs for metric dimensions, e.g. quota_name=quota.scheduling.koordinator.sh/name")
-	fs.DurationVar(&VictimRescheduleDuration, "workload-auditor-victim-reschedule-duration", VictimRescheduleDuration, "max time from victimAllDeleted to next scheduling result before ALERT")
-	fs.DurationVar(&VictimDeletionDuration, "workload-auditor-victim-deletion-duration", VictimDeletionDuration, "max time from preemptNominated to victimAllDeleted before ALERT")
-	fs.IntVar(&VictimDeletingRetries, "workload-auditor-victim-deleting-retries", VictimDeletingRetries, "max preemptVictimDeleting count per preemption cycle before ALERT")
-	fs.DurationVar(&SchedulingEventInterval, "workload-auditor-scheduling-event-interval", SchedulingEventInterval, "max time between consecutive scheduling events within a dequeue round before ALERT")
-}
+func AddFlags(fs *pflag.FlagSet) { _ = "STUB: not implemented"; return }
 
 type WorkloadAuditorConfig struct {
 	Enabled                  bool
@@ -59,38 +51,12 @@ type WorkloadAuditorConfig struct {
 // Returns the full label name list (always starting with "priority") and the
 // parallel pod-label-key list (for custom labels only).
 func parseMetricLabels(raw string) (names []string, podKeys []string) {
-	names = []string{"priority"}
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return
-	}
-	for _, pair := range strings.Split(raw, ",") {
-		pair = strings.TrimSpace(pair)
-		parts := strings.SplitN(pair, "=", 2)
-		if len(parts) != 2 {
-			continue
-		}
-		name := strings.TrimSpace(parts[0])
-		key := strings.TrimSpace(parts[1])
-		if name == "" || key == "" {
-			continue
-		}
-		names = append(names, name)
-		podKeys = append(podKeys, key)
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DefaultWorkloadAuditorConfig returns the configuration built from package-level vars.
 func DefaultWorkloadAuditorConfig() WorkloadAuditorConfig {
-	names, podKeys := parseMetricLabels(WorkloadAuditorMetricLabels)
-	return WorkloadAuditorConfig{
-		Enabled:                  WorkloadAuditorEnabled,
-		VictimRescheduleDuration: VictimRescheduleDuration,
-		VictimDeletionDuration:   VictimDeletionDuration,
-		VictimDeletingRetries:    VictimDeletingRetries,
-		SchedulingEventInterval:  SchedulingEventInterval,
-		MetricLabelNames:         names,
-		PodLabelKeys:             podKeys,
-	}
+	_ = "STUB: not implemented"
+	return *new(WorkloadAuditorConfig)
 }

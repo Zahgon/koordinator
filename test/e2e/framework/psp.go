@@ -24,11 +24,15 @@ import (
 // IsPodSecurityPolicyEnabled returns true if PodSecurityPolicy is enabled.
 // PodSecurityPolicy was removed in Kubernetes 1.25, so this always returns false.
 func IsPodSecurityPolicyEnabled(kubeClient clientset.Interface) bool {
+	_ = "STUB: not implemented"
+
+	// CreatePrivilegedPSPBinding creates the privileged PSP & role.
+	// PodSecurityPolicy was removed in Kubernetes 1.25, so this is a no-op.
 	return false
 }
 
-// CreatePrivilegedPSPBinding creates the privileged PSP & role.
-// PodSecurityPolicy was removed in Kubernetes 1.25, so this is a no-op.
 func CreatePrivilegedPSPBinding(kubeClient clientset.Interface, namespace string) {
+	_ = "STUB: not implemented"
 	// PodSecurityPolicy removed in Kubernetes 1.25 - no-op
+	return
 }

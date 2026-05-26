@@ -20,14 +20,9 @@ import (
 	"time"
 
 	"go.uber.org/atomic"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/metrics"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
-	koordletutil "github.com/koordinator-sh/koordinator/pkg/koordlet/util"
 )
 
 const (
@@ -41,47 +36,16 @@ type nodeInfoCollector struct {
 }
 
 func New(opt *framework.Options) framework.Collector {
-	return &nodeInfoCollector{
-		collectInterval: opt.Config.CollectNodeStorageInfoInterval,
-		storage:         opt.MetricCache,
-		started:         atomic.NewBool(false),
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.Collector)
 }
 
-func (n *nodeInfoCollector) Enabled() bool {
-	return features.DefaultKoordletFeatureGate.Enabled(features.BlkIOReconcile)
-}
+func (n *nodeInfoCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (n *nodeInfoCollector) Setup(s *framework.Context) {}
+func (n *nodeInfoCollector) Setup(s *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (n *nodeInfoCollector) Run(stopCh <-chan struct{}) {
-	go wait.Until(n.collectNodeLocalStorageInfo, n.collectInterval, stopCh)
-}
+func (n *nodeInfoCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (n *nodeInfoCollector) Started() bool {
-	return n.started.Load()
-}
+func (n *nodeInfoCollector) Started() bool { _ = "STUB: not implemented"; return false }
 
-func (n *nodeInfoCollector) collectNodeLocalStorageInfo() {
-	klog.V(6).Info("start collect node local storage info")
-
-	localStorageInfo, err := koordletutil.GetLocalStorageInfo()
-	if err != nil {
-		klog.Warningf("failed to collect node local storage info, err: %s", err)
-		metrics.RecordCollectNodeLocalStorageInfoStatus(err)
-		return
-	}
-
-	nodeLocalStorageInfo := &metriccache.NodeLocalStorageInfo{}
-	nodeLocalStorageInfo.DiskNumberMap = localStorageInfo.DiskNumberMap
-	nodeLocalStorageInfo.NumberDiskMap = localStorageInfo.NumberDiskMap
-	nodeLocalStorageInfo.PartitionDiskMap = localStorageInfo.PartitionDiskMap
-	nodeLocalStorageInfo.VGDiskMap = localStorageInfo.VGDiskMap
-	nodeLocalStorageInfo.LVMapperVGMap = localStorageInfo.LVMapperVGMap
-	nodeLocalStorageInfo.MPDiskMap = localStorageInfo.MPDiskMap
-
-	klog.V(6).Infof("collect node local storage info finished, nodeCPUInfo %v", localStorageInfo)
-	n.storage.Set(metriccache.NodeLocalStorageInfoKey, nodeLocalStorageInfo)
-	n.started.Store(true)
-	metrics.RecordCollectNodeLocalStorageInfoStatus(nil)
-}
+func (n *nodeInfoCollector) collectNodeLocalStorageInfo() { _ = "STUB: not implemented"; return }

@@ -17,8 +17,6 @@ limitations under the License.
 package elasticquota
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/services"
@@ -26,21 +24,4 @@ import (
 
 var _ services.APIServiceProvider = &Plugin{}
 
-func (g *Plugin) RegisterEndpoints(group *gin.RouterGroup) {
-	group.GET("/quotas/:name", func(c *gin.Context) {
-		quotaName := c.Param("name")
-		includePods := c.Query("includePods") == "true"
-		quotaSummary, exist := g.GetQuotaSummary(quotaName, includePods)
-		if !exist {
-			services.ResponseErrorMessage(c, http.StatusNotFound, "cannot find quota %s", quotaName)
-			return
-		}
-		c.JSON(http.StatusOK, quotaSummary)
-	})
-	group.GET("/quotas", func(c *gin.Context) {
-		tree := c.Query("tree")
-		includePods := c.Query("includePods") == "true"
-		quotaSummaries := g.GetQuotaSummaries(tree, includePods)
-		c.JSON(http.StatusOK, quotaSummaries)
-	})
-}
+func (g *Plugin) RegisterEndpoints(group *gin.RouterGroup) { _ = "STUB: not implemented"; return }

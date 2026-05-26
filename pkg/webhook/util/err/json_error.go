@@ -16,11 +16,6 @@ limitations under the License.
 
 package err
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
 type Reason string
 
 var _ error = &JsonFormatError{}
@@ -33,13 +28,4 @@ type JsonFormatError struct {
 	Message interface{} `json:"message,omitempty"`
 }
 
-func (e *JsonFormatError) Error() string {
-	if e == nil {
-		return ""
-	}
-	errorBytes, err := json.Marshal(e)
-	if err != nil {
-		return err.Error()
-	}
-	return fmt.Sprintf("%s%s%s", contentStart, string(errorBytes), contentEnd)
-}
+func (e *JsonFormatError) Error() string { _ = "STUB: not implemented"; return "" }

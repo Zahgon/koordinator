@@ -31,22 +31,6 @@ type fakeReservations struct {
 }
 
 func newFakeReservations(fake *FakeSchedulingV1alpha1) schedulingv1alpha1.ReservationInterface {
-	return &fakeReservations{
-		gentype.NewFakeClientWithList[*v1alpha1.Reservation, *v1alpha1.ReservationList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("reservations"),
-			v1alpha1.SchemeGroupVersion.WithKind("Reservation"),
-			func() *v1alpha1.Reservation { return &v1alpha1.Reservation{} },
-			func() *v1alpha1.ReservationList { return &v1alpha1.ReservationList{} },
-			func(dst, src *v1alpha1.ReservationList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.ReservationList) []*v1alpha1.Reservation {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.ReservationList, items []*v1alpha1.Reservation) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.ReservationInterface)
 }

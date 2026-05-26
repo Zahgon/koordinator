@@ -17,14 +17,7 @@ limitations under the License.
 package mamanger
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"io"
-	"os"
-
-	"github.com/google/renameio"
-	"k8s.io/klog/v2"
 
 	resourceconifg "github.com/koordinator-sh/koordinator/cmd/koord-device-daemon/config/v1"
 	koordletuti "github.com/koordinator-sh/koordinator/pkg/koordlet/util"
@@ -39,17 +32,7 @@ type Writer interface {
 type toFile string
 
 func (path *toFile) OutputPrints(devices koordletuti.XPUDevices) error {
-	klog.Infof("Writing device devices (JSON) to output file %v", *path)
-
-	data, err := json.MarshalIndent(devices, "", "  ")
-	if err != nil {
-		return fmt.Errorf("error marshaling device devices to JSON: %v", err)
-	}
-
-	buffer := bytes.NewBuffer(data)
-	if err := renameio.WriteFile(string(*path), buffer.Bytes(), 0644); err != nil {
-		return fmt.Errorf("error atomically writing file '%s': %w", *path, err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -58,15 +41,11 @@ type toWriter struct {
 }
 
 func (output *toWriter) OutputPrints(devices koordletuti.XPUDevices) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func NewPrintsWriter(config *resourceconifg.Config) (Writer, error) {
-	path := *config.Flags.KDD.PrintsOutputFile
-	if path == "" {
-		return &toWriter{os.Stdout}, nil
-	}
-
-	o := toFile(path)
-	return &o, nil
+	_ = "STUB: not implemented"
+	return *new(Writer), nil
 }

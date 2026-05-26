@@ -17,73 +17,46 @@ limitations under the License.
 package util
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 // GetContainerCgroupPath gets the file path of the given container's cgroup.
 // @parentDir kubepods-burstable.slice/kubepods-pod7712555c_ce62_454a_9e18_9ff0217b8941.slice/
 // @return /sys/fs/cgroup/cpu/kubepods.slice/kubepods-burstable.slice/kubepods-pod7712555c_ce62_454a_9e18_9ff0217b8941.slice/cgroup.procs
 func GetContainerCgroupPath(podParentDir string, c *corev1.ContainerStatus, resourceType system.ResourceType) (string, error) {
-	resource, err := system.GetCgroupResource(resourceType)
-	if err != nil {
-		return "", fmt.Errorf("failed to get resource type %v, err: %w", resourceType, err)
-	}
-	containerPath, err := GetContainerCgroupParentDir(podParentDir, c)
-	if err != nil {
-		return "", fmt.Errorf("failed to get container cgroup path, err: %w", err)
-	}
-	return system.GetCgroupFilePath(containerPath, resource), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // @parentDir kubepods-burstable.slice/kubepods-pod7712555c_ce62_454a_9e18_9ff0217b8941.slice/
 // @return /sys/fs/cgroup/cpu/kubepods.slice/kubepods-burstable.slice/kubepods-pod7712555c_ce62_454a_9e18_9ff0217b8941.slice/cgroup.procs
 func GetContainerCgroupCPUProcsPath(podParentDir string, c *corev1.ContainerStatus) (string, error) {
-	return GetContainerCgroupPath(podParentDir, c, system.CPUProcsName)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func GetContainerCgroupPerfPath(podParentDir string, c *corev1.ContainerStatus) (string, error) {
-	containerPath, err := GetContainerCgroupParentDir(podParentDir, c)
-	if err != nil {
-		return "", err
-	}
-	if system.GetCurrentCgroupVersion() == system.CgroupVersionV2 {
-		return filepath.Join(system.Conf.CgroupRootDir, containerPath), nil
-	}
-	return filepath.Join(system.Conf.CgroupRootDir, "perf_event/", containerPath), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func GetContainerBaseCFSQuota(container *corev1.Container) int64 {
-	cpuMilliLimit := util.GetContainerMilliCPULimit(container)
-	return system.MilliCPUToQuota(cpuMilliLimit)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // ParseContainerID parse container ID from the container base path.
 // e.g. 7712555c_ce62_454a_9e18_9ff0217b8941 from docker-7712555c_ce62_454a_9e18_9ff0217b8941.scope
-func ParseContainerID(basename string) (string, error) {
-	return system.CgroupPathFormatter.ContainerIDParser(basename)
-}
+func ParseContainerID(basename string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func IsValidContainerCgroupDir(containerParentDir string) bool {
-	containerID, err := system.CgroupPathFormatter.ContainerIDParser(filepath.Base(containerParentDir))
-	return err == nil && len(containerID) >= 0
+	_ = "STUB: not implemented"
+	return false
 }
 
 func GetPIDsInContainer(podParentDir string, c *corev1.ContainerStatus) ([]uint32, error) {
-	cgroupPath, err := GetContainerCgroupCPUProcsPath(podParentDir, c)
-	if err != nil {
-		return nil, err
-	}
-	rawContent, err := os.ReadFile(cgroupPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return system.ParseCgroupProcs(string(rawContent))
+	_ = "STUB: not implemented"
+	return nil, nil
 }

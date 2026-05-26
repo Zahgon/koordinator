@@ -31,22 +31,6 @@ type fakeClusterColocationProfiles struct {
 }
 
 func newFakeClusterColocationProfiles(fake *FakeConfigV1alpha1) configv1alpha1.ClusterColocationProfileInterface {
-	return &fakeClusterColocationProfiles{
-		gentype.NewFakeClientWithList[*v1alpha1.ClusterColocationProfile, *v1alpha1.ClusterColocationProfileList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("clustercolocationprofiles"),
-			v1alpha1.SchemeGroupVersion.WithKind("ClusterColocationProfile"),
-			func() *v1alpha1.ClusterColocationProfile { return &v1alpha1.ClusterColocationProfile{} },
-			func() *v1alpha1.ClusterColocationProfileList { return &v1alpha1.ClusterColocationProfileList{} },
-			func(dst, src *v1alpha1.ClusterColocationProfileList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.ClusterColocationProfileList) []*v1alpha1.ClusterColocationProfile {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.ClusterColocationProfileList, items []*v1alpha1.ClusterColocationProfile) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(configv1alpha1.ClusterColocationProfileInterface)
 }

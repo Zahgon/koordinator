@@ -30,21 +30,16 @@ type forceSyncsharedIndexInformer struct {
 }
 
 func newForceSyncSharedIndexInformer(informer cache.SharedIndexInformer, defaultResync time.Duration) cache.SharedIndexInformer {
-	return &forceSyncsharedIndexInformer{
-		SharedIndexInformer: informer,
-		defaultResync:       defaultResync,
-	}
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func (s *forceSyncsharedIndexInformer) AddEventHandler(handler cache.ResourceEventHandler) (cache.ResourceEventHandlerRegistration, error) {
-	return s.AddEventHandlerWithResyncPeriod(handler, s.defaultResync)
+	_ = "STUB: not implemented"
+	return *new(cache.ResourceEventHandlerRegistration), nil
 }
 
 func (s *forceSyncsharedIndexInformer) AddEventHandlerWithResyncPeriod(handler cache.ResourceEventHandler, resyncPeriod time.Duration) (cache.ResourceEventHandlerRegistration, error) {
-	reg, err := s.SharedIndexInformer.AddEventHandlerWithResyncPeriod(handler, resyncPeriod)
-	if err != nil {
-		return nil, err
-	}
-	addRegistration(reg)
-	return reg, nil
+	_ = "STUB: not implemented"
+	return *new(cache.ResourceEventHandlerRegistration), nil
 }

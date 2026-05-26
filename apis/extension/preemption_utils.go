@@ -23,11 +23,9 @@ import corev1 "k8s.io/api/core/v1"
 var DefaultPreemptionPolicy = GetPreemptionPolicyPtr(corev1.PreemptNever)
 
 func GetPodKoordPreemptionPolicyWithDefault(pod *corev1.Pod) *corev1.PreemptionPolicy {
-	if preemptionPolicy := GetPodKoordPreemptionPolicy(pod); preemptionPolicy != nil {
-		return preemptionPolicy
-	}
-
-	// If the PreemptionPolicy feature enabled but the preemption-policy label is not set, use
-	// the DefaultPreemptionPolicy.
-	return DefaultPreemptionPolicy
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// If the PreemptionPolicy feature enabled but the preemption-policy label is not set, use
+// the DefaultPreemptionPolicy.

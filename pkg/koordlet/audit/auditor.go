@@ -18,16 +18,9 @@ package audit
 
 import (
 	"container/list"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -35,20 +28,9 @@ var (
 	Default = NewEmptyAuditor()
 )
 
-func NewAuditor(c *Config) Auditor {
-	logWriter := NewFluentEventLogger(c.LogDir, c.MaxDiskSpaceMB, c.Verbose)
-	logReader := NewEventReader(c.LogDir)
-	return &auditor{
-		config:        c,
-		logWriter:     logWriter,
-		logReader:     logReader,
-		activeReaders: list.New(),
-	}
-}
+func NewAuditor(c *Config) Auditor { _ = "STUB: not implemented"; return *new(Auditor) }
 
-func NewEmptyAuditor() Auditor {
-	return &emptyAuditor{}
-}
+func NewEmptyAuditor() Auditor { _ = "STUB: not implemented"; return *new(Auditor) }
 
 type Auditor interface {
 	Run(stopCh <-chan struct{}) error
@@ -79,229 +61,81 @@ type auditor struct {
 }
 
 func (a *auditor) LoggerWriter() EventFluentWriter {
-	return a.logWriter
+	_ = "STUB: not implemented"
+	return *new(EventFluentWriter)
 }
 
 func (a *auditor) findActiveReader(token string) *readerContext {
-	a.activeReadersMutex.Lock()
-	defer a.activeReadersMutex.Unlock()
-	for e := a.activeReaders.Front(); e != nil; e = e.Next() {
-		if e.Value.(*readerContext).pageToken == token {
-			return e.Value.(*readerContext)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (a *auditor) pushActiveReader(reader *readerContext) {
-	a.activeReadersMutex.Lock()
-	a.activeReaders.PushBack(reader)
-	expiredReaders := a.popExpiredReaderNoLock()
-	a.activeReadersMutex.Unlock()
-	// gc the expired readers outside the lock
-	a.gcExpiredReaders(expiredReaders)
-}
+func (a *auditor) pushActiveReader(reader *readerContext) { _ = "STUB: not implemented"; return }
 
-func (a *auditor) popExpiredReaderNoLock() []*readerContext {
-	var expired []*readerContext
-	minExpired := a.activeReaders.Len() - a.config.MaxConcurrentReaders
-	now := time.Now()
-	for e := a.activeReaders.Front(); e != nil; e = e.Next() {
-		if minExpired > 0 || now.After(e.Value.(*readerContext).refreshAt.Add(a.config.ActiveReaderTTL)) {
-			a.activeReaders.Remove(e)
-			expired = append(expired, e.Value.(*readerContext))
-		}
+// gc the expired readers outside the lock
 
-		minExpired--
-	}
-	return expired
-}
+func (a *auditor) popExpiredReaderNoLock() []*readerContext { _ = "STUB: not implemented"; return nil }
 
 func (a *auditor) gcExpiredReaders(expiredReaders []*readerContext) {
-	for _, expired := range expiredReaders {
-		klog.Infof("reader %v is expired", expired.pageToken)
-		expired.mutex.Lock()
-		expired.closed = true
-		expired.reverseIterator.Close()
-		expired.mutex.Unlock()
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (a *auditor) HttpHandler() func(http.ResponseWriter, *http.Request) {
-	return func(rw http.ResponseWriter, r *http.Request) {
-		sizeStr := r.URL.Query().Get("size")
-		pageToken := r.URL.Query().Get("pageToken")
-
-		klog.Infof("handle query client=%v pageToken=%v size=%v", r.RemoteAddr, pageToken, sizeStr)
-
-		size := a.config.DefaultEventsLimit
-		if s, err := strconv.Atoi(sizeStr); err == nil {
-			if s > a.config.MaxEventsLimit {
-				http.Error(rw, fmt.Sprintf("size(%v) exceeds the limit(%v)", s, a.config.MaxEventsLimit), http.StatusBadRequest)
-				return
-			}
-			size = s
-		}
-
-		var activeReader *readerContext
-		if pageToken == "" {
-			tokenUUID, err := uuid.NewRandom()
-			if err != nil {
-				http.Error(rw, "internal error", http.StatusInternalServerError)
-				return
-			}
-			activeReader = &readerContext{
-				pageToken:       tokenUUID.String(),
-				refreshAt:       time.Now(),
-				reverseIterator: a.logReader.NewReverseInterator(),
-			}
-			a.pushActiveReader(activeReader)
-		} else {
-			activeReader = a.findActiveReader(pageToken)
-			if activeReader == nil {
-				http.Error(rw, fmt.Sprintf("invalid pageToken %s", pageToken), http.StatusConflict)
-				return
-			}
-		}
-
-		readEOF := false
-		events := make([]*Event, 0, size)
-		func() {
-			activeReader.mutex.Lock()
-			defer activeReader.mutex.Unlock()
-			if activeReader.closed {
-				http.Error(rw, fmt.Sprintf("reader %v is expired", activeReader.pageToken), http.StatusConflict)
-				return
-			}
-			activeReader.refreshAt = time.Now()
-			for i := 0; i < size; i++ {
-				event, err := activeReader.reverseIterator.Next()
-				if err == io.EOF {
-					readEOF = true
-					break
-				}
-				if err != nil {
-					klog.V(4).Infof("reader %v failed: %v", activeReader.pageToken, err)
-					continue
-				}
-
-				events = append(events, event)
-			}
-		}()
-
-		acceptJson := false
-		acceptTypes := r.Header["Accept"]
-		for i := range acceptTypes {
-			if acceptTypes[i] == "application/json" {
-				acceptJson = true
-				break
-			}
-		}
-		if acceptJson {
-			response := &JsonResponse{Events: events}
-			if !readEOF {
-				response.NextPageToken = activeReader.pageToken
-			}
-			data, err := json.Marshal(response)
-			if err != nil {
-				http.Error(rw, fmt.Sprintf("marshal events failed: %v", err), http.StatusInternalServerError)
-				return
-			}
-			rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-			rw.Write(data)
-		} else {
-			for i := range events {
-				data, err := json.Marshal(events[i])
-				if err != nil {
-					http.Error(rw, fmt.Sprintf("read events failed: %v", err), http.StatusInternalServerError)
-					return
-				}
-				rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-				if !readEOF {
-					rw.Header().Set("Next-Page-Token", activeReader.pageToken)
-				}
-				rw.Write(data)
-				rw.Write([]byte{'\n'})
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (a *auditor) Run(stopCh <-chan struct{}) error {
-	timer := time.NewTicker(a.config.TickerDuration)
-	defer timer.Stop()
-	for {
-		select {
-		case <-stopCh:
-			return nil
-		case <-timer.C:
-			a.activeReadersMutex.Lock()
-			expiredReaders := a.popExpiredReaderNoLock()
-			a.activeReadersMutex.Unlock()
-			// gc the expired readers outside the lock
-			a.gcExpiredReaders(expiredReaders)
-		}
-	}
-}
+func (a *auditor) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }
+
+// gc the expired readers outside the lock
 
 // emptyAuditor do nothing to mock Auditor
 type emptyAuditor struct {
 }
 
-func (a *emptyAuditor) Run(stopCh <-chan struct{}) error {
-	return nil
-}
+func (a *emptyAuditor) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }
 
 func (a *emptyAuditor) LoggerWriter() EventFluentWriter {
-	return &emptyEventFluentWriter{}
+	_ = "STUB: not implemented"
+	return *new(EventFluentWriter)
 }
 
 func (a *emptyAuditor) HttpHandler() func(http.ResponseWriter, *http.Request) {
-	return func(rw http.ResponseWriter, r *http.Request) {}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type emptyEventFluentWriter struct {
 }
 
-func (e *emptyEventFluentWriter) V(verbose int) *EventHelper {
-	return &EventHelper{verbose: verbose, writer: &emptyEventWriter{}}
-}
+func (e *emptyEventFluentWriter) V(verbose int) *EventHelper { _ = "STUB: not implemented"; return nil }
 
-func (e *emptyEventFluentWriter) Flush() error {
-	return nil
-}
+func (e *emptyEventFluentWriter) Flush() error { _ = "STUB: not implemented"; return nil }
 
-func (e *emptyEventFluentWriter) Close() error {
-	return nil
-}
+func (e *emptyEventFluentWriter) Close() error { _ = "STUB: not implemented"; return nil }
 
 type emptyEventWriter struct {
 }
 
 func (e *emptyEventWriter) Log(verbose int, event *Event) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (e *emptyEventWriter) Flush() error {
-	return nil
-}
+func (e *emptyEventWriter) Flush() error { _ = "STUB: not implemented"; return nil }
 
 func (e *emptyEventWriter) Close() error {
+	_ = "STUB: not implemented"
+
+	// SetupDefaultAuditor initialize the `Default` auditor.
 	return nil
 }
 
-// SetupDefaultAuditor initialize the `Default` auditor.
-func SetupDefaultAuditor(c *Config, stopCh <-chan struct{}) {
-	Default = NewAuditor(c)
-	go Default.Run(stopCh)
-}
+func SetupDefaultAuditor(c *Config, stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
 // V create an EventHelper with Level verbose to record audit events with the `Default` auditor.
-func V(verbose int) *EventHelper {
-	return Default.LoggerWriter().V(verbose)
-}
+func V(verbose int) *EventHelper { _ = "STUB: not implemented"; return nil }
 
 // HttpHandler return the http handler to read audit events with the `Default` auditor.
-func HttpHandler() func(http.ResponseWriter, *http.Request) {
-	return Default.HttpHandler()
-}
+func HttpHandler() func(http.ResponseWriter, *http.Request) { _ = "STUB: not implemented"; return nil }

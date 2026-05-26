@@ -17,11 +17,9 @@ limitations under the License.
 package evictions
 
 import (
-	"fmt"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 )
 
 type EvictionLimiter struct {
@@ -39,100 +37,37 @@ func NewEvictionLimiter(
 	maxPodsToEvictPerNamespace *uint,
 	maxPodsToEvictTotal *uint,
 ) *EvictionLimiter {
-	return &EvictionLimiter{
-		maxPodsToEvictPerNode:      maxPodsToEvictPerNode,
-		maxPodsToEvictPerNamespace: maxPodsToEvictPerNamespace,
-		maxPodsToEvictTotal:        maxPodsToEvictTotal,
-		nodePodCount:               make(nodePodEvictedCount),
-		namespacePodCount:          make(namespacePodEvictCount),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (pe *EvictionLimiter) Reset() {
-	pe.lock.Lock()
-	defer pe.lock.Unlock()
-
-	pe.totalCount = 0
-	pe.nodePodCount = make(nodePodEvictedCount)
-	pe.namespacePodCount = make(namespacePodEvictCount)
-}
+func (pe *EvictionLimiter) Reset() { _ = "STUB: not implemented"; return }
 
 // NodeEvicted gives a number of pods evicted for node
-func (pe *EvictionLimiter) NodeEvicted(nodeName string) uint {
-	pe.lock.RLock()
-	defer pe.lock.RUnlock()
-
-	return pe.nodePodCount[nodeName]
-}
+func (pe *EvictionLimiter) NodeEvicted(nodeName string) uint { _ = "STUB: not implemented"; return 0 }
 
 func (pe *EvictionLimiter) NamespaceEvicted(namespace string) uint {
-	pe.lock.RLock()
-	defer pe.lock.RUnlock()
-
-	return pe.namespacePodCount[namespace]
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // TotalEvicted gives a number of pods evicted through all nodes
-func (pe *EvictionLimiter) TotalEvicted() uint {
-	pe.lock.RLock()
-	defer pe.lock.RUnlock()
-
-	return pe.totalCount
-}
+func (pe *EvictionLimiter) TotalEvicted() uint { _ = "STUB: not implemented"; return 0 }
 
 // NodeLimitExceeded checks if the number of evictions for a node was exceeded
 func (pe *EvictionLimiter) NodeLimitExceeded(node *corev1.Node) bool {
-	pe.lock.RLock()
-	defer pe.lock.RUnlock()
-
-	if pe.maxPodsToEvictPerNode != nil {
-		return pe.nodePodCount[node.Name] == *pe.maxPodsToEvictPerNode
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (pe *EvictionLimiter) NamespaceLimitExceeded(namespace string) bool {
-	pe.lock.RLock()
-	defer pe.lock.RUnlock()
-
-	if pe.maxPodsToEvictPerNamespace != nil {
-		return pe.namespacePodCount[namespace] == *pe.maxPodsToEvictPerNamespace
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (pe *EvictionLimiter) AllowEvict(pod *corev1.Pod) bool {
-	pe.lock.Lock()
-	defer pe.lock.Unlock()
-
-	nodeName := pod.Spec.NodeName
-	if nodeName != "" {
-		if pe.maxPodsToEvictPerNode != nil && pe.nodePodCount[pod.Spec.NodeName]+1 > *pe.maxPodsToEvictPerNode {
-			klog.ErrorS(fmt.Errorf("maximum number of evicted pods per node reached"), "Error evicting pod", "limit", *pe.maxPodsToEvictPerNode, "node", nodeName)
-			return false
-		}
-	}
-
-	if pe.maxPodsToEvictPerNamespace != nil && pe.namespacePodCount[pod.Namespace]+1 > *pe.maxPodsToEvictPerNamespace {
-		klog.ErrorS(fmt.Errorf("maximum number of evicted pods per namespace reached"), "Error evicting pod", "limit", *pe.maxPodsToEvictPerNamespace, "namespace", pod.Namespace)
-		return false
-	}
-
-	if pe.maxPodsToEvictTotal != nil && pe.totalCount+1 > *pe.maxPodsToEvictTotal {
-		klog.ErrorS(fmt.Errorf("maximum number of evicted pods total reached"), "Error evicting pod", "limit", *pe.maxPodsToEvictTotal)
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (pe *EvictionLimiter) Done(pod *corev1.Pod) {
-	pe.lock.Lock()
-	defer pe.lock.Unlock()
-
-	if pod.Spec.NodeName != "" {
-		pe.nodePodCount[pod.Spec.NodeName]++
-	}
-	pe.namespacePodCount[pod.Namespace]++
-	pe.totalCount++
-	return
-}
+func (pe *EvictionLimiter) Done(pod *corev1.Pod) { _ = "STUB: not implemented"; return }

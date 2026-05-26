@@ -19,64 +19,27 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
-	goruntime "runtime"
-	"time"
 
 	"github.com/spf13/cobra"
-	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apiserver/pkg/authentication/authenticator"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
-	genericapifilters "k8s.io/apiserver/pkg/endpoints/filters"
-	apirequest "k8s.io/apiserver/pkg/endpoints/request"
-	"k8s.io/apiserver/pkg/server"
-	genericfilters "k8s.io/apiserver/pkg/server/filters"
 	"k8s.io/apiserver/pkg/server/healthz"
 	"k8s.io/apiserver/pkg/server/mux"
-	"k8s.io/apiserver/pkg/server/routes"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/tools/events"
-	"k8s.io/client-go/tools/leaderelection"
-	cliflag "k8s.io/component-base/cli/flag"
-	"k8s.io/component-base/cli/globalflag"
-	"k8s.io/component-base/configz"
-	"k8s.io/component-base/logs"
 	logsapi "k8s.io/component-base/logs/api/v1"
 	"k8s.io/component-base/metrics/features"
-	"k8s.io/component-base/metrics/legacyregistry"
-	"k8s.io/component-base/metrics/prometheus/slis"
-	"k8s.io/component-base/term"
-	"k8s.io/component-base/version"
-	"k8s.io/component-base/version/verflag"
-	"k8s.io/klog/v2"
-	scheduleroptions "k8s.io/kubernetes/cmd/kube-scheduler/app/options"
 	"k8s.io/kubernetes/pkg/scheduler"
 	kubeschedulerconfig "k8s.io/kubernetes/pkg/scheduler/apis/config"
-	"k8s.io/kubernetes/pkg/scheduler/apis/config/latest"
 	"k8s.io/kubernetes/pkg/scheduler/framework/runtime"
-	"k8s.io/kubernetes/pkg/scheduler/metrics/resources"
 	"k8s.io/kubernetes/pkg/scheduler/profile"
 
 	schedulerserverconfig "github.com/koordinator-sh/koordinator/cmd/koord-scheduler/app/config"
 	"github.com/koordinator-sh/koordinator/cmd/koord-scheduler/app/options"
-	koordfeatures "github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/defaultprofile"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/eventhandlers"
-	frameworkexthelper "github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/helper"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/informer"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/networktopology"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/services"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/workloadauditor"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/metrics"
-	"github.com/koordinator-sh/koordinator/pkg/util/asynclog"
-	utilroutes "github.com/koordinator-sh/koordinator/pkg/util/routes"
-	"github.com/koordinator-sh/koordinator/pkg/util/transformer"
 )
 
 func init() {
@@ -89,488 +52,143 @@ type Option func(*frameworkext.FrameworkExtenderFactory, runtime.Registry) error
 
 // NewSchedulerCommand creates a *cobra.Command object with default parameters and registryOptions
 func NewSchedulerCommand(registryOptions ...Option) *cobra.Command {
-	opts := options.NewOptions()
-
-	cmd := &cobra.Command{
-		Use: "koord-scheduler",
-		Long: `The Koordinator scheduler is a control plane process which assigns
-Pods to Nodes. The scheduler implements based on kubernetes scheduling framework.
-On the basis of compatibility with community scheduling capabilities, it provides 
-richer advanced scheduling capabilities to address scheduling needs in co-located 
-scenarios,ensuring the runtime quality of different workloads and users' demands 
-for cost reduction and efficiency enhancement.
-`,
-		Run: func(cmd *cobra.Command, args []string) {
-			if err := runCommand(cmd, opts, registryOptions...); err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", err)
-				os.Exit(1)
-			}
-		},
-		Args: func(cmd *cobra.Command, args []string) error {
-			for _, arg := range args {
-				if len(arg) > 0 {
-					return fmt.Errorf("%q does not take any arguments, got %q", cmd.CommandPath(), args)
-				}
-			}
-			return nil
-		},
-	}
-
-	nfs := opts.Flags
-	verflag.AddFlags(nfs.FlagSet("global"))
-	AddSyncBarrierFlags(nfs.FlagSet("global"))
-	globalflag.AddGlobalFlags(nfs.FlagSet("global"), cmd.Name(), logs.SkipLoggingConfigurationFlags())
-	workloadauditor.AddFlags(nfs.FlagSet("extend"))
-	frameworkext.AddFlags(nfs.FlagSet("extend"))
-	fs := cmd.Flags()
-	for _, f := range nfs.FlagSets {
-		fs.AddFlagSet(f)
-	}
-
-	cols, _, _ := term.TerminalSize(cmd.OutOrStdout())
-	cliflag.SetUsageAndHelpFunc(cmd, *nfs, cols)
-
-	if err := cmd.MarkFlagFilename("config", "yaml", "yml", "json"); err != nil {
-		klog.Background().Error(err, "Failed to mark flag filename")
-	}
-
-	return cmd
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // runCommand runs the scheduler.
 func runCommand(cmd *cobra.Command, opts *options.Options, registryOptions ...Option) error {
-	verflag.PrintAndExitIfRequested()
-	if asynclog.EnableAsyncIfNeed() {
-		defer asynclog.FlushAndExit()
-	}
-
-	// Activate logging as soon as possible, after that
-	// show flags with the final logging configuration.
-	if err := logsapi.ValidateAndApply(opts.Logs, utilfeature.DefaultFeatureGate); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
-	}
-	cliflag.PrintFlags(cmd.Flags())
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go func() {
-		stopCh := server.SetupSignalHandler()
-		<-stopCh
-		cancel()
-	}()
-
-	cc, sched, extendedHandle, customWorkflow, err := Setup(ctx, opts, registryOptions...)
-	if err != nil {
-		return err
-	}
-	// add feature enablement metrics
-	utilfeature.DefaultMutableFeatureGate.AddMetrics()
-	return Run(ctx, cc, sched, extendedHandle, customWorkflow)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Activate logging as soon as possible, after that
+// show flags with the final logging configuration.
+
+// add feature enablement metrics
 
 // Run executes the scheduler based on the given configuration. It only returns on error or when context is done.
 func Run(ctx context.Context, cc *schedulerserverconfig.CompletedConfig, sched *scheduler.Scheduler, extenderFactory *frameworkext.FrameworkExtenderFactory, customWorkflow CustomWorkflow) error {
+	_ = "STUB: not implemented"
 	// Wrap the incoming ctx so that Run itself owns a cancel function; this lets
 	// leader-election callbacks trigger a graceful shutdown (e.g. when plugin
 	// initialization fails) by canceling the scheduler context instead of
 	// abruptly terminating via klog.Fatalf.
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	logger := klog.FromContext(ctx)
-	// To help debugging, immediately log version
-	logger.Info("Starting Koordinator Scheduler version", "version", version.Get())
-
-	logger.Info("Golang settings", "GOGC", os.Getenv("GOGC"), "GOMAXPROCS", os.Getenv("GOMAXPROCS"), "GOTRACEBACK", os.Getenv("GOTRACEBACK"))
-
-	// Configz registration.
-	if cz, err := configz.New("componentconfig"); err == nil {
-		cz.Set(cc.ComponentConfig)
-	} else {
-		return fmt.Errorf("unable to register configz: %s", err)
-	}
-
-	// Start events processing pipeline.
-	cc.EventBroadcaster.StartRecordingToSink(ctx.Done())
-	defer cc.EventBroadcaster.Shutdown()
-
-	// Setup healthz checks.
-	var checks []healthz.HealthChecker
-	if cc.ComponentConfig.LeaderElection.LeaderElect {
-		checks = append(checks, cc.LeaderElection.WatchDog)
-	}
-
-	waitingForLeader := make(chan struct{})
-	isLeader := func() bool {
-		select {
-		case _, ok := <-waitingForLeader:
-			// if channel is closed, we are leading
-			return !ok
-		default:
-			// channel is open, we are waiting for a leader
-			return false
-		}
-	}
-
-	// Start up the healthz server.
-	gracefulShutdownSecureServer := func() {}
-	if cc.InsecureServing != nil {
-		handler := buildHandlerChain(newHealthzAndMetricsHandler(&cc.ComponentConfig, cc.InformerFactory, cc.ServicesEngine, sched, isLeader, checks...), nil, nil)
-		if err := cc.InsecureServing.Serve(handler, 0, ctx.Done()); err != nil {
-			return fmt.Errorf("failed to start insecure server: %v", err)
-		}
-	}
-	if cc.SecureServing != nil {
-		handler := buildHandlerChain(newHealthzAndMetricsHandler(&cc.ComponentConfig, cc.InformerFactory, cc.ServicesEngine, sched, isLeader, checks...), cc.Authentication.Authenticator, cc.Authorization.Authorizer)
-		internalStopCh := make(chan struct{})
-		shutdownTimeout := 5 * time.Second
-		stoppedCh, listenerStoppedCh, err := cc.SecureServing.Serve(handler, shutdownTimeout, internalStopCh)
-		if err != nil {
-			// fail early for secure handlers, removing the old error loop from above
-			close(internalStopCh)
-			return fmt.Errorf("failed to start secure server: %v", err)
-		}
-		gracefulShutdownSecureServer = func() {
-			close(internalStopCh)
-			<-listenerStoppedCh
-			klog.Info("[graceful-termination] secure server has stopped listening")
-			<-stoppedCh
-			klog.Info("[graceful-termination] secure server is exiting")
-		}
-	}
-
-	startInformersAndWaitForSync := func(ctx context.Context) error {
-		// Startup order matters for data-race freedom: some plugins register
-		// AfterPluginInformersSynced hooks (via frameworkexthelper) that rebuild
-		// internal state from an initial-list snapshot of their private informers
-		// (e.g. ElasticQuota's ReplaceQuotas rebuilding groupQuotaManager). Those
-		// hooks must complete before the main informers (pods/nodes/etc.) start
-		// delivering events whose handlers read the same plugin state, so we
-		// sequence the pipeline as: (1) start+sync plugin informer factories,
-		// (2) run AfterPluginInformersSynced hooks, (3) start+sync main informer
-		// factories, (4) run AfterAllInformersSynced hooks.
-
-		// Step 1: start plugin informer factories registered via InformerFactoryProvider.
-		for _, f := range extenderFactory.GetPluginInformerFactories() {
-			f.Start(ctx.Done())
-		}
-		for _, f := range extenderFactory.GetPluginInformerFactories() {
-			f.WaitForCacheSync(ctx.Done())
-		}
-		// Step 2: run plugin-registered AfterPluginInformersSynced hooks. A hook
-		// failure is surfaced as a startup error so the caller can shut down
-		// gracefully (releasing the leader lease, running registered shutdown
-		// hooks) instead of abruptly terminating. A ctx cancellation (normal
-		// shutdown) is not treated as an error.
-		if err := frameworkexthelper.RunAfterPluginInformersSynced(ctx); err != nil {
-			if ctx.Err() != nil {
-				logger.Info("AfterPluginInformersSynced hooks interrupted", "err", err)
-				return nil
-			}
-			return fmt.Errorf("AfterPluginInformersSynced hook failed: %w", err)
-		}
-
-		// Step 3: start the remaining informer factories.
-		cc.InformerFactory.Start(ctx.Done())
-		// DynInformerFactory can be nil in tests.
-		if cc.DynInformerFactory != nil {
-			cc.DynInformerFactory.Start(ctx.Done())
-		}
-		cc.KoordinatorSharedInformerFactory.Start(ctx.Done())
-		cc.NodeResourceTopologyInformerFactory.Start(ctx.Done())
-
-		// Wait for all caches to sync before scheduling.
-		cc.InformerFactory.WaitForCacheSync(ctx.Done())
-		// DynInformerFactory can be nil in tests.
-		if cc.DynInformerFactory != nil {
-			cc.DynInformerFactory.WaitForCacheSync(ctx.Done())
-		}
-		cc.KoordinatorSharedInformerFactory.WaitForCacheSync(ctx.Done())
-		cc.NodeResourceTopologyInformerFactory.WaitForCacheSync(ctx.Done())
-
-		// Wait for all handlers to sync (all items in the initial list delivered) before scheduling.
-		if err := sched.WaitForHandlersSync(ctx); err != nil {
-			logger.Error(err, "waiting for handlers to sync")
-		}
-
-		// Wait for koordinator plugin handlers (registrations collected via
-		// ForceSyncFromInformer) to complete their initial list sync. These are
-		// not visible to sched.WaitForHandlersSync, so we check them separately.
-		if err := frameworkexthelper.WaitForHandlersSync(ctx); err != nil {
-			logger.Error(err, "waiting for koordinator handlers to sync")
-		}
-
-		logger.V(3).Info("Handlers synced")
-
-		// Step 4: run plugin-registered AfterAllInformersSynced hooks. Same
-		// error/shutdown contract as Step 2.
-		if err := frameworkexthelper.RunAfterAllInformersSynced(ctx); err != nil {
-			if ctx.Err() != nil {
-				logger.Info("AfterAllInformersSynced hooks interrupted", "err", err)
-				return nil
-			}
-			return fmt.Errorf("AfterAllInformersSynced hook failed: %w", err)
-		}
-		return nil
-	}
-	if !cc.ComponentConfig.DelayCacheUntilActive || cc.LeaderElection == nil {
-		if err := startInformersAndWaitForSync(ctx); err != nil {
-			return err
-		}
-	}
-	// If leader election is enabled, runCommand via LeaderElector until done and exit.
-	if cc.LeaderElection != nil {
-		cc.LeaderElection.Callbacks = leaderelection.LeaderCallbacks{
-			OnStartedLeading: func(ctx context.Context) {
-				close(waitingForLeader)
-				if cc.ComponentConfig.DelayCacheUntilActive {
-					logger.Info("Starting informers and waiting for sync...")
-					if err := startInformersAndWaitForSync(ctx); err != nil {
-						// Trigger graceful shutdown by canceling the outer context:
-						// the leader elector observes ctx.Done() and invokes
-						// OnStoppedLeading, which runs gracefulShutdownSecureServer
-						// and exits cleanly.
-						logger.Error(err, "Failed to initialize plugin state; releasing leader lease for graceful shutdown")
-						cancel()
-						return
-					}
-					logger.Info("Sync completed")
-				} else {
-					waitForLatestSynced(ctx, cc, sched)
-				}
-				extenderFactory.Run(ctx)
-				RunWorkflow(ctx, sched, customWorkflow)
-			},
-			OnStoppedLeading: func() {
-				gracefulShutdownSecureServer()
-				select {
-				case <-ctx.Done():
-					// We were asked to terminate. Exit 0.
-					logger.Info("Requested to terminate, exiting")
-					os.Exit(0)
-				default:
-					// We lost the lock.
-					logger.Error(nil, "Leaderelection lost")
-					klog.FlushAndExit(klog.ExitFlushTimeout, 1)
-					asynclog.FlushAndExit()
-				}
-			},
-		}
-		leaderElector, err := leaderelection.NewLeaderElector(*cc.LeaderElection)
-		if err != nil {
-			return fmt.Errorf("couldn't create leader elector: %v", err)
-		}
-
-		leaderElector.Run(ctx)
-
-		return fmt.Errorf("lost lease")
-	}
-
-	// Leader election is disabled, so runCommand inline until done.
-	close(waitingForLeader)
-	extenderFactory.Run(ctx)
-	RunWorkflow(ctx, sched, customWorkflow)
-	gracefulShutdownSecureServer()
-	return fmt.Errorf("finished without leader elect")
+	return nil
 }
+
+// To help debugging, immediately log version
+
+// Configz registration.
+
+// Start events processing pipeline.
+
+// Setup healthz checks.
+
+// if channel is closed, we are leading
+
+// channel is open, we are waiting for a leader
+
+// Start up the healthz server.
+
+// fail early for secure handlers, removing the old error loop from above
+
+// Startup order matters for data-race freedom: some plugins register
+// AfterPluginInformersSynced hooks (via frameworkexthelper) that rebuild
+// internal state from an initial-list snapshot of their private informers
+// (e.g. ElasticQuota's ReplaceQuotas rebuilding groupQuotaManager). Those
+// hooks must complete before the main informers (pods/nodes/etc.) start
+// delivering events whose handlers read the same plugin state, so we
+// sequence the pipeline as: (1) start+sync plugin informer factories,
+// (2) run AfterPluginInformersSynced hooks, (3) start+sync main informer
+// factories, (4) run AfterAllInformersSynced hooks.
+
+// Step 1: start plugin informer factories registered via InformerFactoryProvider.
+
+// Step 2: run plugin-registered AfterPluginInformersSynced hooks. A hook
+// failure is surfaced as a startup error so the caller can shut down
+// gracefully (releasing the leader lease, running registered shutdown
+// hooks) instead of abruptly terminating. A ctx cancellation (normal
+// shutdown) is not treated as an error.
+
+// Step 3: start the remaining informer factories.
+
+// DynInformerFactory can be nil in tests.
+
+// Wait for all caches to sync before scheduling.
+
+// DynInformerFactory can be nil in tests.
+
+// Wait for all handlers to sync (all items in the initial list delivered) before scheduling.
+
+// Wait for koordinator plugin handlers (registrations collected via
+// ForceSyncFromInformer) to complete their initial list sync. These are
+// not visible to sched.WaitForHandlersSync, so we check them separately.
+
+// Step 4: run plugin-registered AfterAllInformersSynced hooks. Same
+// error/shutdown contract as Step 2.
+
+// If leader election is enabled, runCommand via LeaderElector until done and exit.
+
+// Trigger graceful shutdown by canceling the outer context:
+// the leader elector observes ctx.Done() and invokes
+// OnStoppedLeading, which runs gracefulShutdownSecureServer
+// and exits cleanly.
+
+// We were asked to terminate. Exit 0.
+
+// We lost the lock.
+
+// Leader election is disabled, so runCommand inline until done.
 
 // buildHandlerChain wraps the given handler with the standard filters.
 func buildHandlerChain(handler http.Handler, authn authenticator.Request, authz authorizer.Authorizer) http.Handler {
-	requestInfoResolver := &apirequest.RequestInfoFactory{}
-	failedHandler := genericapifilters.Unauthorized(scheme.Codecs)
-
-	handler = genericapifilters.WithAuthorization(handler, authz, scheme.Codecs)
-	handler = genericapifilters.WithAuthentication(handler, authn, failedHandler, nil, nil)
-	handler = genericapifilters.WithRequestInfo(handler, requestInfoResolver)
-	handler = genericapifilters.WithCacheControl(handler)
-	handler = genericfilters.WithHTTPLogging(handler)
-	handler = genericfilters.WithPanicRecovery(handler, requestInfoResolver)
-
-	return handler
+	_ = "STUB: not implemented"
+	return *new(http.Handler)
 }
 
 func installMetricHandler(pathRecorderMux *mux.PathRecorderMux, informers informers.SharedInformerFactory, isLeader func() bool) {
-	configz.InstallHandler(pathRecorderMux)
-	pathRecorderMux.Handle("/metrics", legacyregistry.HandlerWithReset())
-
-	resourceMetricsHandler := resources.Handler(informers.Core().V1().Pods().Lister())
-	pathRecorderMux.HandleFunc("/metrics/resources", func(w http.ResponseWriter, req *http.Request) {
-		if !isLeader() {
-			return
-		}
-		resourceMetricsHandler.ServeHTTP(w, req)
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 // newHealthzAndMetricsHandler creates a healthz server from the config, and will also
 // embed the metrics handler.
 func newHealthzAndMetricsHandler(config *kubeschedulerconfig.KubeSchedulerConfiguration, informers informers.SharedInformerFactory, engine *services.Engine, sched *scheduler.Scheduler, isLeader func() bool, checks ...healthz.HealthChecker) http.Handler {
-	pathRecorderMux := mux.NewPathRecorderMux("koord-scheduler")
-	healthz.InstallHandler(pathRecorderMux, checks...)
-	installMetricHandler(pathRecorderMux, informers, isLeader)
-	slis.SLIMetricsWithReset{}.Install(pathRecorderMux)
-	if config.EnableProfiling {
-		routes.Profiling{}.Install(pathRecorderMux)
-		if config.EnableContentionProfiling {
-			goruntime.SetBlockProfileRate(1)
-		}
-		debugFlags := utilroutes.NewDebugFlags(pathRecorderMux)
-		debugFlags.Install("v", utilroutes.StringFlagPutHandler(logs.GlogSetter))
-		debugFlags.Install("s", utilroutes.StringFlagPutHandler(frameworkext.DebugScoresSetter))
-		debugFlags.Install("f", utilroutes.StringFlagPutHandler(frameworkext.DebugFiltersSetter))
-		debugFlags.Install("d", utilroutes.StringFlagPutHandler(frameworkext.DumpDiagnosisSetter))
-		debugFlags.Install("db", utilroutes.StringFlagPutHandler(frameworkext.DumpDiagnosisBlockingSetter))
-	}
-	services.InstallAPIHandler(pathRecorderMux, engine, sched, isLeader)
-	return pathRecorderMux
+	_ = "STUB: not implemented"
+	return *new(http.Handler)
 }
 
 func getRecorderFactory(cc *schedulerserverconfig.CompletedConfig) profile.RecorderFactory {
-	return func(name string) events.EventRecorder {
-		return cc.EventBroadcaster.NewRecorder(name)
-	}
+	_ = "STUB: not implemented"
+	return *new(profile.RecorderFactory)
 }
 
 // WithPlugin creates an Option based on plugin name and factory. Please don't remove this function: it is used to register out-of-tree plugins,
 // hence there are no references to it from the kubernetes scheduler code base.
 func WithPlugin(name string, factory runtime.PluginFactory) Option {
-	return func(extenderFactory *frameworkext.FrameworkExtenderFactory, registry runtime.Registry) error {
-		return registry.Register(name, frameworkext.PluginFactoryProxy(extenderFactory, factory))
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // Setup creates a completed config and a scheduler based on the command args and options
 func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions ...Option) (*schedulerserverconfig.CompletedConfig, *scheduler.Scheduler, *frameworkext.FrameworkExtenderFactory, CustomWorkflow, error) {
-	if cfg, err := latest.Default(); err != nil {
-		return nil, nil, nil, nil, err
-	} else {
-		opts.ComponentConfig = cfg
-	}
-
-	if errs := opts.Validate(); len(errs) > 0 {
-		return nil, nil, nil, nil, utilerrors.NewAggregate(errs)
-	}
-
-	c, err := opts.Config(ctx)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	// Get the completed config
-	cc := c.Complete()
-
-	defaultprofile.AppendDefaultPlugins(cc.ComponentConfig.Profiles)
-
-	informer.SetupCustomInformers(cc.InformerFactory)
-	transformer.SetupTransformers(cc.InformerFactory, cc.KoordinatorSharedInformerFactory, cc.NodeResourceTopologyInformerFactory)
-
-	metrics.Register()
-
-	networkTopologyManager := networktopology.NewTreeManager(cc.KoordinatorSharedInformerFactory, cc.InformerFactory, cc.KoordinatorClient)
-
-	// When CrossSchedulerNomination feature gate is enabled, create a CrossSchedulerPodNominator
-	// to track nominated pods from other schedulers for cross-scheduler resource accounting.
-	// Profile names are registered lazily in NewFrameworkExtender after each framework profile is built,
-	// so that the actual schedulerName (which may be overridden at runtime) is captured correctly.
-	var crossSchedulerNominator *frameworkext.CrossSchedulerPodNominator
-	if utilfeature.DefaultFeatureGate.Enabled(koordfeatures.CrossSchedulerNomination) {
-		crossSchedulerNominator = frameworkext.NewCrossSchedulerPodNominator()
-	}
-
-	workloadAuditor := workloadauditor.NewWorkloadAuditor()
-
-	// NOTE(joseph): K8s scheduling framework does not provide extension point for initialization.
-	// Currently, only by copying the initialization code and implementing custom initialization.
-	frameworkExtenderFactory, err := frameworkext.NewFrameworkExtenderFactory(
-		frameworkext.WithServicesEngine(cc.ServicesEngine),
-		frameworkext.WithKoordinatorClientSet(cc.KoordinatorClient),
-		frameworkext.WithKoordinatorSharedInformerFactory(cc.KoordinatorSharedInformerFactory),
-		frameworkext.WithNodeResourceTopologySharedInformerFactory(cc.NodeResourceTopologyInformerFactory),
-		frameworkext.WithNetworkTopologyManager(networkTopologyManager),
-		frameworkext.WithCrossSchedulerPodNominator(crossSchedulerNominator),
-		frameworkext.WithWorkloadAuditor(workloadAuditor),
-	)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	outOfTreeRegistry := make(runtime.Registry)
-	for _, option := range outOfTreeRegistryOptions {
-		if err := option(frameworkExtenderFactory, outOfTreeRegistry); err != nil {
-			return nil, nil, nil, nil, err
-		}
-	}
-
-	recorderFactory := getRecorderFactory(&cc)
-	completedProfiles := make([]kubeschedulerconfig.KubeSchedulerProfile, 0)
-	// Create the scheduler.
-	sched, err := scheduler.New(ctx,
-		cc.Client,
-		cc.InformerFactory,
-		cc.DynInformerFactory,
-		recorderFactory,
-		scheduler.WithComponentConfigVersion(cc.ComponentConfig.TypeMeta.APIVersion),
-		scheduler.WithKubeConfig(cc.KubeConfig),
-		scheduler.WithProfiles(cc.ComponentConfig.Profiles...),
-		scheduler.WithPercentageOfNodesToScore(cc.ComponentConfig.PercentageOfNodesToScore),
-		scheduler.WithFrameworkOutOfTreeRegistry(outOfTreeRegistry),
-		scheduler.WithPodMaxBackoffSeconds(cc.ComponentConfig.PodMaxBackoffSeconds),
-		scheduler.WithPodInitialBackoffSeconds(cc.ComponentConfig.PodInitialBackoffSeconds),
-		scheduler.WithPodMaxInUnschedulablePodsDuration(cc.PodMaxInUnschedulablePodsDuration),
-		scheduler.WithExtenders(cc.ComponentConfig.Extenders...),
-		scheduler.WithParallelism(cc.ComponentConfig.Parallelism),
-		scheduler.WithBuildFrameworkCapturer(func(profile kubeschedulerconfig.KubeSchedulerProfile) {
-			// Profiles are processed during Framework instantiation to set default plugins and configurations. Capturing them for logging
-			completedProfiles = append(completedProfiles, profile)
-		}),
-	)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-	if err := scheduleroptions.LogOrWriteConfig(klog.FromContext(ctx), opts.WriteConfigTo, &cc.ComponentConfig, completedProfiles); err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	// extend framework to hook run plugin functions
-	for k, fwk := range sched.Profiles {
-		extender := frameworkExtenderFactory.GetExtender(k)
-		if extender != nil {
-			extender.SetConfiguredPlugins(fwk.ListPlugins())
-			sched.Profiles[k] = extender
-		}
-	}
-
-	frameworkExtenderFactory.InterceptSchedulerError(sched)
-	frameworkExtenderFactory.InitScheduler(&frameworkext.SchedulerAdapter{Scheduler: sched})
-	schedAdapter := frameworkExtenderFactory.Scheduler()
-
-	eventhandlers.AddScheduleEventHandler(sched, schedAdapter, cc.InformerFactory, cc.KoordinatorSharedInformerFactory, crossSchedulerNominator)
-	workloadauditor.AddEventHandler(sched, workloadAuditor, cc.InformerFactory, cc.KoordinatorSharedInformerFactory)
-	reservationErrorHandler := eventhandlers.MakeReservationErrorHandler(
-		sched,
-		schedAdapter,
-		frameworkExtenderFactory.KoordinatorClientSet(),
-		frameworkExtenderFactory.KoordinatorSharedInformerFactory(),
-	)
-	frameworkExtenderFactory.RegisterErrorHandlerFilters(reservationErrorHandler, nil)
-
-	for _, wf := range KnownWorkflowList {
-		if wf.IsEnabled() {
-			err = wf.Setup(ctx, &CustomWorkflowOptions{
-				Sched:                      sched,
-				SharedInformerFactory:      cc.InformerFactory,
-				KubeClient:                 cc.Client,
-				KoordSharedInformerFactory: cc.KoordinatorSharedInformerFactory,
-				KoordClient:                cc.KoordinatorClient,
-				RecorderFactory:            recorderFactory,
-				KubeConfig:                 cc.KubeConfig,
-			})
-			if err != nil {
-				return nil, nil, nil, nil, err
-			}
-			return &cc, sched, frameworkExtenderFactory, wf, nil
-		}
-	}
-
-	return &cc, sched, frameworkExtenderFactory, nil, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil, *new(CustomWorkflow), nil
 }
+
+// Get the completed config
+
+// When CrossSchedulerNomination feature gate is enabled, create a CrossSchedulerPodNominator
+// to track nominated pods from other schedulers for cross-scheduler resource accounting.
+// Profile names are registered lazily in NewFrameworkExtender after each framework profile is built,
+// so that the actual schedulerName (which may be overridden at runtime) is captured correctly.
+
+// NOTE(joseph): K8s scheduling framework does not provide extension point for initialization.
+// Currently, only by copying the initialization code and implementing custom initialization.
+
+// Create the scheduler.
+
+// Profiles are processed during Framework instantiation to set default plugins and configurations. Capturing them for logging
+
+// extend framework to hook run plugin functions

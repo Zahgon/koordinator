@@ -44,27 +44,8 @@ var (
 	}
 )
 
-func RecordBESuppressCores(suppressType string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[BESuppressTypeKey] = suppressType
-	BESuppressCPU.With(labels).Set(value)
-}
+func RecordBESuppressCores(suppressType string, value float64) { _ = "STUB: not implemented"; return }
 
-func RecordBESuppressLSUsedCPU(value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	BESuppressLSUsedCPU.With(labels).Set(value)
-}
+func RecordBESuppressLSUsedCPU(value float64) { _ = "STUB: not implemented"; return }
 
-func RecordBESuppressBEUsedCPU(value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	BESuppressBEUsedCPU.With(labels).Set(value)
-}
+func RecordBESuppressBEUsedCPU(value float64) { _ = "STUB: not implemented"; return }

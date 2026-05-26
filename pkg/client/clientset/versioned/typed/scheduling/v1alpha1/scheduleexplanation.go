@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,16 +56,6 @@ type scheduleExplanations struct {
 
 // newScheduleExplanations returns a ScheduleExplanations
 func newScheduleExplanations(c *SchedulingV1alpha1Client, namespace string) *scheduleExplanations {
-	return &scheduleExplanations{
-		gentype.NewClientWithList[*schedulingv1alpha1.ScheduleExplanation, *schedulingv1alpha1.ScheduleExplanationList](
-			"scheduleexplanations",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			namespace,
-			func() *schedulingv1alpha1.ScheduleExplanation { return &schedulingv1alpha1.ScheduleExplanation{} },
-			func() *schedulingv1alpha1.ScheduleExplanationList {
-				return &schedulingv1alpha1.ScheduleExplanationList{}
-			},
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

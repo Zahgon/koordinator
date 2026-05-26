@@ -17,7 +17,6 @@ limitations under the License.
 package frameworkext
 
 import (
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 )
 
@@ -25,28 +24,11 @@ var (
 	ControllerPlugins = []string{"*"}
 )
 
-func isControllerPluginEnabled(pluginName string) bool {
-	hasStar := false
-	for _, p := range ControllerPlugins {
-		if p == pluginName {
-			return true
-		}
-		if p == "-"+pluginName {
-			return false
-		}
-		if p == "*" {
-			hasStar = true
-		}
-	}
-	return hasStar
-}
+func isControllerPluginEnabled(pluginName string) bool { _ = "STUB: not implemented"; return false }
 
 func getPluginControllerNames(pluginControllers map[string]Controller) []string {
-	s := make([]string, 0, len(pluginControllers))
-	for name := range pluginControllers {
-		s = append(s, name)
-	}
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type ControllerProvider interface {
@@ -62,47 +44,11 @@ type ControllersMap struct {
 	controllers map[string]map[string]Controller
 }
 
-func NewControllersMap() *ControllersMap {
-	return &ControllersMap{
-		controllers: make(map[string]map[string]Controller),
-	}
-}
+func NewControllersMap() *ControllersMap { _ = "STUB: not implemented"; return nil }
 
 func (cm *ControllersMap) RegisterControllers(plugin fwktype.Plugin, profileName string) {
-	controllerProvider, ok := plugin.(ControllerProvider)
-	if !ok {
-		return
-	}
-	pluginControllers := cm.controllers[plugin.Name()]
-	if len(pluginControllers) > 0 {
-		klog.InfoS("Plugin already build controllers, skip it", "plugin", plugin.Name(), "profile", profileName, "controllers", len(pluginControllers))
-		return
-	}
-
-	pluginControllers = make(map[string]Controller)
-	if controllers, err := controllerProvider.NewControllers(); err == nil {
-		for _, controller := range controllers {
-			if _, exist := pluginControllers[controller.Name()]; exist {
-				klog.Warningf("controller: %v already registered", controller.Name())
-				continue
-			}
-			pluginControllers[controller.Name()] = controller
-			klog.V(4).Infof("register plugin:%v controller:%v", plugin.Name(), controller.Name())
-		}
-		cm.controllers[plugin.Name()] = pluginControllers
-	}
-	klog.V(4).InfoS("Plugin successfully build controllers", "plugin", plugin.Name(), "profile", profileName, "controllers", len(pluginControllers))
+	_ = "STUB: not implemented"
+	return
 }
 
-func (cm *ControllersMap) Start() {
-	for pluginName, pluginControllers := range cm.controllers {
-		if !isControllerPluginEnabled(pluginName) {
-			klog.V(0).Infof("controller plugin %v is disabled, controllers %v are skipped",
-				pluginName, getPluginControllerNames(pluginControllers))
-			continue
-		}
-		for _, controller := range pluginControllers {
-			controller.Start()
-		}
-	}
-}
+func (cm *ControllersMap) Start() { _ = "STUB: not implemented"; return }

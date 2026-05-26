@@ -20,13 +20,13 @@ limitations under the License.
 package system
 
 func GetCgroupDriverFromCgroupName() CgroupDriverType {
-	return ""
+	_ = "STUB: not implemented"
+	return *new(CgroupDriverType)
 }
 
 func GetCgroupDriverFromKubeletPort(port int) (CgroupDriverType, error) {
-	return kubeletDefaultCgroupDriver, nil
+	_ = "STUB: not implemented"
+	return *new(CgroupDriverType), nil
 }
 
-func IsUsingCgroupsV2() bool {
-	return false
-}
+func IsUsingCgroupsV2() bool { _ = "STUB: not implemented"; return false }

@@ -18,14 +18,12 @@ package adaptor
 
 import (
 	"context"
-	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	k8sdeschedulerevictions "sigs.k8s.io/descheduler/pkg/descheduler/evictions"
 	k8sdeschedulerframework "sigs.k8s.io/descheduler/pkg/framework/types"
 
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
-	frameworkruntime "github.com/koordinator-sh/koordinator/pkg/descheduler/framework/runtime"
 )
 
 var _ k8sdeschedulerframework.Evictor = &evictorAdaptor{}
@@ -35,35 +33,22 @@ type evictorAdaptor struct {
 }
 
 // Filter checks if a pod can be evicted
-func (a *evictorAdaptor) Filter(pod *corev1.Pod) bool {
-	return a.evictor.Filter(pod)
-}
+func (a *evictorAdaptor) Filter(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
 // PreEvictionFilter checks if pod can be evicted right before eviction
 func (a *evictorAdaptor) PreEvictionFilter(pod *corev1.Pod) bool {
-	if evictorPlugin, ok := a.evictor.(k8sdeschedulerframework.EvictorPlugin); ok {
-		return evictorPlugin.PreEvictionFilter(pod)
-	}
-	return a.evictor.Filter(pod)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Evict evicts a pod (no pre-check performed)
 func (a *evictorAdaptor) Evict(ctx context.Context, pod *corev1.Pod, evictOptions k8sdeschedulerevictions.EvictOptions) error {
-	options := framework.EvictOptions{
-		Reason: evictOptions.Reason,
-	}
-	framework.FillEvictOptionsFromContext(ctx, &options)
-	if ok := a.evictor.Evict(ctx, pod, options); !ok {
-		return fmt.Errorf("failed to evict pod %s/%s", pod.Namespace, pod.Name)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // NodeLimitExceeded checks if the number of evictions for a node was exceeded
 func (a *evictorAdaptor) NodeLimitExceeded(node *corev1.Node) bool {
-	evictionLimiter, ok := a.evictor.(frameworkruntime.EvictionLimiter)
-	if !ok {
-		return false
-	}
-	return evictionLimiter.NodeLimitExceeded(node)
+	_ = "STUB: not implemented"
+	return false
 }

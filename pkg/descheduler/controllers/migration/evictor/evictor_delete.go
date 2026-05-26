@@ -20,7 +20,6 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	sev1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
@@ -39,15 +38,11 @@ type DeleteEvictor struct {
 }
 
 func NewDeleteEvictor(client kubernetes.Interface) (Interface, error) {
-	return &DeleteEvictor{
-		client: client,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Interface), nil
 }
 
 func (e *DeleteEvictor) Evict(ctx context.Context, job *sev1alpha1.PodMigrationJob, pod *corev1.Pod) error {
-	var deleteOptions metav1.DeleteOptions
-	if job.Spec.DeleteOptions != nil {
-		deleteOptions = *job.Spec.DeleteOptions
-	}
-	return e.client.CoreV1().Pods(pod.Namespace).Delete(ctx, pod.Name, deleteOptions)
+	_ = "STUB: not implemented"
+	return nil
 }

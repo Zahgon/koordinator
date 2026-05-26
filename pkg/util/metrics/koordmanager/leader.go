@@ -35,7 +35,8 @@ func init() {
 }
 
 func newMetricProvider() leaderelection.MetricsProvider {
-	return metricsProvider{}
+	_ = "STUB: not implemented"
+	return *new(leaderelection.MetricsProvider)
 }
 
 type metricsProvider struct{}
@@ -47,15 +48,12 @@ var (
 )
 
 func (metricsProvider) NewLeaderMetric() leaderelection.LeaderMetric {
-	return switchMetric{}
+	_ = "STUB: not implemented"
+	return *new(leaderelection.LeaderMetric)
 }
 
-func (switchMetric) On(_ string) {
-	leaderMetric.Set(1)
-}
+func (switchMetric) On(_ string) { _ = "STUB: not implemented"; return }
 
-func (s switchMetric) Off(string) {
-	leaderMetric.Set(0)
-}
+func (s switchMetric) Off(string) { _ = "STUB: not implemented"; return }
 
-func (switchMetric) SlowpathExercised(_ string) {}
+func (switchMetric) SlowpathExercised(_ string) { _ = "STUB: not implemented"; return }

@@ -36,7 +36,6 @@ var (
 )
 
 func RecordQuotaSharedWeight(quotaName string, max v1.ResourceList) {
-	for k, v := range max {
-		quotaSharedWeight.WithLabelValues(quotaName, string(k)).Set(float64(v.Value()))
-	}
+	_ = "STUB: not implemented"
+	return
 }

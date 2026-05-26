@@ -21,7 +21,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog/v2"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
@@ -36,27 +35,14 @@ type ReservationCache interface {
 // and then refactor to separate ReservationCache later.
 var reservationCacheMap = &sync.Map{}
 
-func GetAllReservationCaches() map[string]ReservationCache {
-	m := map[string]ReservationCache{}
-	reservationCacheMap.Range(func(key, value interface{}) bool {
-		m[key.(string)] = value.(ReservationCache)
-		return true
-	})
-	if len(m) <= 0 {
-		return nil
-	}
-	return m
-}
+func GetAllReservationCaches() map[string]ReservationCache { _ = "STUB: not implemented"; return nil }
 
 func SetReservationCache(cache ReservationCache, profileName string) {
-	reservationCacheMap.Store(profileName, cache)
-	klog.V(5).Infof("SetReservationCache, profileName: %s", profileName)
+	_ = "STUB: not implemented"
+	return
 }
 
-func ClearReservationCache() {
-	reservationCacheMap = &sync.Map{}
-	klog.V(5).Infof("ClearReservationCache")
-}
+func ClearReservationCache() { _ = "STUB: not implemented"; return }
 
 var _ ReservationCache = &FakeReservationCache{}
 
@@ -64,21 +50,19 @@ type FakeReservationCache struct {
 	RInfo *ReservationInfo
 }
 
-func NewFakeReservationCache() *FakeReservationCache {
-	return &FakeReservationCache{}
-}
+func NewFakeReservationCache() *FakeReservationCache { _ = "STUB: not implemented"; return nil }
 
 func (f *FakeReservationCache) DeleteReservation(r *schedulingv1alpha1.Reservation) *ReservationInfo {
-	if f.RInfo != nil {
-		return f.RInfo
-	}
-	return NewReservationInfo(r)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *FakeReservationCache) GetReservationInfoByPod(pod *corev1.Pod, nodeName string) *ReservationInfo {
-	return f.RInfo
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *FakeReservationCache) GetReservationInfo(uid types.UID) *ReservationInfo {
-	return f.RInfo
+	_ = "STUB: not implemented"
+	return nil
 }

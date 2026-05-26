@@ -35,75 +35,22 @@ type NodeResource struct {
 	Resets        map[corev1.ResourceName]bool               `json:"resets,omitempty"`
 }
 
-func NewNodeResource(items ...ResourceItem) *NodeResource {
-	nr := &NodeResource{
-		Resources:     map[corev1.ResourceName]*resource.Quantity{},
-		ZoneResources: map[string]corev1.ResourceList{},
-		Labels:        map[string]string{},
-		Annotations:   map[string]string{},
-		Messages:      map[corev1.ResourceName]string{},
-		Resets:        map[corev1.ResourceName]bool{},
-	}
-	if len(items) > 0 {
-		nr.Set(items...)
-	}
-	return nr
-}
+func NewNodeResource(items ...ResourceItem) *NodeResource { _ = "STUB: not implemented"; return nil }
 
-func (nr *NodeResource) Set(items ...ResourceItem) {
-	for _, item := range items {
-		nr.Resources[item.Name] = item.Quantity
-		nr.Resets[item.Name] = item.Reset
-		for zoneKey, zoneQ := range item.ZoneQuantity {
-			if _, ok := nr.ZoneResources[zoneKey]; !ok {
-				nr.ZoneResources[zoneKey] = corev1.ResourceList{}
-			}
-			nr.ZoneResources[zoneKey][item.Name] = zoneQ
-		}
-		for k, v := range item.Labels {
-			nr.Labels[k] = v
-		}
-		for k, v := range item.Annotations {
-			nr.Annotations[k] = v
-		}
-		if len(item.Message) > 0 { // omit empty message
-			nr.Messages[item.Name] = item.Message
-		}
-	}
-}
+func (nr *NodeResource) Set(items ...ResourceItem) { _ = "STUB: not implemented"; return }
+
+// omit empty message
 
 func (nr *NodeResource) SetResourceList(rl corev1.ResourceList, message string) {
-	for name := range rl {
-		q := rl[name]
-		nr.Resources[name] = &q
-		if len(message) > 0 {
-			nr.Messages[name] = message
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (nr *NodeResource) Delete(items ...ResourceItem) {
-	for _, item := range items {
-		delete(nr.Resources, item.Name)
-		delete(nr.Messages, item.Name)
-		delete(nr.Resets, item.Name)
-		for zoneKey := range item.ZoneQuantity {
-			if _, ok := nr.ZoneResources[zoneKey]; !ok {
-				continue
-			}
-			delete(nr.ZoneResources[zoneKey], item.Name)
-		}
-		for k := range item.Labels {
-			delete(nr.Labels, k)
-		}
-		for k := range item.Annotations {
-			delete(nr.Annotations, k)
-		}
-	}
-}
+func (nr *NodeResource) Delete(items ...ResourceItem) { _ = "STUB: not implemented"; return }
 
 func (nr *NodeResource) Get(name corev1.ResourceName) *resource.Quantity {
-	return nr.Resources[name]
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type ResourceItem struct {
@@ -127,34 +74,18 @@ type SyncContext struct {
 	contextMap map[string]time.Time
 }
 
-func NewSyncContext() *SyncContext {
-	return &SyncContext{
-		contextMap: map[string]time.Time{},
-	}
-}
+func NewSyncContext() *SyncContext { _ = "STUB: not implemented"; return nil }
 
 func (s *SyncContext) WithContext(m map[string]time.Time) *SyncContext {
-	for k, v := range m {
-		s.contextMap[k] = v
-	}
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *SyncContext) Load(key string) (time.Time, bool) {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-	value, ok := s.contextMap[key]
-	return value, ok
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
-func (s *SyncContext) Store(key string, value time.Time) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	s.contextMap[key] = value
-}
+func (s *SyncContext) Store(key string, value time.Time) { _ = "STUB: not implemented"; return }
 
-func (s *SyncContext) Delete(key string) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	delete(s.contextMap, key)
-}
+func (s *SyncContext) Delete(key string) { _ = "STUB: not implemented"; return }

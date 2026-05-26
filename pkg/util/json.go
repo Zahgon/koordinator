@@ -16,10 +16,5 @@ limitations under the License.
 
 package util
 
-import "encoding/json"
-
 // DumpJSON returns the JSON encoding
-func DumpJSON(o interface{}) string {
-	j, _ := json.Marshal(o)
-	return string(j)
-}
+func DumpJSON(o interface{}) string { _ = "STUB: not implemented"; return "" }

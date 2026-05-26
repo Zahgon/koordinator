@@ -31,20 +31,6 @@ type fakeNodeMetrics struct {
 }
 
 func newFakeNodeMetrics(fake *FakeSloV1alpha1) slov1alpha1.NodeMetricInterface {
-	return &fakeNodeMetrics{
-		gentype.NewFakeClientWithList[*v1alpha1.NodeMetric, *v1alpha1.NodeMetricList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("nodemetrics"),
-			v1alpha1.SchemeGroupVersion.WithKind("NodeMetric"),
-			func() *v1alpha1.NodeMetric { return &v1alpha1.NodeMetric{} },
-			func() *v1alpha1.NodeMetricList { return &v1alpha1.NodeMetricList{} },
-			func(dst, src *v1alpha1.NodeMetricList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.NodeMetricList) []*v1alpha1.NodeMetric { return gentype.ToPointerSlice(list.Items) },
-			func(list *v1alpha1.NodeMetricList, items []*v1alpha1.NodeMetric) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(slov1alpha1.NodeMetricInterface)
 }

@@ -30,9 +30,7 @@ type Devices interface {
 
 type GPUDevices []GPUDeviceInfo
 
-func (g GPUDevices) Type() DeviceType {
-	return GPUDeviceType
-}
+func (g GPUDevices) Type() DeviceType { _ = "STUB: not implemented"; return *new(DeviceType) }
 
 type GPUDeviceInfo struct {
 	// UUID represents the UUID of device
@@ -48,9 +46,7 @@ type GPUDeviceInfo struct {
 
 type RDMADevices []RDMADeviceInfo
 
-func (r RDMADevices) Type() DeviceType {
-	return RDMADeviceType
-}
+func (r RDMADevices) Type() DeviceType { _ = "STUB: not implemented"; return *new(DeviceType) }
 
 type RDMADeviceInfo struct {
 	ID            string                      `json:"id,omitempty"`
@@ -77,9 +73,7 @@ type VirtualFunction struct {
 
 type XPUDevices []XPUDeviceInfo
 
-func (x XPUDevices) Type() DeviceType {
-	return XPUDeviceType
-}
+func (x XPUDevices) Type() DeviceType { _ = "STUB: not implemented"; return *new(DeviceType) }
 
 type XPUDeviceInfo struct {
 	Vendor    string            `json:"vendor"`

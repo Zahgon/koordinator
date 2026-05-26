@@ -17,11 +17,8 @@ limitations under the License.
 package framework
 
 import (
-	"fmt"
-	"os"
 	"sync"
 
-	"k8s.io/api/core/v1"
 	clientset "k8s.io/client-go/kubernetes"
 )
 
@@ -35,25 +32,10 @@ var (
 
 // RegisterProvider is expected to be called during application init,
 // typically by an init function in a provider package.
-func RegisterProvider(name string, factory Factory) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	if _, ok := providers[name]; ok {
-		panic(fmt.Sprintf("provider %s already registered", name))
-	}
-	providers[name] = factory
-}
+func RegisterProvider(name string, factory Factory) { _ = "STUB: not implemented"; return }
 
 // GetProviders returns the names of all currently registered providers.
-func GetProviders() []string {
-	mutex.Lock()
-	defer mutex.Unlock()
-	var providerNames []string
-	for name := range providers {
-		providerNames = append(providerNames, name)
-	}
-	return providerNames
-}
+func GetProviders() []string { _ = "STUB: not implemented"; return nil }
 
 func init() {
 	// "local" or "skeleton" can always be used.
@@ -70,17 +52,8 @@ func init() {
 // SetupProviderConfig validates the chosen provider and creates
 // an interface instance for it.
 func SetupProviderConfig(providerName string) (ProviderInterface, error) {
-	var err error
-
-	mutex.Lock()
-	defer mutex.Unlock()
-	factory, ok := providers[providerName]
-	if !ok {
-		return nil, fmt.Errorf("The provider %s is unknown: %w", providerName, os.ErrNotExist)
-	}
-	provider, err := factory()
-
-	return provider, err
+	_ = "STUB: not implemented"
+	return *new(ProviderInterface), nil
 }
 
 // ProviderInterface contains the implementation for certain
@@ -112,69 +85,83 @@ type ProviderInterface interface {
 type NullProvider struct{}
 
 // FrameworkBeforeEach is a base implementation which does BeforeEach.
-func (n NullProvider) FrameworkBeforeEach(f *Framework) {}
+func (n NullProvider) FrameworkBeforeEach(f *Framework) {
+	_ = "STUB: not implemented"
 
-// FrameworkAfterEach is a base implementation which does AfterEach.
-func (n NullProvider) FrameworkAfterEach(f *Framework) {}
-
-// ResizeGroup is a base implementation which resizes group.
-func (n NullProvider) ResizeGroup(string, int32) error {
-	return fmt.Errorf("Provider does not support InstanceGroups")
+	// FrameworkAfterEach is a base implementation which does AfterEach.
+	return
 }
+
+func (n NullProvider) FrameworkAfterEach(f *Framework) {
+	_ = "STUB: not implemented"
+
+	// ResizeGroup is a base implementation which resizes group.
+	return
+}
+
+func (n NullProvider) ResizeGroup(string, int32) error { _ = "STUB: not implemented"; return nil }
 
 // GetGroupNodes is a base implementation which returns group nodes.
 func (n NullProvider) GetGroupNodes(group string) ([]string, error) {
-	return nil, fmt.Errorf("provider does not support InstanceGroups")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GroupSize returns the size of an instance group
 func (n NullProvider) GroupSize(group string) (int, error) {
-	return -1, fmt.Errorf("provider does not support InstanceGroups")
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // DeleteNode is a base implementation which deletes a node.
-func (n NullProvider) DeleteNode(node *v1.Node) error {
-	return fmt.Errorf("provider does not support DeleteNode")
-}
+func (n NullProvider) DeleteNode(node *v1.Node) error { _ = "STUB: not implemented"; return nil }
 
 // CreatePD is a base implementation which creates PD.
 func (n NullProvider) CreatePD(zone string) (string, error) {
-	return "", fmt.Errorf("provider does not support volume creation")
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // DeletePD is a base implementation which deletes PD.
-func (n NullProvider) DeletePD(pdName string) error {
-	return fmt.Errorf("provider does not support volume deletion")
-}
+func (n NullProvider) DeletePD(pdName string) error { _ = "STUB: not implemented"; return nil }
 
 // CreatePVSource is a base implementation which creates PV source.
 func (n NullProvider) CreatePVSource(zone, diskName string) (*v1.PersistentVolumeSource, error) {
-	return nil, fmt.Errorf("Provider not supported")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DeletePVSource is a base implementation which deletes PV source.
 func (n NullProvider) DeletePVSource(pvSource *v1.PersistentVolumeSource) error {
-	return fmt.Errorf("Provider not supported")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CleanupServiceResources is a base implementation which cleans up service resources.
 func (n NullProvider) CleanupServiceResources(c clientset.Interface, loadBalancerName, region, zone string) {
+	_ = "STUB: not implemented"
+
+	// EnsureLoadBalancerResourcesDeleted is a base implementation which ensures load balancer is deleted.
+	return
 }
 
-// EnsureLoadBalancerResourcesDeleted is a base implementation which ensures load balancer is deleted.
 func (n NullProvider) EnsureLoadBalancerResourcesDeleted(ip, portRange string) error {
+	_ = "STUB: not implemented"
+
+	// LoadBalancerSrcRanges is a base implementation which returns the ranges of ips used by load balancers.
 	return nil
 }
 
-// LoadBalancerSrcRanges is a base implementation which returns the ranges of ips used by load balancers.
 func (n NullProvider) LoadBalancerSrcRanges() []string {
+	_ = "STUB: not implemented"
+
+	// EnableAndDisableInternalLB is a base implementation which returns functions for enabling/disabling an internal LB.
 	return nil
 }
 
-// EnableAndDisableInternalLB is a base implementation which returns functions for enabling/disabling an internal LB.
 func (n NullProvider) EnableAndDisableInternalLB() (enable, disable func(svc *v1.Service)) {
-	nop := func(svc *v1.Service) {}
-	return nop, nop
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 var _ ProviderInterface = NullProvider{}

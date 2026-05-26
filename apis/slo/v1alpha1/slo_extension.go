@@ -16,8 +16,6 @@ limitations under the License.
 
 package v1alpha1
 
-import "github.com/mohae/deepcopy"
-
 // ExtensionsMap if used for third-party plugins
 // +k8s:deepcopy-gen=false
 type ExtensionsMap struct {
@@ -26,20 +24,6 @@ type ExtensionsMap struct {
 	Object map[string]interface{} `json:",inline"`
 }
 
-func (in *ExtensionsMap) DeepCopyInto(out *ExtensionsMap) {
-	if in == nil {
-		return
-	} else {
-		outIf := deepcopy.Copy(*in)
-		*out = outIf.(ExtensionsMap)
-	}
-}
+func (in *ExtensionsMap) DeepCopyInto(out *ExtensionsMap) { _ = "STUB: not implemented"; return }
 
-func (in *ExtensionsMap) DeepCopy() *ExtensionsMap {
-	if in == nil {
-		return nil
-	}
-	out := new(ExtensionsMap)
-	in.DeepCopyInto(out)
-	return out
-}
+func (in *ExtensionsMap) DeepCopy() *ExtensionsMap { _ = "STUB: not implemented"; return nil }

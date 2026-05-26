@@ -29,16 +29,18 @@ type FakeSchedulingV1alpha1 struct {
 }
 
 func (c *FakeSchedulingV1alpha1) ElasticQuotas(namespace string) v1alpha1.ElasticQuotaInterface {
-	return &FakeElasticQuotas{c, namespace}
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.ElasticQuotaInterface)
 }
 
 func (c *FakeSchedulingV1alpha1) PodGroups(namespace string) v1alpha1.PodGroupInterface {
-	return &FakePodGroups{c, namespace}
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.PodGroupInterface)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSchedulingV1alpha1) RESTClient() rest.Interface {
-	var ret *rest.RESTClient
-	return ret
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

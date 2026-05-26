@@ -17,8 +17,6 @@ limitations under the License.
 package deviceshare
 
 import (
-	"sort"
-
 	corev1 "k8s.io/api/core/v1"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
@@ -163,111 +161,13 @@ var (
 )
 
 func GetGPUPartitionIndexer(table apiext.GPUPartitionTable) GPUPartitionIndexer {
-	if table == nil {
-		return nil
-	}
-	gpuPartitionIndexerHelper := make(map[int]map[int]*PartitionsOfAllocationScore, len(table))
-	for numberOfGPUs, partitions := range table {
-		for i, partition := range partitions {
-			if _, ok := gpuPartitionIndexerHelper[numberOfGPUs]; !ok {
-				gpuPartitionIndexerHelper[numberOfGPUs] = make(map[int]*PartitionsOfAllocationScore)
-			}
-			indexerOfAllocationScore := gpuPartitionIndexerHelper[numberOfGPUs]
-			if _, ok := indexerOfAllocationScore[partition.AllocationScore]; !ok {
-				indexerOfAllocationScore[partition.AllocationScore] = &PartitionsOfAllocationScore{
-					AllocationScore: partition.AllocationScore,
-				}
-			}
-			partitions[i].MinorsHash = hashMinors(partition.Minors)
-			partitionsOfAllocationScore := indexerOfAllocationScore[partition.AllocationScore]
-			partitionsOfAllocationScore.Partitions = append(partitionsOfAllocationScore.Partitions, &partitions[i])
-		}
-	}
-
-	gpuPartitionIndexer := make(GPUPartitionIndexer, len(table))
-	for numberOfGPUs, indexerOfAllocationScore := range gpuPartitionIndexerHelper {
-		if _, ok := gpuPartitionIndexer[numberOfGPUs]; !ok {
-			gpuPartitionIndexer[numberOfGPUs] = []*PartitionsOfAllocationScore{}
-		}
-		for _, partitionsOfAllocationScore := range indexerOfAllocationScore {
-			gpuPartitionIndexer[numberOfGPUs] = append(gpuPartitionIndexer[numberOfGPUs], partitionsOfAllocationScore)
-		}
-		sort.Slice(gpuPartitionIndexer[numberOfGPUs], func(i, j int) bool {
-			return gpuPartitionIndexer[numberOfGPUs][i].AllocationScore < gpuPartitionIndexer[numberOfGPUs][j].AllocationScore
-		})
-	}
-	return gpuPartitionIndexer
+	_ = "STUB: not implemented"
+	return *new(GPUPartitionIndexer)
 }
 
 func GetGPUTopologyScope(deviceInfos []*schedulingv1alpha1.DeviceInfo, nodeDeviceResources deviceResources) *GPUTopologyScope {
-	if len(deviceInfos) == 0 {
-		return nil
-	}
-	pcieTopologyScopeIndexer := map[int32]map[string]deviceResources{}
-	numaTopologyScopeIndexer := map[int32]deviceResources{}
-	for _, info := range deviceInfos {
-		if info.Topology == nil {
-			return nil
-		}
-		minor := int(*info.Minor)
-		if _, ok := numaTopologyScopeIndexer[info.Topology.NodeID]; !ok {
-			numaTopologyScopeIndexer[info.Topology.NodeID] = deviceResources{}
-		}
-		numaTopologyScopeIndexer[info.Topology.NodeID][minor] = nodeDeviceResources[minor]
-		if _, ok := pcieTopologyScopeIndexer[info.Topology.NodeID]; !ok {
-			pcieTopologyScopeIndexer[info.Topology.NodeID] = map[string]deviceResources{}
-		}
-		if _, ok := pcieTopologyScopeIndexer[info.Topology.NodeID][info.Topology.PCIEID]; !ok {
-			pcieTopologyScopeIndexer[info.Topology.NodeID][info.Topology.PCIEID] = deviceResources{}
-		}
-		pcieTopologyScopeIndexer[info.Topology.NodeID][info.Topology.PCIEID][minor] = nodeDeviceResources[minor]
-	}
-	gpuTopologyScope := &GPUTopologyScope{
-		scopeName:       apiext.DeviceTopologyScopeNode,
-		scopeLevel:      apiext.DeviceTopologyScopeLevel[apiext.DeviceTopologyScopeNode],
-		minorsResources: nodeDeviceResources,
-		minors:          getMinorsListFromMap(nodeDeviceResources),
-		minorsHash:      hashDevices(nodeDeviceResources),
-		childScopes:     []*GPUTopologyScope{},
-	}
-	for numaNodeID, resourcesOfNUMANode := range numaTopologyScopeIndexer {
-		numaLevelScope := &GPUTopologyScope{
-			scopeName:       apiext.DeviceTopologyScopeNUMANode,
-			scopeLevel:      apiext.DeviceTopologyScopeLevel[apiext.DeviceTopologyScopeNUMANode],
-			minorsResources: resourcesOfNUMANode,
-			minors:          getMinorsListFromMap(resourcesOfNUMANode),
-			minorsHash:      hashDevices(resourcesOfNUMANode),
-			numaNodeID:      numaNodeID,
-		}
-		for pcieID, resourcesOfPCIE := range pcieTopologyScopeIndexer[numaNodeID] {
-			pcieLevelScope := &GPUTopologyScope{
-				scopeName:       apiext.DeviceTopologyScopePCIe,
-				scopeLevel:      apiext.DeviceTopologyScopeLevel[apiext.DeviceTopologyScopePCIe],
-				minorsResources: resourcesOfPCIE,
-				minors:          getMinorsListFromMap(resourcesOfPCIE),
-				minorsHash:      hashDevices(resourcesOfPCIE),
-				pcieID:          pcieID,
-			}
-			numaLevelScope.childScopes = append(numaLevelScope.childScopes, pcieLevelScope)
-		}
-		sort.Slice(numaLevelScope.childScopes, func(i, j int) bool {
-			return numaLevelScope.childScopes[i].pcieID < numaLevelScope.childScopes[j].pcieID
-		})
-		gpuTopologyScope.childScopes = append(gpuTopologyScope.childScopes, numaLevelScope)
-	}
-	sort.Slice(gpuTopologyScope.childScopes, func(i, j int) bool {
-		return gpuTopologyScope.childScopes[i].numaNodeID < gpuTopologyScope.childScopes[j].numaNodeID
-	})
-	return gpuTopologyScope
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func getMinorsListFromMap(resources deviceResources) []int {
-	var minors []int
-	for i := range resources {
-		minors = append(minors, i)
-	}
-	sort.Slice(minors, func(i, j int) bool {
-		return minors[i] < minors[j]
-	})
-	return minors
-}
+func getMinorsListFromMap(resources deviceResources) []int { _ = "STUB: not implemented"; return nil }

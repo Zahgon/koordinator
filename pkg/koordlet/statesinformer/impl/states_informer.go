@@ -17,7 +17,6 @@ limitations under the License.
 package impl
 
 import (
-	"fmt"
 	"sync"
 
 	topov1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
@@ -25,16 +24,12 @@ import (
 	_ "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/clientset/versioned/scheme"
 	"go.uber.org/atomic"
 	corev1 "k8s.io/api/core/v1"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	koordclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
 	schedv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/prediction"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
@@ -95,166 +90,58 @@ var _ statesinformer.StatesInformer = &statesInformer{}
 // TODO merge all clients into one struct
 func NewStatesInformer(config *Config, kubeClient clientset.Interface, crdClient koordclientset.Interface, topologyClient topologyclientset.Interface,
 	metricsCache metriccache.MetricCache, nodeName string, schedulingClient schedv1alpha1.SchedulingV1alpha1Interface, predictorFactory prediction.PredictorFactory) statesinformer.StatesInformer {
-	opt := &PluginOption{
-		config:      config,
-		KubeClient:  kubeClient,
-		KoordClient: crdClient,
-		TopoClient:  topologyClient,
-		NodeName:    nodeName,
-	}
-	stat := &PluginState{
-		metricCache:      metricsCache,
-		informerPlugins:  map[PluginName]informerPlugin{},
-		callbackRunner:   NewCallbackRunner(),
-		predictorFactory: predictorFactory,
-	}
-	s := &statesInformer{
-		config:       config,
-		metricsCache: metricsCache,
-		deviceClient: schedulingClient.Devices(),
-		unhealthyGPU: make(map[string]*unhealthyGPUInfo),
-
-		option:  opt,
-		states:  stat,
-		started: atomic.NewBool(false),
-	}
-	s.getGPUDriverAndModelFunc = s.getGPUDriverAndModel
-	s.initInformerPlugins()
-	return s
+	_ = "STUB: not implemented"
+	return *new(statesinformer.StatesInformer)
 }
 
-func (s *statesInformer) initInformerPlugins() {
-	s.states.informerPlugins = DefaultPluginRegistry
-}
+func (s *statesInformer) initInformerPlugins() { _ = "STUB: not implemented"; return }
 
-func (s *statesInformer) setupPlugins() {
-	for name, plugin := range s.states.informerPlugins {
-		plugin.Setup(s.option, s.states)
-		klog.V(2).Infof("plugin %v has been setup", name)
-	}
-}
+func (s *statesInformer) setupPlugins() { _ = "STUB: not implemented"; return }
 
-func (s *statesInformer) Run(stopCh <-chan struct{}) error {
-	defer utilruntime.HandleCrash()
-	klog.V(2).Infof("setup statesInformer")
+func (s *statesInformer) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }
 
-	klog.V(2).Infof("starting callback runner")
-	s.states.callbackRunner.Setup(s)
+// waiting for node synced.
 
-	klog.V(2).Infof("starting informer plugins")
-	s.setupPlugins()
-	s.startPlugins(stopCh)
+// check is nvml is available
 
-	// waiting for node synced.
-	klog.V(2).Infof("waiting for informer syncing")
-	waitInformersSynced := s.waitForSyncFunc()
-	if !cache.WaitForCacheSync(stopCh, waitInformersSynced...) {
-		return fmt.Errorf("timed out waiting for states informer caches to sync")
-	}
+// start callback runner after informers synced
+// since some callbacks needs the integrated input to execute, e.g. valid pods list
+// the initial callback events will not be missing since the callback channels are buffered
 
-	if features.DefaultKoordletFeatureGate.Enabled(features.Accelerators) {
-		go wait.Until(s.reportDevice, s.config.NodeTopologySyncInterval, stopCh)
-		// check is nvml is available
-		if s.initGPU() {
-			go s.gpuHealCheck(stopCh)
-		}
-	}
-
-	// start callback runner after informers synced
-	// since some callbacks needs the integrated input to execute, e.g. valid pods list
-	// the initial callback events will not be missing since the callback channels are buffered
-	go s.states.callbackRunner.Start(stopCh)
-
-	klog.Infof("start states informer successfully")
-	s.started.Store(true)
-	<-stopCh
-	klog.Infof("shutting down states informer daemon")
+func (s *statesInformer) waitForSyncFunc() []cache.InformerSynced {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *statesInformer) waitForSyncFunc() []cache.InformerSynced {
-	waitInformersSynced := make([]cache.InformerSynced, 0, len(s.states.informerPlugins))
-	for _, p := range s.states.informerPlugins {
-		waitInformersSynced = append(waitInformersSynced, p.HasSynced)
-	}
-	return waitInformersSynced
-}
+func (s *statesInformer) startPlugins(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (s *statesInformer) startPlugins(stopCh <-chan struct{}) {
-	for name, p := range s.states.informerPlugins {
-		klog.V(4).Infof("starting informer plugin %v", name)
-		go p.Start(stopCh)
-	}
-}
+func (s *statesInformer) HasSynced() bool { _ = "STUB: not implemented"; return false }
 
-func (s *statesInformer) HasSynced() bool {
-	for _, p := range s.states.informerPlugins {
-		if !p.HasSynced() {
-			return false
-		}
-	}
-	return true
-}
+func (s *statesInformer) GetNode() *corev1.Node { _ = "STUB: not implemented"; return nil }
 
-func (s *statesInformer) GetNode() *corev1.Node {
-	nodeInformerIf := s.states.informerPlugins[nodeInformerName]
-	nodeInformer, ok := nodeInformerIf.(*nodeInformer)
-	if !ok {
-		klog.Errorf("node informer format error")
-		return nil
-	}
-	return nodeInformer.GetNode()
-}
-
-func (s *statesInformer) GetNodeSLO() *slov1alpha1.NodeSLO {
-	nodeSLOInformerIf := s.states.informerPlugins[nodeSLOInformerName]
-	nodeSLOInformer, ok := nodeSLOInformerIf.(*nodeSLOInformer)
-	if !ok {
-		klog.Errorf("node slo informer format error")
-		return nil
-	}
-	return nodeSLOInformer.GetNodeSLO()
-}
+func (s *statesInformer) GetNodeSLO() *slov1alpha1.NodeSLO { _ = "STUB: not implemented"; return nil }
 
 func (s *statesInformer) GetNodeMetricSpec() *slov1alpha1.NodeMetricSpec {
-	nodeMetricInformerIf := s.states.informerPlugins[nodeMetricInformerName]
-	nodeMetricInformer, ok := nodeMetricInformerIf.(*nodeMetricInformer)
-	if !ok {
-		klog.Errorf("node metric informer format error")
-		return nil
-	}
-	return nodeMetricInformer.getNodeMetricSpec()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *statesInformer) GetNodeTopo() *topov1alpha1.NodeResourceTopology {
-	nodeTopoInformerIf := s.states.informerPlugins[nodeTopoInformerName]
-	nodeTopoInformer, ok := nodeTopoInformerIf.(*nodeTopoInformer)
-	if !ok {
-		klog.Errorf("node topo informer format error")
-		return nil
-	}
-	return nodeTopoInformer.GetNodeTopo()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *statesInformer) GetAllPods() []*statesinformer.PodMeta {
-	podsInformerIf := s.states.informerPlugins[podsInformerName]
-	podsInformer, ok := podsInformerIf.(*podsInformer)
-	if !ok {
-		klog.Errorf("pods informer format error")
-		return nil
-	}
-	return podsInformer.GetAllPods()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *statesInformer) GetVolumeName(pvcNamespace, pvcName string) string {
-	pvcInformerIf := s.states.informerPlugins[pvcInformerName]
-	pvcInformer, ok := pvcInformerIf.(*pvcInformer)
-	if !ok {
-		klog.Fatalf("pvc informer format error")
-	}
-	return pvcInformer.GetVolumeName(pvcNamespace, pvcName)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (s *statesInformer) RegisterCallbacks(rType statesinformer.RegisterType, name, description string, callbackFn statesinformer.UpdateCbFn) {
-	s.states.callbackRunner.RegisterCallbacks(rType, name, description, callbackFn)
+	_ = "STUB: not implemented"
+	return
 }

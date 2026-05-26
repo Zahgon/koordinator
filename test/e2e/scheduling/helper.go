@@ -18,27 +18,18 @@ limitations under the License.
 package scheduling
 
 import (
-	"context"
-	"fmt"
 	"time"
 
 	nrtv1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
 	nrtclientset "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/clientset/versioned"
-	"github.com/onsi/ginkgo/v2"
-	"github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientset "k8s.io/client-go/kubernetes"
 
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	koordclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
-	reservationutil "github.com/koordinator-sh/koordinator/pkg/util/reservation"
 	"github.com/koordinator-sh/koordinator/test/e2e/framework"
-	e2epod "github.com/koordinator-sh/koordinator/test/e2e/framework/pod"
-	e2ereplicaset "github.com/koordinator-sh/koordinator/test/e2e/framework/replicaset"
-	imageutils "github.com/koordinator-sh/koordinator/test/utils/image"
 )
 
 type pausePodConfig struct {
@@ -59,118 +50,42 @@ type pausePodConfig struct {
 }
 
 func initPausePod(f *framework.Framework, conf pausePodConfig) *corev1.Pod {
-	var gracePeriod = int64(1)
-	pod := &corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:            conf.Name,
-			Namespace:       conf.Namespace,
-			Labels:          map[string]string{},
-			Annotations:     map[string]string{},
-			OwnerReferences: conf.OwnerReferences,
-		},
-		Spec: corev1.PodSpec{
-			NodeSelector:              conf.NodeSelector,
-			Affinity:                  conf.Affinity,
-			TopologySpreadConstraints: conf.TopologySpreadConstraints,
-			RuntimeClassName:          conf.RuntimeClassHandler,
-			Containers: []corev1.Container{
-				{
-					Name:  conf.Name,
-					Image: imageutils.GetPauseImageName(),
-					Ports: conf.Ports,
-				},
-			},
-			Tolerations:                   conf.Tolerations,
-			PriorityClassName:             conf.PriorityClassName,
-			TerminationGracePeriodSeconds: &gracePeriod,
-			SchedulerName:                 conf.SchedulerName,
-		},
-	}
-	for key, value := range conf.Labels {
-		pod.ObjectMeta.Labels[key] = value
-	}
-	for key, value := range conf.Annotations {
-		pod.ObjectMeta.Annotations[key] = value
-	}
-	// TODO: setting the Pod's nodeAffinity instead of setting .spec.nodeName works around the
-	// Preemption e2e flake (#88441), but we should investigate deeper to get to the bottom of it.
-	if len(conf.NodeName) != 0 {
-		e2epod.SetNodeAffinity(&pod.Spec, conf.NodeName)
-	}
-	if conf.Resources != nil {
-		pod.Spec.Containers[0].Resources = *conf.Resources
-	}
-	if conf.DeletionGracePeriodSeconds != nil {
-		pod.ObjectMeta.DeletionGracePeriodSeconds = conf.DeletionGracePeriodSeconds
-	}
-	return pod
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// TODO: setting the Pod's nodeAffinity instead of setting .spec.nodeName works around the
+// Preemption e2e flake (#88441), but we should investigate deeper to get to the bottom of it.
+
 func createPausePod(f *framework.Framework, conf pausePodConfig) *corev1.Pod {
-	namespace := conf.Namespace
-	if len(namespace) == 0 {
-		namespace = f.Namespace.Name
-	}
-	pod, err := f.ClientSet.CoreV1().Pods(namespace).Create(context.TODO(), initPausePod(f, conf), metav1.CreateOptions{})
-	framework.ExpectNoError(err)
-	return pod
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runPausePod(f *framework.Framework, conf pausePodConfig) *corev1.Pod {
-	return runPausePodWithTimeout(f, conf, framework.PollShortTimeout)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runPausePodWithTimeout(f *framework.Framework, conf pausePodConfig, timeout time.Duration) *corev1.Pod {
-	pod := createPausePod(f, conf)
-	framework.ExpectNoError(e2epod.WaitTimeoutForPodRunningInNamespace(f.ClientSet, pod.Name, pod.Namespace, timeout))
-	pod, err := f.ClientSet.CoreV1().Pods(pod.Namespace).Get(context.TODO(), conf.Name, metav1.GetOptions{})
-	framework.ExpectNoError(err)
-	return pod
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runPodAndGetNodeName(f *framework.Framework, conf pausePodConfig) string {
+	_ = "STUB: not implemented"
 	// launch a pod to find a node which can launch a pod. We intentionally do
 	// not just take the node list and choose the first of them. Depending on the
 	// cluster and the scheduler it might be that a "normal" pod cannot be
 	// scheduled onto it.
-	pod := runPausePod(f, conf)
-
-	ginkgo.By("Explicitly delete pod here to free the resource it takes.")
-	err := f.ClientSet.CoreV1().Pods(f.Namespace.Name).Delete(context.TODO(), pod.Name, *metav1.NewDeleteOptions(0))
-	framework.ExpectNoError(err)
-
-	return pod.Spec.NodeName
+	return ""
 }
 
 // GetNodeThatCanRunPod trying to launch a pod without a label to get a node which can launch it
-func GetNodeThatCanRunPod(f *framework.Framework) string {
-	ginkgo.By("Trying to launch a pod without a label to get a node which can launch it.")
-	return runPodAndGetNodeName(f, pausePodConfig{Name: "without-label"})
-}
+func GetNodeThatCanRunPod(f *framework.Framework) string { _ = "STUB: not implemented"; return "" }
 
 // Get2NodesThatCanRunPod return a 2-node slice where can run pod.
-func Get2NodesThatCanRunPod(f *framework.Framework) []string {
-	firstNode := GetNodeThatCanRunPod(f)
-	ginkgo.By("Trying to launch a pod without a label to get a node which can launch it.")
-	pod := pausePodConfig{
-		Name: "without-label",
-		Affinity: &corev1.Affinity{
-			NodeAffinity: &corev1.NodeAffinity{
-				RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
-					NodeSelectorTerms: []corev1.NodeSelectorTerm{
-						{
-							MatchFields: []corev1.NodeSelectorRequirement{
-								{Key: "metadata.name", Operator: corev1.NodeSelectorOpNotIn, Values: []string{firstNode}},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	secondNode := runPodAndGetNodeName(f, pod)
-	return []string{firstNode, secondNode}
-}
+func Get2NodesThatCanRunPod(f *framework.Framework) []string { _ = "STUB: not implemented"; return nil }
 
 type pauseRSConfig struct {
 	Replicas  int32
@@ -178,87 +93,31 @@ type pauseRSConfig struct {
 }
 
 func initPauseRS(f *framework.Framework, conf pauseRSConfig) *appsv1.ReplicaSet {
-	pausePod := initPausePod(f, conf.PodConfig)
-	pauseRS := &appsv1.ReplicaSet{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "rs-" + pausePod.Name,
-			Namespace: pausePod.Namespace,
-		},
-		Spec: appsv1.ReplicaSetSpec{
-			Replicas: &conf.Replicas,
-			Selector: &metav1.LabelSelector{
-				MatchLabels: pausePod.Labels,
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{Labels: pausePod.ObjectMeta.Labels},
-				Spec:       pausePod.Spec,
-			},
-		},
-	}
-	return pauseRS
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func createPauseRS(f *framework.Framework, conf pauseRSConfig) *appsv1.ReplicaSet {
-	namespace := conf.PodConfig.Namespace
-	if len(namespace) == 0 {
-		namespace = f.Namespace.Name
-	}
-	rs, err := f.ClientSet.AppsV1().ReplicaSets(namespace).Create(context.TODO(), initPauseRS(f, conf), metav1.CreateOptions{})
-	framework.ExpectNoError(err)
-	return rs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runPauseRS(f *framework.Framework, conf pauseRSConfig) *appsv1.ReplicaSet {
-	rs := createPauseRS(f, conf)
-	framework.ExpectNoError(e2ereplicaset.WaitForReplicaSetTargetAvailableReplicasWithTimeout(f.ClientSet, rs, conf.Replicas, framework.PodGetTimeout))
-	return rs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func waitingForReservationScheduled(koordinatorClientSet koordclientset.Interface, reservation *schedulingv1alpha1.Reservation) *schedulingv1alpha1.Reservation {
-	var r *schedulingv1alpha1.Reservation
-	gomega.Eventually(func() bool {
-		var err error
-		r, err = koordinatorClientSet.SchedulingV1alpha1().Reservations().Get(context.TODO(), reservation.Name, metav1.GetOptions{})
-		framework.ExpectNoError(err)
-		return reservationutil.IsReservationAvailable(r)
-	}, 60*time.Second, 1*time.Second).Should(gomega.Equal(true))
-	return r
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func expectPodBoundReservation(clientSet clientset.Interface, koordinatorClientSet koordclientset.Interface, podNamespace, podName, reservationName string) {
-	pod, err := clientSet.CoreV1().Pods(podNamespace).Get(context.TODO(), podName, metav1.GetOptions{})
-	framework.ExpectNoError(err)
-	reservation, err := koordinatorClientSet.SchedulingV1alpha1().Reservations().Get(context.TODO(), reservationName, metav1.GetOptions{})
-	framework.ExpectNoError(err)
-	gomega.Expect(pod.Spec.NodeName).Should(gomega.Equal(reservation.Status.NodeName),
-		fmt.Sprintf("reservation is scheduled to node %v but pod is scheduled to node %v", reservation.Status.NodeName, pod.Spec.NodeName))
-
-	reservationAllocated, err := apiext.GetReservationAllocated(pod)
-	framework.ExpectNoError(err)
-	gomega.Expect(reservationAllocated).Should(gomega.Equal(&apiext.ReservationAllocated{
-		Name: reservation.Name,
-		UID:  reservation.UID,
-	}), "pod is not using the expected reservation")
+	_ = "STUB: not implemented"
+	return
 }
 
 func getSuitableNodeResourceTopology(client nrtclientset.Interface, expectNumNodes int) *nrtv1alpha1.NodeResourceTopology {
-	nrtList, err := client.TopologyV1alpha1().NodeResourceTopologies().List(context.TODO(), metav1.ListOptions{})
-	framework.ExpectNoError(err, "unable to list NRT")
-	var gotNRT *nrtv1alpha1.NodeResourceTopology
-	for i := range nrtList.Items {
-		nrt := &nrtList.Items[i]
-		numNodes := 0
-		for _, zone := range nrt.Zones {
-			if zone.Type == "Node" {
-				numNodes++
-			}
-		}
-		if numNodes != expectNumNodes {
-			continue
-		}
-		gotNRT = nrt
-		break
-	}
-	gomega.Expect(gotNRT).Should(gomega.Not(gomega.BeNil()))
-	return gotNRT
+	_ = "STUB: not implemented"
+	return nil
 }

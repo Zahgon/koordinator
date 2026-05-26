@@ -42,28 +42,16 @@ const (
 )
 
 func genNodeLabels(node *corev1.Node) prometheus.Labels {
-	ls := prometheus.Labels{}
-	if node != nil {
-		ls[NodeKey] = node.Name
-	} else {
-		ls[NodeKey] = "unknown"
-	}
-	return ls
+	_ = "STUB: not implemented"
+	return *new(prometheus.Labels)
 }
 
 func withNodeStatusLabels(labels map[string]string, isSucceeded bool, reason string) prometheus.Labels {
-	if labels == nil {
-		labels = map[string]string{}
-	}
-	if isSucceeded {
-		labels[StatusKey] = StatusSucceeded
-	} else {
-		labels[StatusKey] = StatusFailed
-	}
-	labels[ReasonKey] = reason
-	return labels
+	_ = "STUB: not implemented"
+	return *new(prometheus.Labels)
 }
 
 func recordNodeCountMetric(vec *prometheus.CounterVec, isSucceeded bool, reason string) {
-	vec.With(withNodeStatusLabels(nil, isSucceeded, reason)).Inc()
+	_ = "STUB: not implemented"
+	return
 }

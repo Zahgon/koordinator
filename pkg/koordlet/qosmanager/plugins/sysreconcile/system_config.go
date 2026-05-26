@@ -17,19 +17,12 @@ limitations under the License.
 package sysreconcile
 
 import (
-	"strconv"
 	"time"
 
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog/v2"
-
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/features"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/qosmanager/framework"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
-	sysutil "github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 const (
@@ -45,145 +38,25 @@ type systemConfig struct {
 var _ framework.QOSStrategy = &systemConfig{}
 
 func New(opt *framework.Options) framework.QOSStrategy {
-	return &systemConfig{
-		reconcileInterval: time.Duration(opt.Config.ReconcileIntervalSeconds) * time.Second,
-		statesInformer:    opt.StatesInformer,
-		executor:          resourceexecutor.NewResourceUpdateExecutor(),
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.QOSStrategy)
 }
 
-func (r *systemConfig) Enabled() bool {
-	return features.DefaultKoordletFeatureGate.Enabled(features.SystemConfig) && r.reconcileInterval > 0
-}
+func (r *systemConfig) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (r *systemConfig) Setup(context *framework.Context) {
-}
+func (r *systemConfig) Setup(context *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (r *systemConfig) Run(stopCh <-chan struct{}) {
-	r.init(stopCh)
-	go wait.Until(r.reconcile, r.reconcileInterval, stopCh)
-}
+func (r *systemConfig) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
 func (s *systemConfig) init(stopCh <-chan struct{}) {
 	s.executor.Run(stopCh)
 }
 
-func (s *systemConfig) reconcile() {
-	nodeSLO := s.statesInformer.GetNodeSLO()
-
-	if nodeSLO == nil || nodeSLO.Spec.SystemStrategy == nil {
-		klog.Warningf("nodeSLO or systemStrategy is nil, skip reconcile systemConfig!")
-		return
-	}
-
-	node := s.statesInformer.GetNode()
-	if node == nil {
-		klog.Warningf("systemStrategy config failed, got nil node")
-		return
-	}
-	memoryCapacity := node.Status.Capacity.Memory().Value()
-	if memoryCapacity <= 0 {
-		klog.Warningf("systemStrategy config failed, node memoryCapacity not valid,value: %d", memoryCapacity)
-		return
-	}
-
-	var resources []resourceexecutor.ResourceUpdater
-	resources = append(resources, calculateMemoryConfig(nodeSLO.Spec.SystemStrategy, memoryCapacity)...)
-
-	s.executor.UpdateBatch(true, resources...)
-	klog.V(5).Infof("finish to reconcile system config!")
-}
+func (s *systemConfig) reconcile() { _ = "STUB: not implemented"; return }
 
 func calculateMemoryConfig(strategy *slov1alpha1.SystemStrategy, nodeMemory int64) []resourceexecutor.ResourceUpdater {
-	var resources []resourceexecutor.ResourceUpdater
-	if strategy.MinFreeKbytesFactor != nil {
-		totalMemory := nodeMemory / 1024 //to kbytes
-		if totalMemory <= 0 {
-			klog.Errorf("can not change min_free_kbytes! totalMemory invalid ,total memory = %v", totalMemory)
-			return resources
-		}
-		minFreeKbytes := totalMemory * *strategy.MinFreeKbytesFactor / 10000
-		if sysutil.ValidateResourceValue(&minFreeKbytes, "", sysutil.MinFreeKbytes) {
-			valueStr := strconv.FormatInt(minFreeKbytes, 10)
-			file := sysutil.MinFreeKbytes.Path("")
-			eventHelper := audit.V(3).Node().Reason("systemConfig reconcile").Message("update calculated mem config min_free_kbytes to : %v", valueStr)
-			resource, err := resourceexecutor.NewCommonDefaultUpdater(file, file, valueStr, eventHelper)
-			if err != nil {
-				klog.Errorf("failed to update %s to %v, err: %s", file, valueStr, err)
-				return resources
-			}
-			resources = append(resources, resource)
-		}
-	}
-
-	if strategy.WatermarkScaleFactor != nil {
-		if sysutil.ValidateResourceValue(strategy.WatermarkScaleFactor, "", sysutil.WatermarkScaleFactor) {
-			valueStr := strconv.FormatInt(*strategy.WatermarkScaleFactor, 10)
-			file := sysutil.WatermarkScaleFactor.Path("")
-			eventHelper := audit.V(3).Node().Reason("systemConfig reconcile").Message("update calculated mem config watermark_scale_factor to : %v", valueStr)
-			resource, err := resourceexecutor.NewCommonDefaultUpdater(file, file, valueStr, eventHelper)
-			if err != nil {
-				klog.Errorf("failed to update %s to %v, err: %s", file, valueStr, err)
-				return resources
-			}
-			resources = append(resources, resource)
-		}
-	}
-
-	if strategy.MemcgReapBackGround != nil {
-		if sysutil.ValidateResourceValue(strategy.MemcgReapBackGround, "", sysutil.MemcgReapBackGround) {
-			valueStr := strconv.FormatInt(*strategy.MemcgReapBackGround, 10)
-			file := sysutil.MemcgReapBackGround.Path("")
-			eventHelper := audit.V(3).Node().Reason("systemConfig reconcile").Message("update calculated mem config reap_background to : %v", valueStr)
-			resource, err := resourceexecutor.NewCommonDefaultUpdater(file, file, valueStr, eventHelper)
-			if err != nil {
-				klog.Errorf("failed to update %s to %v, err: %s", file, valueStr, err)
-				return resources
-			}
-			resources = append(resources, resource)
-		}
-	}
-
-	if strategy.SchedGroupIdentityEnabled != nil {
-		if sysutil.ValidateResourceValue(strategy.SchedGroupIdentityEnabled, "", sysutil.SchedGroupIdentityEnabled) {
-			valueStr := strconv.FormatInt(*strategy.SchedGroupIdentityEnabled, 10)
-			file := sysutil.SchedGroupIdentityEnabled.Path("")
-			eventHelper := audit.V(3).Node().Reason("systemConfig reconcile").Message("update calculated mem config sched_group_identity_enabled to : %v", valueStr)
-			resource, err := resourceexecutor.NewCommonDefaultUpdater(file, file, valueStr, eventHelper)
-			if err != nil {
-				klog.Errorf("failed to update %s to %v, err: %s", file, valueStr, err)
-				return resources
-			}
-			resources = append(resources, resource)
-		}
-	}
-
-	if strategy.SchedIdleSaverWmark != nil {
-		if sysutil.ValidateResourceValue(strategy.SchedIdleSaverWmark, "", sysutil.SchedIdleSaverWmark) {
-			valueStr := strconv.FormatInt(*strategy.SchedIdleSaverWmark, 10)
-			file := sysutil.SchedIdleSaverWmark.Path("")
-			eventHelper := audit.V(3).Node().Reason("systemConfig reconcile").Message("update calculated mem config sched_idle_saver_wmark to :%v", valueStr)
-			resource, err := resourceexecutor.NewCommonDefaultUpdater(file, file, valueStr, eventHelper)
-			if err != nil {
-				klog.Errorf("failed to update %s to %v, err: %s", file, valueStr, err)
-				return resources
-			}
-			resources = append(resources, resource)
-		}
-	}
-
-	if len(strategy.SchedFeatures) > 0 {
-		featureMap, err := sysutil.GetSchedFeatures()
-		if err != nil {
-			klog.Errorf("failed to get sched_features, err: %s", err)
-			return resources
-		}
-		err = sysutil.SetSchedFeatures(featureMap, strategy.SchedFeatures)
-		if err != nil {
-			klog.Errorf("failed to set sched_features, err: %s", err)
-			return resources
-		}
-	}
-
-	return resources
+	_ = "STUB: not implemented"
+	return nil
 }
+
+//to kbytes

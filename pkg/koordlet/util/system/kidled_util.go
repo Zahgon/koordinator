@@ -17,15 +17,7 @@ limitations under the License.
 package system
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"reflect"
-	"strconv"
-	"strings"
-
 	"go.uber.org/atomic"
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -72,154 +64,33 @@ type KidledConfig struct {
 }
 
 func ParseMemoryIdlePageStats(content string) (*ColdPageInfoByKidled, error) {
-	lines := strings.Split(content, "\n")
-	statMap := make(map[string]interface{})
-	var info = ColdPageInfoByKidled{}
-	if (len(lines)) != 31 {
-		return nil, fmt.Errorf("format err")
-	}
-	for i, line := range lines {
-		if i == 0 {
-			fields := strings.Fields(line)
-			if len(fields) < 3 {
-				continue
-			}
-			statMap[fields[1][:len(fields[1])-1]] = fields[2]
-		} else if i < 5 {
-			fields := strings.Fields(line)
-			if len(fields) < 3 {
-				continue
-			}
-			val, _ := strconv.ParseUint(fields[2], 10, 64)
-			statMap[fields[1][:len(fields[1])-1]] = val
-		} else if i == 5 {
-			fields := strings.Fields(line)
-			if len(fields) < 3 {
-				continue
-			}
-			s := strings.Split(fields[2], ",")
-			var val = make([]uint64, len(s))
-			for k, v := range s {
-				val[k], _ = strconv.ParseUint(v, 10, 64)
-			}
-			statMap[fields[1][:len(fields[1])-1]] = val
-		} else if i >= 14 {
-			fields := strings.Fields(line)
-			if len(fields) < 1 {
-				continue
-			}
-			var val = make([]uint64, len(fields)-1)
-			for i := 1; i < len(fields); i++ {
-				val[i-1], _ = strconv.ParseUint(fields[i], 10, 64)
-			}
-			statMap[fields[0]] = val
-		}
-	}
-	elem := reflect.ValueOf(&info).Elem()
-	typeOfElem := elem.Type()
-	for i := 0; i < elem.NumField(); i++ {
-		val, ok := statMap[typeOfElem.Field(i).Tag.Get("json")]
-		if ok {
-			if typeOfElem.Field(i).Type.Kind() == reflect.String {
-				elem.Field(i).SetString(val.(string))
-			} else if typeOfElem.Field(i).Type.Kind() == reflect.Uint64 {
-				elem.Field(i).SetUint(val.(uint64))
-			} else if typeOfElem.Field(i).Type.Kind() == reflect.Slice {
-				sliceValue := reflect.ValueOf(val)
-				elem.Field(i).Set(sliceValue)
-			}
-		}
-	}
-	return &info, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // boundary is the index of [1,2)  [2,5)  [5,15)  [15,30)  [30,60)  [60,120)  [120,240)  [240,+inf).
 // if boundary is equal to 3, it will compute sum([5*scan_period_scands,+inf)) of cold page cache
-func (i *ColdPageInfoByKidled) GetColdPageTotalBytes() uint64 {
-	return sumUint64Slice(i.Cfei, i.Dfei, i.Cfui, i.Dfui)
-}
+func (i *ColdPageInfoByKidled) GetColdPageTotalBytes() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // check kidled and set var isSupportColdSupport
-func IsKidledSupport() bool {
-	isSupportColdMemory.Store(false)
-	isSupport, str := KidledScanPeriodInSeconds.IsSupported("")
-	if !isSupport {
-		klog.V(4).Infof("file scan_period_in_seconds is not exist %s", str)
-		return isSupportColdMemory.Load()
-	}
-	isSupport, str = KidledUseHierarchy.IsSupported("")
-	if !isSupport {
-		klog.V(4).Infof("file use_hierarchy is not exist %s", str)
-		return isSupportColdMemory.Load()
-	}
-	isSupportColdMemory.Store(true)
-	return isSupportColdMemory.Load()
-}
+func IsKidledSupport() bool { _ = "STUB: not implemented"; return false }
 
-func GetIsSupportColdMemory() bool {
-	return isSupportColdMemory.Load()
-}
+func GetIsSupportColdMemory() bool { _ = "STUB: not implemented"; return false }
 
-func SetIsSupportColdMemory(flag bool) {
-	isSupportColdMemory.Store(flag)
-}
+func SetIsSupportColdMemory(flag bool) { _ = "STUB: not implemented"; return }
 
-func GetIsStartColdMemory() bool {
-	return isStartColdMemory.Load()
-}
+func GetIsStartColdMemory() bool { _ = "STUB: not implemented"; return false }
 
-func SetIsStartColdMemory(flag bool) {
-	isStartColdMemory.Store(flag)
-}
+func SetIsStartColdMemory(flag bool) { _ = "STUB: not implemented"; return }
 
-func SetKidledScanPeriodInSeconds(period uint32) error {
-	path := KidledScanPeriodInSeconds.Path("")
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	write := bufio.NewWriter(file)
-	write.WriteString(fmt.Sprintf("%d", period))
-	write.Flush()
-	return nil
-}
+func SetKidledScanPeriodInSeconds(period uint32) error { _ = "STUB: not implemented"; return nil }
 
-func SetKidledUseHierarchy(useHierarchy uint8) error {
-	path := KidledUseHierarchy.Path("")
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	write := bufio.NewWriter(file)
-	write.WriteString(fmt.Sprintf("%d", useHierarchy))
-	write.Flush()
-	return nil
-}
+func SetKidledUseHierarchy(useHierarchy uint8) error { _ = "STUB: not implemented"; return nil }
 
-func GetKidledColdBoundary() int {
-	return kidledColdBoundary
-}
+func GetKidledColdBoundary() int { _ = "STUB: not implemented"; return 0 }
 
-func SetKidledColdBoundary(boudary int) {
-	kidledColdBoundary = boudary
-}
+func SetKidledColdBoundary(boudary int) { _ = "STUB: not implemented"; return }
 
-func NewDefaultKidledConfig() *KidledConfig {
-	return &KidledConfig{
-		ScanPeriodInseconds: defaultKidledScanPeriodInseconds,
-		UseHierarchy:        defaultKidledUseHierarchy,
-		KidledColdBoundary:  defaultKidledColdBoundary,
-	}
-}
+func NewDefaultKidledConfig() *KidledConfig { _ = "STUB: not implemented"; return nil }
 
-func sumUint64Slice(nums ...[]uint64) uint64 {
-	var total uint64
-	for _, v := range nums {
-		for i := kidledColdBoundary; i < len(v); i++ {
-			total = total + v[i]
-		}
-	}
-	return total
-}
+func sumUint64Slice(nums ...[]uint64) uint64 { _ = "STUB: not implemented"; return 0 }

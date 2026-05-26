@@ -29,28 +29,33 @@ type FakeSchedulingV1alpha1 struct {
 }
 
 func (c *FakeSchedulingV1alpha1) ClusterNetworkTopologies() v1alpha1.ClusterNetworkTopologyInterface {
-	return newFakeClusterNetworkTopologies(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.ClusterNetworkTopologyInterface)
 }
 
 func (c *FakeSchedulingV1alpha1) Devices() v1alpha1.DeviceInterface {
-	return newFakeDevices(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.DeviceInterface)
 }
 
 func (c *FakeSchedulingV1alpha1) PodMigrationJobs() v1alpha1.PodMigrationJobInterface {
-	return newFakePodMigrationJobs(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.PodMigrationJobInterface)
 }
 
 func (c *FakeSchedulingV1alpha1) Reservations() v1alpha1.ReservationInterface {
-	return newFakeReservations(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.ReservationInterface)
 }
 
 func (c *FakeSchedulingV1alpha1) ScheduleExplanations(namespace string) v1alpha1.ScheduleExplanationInterface {
-	return newFakeScheduleExplanations(c, namespace)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.ScheduleExplanationInterface)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSchedulingV1alpha1) RESTClient() rest.Interface {
-	var ret *rest.RESTClient
-	return ret
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

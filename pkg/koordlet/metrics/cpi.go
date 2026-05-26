@@ -40,23 +40,9 @@ var (
 	}
 )
 
-func ResetContainerCPI() {
-	ContainerCPI.Reset()
-}
+func ResetContainerCPI() { _ = "STUB: not implemented"; return }
 
 func RecordContainerCPI(status *corev1.ContainerStatus, pod *corev1.Pod, cycles, instructions float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[ContainerID] = status.ContainerID
-	labels[ContainerName] = status.Name
-	labels[PodUID] = string(pod.UID)
-	labels[PodName] = pod.Name
-	labels[PodNamespace] = pod.Namespace
-	labels[CPIField] = Cycles
-	ContainerCPI.With(labels).Set(cycles)
-
-	labels[CPIField] = Instructions
-	ContainerCPI.With(labels).Set(instructions)
+	_ = "STUB: not implemented"
+	return
 }

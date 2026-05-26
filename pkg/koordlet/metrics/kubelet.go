@@ -51,9 +51,8 @@ var (
 
 // RecordKubeletRequestDuration records the duration of kubelet http request
 func RecordKubeletRequestDuration(verb, path, code string, seconds float64) {
-	kubeletRequestDurationSeconds.WithLabelValues(verb, path, code).Observe(seconds)
+	_ = "STUB: not implemented"
+	return
 }
 
-func SinceInSeconds(start time.Time) float64 {
-	return time.Since(start).Seconds()
-}
+func SinceInSeconds(start time.Time) float64 { _ = "STUB: not implemented"; return 0 }

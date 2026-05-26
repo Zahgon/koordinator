@@ -295,52 +295,16 @@ var _ = SIGDescribe("CPUNormalization", func() {
 })
 
 func isNRTValid(nrt *topov1alpha1.NodeResourceTopology) (bool, string) {
-	if nrt == nil || nrt.Annotations == nil {
-		return false, "nrt is incomplete"
-	}
-	if len(nrt.Zones) <= 0 {
-		return false, "nrt has no zone"
-	}
-	if len(nrt.TopologyPolicies) <= 0 {
-		return false, "nrt has no topology policy"
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func makeCPUNormalizationStrategyForModels(cpuModels []*extension.CPUBasicInfo) *configuration.CPUNormalizationStrategy {
-	ratioModel := map[string]configuration.ModelRatioCfg{}
-	for _, cpuModel := range cpuModels {
-		ratioCfg, ok := ratioModel[cpuModel.CPUModel]
-		if !ok {
-			ratioCfg = configuration.ModelRatioCfg{}
-		}
-		if cpuModel.HyperThreadEnabled && cpuModel.TurboEnabled {
-			ratioCfg.HyperThreadTurboEnabledRatio = defaultCPUModelRatioCfg.HyperThreadTurboEnabledRatio
-		} else if cpuModel.HyperThreadEnabled {
-			ratioCfg.HyperThreadEnabledRatio = defaultCPUModelRatioCfg.HyperThreadEnabledRatio
-		} else if cpuModel.TurboEnabled {
-			ratioCfg.TurboEnabledRatio = defaultCPUModelRatioCfg.TurboEnabledRatio
-		} else {
-			ratioCfg.BaseRatio = defaultCPUModelRatioCfg.BaseRatio
-		}
-		ratioModel[cpuModel.CPUModel] = ratioCfg
-	}
-
-	return &configuration.CPUNormalizationStrategy{
-		Enable:     ptr.To[bool](true),
-		RatioModel: ratioModel,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getCPUNormalizationRatioInDefaultModel(info *extension.CPUBasicInfo) float64 {
-	if info.HyperThreadEnabled && info.TurboEnabled {
-		return *defaultCPUModelRatioCfg.HyperThreadTurboEnabledRatio
-	}
-	if info.HyperThreadEnabled {
-		return *defaultCPUModelRatioCfg.HyperThreadEnabledRatio
-	}
-	if info.TurboEnabled {
-		return *defaultCPUModelRatioCfg.TurboEnabledRatio
-	}
-	return *defaultCPUModelRatioCfg.BaseRatio
+	_ = "STUB: not implemented"
+	return 0
 }

@@ -18,161 +18,44 @@ package util
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	resourcehelper "k8s.io/component-helpers/resource"
 )
 
 // NOTE: functions in this file can be overwritten for extension
 
 // IsSidecarContainer returns true if the container is an init container with
 // restartPolicy=Always, which means it is a sidecar container (KEP-753).
-func IsSidecarContainer(c corev1.Container) bool {
-	return c.RestartPolicy != nil && *c.RestartPolicy == corev1.ContainerRestartPolicyAlways
-}
+func IsSidecarContainer(c corev1.Container) bool { _ = "STUB: not implemented"; return false }
 
-func GetPodMilliCPULimit(pod *corev1.Pod) int64 {
-	podCPUMilliLimit := int64(0)
-	for _, container := range pod.Spec.Containers {
-		containerCPUMilliLimit := GetContainerMilliCPULimit(&container)
-		if containerCPUMilliLimit <= 0 {
-			return -1
-		}
-		podCPUMilliLimit += containerCPUMilliLimit
-	}
-	// Sidecar containers (init containers with restartPolicy=Always) run alongside
-	// regular containers, so their limits should be summed rather than max-ed.
-	for _, container := range pod.Spec.InitContainers {
-		containerCPUMilliLimit := GetContainerMilliCPULimit(&container)
-		if IsSidecarContainer(container) {
-			if containerCPUMilliLimit <= 0 {
-				return -1
-			}
-			podCPUMilliLimit += containerCPUMilliLimit
-		} else {
-			if containerCPUMilliLimit <= 0 {
-				return -1
-			}
-			podCPUMilliLimit = MaxInt64(podCPUMilliLimit, containerCPUMilliLimit)
-		}
-	}
-	if podCPUMilliLimit <= 0 {
-		return -1
-	}
-	return podCPUMilliLimit
-}
+func GetPodMilliCPULimit(pod *corev1.Pod) int64 { _ = "STUB: not implemented"; return 0 }
+
+// Sidecar containers (init containers with restartPolicy=Always) run alongside
+// regular containers, so their limits should be summed rather than max-ed.
 
 func GetPodRequest(pod *corev1.Pod, resourceNames ...corev1.ResourceName) corev1.ResourceList {
-	result := resourcehelper.PodRequests(pod, resourcehelper.PodResourcesOptions{})
-	if len(resourceNames) > 0 {
-		result = quotav1.Mask(result, resourceNames)
-	}
-	return result
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList)
 }
 
-func GetPodBEMilliCPURequest(pod *corev1.Pod) int64 {
-	podCPUMilliReq := int64(0)
-	for _, container := range pod.Spec.Containers {
-		containerCPUMilliReq := GetContainerBatchMilliCPURequest(&container)
-		if containerCPUMilliReq <= 0 {
-			containerCPUMilliReq = 0
-		}
-		podCPUMilliReq += containerCPUMilliReq
-	}
-	// Sidecar containers run alongside regular containers and should be summed.
-	for _, container := range pod.Spec.InitContainers {
-		if IsSidecarContainer(container) {
-			containerCPUMilliReq := GetContainerBatchMilliCPURequest(&container)
-			if containerCPUMilliReq <= 0 {
-				containerCPUMilliReq = 0
-			}
-			podCPUMilliReq += containerCPUMilliReq
-		}
-	}
+func GetPodBEMilliCPURequest(pod *corev1.Pod) int64 { _ = "STUB: not implemented"; return 0 }
 
-	return podCPUMilliReq
-}
+// Sidecar containers run alongside regular containers and should be summed.
 
-func GetPodBEMilliCPULimit(pod *corev1.Pod) int64 {
-	podCPUMilliLimit := int64(0)
-	for _, container := range pod.Spec.Containers {
-		containerCPUMilliLimit := GetContainerBatchMilliCPULimit(&container)
-		if containerCPUMilliLimit <= 0 {
-			return -1
-		}
-		podCPUMilliLimit += containerCPUMilliLimit
-	}
-	// Sidecar containers run alongside regular containers and should be summed.
-	for _, container := range pod.Spec.InitContainers {
-		if IsSidecarContainer(container) {
-			containerCPUMilliLimit := GetContainerBatchMilliCPULimit(&container)
-			if containerCPUMilliLimit <= 0 {
-				return -1
-			}
-			podCPUMilliLimit += containerCPUMilliLimit
-		}
-	}
-	if podCPUMilliLimit <= 0 {
-		return -1
-	}
-	return podCPUMilliLimit
-}
+func GetPodBEMilliCPULimit(pod *corev1.Pod) int64 { _ = "STUB: not implemented"; return 0 }
+
+// Sidecar containers run alongside regular containers and should be summed.
 
 func GetPodBEMemoryByteRequestIgnoreUnlimited(pod *corev1.Pod) int64 {
-	podMemoryByteRequest := int64(0)
-	for _, container := range pod.Spec.Containers {
-		containerMemByteRequest := GetContainerBatchMemoryByteRequest(&container)
-		if containerMemByteRequest < 0 {
-			// consider request of unlimited container as 0
-			continue
-		}
-		podMemoryByteRequest += containerMemByteRequest
-	}
-	// Sidecar containers run alongside regular containers and should be summed.
-	for _, container := range pod.Spec.InitContainers {
-		if IsSidecarContainer(container) {
-			containerMemByteRequest := GetContainerBatchMemoryByteRequest(&container)
-			if containerMemByteRequest < 0 {
-				continue
-			}
-			podMemoryByteRequest += containerMemByteRequest
-		}
-	}
-	return podMemoryByteRequest
+	_ = "STUB: not implemented"
+	return 0
 }
 
-func GetPodBEMemoryByteLimit(pod *corev1.Pod) int64 {
-	podMemoryByteLimit := int64(0)
-	for _, container := range pod.Spec.Containers {
-		containerMemByteLimit := GetContainerBatchMemoryByteLimit(&container)
-		if containerMemByteLimit <= 0 {
-			return -1
-		}
-		podMemoryByteLimit += containerMemByteLimit
-	}
-	// Sidecar containers run alongside regular containers and should be summed.
-	for _, container := range pod.Spec.InitContainers {
-		if IsSidecarContainer(container) {
-			containerMemByteLimit := GetContainerBatchMemoryByteLimit(&container)
-			if containerMemByteLimit <= 0 {
-				return -1
-			}
-			podMemoryByteLimit += containerMemByteLimit
-		}
-	}
-	if podMemoryByteLimit <= 0 {
-		return -1
-	}
-	return podMemoryByteLimit
-}
+// consider request of unlimited container as 0
+
+// Sidecar containers run alongside regular containers and should be summed.
+
+func GetPodBEMemoryByteLimit(pod *corev1.Pod) int64 { _ = "STUB: not implemented"; return 0 }
+
+// Sidecar containers run alongside regular containers and should be summed.
 
 // AddResourceList adds the resources in newList to list.
-func AddResourceList(list, newList corev1.ResourceList) {
-	for name, quantity := range newList {
-		if value, ok := list[name]; !ok {
-			list[name] = quantity.DeepCopy()
-		} else {
-			value.Add(quantity)
-			list[name] = value
-		}
-	}
-}
+func AddResourceList(list, newList corev1.ResourceList) { _ = "STUB: not implemented"; return }

@@ -16,46 +16,15 @@ limitations under the License.
 
 package v1alpha2
 
-import (
-	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/controllers/names"
-)
-
 // getDefaultPlugins returns the default set of plugins.
-func getDefaultPlugins() *Plugins {
-	plugins := &Plugins{
-		Deschedule: PluginSet{
-			Enabled: []Plugin{
-				// NOTE: add default deschedule plugins here.
-			},
-		},
-		Evict: PluginSet{
-			Enabled: []Plugin{
-				{Name: names.MigrationController},
-			},
-		},
-		Filter: PluginSet{
-			Enabled: []Plugin{
-				{Name: names.MigrationController},
-			},
-		},
-	}
-	return plugins
-}
+func getDefaultPlugins() *Plugins { _ = "STUB: not implemented"; return nil }
+
+// NOTE: add default deschedule plugins here.
 
 // mergePlugins merges the custom set into the given default one, handling disabled sets.
 func mergePlugins(defaultPlugins, customPlugins *Plugins) *Plugins {
-	if customPlugins == nil {
-		return defaultPlugins
-	}
-
-	defaultPlugins.Deschedule = mergePluginSet(defaultPlugins.Deschedule, customPlugins.Deschedule)
-	defaultPlugins.Balance = mergePluginSet(defaultPlugins.Balance, customPlugins.Balance)
-	defaultPlugins.Evict = mergePluginSet(defaultPlugins.Evict, customPlugins.Evict)
-	defaultPlugins.Filter = mergePluginSet(defaultPlugins.Filter, customPlugins.Filter)
-	return defaultPlugins
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type pluginIndex struct {
@@ -64,40 +33,16 @@ type pluginIndex struct {
 }
 
 func mergePluginSet(defaultPluginSet, customPluginSet PluginSet) PluginSet {
-	disabledPlugins := sets.NewString()
-	enabledCustomPlugins := make(map[string]pluginIndex)
-	// replacedPluginIndex is a set of index of plugins, which have replaced the default plugins.
-	replacedPluginIndex := sets.NewInt()
-	for _, disabledPlugin := range customPluginSet.Disabled {
-		disabledPlugins.Insert(disabledPlugin.Name)
-	}
-	for index, enabledPlugin := range customPluginSet.Enabled {
-		enabledCustomPlugins[enabledPlugin.Name] = pluginIndex{index, enabledPlugin}
-	}
-	var enabledPlugins []Plugin
-	if !disabledPlugins.Has("*") {
-		for _, defaultEnabledPlugin := range defaultPluginSet.Enabled {
-			if disabledPlugins.Has(defaultEnabledPlugin.Name) {
-				continue
-			}
-			// The default plugin is explicitly re-configured, update the default plugin accordingly.
-			if customPlugin, ok := enabledCustomPlugins[defaultEnabledPlugin.Name]; ok {
-				klog.InfoS("Default plugin is explicitly re-configured; overriding", "plugin", defaultEnabledPlugin.Name)
-				// Update the default plugin in place to preserve order.
-				defaultEnabledPlugin = customPlugin.plugin
-				replacedPluginIndex.Insert(customPlugin.index)
-			}
-			enabledPlugins = append(enabledPlugins, defaultEnabledPlugin)
-		}
-	}
-
-	// Append all the custom plugins which haven't replaced any default plugins.
-	// Note: duplicated custom plugins will still be appended here.
-	// If so, the instantiation of descheduler framework will detect it and abort.
-	for index, plugin := range customPluginSet.Enabled {
-		if !replacedPluginIndex.Has(index) {
-			enabledPlugins = append(enabledPlugins, plugin)
-		}
-	}
-	return PluginSet{Enabled: enabledPlugins}
+	_ = "STUB: not implemented"
+	return *new(PluginSet)
 }
+
+// replacedPluginIndex is a set of index of plugins, which have replaced the default plugins.
+
+// The default plugin is explicitly re-configured, update the default plugin accordingly.
+
+// Update the default plugin in place to preserve order.
+
+// Append all the custom plugins which haven't replaced any default plugins.
+// Note: duplicated custom plugins will still be appended here.
+// If so, the instantiation of descheduler framework will detect it and abort.

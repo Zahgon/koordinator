@@ -18,7 +18,6 @@ package extension
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/ptr"
 )
 
 // NOTE: functions in this file can be overwritten for extension
@@ -35,12 +34,8 @@ var (
 
 // GetPodPriorityClassWithDefault gets the pod's PriorityClass with the default config.
 func GetPodPriorityClassWithDefault(pod *corev1.Pod) PriorityClass {
-	priorityClass := GetPodPriorityClassRaw(pod)
-	if priorityClass != PriorityNone {
-		return priorityClass
-	}
-
-	return GetPodPriorityClassWithQoS(GetPodQoSClassWithDefault(pod))
+	_ = "STUB: not implemented"
+	return *new(PriorityClass)
 }
 
 // GetPodPriorityClassWithQoS returns the default PriorityClass according to its QoSClass when the pod does not specify
@@ -48,44 +43,19 @@ func GetPodPriorityClassWithDefault(pod *corev1.Pod) PriorityClass {
 // Note that this is only a derivation of the default value, and the reverse is not true. For example, PriorityMid
 // can also be combined with QoSLS.
 func GetPodPriorityClassWithQoS(qos QoSClass) PriorityClass {
-	switch qos {
-	case QoSSystem, QoSLSE, QoSLSR, QoSLS:
-		return PriorityProd
-	case QoSBE:
-		return PriorityBatch
-	}
-	return DefaultPriorityClass
+	_ = "STUB: not implemented"
+	return *new(PriorityClass)
 }
 
 // GetPodPriorityValueWithDefault returns a priority value for the pod according to its koordinator priority classes.
 // If the pod has a non-zero priority value, it directly returns. If the pod has a koordinator priority class but
 // priority value not set, it returns the default value of the class. If the pod neither sets a non-zero priority
 // value nor has a valid koordinator priority class, it uses the default value of the DefaultPriorityClass.
-func GetPodPriorityValueWithDefault(pod *corev1.Pod) *int32 {
-	if pod == nil {
-		return ptr.To[int32](PriorityNoneValueDefault)
-	}
+func GetPodPriorityValueWithDefault(pod *corev1.Pod) *int32 { _ = "STUB: not implemented"; return nil }
 
-	// if there is a non-default priority value, use it
-	if p := pod.Spec.Priority; p != nil && *p != PriorityNoneValueDefault {
-		return p
-	}
-
-	priorityClass := GetPodPriorityClassWithDefault(pod)
-	return ptr.To[int32](GetDefaultPriorityByPriorityClass(priorityClass))
-}
+// if there is a non-default priority value, use it
 
 func GetDefaultPriorityByPriorityClass(priorityClass PriorityClass) int32 {
-	switch priorityClass {
-	case PriorityProd:
-		return PriorityProdValueDefault
-	case PriorityMid:
-		return PriorityMidValueDefault
-	case PriorityBatch:
-		return PriorityBatchValueDefault
-	case PriorityFree:
-		return PriorityFreeValueDefault
-	default:
-		return PriorityNoneValueDefault
-	}
+	_ = "STUB: not implemented"
+	return 0
 }

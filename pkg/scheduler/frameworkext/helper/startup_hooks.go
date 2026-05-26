@@ -47,12 +47,8 @@ var (
 // It supersedes the older "replaceHandler" pattern for plugins that need a
 // whole-snapshot initialization anchored to a specific startup phase.
 func RegisterAfterPluginInformersSynced(hook AfterInformersSyncedHook) {
-	if hook == nil {
-		return
-	}
-	startupHooksMu.Lock()
-	defer startupHooksMu.Unlock()
-	afterPluginInformersSyncedHooks = append(afterPluginInformersSyncedHooks, hook)
+	_ = "STUB: not implemented"
+	return
 }
 
 // RegisterAfterAllInformersSynced registers a hook invoked by the scheduler
@@ -61,12 +57,8 @@ func RegisterAfterPluginInformersSynced(hook AfterInformersSyncedHook) {
 // the scheduler begins dispatching pods. Typical uses: kicking off background
 // reconcilers that rely on fully populated caches.
 func RegisterAfterAllInformersSynced(hook AfterInformersSyncedHook) {
-	if hook == nil {
-		return
-	}
-	startupHooksMu.Lock()
-	defer startupHooksMu.Unlock()
-	afterAllInformersSyncedHooks = append(afterAllInformersSyncedHooks, hook)
+	_ = "STUB: not implemented"
+	return
 }
 
 // RunAfterPluginInformersSynced invokes all hooks registered via
@@ -74,40 +66,24 @@ func RegisterAfterAllInformersSynced(hook AfterInformersSyncedHook) {
 // returns the first non-nil error so callers can fail fast on initialization
 // failure. ctx cancellation between hooks is surfaced as ctx.Err().
 func RunAfterPluginInformersSynced(ctx context.Context) error {
-	return runStartupHooks(ctx, snapshotHooks(&afterPluginInformersSyncedHooks))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunAfterAllInformersSynced invokes all hooks registered via
 // RegisterAfterAllInformersSynced in registration order, aborting on the first
 // non-nil error.
-func RunAfterAllInformersSynced(ctx context.Context) error {
-	return runStartupHooks(ctx, snapshotHooks(&afterAllInformersSyncedHooks))
-}
+func RunAfterAllInformersSynced(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
 func snapshotHooks(hooks *[]AfterInformersSyncedHook) []AfterInformersSyncedHook {
-	startupHooksMu.Lock()
-	defer startupHooksMu.Unlock()
-	out := make([]AfterInformersSyncedHook, len(*hooks))
-	copy(out, *hooks)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func runStartupHooks(ctx context.Context, hooks []AfterInformersSyncedHook) error {
-	for _, h := range hooks {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-		if err := h(ctx); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // ResetStartupHooks clears all registered startup hooks. Only for testing.
-func ResetStartupHooks() {
-	startupHooksMu.Lock()
-	afterPluginInformersSyncedHooks = nil
-	afterAllInformersSyncedHooks = nil
-	startupHooksMu.Unlock()
-}
+func ResetStartupHooks() { _ = "STUB: not implemented"; return }

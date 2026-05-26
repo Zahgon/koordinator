@@ -17,8 +17,6 @@ limitations under the License.
 package metrics
 
 import (
-	"strconv"
-
 	"github.com/prometheus/client_golang/prometheus"
 	corev1 "k8s.io/api/core/v1"
 
@@ -73,111 +71,20 @@ type PSIRecord struct {
 	CPUFullSupported bool
 }
 
-func getPSIRecords(psi *system.PSIByResource) []PSIRecord {
-	var psiRecordAll []PSIRecord
-	psiRecordAll = append(psiRecordAll, makePSIRecordSlice(ResourceTypeCPU, psi.CPU)...)
-	psiRecordAll = append(psiRecordAll, makePSIRecordSlice(ResourceTypeMem, psi.Mem)...)
-	psiRecordAll = append(psiRecordAll, makePSIRecordSlice(ResourceTypeIO, psi.IO)...)
-	return psiRecordAll
-}
+func getPSIRecords(psi *system.PSIByResource) []PSIRecord { _ = "STUB: not implemented"; return nil }
 
 func makePSIRecordSlice(resourceType string, psiStats system.PSIStats) []PSIRecord {
-	records := []PSIRecord{
-		{
-			ResourceType:     resourceType,
-			Precision:        Precision10,
-			Degree:           DegreeSome,
-			Value:            psiStats.Some.Avg10,
-			CPUFullSupported: psiStats.FullSupported,
-		},
-		{
-			ResourceType:     resourceType,
-			Precision:        Precision60,
-			Degree:           DegreeSome,
-			Value:            psiStats.Some.Avg60,
-			CPUFullSupported: psiStats.FullSupported,
-		},
-		{
-			ResourceType:     resourceType,
-			Precision:        Precision300,
-			Degree:           DegreeSome,
-			Value:            psiStats.Some.Avg300,
-			CPUFullSupported: psiStats.FullSupported,
-		},
-	}
-	if psiStats.FullSupported {
-		records = append(records, []PSIRecord{
-			{
-				ResourceType:     resourceType,
-				Precision:        Precision10,
-				Degree:           DegreeFull,
-				Value:            psiStats.Full.Avg10,
-				CPUFullSupported: psiStats.FullSupported,
-			},
-			{
-				ResourceType:     resourceType,
-				Precision:        Precision60,
-				Degree:           DegreeFull,
-				Value:            psiStats.Full.Avg60,
-				CPUFullSupported: psiStats.FullSupported,
-			},
-			{
-				ResourceType:     resourceType,
-				Precision:        Precision300,
-				Degree:           DegreeFull,
-				Value:            psiStats.Full.Avg300,
-				CPUFullSupported: psiStats.FullSupported,
-			},
-		}...)
-	}
-
-	return records
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func RecordContainerPSI(status *corev1.ContainerStatus, pod *corev1.Pod, psi *system.PSIByResource) {
-	psiRecords := getPSIRecords(psi)
-	for _, record := range psiRecords {
-		labels := genNodeLabels()
-		if labels == nil {
-			return
-		}
-		labels[ContainerID] = status.ContainerID
-		labels[ContainerName] = status.Name
-		labels[PodUID] = string(pod.UID)
-		labels[PodName] = pod.Name
-		labels[PodNamespace] = pod.Namespace
-
-		labels[PSIResourceType] = record.ResourceType
-		labels[PSIPrecision] = record.Precision
-		labels[PSIDegree] = record.Degree
-		labels[CPUFullSupported] = strconv.FormatBool(record.CPUFullSupported)
-		ContainerPSI.With(labels).Set(record.Value)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func RecordPodPSI(pod *corev1.Pod, psi *system.PSIByResource) {
-	psiRecords := getPSIRecords(psi)
-	for _, record := range psiRecords {
-		labels := genNodeLabels()
-		if labels == nil {
-			return
-		}
-		labels[PodUID] = string(pod.UID)
-		labels[PodName] = pod.Name
-		labels[PodNamespace] = pod.Namespace
+func RecordPodPSI(pod *corev1.Pod, psi *system.PSIByResource) { _ = "STUB: not implemented"; return }
 
-		labels[PSIResourceType] = record.ResourceType
-		labels[PSIPrecision] = record.Precision
-		labels[PSIDegree] = record.Degree
-		labels[CPUFullSupported] = strconv.FormatBool(record.CPUFullSupported)
-		PodPSI.With(labels).Set(record.Value)
-	}
-}
+func ResetContainerPSI() { _ = "STUB: not implemented"; return }
 
-func ResetContainerPSI() {
-	ContainerPSI.Reset()
-}
-
-func ResetPodPSI() {
-	PodPSI.Reset()
-}
+func ResetPodPSI() { _ = "STUB: not implemented"; return }

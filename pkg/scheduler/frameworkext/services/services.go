@@ -18,12 +18,10 @@ package services
 
 import (
 	"net/http"
-	"sort"
 	"sync"
 	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 	"k8s.io/kubernetes/pkg/scheduler"
 )
@@ -42,31 +40,13 @@ type mux interface {
 }
 
 func InstallAPIHandler(mux mux, e *Engine, sched *scheduler.Scheduler, isLeader func() bool) {
-	mux.HandlePrefix(servicesBaseRelativePath, handle(isLeader))
-
-	once.Do(func() {
-		engine.Store(e)
-		baseGroup := e.Group(servicesBaseRelativePath)
-		baseGroup.GET("/nodes/:nodeName", queryNodeInfo(sched))
-		baseGroup.GET("/__services__", listRegisteredServices(e.Engine))
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func handle(isLeader func() bool) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if !isLeader() {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte(`{"message": "the instance is not leader"}`))
-			return
-		}
-
-		e, ok := engine.Load().(*Engine)
-		if !ok {
-			http.Error(w, "The component is initializing and temporarily unavailable", http.StatusServiceUnavailable)
-			return
-		}
-		e.ServeHTTP(w, r)
-	}
+	_ = "STUB: not implemented"
+	return *new(http.HandlerFunc)
 }
 
 type Engine struct {
@@ -76,54 +56,19 @@ type Engine struct {
 	mu                  sync.Mutex
 }
 
-func NewEngine(e *gin.Engine) *Engine {
-	return &Engine{
-		Engine:              e,
-		registeredProviders: make(map[string]struct{}),
-	}
-}
+func NewEngine(e *gin.Engine) *Engine { _ = "STUB: not implemented"; return nil }
 
 func (e *Engine) RegisterPluginService(plugin fwktype.Plugin, profileName string) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	if serviceProvider, ok := plugin.(APIServiceProvider); ok {
-		providerName := plugin.Name()
-		baseGroup := e.Engine.Group(pluginServicesBaseRelativePath)
-		pluginServiceGroup := baseGroup.Group(providerName)
-		if _, exists := e.registeredProviders[providerName]; exists {
-			klog.InfoS("service provider already registered, skipping duplicate registration", "provider", providerName, "profile", profileName)
-			return
-		}
-		serviceProvider.RegisterEndpoints(pluginServiceGroup)
-		e.registeredProviders[providerName] = struct{}{}
-		klog.V(4).InfoS("service provider successfully registered", "provider", providerName, "profile", profileName)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func listRegisteredServices(e *gin.Engine) gin.HandlerFunc {
-	return func(context *gin.Context) {
-		routes := e.Routes()
-		services := map[string][]string{}
-		for _, v := range routes {
-			services[v.Method] = append(services[v.Method], v.Path)
-		}
-		for _, paths := range services {
-			sort.Strings(paths)
-		}
-		context.JSON(http.StatusOK, services)
-	}
+	_ = "STUB: not implemented"
+	return *new(gin.HandlerFunc)
 }
 
 func queryNodeInfo(sched *scheduler.Scheduler) gin.HandlerFunc {
-	return func(context *gin.Context) {
-		nodeName := context.Param("nodeName")
-		dump := sched.Cache.Dump()
-		nodeInfo := dump.Nodes[nodeName]
-		if nodeInfo == nil || nodeInfo.Node() == nil {
-			ResponseErrorMessage(context, http.StatusNotFound, "cannot find node %s", nodeName)
-			return
-		}
-		n := convertNodeInfo(nodeInfo)
-		context.JSON(http.StatusOK, n)
-	}
+	_ = "STUB: not implemented"
+	return *new(gin.HandlerFunc)
 }

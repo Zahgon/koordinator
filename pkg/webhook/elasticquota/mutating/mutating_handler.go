@@ -18,21 +18,10 @@ package mutating
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"time"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
-
-	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
-
-	"github.com/koordinator-sh/koordinator/pkg/webhook/elasticquota"
-	"github.com/koordinator-sh/koordinator/pkg/webhook/metrics"
 )
 
 // ElasticQuotaMutatingHandler handles ElasticQuota
@@ -46,75 +35,33 @@ type ElasticQuotaMutatingHandler struct {
 var _ admission.Handler = &ElasticQuotaMutatingHandler{}
 
 func shouldIgnoreIfNotElasticQuotas(req admission.Request) bool {
+	_ = "STUB: not implemented"
 	// Ignore all calls to sub resources or resources other than pods.
-	if len(req.AdmissionRequest.SubResource) != 0 ||
-		req.AdmissionRequest.Resource.Resource != "elasticquotas" {
-		return true
-	}
 	return false
 }
 
 func (h *ElasticQuotaMutatingHandler) Handle(ctx context.Context, request admission.Request) (resp admission.Response) {
-	if shouldIgnoreIfNotElasticQuotas(request) {
-		return admission.Allowed("")
-	}
-
-	obj := &v1alpha1.ElasticQuota{}
-	if err := h.Decoder.Decode(request, obj); err != nil {
-		return admission.Errored(http.StatusBadRequest, err)
-	}
-
-	var copied runtime.Object = obj.DeepCopy()
-
-	klog.V(5).Infof("Webhook start mutating quota %s", obj.Name)
-
-	plugin := elasticquota.NewPlugin(h.Decoder, h.Client)
-	start := time.Now()
-	if err := plugin.AdmitQuota(ctx, request, copied); err != nil {
-		klog.Errorf("Failed to mutating Quota %s/%s by quotaTopology, err: %v", obj.Namespace, obj.Name, err)
-		metrics.RecordWebhookDurationMilliseconds(metrics.MutatingWebhook,
-			metrics.ElasticQuota, string(request.Operation), err, plugin.Name(), time.Since(start).Seconds())
-		return admission.Errored(http.StatusBadRequest, err)
-	}
-	metrics.RecordWebhookDurationMilliseconds(metrics.MutatingWebhook,
-		metrics.ElasticQuota, string(request.Operation), nil, plugin.Name(), time.Since(start).Seconds())
-
-	if reflect.DeepEqual(obj, copied) {
-		return admission.Allowed("")
-	}
-	marshaled, err := json.Marshal(copied)
-	if err != nil {
-		return admission.Errored(http.StatusInternalServerError, err)
-	}
-	return admission.PatchResponseFromRaw(request.AdmissionRequest.Object.Raw, marshaled)
+	_ = "STUB: not implemented"
+	return *new(admission.Response)
 }
 
 // var _ inject.Client = &ElasticQuotaMutatingHandler{}
 
 // InjectClient injects the client into the ElasticQuotaMutatingHandler
 func (h *ElasticQuotaMutatingHandler) InjectClient(c client.Client) error {
-	h.Client = c
+	_ = "STUB: not implemented"
 	return nil
-}
 
-// var _ admission.DecoderInjector = &ElasticQuotaMutatingHandler{}
+	// var _ admission.DecoderInjector = &ElasticQuotaMutatingHandler{}
+}
 
 // InjectDecoder injects the decoder into the ElasticQuotaMutatingHandler
 func (h *ElasticQuotaMutatingHandler) InjectDecoder(decoder admission.Decoder) error {
-	h.Decoder = decoder
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (h *ElasticQuotaMutatingHandler) InjectCache(cache cache.Cache) error {
-	plugin := elasticquota.NewPlugin(h.Decoder, h.Client)
-	if plugin.QuotaInformer != nil {
-		return nil
-	}
-
-	quotaInformer, err := elasticquota.NewQuotaInformer(cache, plugin.QuotaTopo)
-	if err != nil {
-		return err
-	}
-	plugin.InjectInformer(quotaInformer)
+	_ = "STUB: not implemented"
 	return nil
 }

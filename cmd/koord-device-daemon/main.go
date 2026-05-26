@@ -17,20 +17,15 @@ limitations under the License.
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"os/signal"
-	"path/filepath"
-	"syscall"
 	"time"
 
 	"github.com/urfave/cli/v2"
 	"k8s.io/klog/v2"
 
 	resourceconifg "github.com/koordinator-sh/koordinator/cmd/koord-device-daemon/config/v1"
-	initconfig "github.com/koordinator-sh/koordinator/cmd/koord-device-daemon/init"
 	printmanager "github.com/koordinator-sh/koordinator/pkg/device-daemon/printer"
 	"github.com/koordinator-sh/koordinator/pkg/device-daemon/resource"
 )
@@ -114,58 +109,15 @@ func main() {
 
 // loadConfig loads the config from the spec file.
 func (cfg *Config) loadConfig(c *cli.Context) (*resourceconifg.Config, error) {
-	config, err := resourceconifg.NewConfig(c, cfg.flags)
-	if err != nil {
-		return nil, fmt.Errorf("unable to finalize config: %v", err)
-	}
-
-	return config, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func start(c *cli.Context, cfg *Config) error {
-	defer func() {
-		klog.Info("Exiting")
-	}()
+func start(c *cli.Context, cfg *Config) error { _ = "STUB: not implemented"; return nil }
 
-	klog.Info("Starting OS watcher.")
-	sigs := signals(syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+// Load the configuration file
 
-	for {
-		// Load the configuration file
-		klog.Info("Loading configuration.")
-		config, err := cfg.loadConfig(c)
-		if err != nil {
-			return fmt.Errorf("unable to load config: %v", err)
-		}
-
-		// Print the config to the output.
-		configJSON, err := json.MarshalIndent(config, "", "  ")
-		if err != nil {
-			return fmt.Errorf("failed to marshal config to JSON: %v", err)
-		}
-		klog.Infof("\nRunning with config:\n%v", string(configJSON))
-
-		PrintsWriter, err := printmanager.NewPrintsWriter(config)
-		if err != nil {
-			return fmt.Errorf("failed to create prints outputer: %w", err)
-		}
-
-		klog.Info("Start running")
-		d := &resourceFeatureDiscovery{
-			manager:        initconfig.ManagerMap,
-			config:         config,
-			PrintsOutputer: PrintsWriter,
-		}
-		restart, err := d.run(sigs)
-		if err != nil {
-			return err
-		}
-
-		if !restart {
-			return nil
-		}
-	}
-}
+// Print the config to the output.
 
 type resourceFeatureDiscovery struct {
 	manager        map[string]resource.Manager
@@ -174,93 +126,14 @@ type resourceFeatureDiscovery struct {
 }
 
 func (rfd *resourceFeatureDiscovery) run(sigs chan os.Signal) (bool, error) {
-	defer func() {
-		if rfd.config.Flags.KDD.Oneshot != nil && *rfd.config.Flags.KDD.Oneshot {
-			return
-		}
-		if rfd.config.Flags.KDD.PrintsOutputFile != nil && *rfd.config.Flags.KDD.PrintsOutputFile == "" {
-			return
-		}
-
-		err := removeOutputFile(*rfd.config.Flags.KDD.PrintsOutputFile)
-		if err != nil {
-			klog.Warningf("Error removing prints output file: %v", err)
-		}
-	}()
-
-rerun:
-	loopPrinters, err := printmanager.NewPrinters(rfd.manager)
-	if err != nil {
-		return false, nil
-	}
-	prints, err := loopPrinters.Prints()
-	if err != nil {
-		return false, fmt.Errorf("error generating prints: %v", err)
-	}
-
-	if len(prints) == 0 {
-		klog.Warning("No prints generated from any source")
-	}
-
-	klog.Info("Creating Prints")
-
-	if err := rfd.PrintsOutputer.OutputPrints(prints); err != nil {
-		return false, fmt.Errorf("error printing: %v", err)
-	}
-
-	if *rfd.config.Flags.KDD.Oneshot {
-		return false, nil
-	}
-
-	klog.Info("Sleeping for ", *rfd.config.Flags.KDD.SleepInterval)
-	rerunTimeout := time.After((*rfd.config.Flags.KDD.SleepInterval).Duration)
-
-	for {
-		select {
-		case <-rerunTimeout:
-			goto rerun
-
-		// Watch for any signals from the OS. On SIGHUP trigger a reload of the config.
-		// On all other signals, exit the loop and exit the program.
-		case s := <-sigs:
-			switch s {
-			case syscall.SIGHUP:
-				klog.Info("Received SIGHUP, restarting.")
-				return true, nil
-			default:
-				klog.Infof("Received signal %v, shutting down.", s)
-				return false, nil
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func removeOutputFile(path string) error {
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		return fmt.Errorf("failed to retrieve absolute path of output file: %v", err)
-	}
+// Watch for any signals from the OS. On SIGHUP trigger a reload of the config.
+// On all other signals, exit the loop and exit the program.
 
-	absDir := filepath.Dir(absPath)
-	tmpDir := filepath.Join(absDir, "ic-device-tmp")
-
-	err = os.RemoveAll(tmpDir)
-	if err != nil {
-		return fmt.Errorf("failed to remove temporary output directory: %v", err)
-	}
-
-	err = os.Remove(absPath)
-	if err != nil {
-		return fmt.Errorf("failed to remove output file: %v", err)
-	}
-
-	return nil
-}
+func removeOutputFile(path string) error { _ = "STUB: not implemented"; return nil }
 
 // signals creats a channel for the specified signals.
-func signals(sigs ...os.Signal) chan os.Signal {
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, sigs...)
-
-	return sigChan
-}
+func signals(sigs ...os.Signal) chan os.Signal { _ = "STUB: not implemented"; return nil }

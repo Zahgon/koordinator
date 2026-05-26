@@ -17,9 +17,6 @@ limitations under the License.
 package resource_executor
 
 import (
-	"github.com/koordinator-sh/koordinator/apis/runtime/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/resexecutor/cri"
-	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/store"
 	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/utils"
 )
 
@@ -45,13 +42,8 @@ const (
 )
 
 func NewRuntimeResourceExecutor(runtimeResourceType RuntimeResourceType) RuntimeResourceExecutor {
-	switch runtimeResourceType {
-	case RuntimePodResource:
-		return cri.NewPodResourceExecutor()
-	case RuntimeContainerResource:
-		return cri.NewContainerResourceExecutor()
-	}
-	return &NoopResourceExecutor{}
+	_ = "STUB: not implemented"
+	return *new(RuntimeResourceExecutor)
 }
 
 // NoopResourceExecutor means no-operation for cri request,
@@ -59,29 +51,34 @@ func NewRuntimeResourceExecutor(runtimeResourceType RuntimeResourceType) Runtime
 type NoopResourceExecutor struct {
 }
 
-func (n *NoopResourceExecutor) GetMetaInfo() string {
-	return ""
-}
+func (n *NoopResourceExecutor) GetMetaInfo() string { _ = "STUB: not implemented"; return "" }
 
 func (n *NoopResourceExecutor) GenerateResourceCheckpoint() interface{} {
-	return v1alpha1.ContainerResourceHookRequest{}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (n *NoopResourceExecutor) GenerateHookRequest() interface{} {
-	return store.ContainerInfo{}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (n *NoopResourceExecutor) ParseRequest(request interface{}) (utils.CallHookPluginOperation, error) {
-	return utils.Unknown, nil
+	_ = "STUB: not implemented"
+	return *new(utils.CallHookPluginOperation), nil
 }
+
 func (n *NoopResourceExecutor) ResourceCheckPoint(response interface{}) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (n *NoopResourceExecutor) DeleteCheckpointIfNeed(request interface{}) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (n *NoopResourceExecutor) UpdateRequest(response interface{}, request interface{}) error {
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -17,9 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -250,146 +247,56 @@ const (
 type GPUSharedResourceTemplates map[string]corev1.ResourceList
 
 func GetDeviceAllocations(podAnnotations map[string]string) (DeviceAllocations, error) {
-	deviceAllocations := DeviceAllocations{}
-	data, ok := podAnnotations[AnnotationDeviceAllocated]
-	if !ok {
-		return nil, nil
-	}
-	err := json.Unmarshal([]byte(data), &deviceAllocations)
-	if err != nil {
-		return nil, err
-	}
-	return deviceAllocations, nil
+	_ = "STUB: not implemented"
+	return *new(DeviceAllocations), nil
 }
 
 func SetDeviceAllocations(obj metav1.Object, allocations DeviceAllocations) error {
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-
-	data, err := json.Marshal(allocations)
-	if err != nil {
-		return err
-	}
-
-	annotations[AnnotationDeviceAllocated] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func SetDeviceAllocateHints(obj metav1.Object, hint DeviceAllocateHints) error {
-	if hint == nil {
-		return nil
-	}
-
-	data, err := json.Marshal(hint)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationDeviceAllocateHint] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetDeviceAllocateHints(annotations map[string]string) (DeviceAllocateHints, error) {
-	var hint DeviceAllocateHints
-	if val, ok := annotations[AnnotationDeviceAllocateHint]; ok {
-		hint = DeviceAllocateHints{}
-		err := json.Unmarshal([]byte(val), &hint)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return hint, nil
+	_ = "STUB: not implemented"
+	return *new(DeviceAllocateHints), nil
 }
 
 func SetDeviceJointAllocate(obj metav1.Object, jointAllocate *DeviceJointAllocate) error {
-	if jointAllocate == nil {
-		return nil
-	}
-
-	data, err := json.Marshal(jointAllocate)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationDeviceJointAllocate] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetDeviceJointAllocate(annotations map[string]string) (*DeviceJointAllocate, error) {
-	val, ok := annotations[AnnotationDeviceJointAllocate]
-	if !ok {
-		return nil, nil
-	}
-	var jointAllocate DeviceJointAllocate
-	err := json.Unmarshal([]byte(val), &jointAllocate)
-	if err != nil {
-		return nil, err
-	}
-	return &jointAllocate, nil
-}
-
-func GetGPUPartitionSpec(annotations map[string]string) (*GPUPartitionSpec, error) {
-	val, ok := annotations[AnnotationGPUPartitionSpec]
-	if !ok {
-		return nil, nil
-	}
-	var spec GPUPartitionSpec
-	err := json.Unmarshal([]byte(val), &spec)
-	if err != nil {
-		return nil, err
-	}
-	if spec.AllocatePolicy == "" {
-		spec.AllocatePolicy = GPUPartitionAllocatePolicyBestEffort
-	}
-	return &spec, nil
-}
-
-func GetGPUPartitionTable(device *schedulingv1alpha1.Device) (GPUPartitionTable, error) {
-	if rawGPUPartitionTable, ok := device.Annotations[AnnotationGPUPartitions]; ok && rawGPUPartitionTable != "" {
-		gpuPartitionTable := GPUPartitionTable{}
-		err := json.Unmarshal([]byte(rawGPUPartitionTable), &gpuPartitionTable)
-		if err != nil {
-			return nil, err
-		}
-		if gpuPartitionTable == nil {
-			return nil, fmt.Errorf("invalid gpu partitions in device cr: %s", rawGPUPartitionTable)
-		}
-		return gpuPartitionTable, nil
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
+func GetGPUPartitionSpec(annotations map[string]string) (*GPUPartitionSpec, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func GetGPUPartitionTable(device *schedulingv1alpha1.Device) (GPUPartitionTable, error) {
+	_ = "STUB: not implemented"
+	return *new(GPUPartitionTable), nil
+}
+
 func GetGPUPartitionPolicy(nodeOrDevice metav1.Object) GPUPartitionPolicy {
-	if nodeOrDevice == nil {
-		return GPUPartitionPolicyPrefer
-	}
-	if allocatePolicy := nodeOrDevice.GetLabels()[LabelGPUPartitionPolicy]; GPUPartitionPolicy(allocatePolicy) == GPUPartitionPolicyHonor {
-		return GPUPartitionPolicyHonor
-	}
-	return GPUPartitionPolicyPrefer
+	_ = "STUB: not implemented"
+	return *new(GPUPartitionPolicy)
 }
 
 func IsSecondaryDeviceWellPlanned(device *schedulingv1alpha1.Device) bool {
-	if device == nil {
-		return false
-	}
-	return device.Labels[LabelSecondaryDeviceWellPlanned] == "true"
+	_ = "STUB: not implemented"
+	return false
 }
 
 func IsSecondaryDeviceNotWellPlanned(device *schedulingv1alpha1.Device) bool {
-	if device == nil {
-		return false
-	}
-	return device.Labels[LabelSecondaryDeviceWellPlanned] == "false"
+	_ = "STUB: not implemented"
+	return false
 }

@@ -19,19 +19,4 @@ limitations under the License.
 
 package system
 
-import (
-	"fmt"
-)
-
-func GetKubeletCommandline(port int) ([]string, error) {
-	kubeletPid, err := KubeletPortToPid(port)
-	if err != nil {
-		return nil, err
-	}
-
-	kubeletArgs, err := ProcCmdLine(Conf.ProcRootDir, kubeletPid)
-	if err != nil || len(kubeletArgs) <= 1 {
-		return nil, fmt.Errorf("failed to get kubelet's args: %v", err)
-	}
-	return kubeletArgs, nil
-}
+func GetKubeletCommandline(port int) ([]string, error) { _ = "STUB: not implemented"; return nil, nil }

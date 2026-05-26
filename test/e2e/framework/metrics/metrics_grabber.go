@@ -18,23 +18,11 @@ limitations under the License.
 package metrics
 
 import (
-	"context"
 	"errors"
-	"fmt"
-	"net"
-	"regexp"
 	"sync"
-	"time"
 
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/klog/v2"
-
-	e2epod "github.com/koordinator-sh/koordinator/test/e2e/framework/pod"
 )
 
 const (
@@ -90,319 +78,77 @@ type Grabber struct {
 // support it. If disabled for a component, the corresponding Grab function
 // will immediately return an error derived from MetricsGrabbingDisabledError.
 func NewMetricsGrabber(c clientset.Interface, ec clientset.Interface, config *rest.Config, kubelets bool, scheduler bool, controllers bool, apiServer bool, clusterAutoscaler bool, snapshotController bool) (*Grabber, error) {
-
-	kubeScheduler := ""
-	kubeControllerManager := ""
-	snapshotControllerManager := ""
-
-	regKubeScheduler := regexp.MustCompile("kube-scheduler-.*")
-	regKubeControllerManager := regexp.MustCompile("kube-controller-manager-.*")
-	regSnapshotController := regexp.MustCompile("volume-snapshot-controller.*")
-
-	if (scheduler || controllers) && config == nil {
-		return nil, errors.New("a rest config is required for grabbing kube-controller and kube-controller-manager metrics")
-	}
-
-	podList, err := c.CoreV1().Pods(metav1.NamespaceSystem).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	if len(podList.Items) < 1 {
-		klog.Warningf("Can't find any pods in namespace %s to grab metrics from", metav1.NamespaceSystem)
-	}
-	for _, pod := range podList.Items {
-		if regKubeScheduler.MatchString(pod.Name) {
-			kubeScheduler = pod.Name
-		}
-		if regKubeControllerManager.MatchString(pod.Name) {
-			kubeControllerManager = pod.Name
-		}
-		if regSnapshotController.MatchString(pod.Name) {
-			snapshotControllerManager = pod.Name
-		}
-		if kubeScheduler != "" && kubeControllerManager != "" && snapshotControllerManager != "" {
-			break
-		}
-	}
-	if clusterAutoscaler && ec == nil {
-		klog.Warningf("Did not receive an external client interface. Grabbing metrics from ClusterAutoscaler is disabled.")
-	}
-
-	return &Grabber{
-		client:                     c,
-		externalClient:             ec,
-		config:                     config,
-		grabFromAPIServer:          apiServer,
-		grabFromControllerManager:  checkPodDebugHandlers(c, controllers, "kube-controller-manager", kubeControllerManager),
-		grabFromKubelets:           kubelets,
-		grabFromScheduler:          checkPodDebugHandlers(c, scheduler, "kube-scheduler", kubeScheduler),
-		grabFromClusterAutoscaler:  clusterAutoscaler,
-		grabFromSnapshotController: checkPodDebugHandlers(c, snapshotController, "snapshot-controller", snapshotControllerManager),
-		kubeScheduler:              kubeScheduler,
-		kubeControllerManager:      kubeControllerManager,
-		snapshotController:         snapshotControllerManager,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func checkPodDebugHandlers(c clientset.Interface, requested bool, component, podName string) bool {
-	if !requested {
-		return false
-	}
-	if podName == "" {
-		klog.Warningf("Can't find %s pod. Grabbing metrics from %s is disabled.", component, component)
-		return false
-	}
-
-	// The debug handlers on the host where the pod runs might be disabled.
-	// We can check that indirectly by trying to retrieve log output.
-	limit := int64(1)
-	if _, err := c.CoreV1().Pods(metav1.NamespaceSystem).GetLogs(podName, &v1.PodLogOptions{LimitBytes: &limit}).DoRaw(context.TODO()); err != nil {
-		klog.Warningf("Can't retrieve log output of %s (%q). Debug handlers might be disabled in kubelet. Grabbing metrics from %s is disabled.",
-			podName, err, component)
-		return false
-	}
-
-	// Metrics gathering enabled.
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
+
+// The debug handlers on the host where the pod runs might be disabled.
+// We can check that indirectly by trying to retrieve log output.
+
+// Metrics gathering enabled.
 
 // HasControlPlanePods returns true if metrics grabber was able to find control-plane pods
-func (g *Grabber) HasControlPlanePods() bool {
-	return g.kubeScheduler != "" && g.kubeControllerManager != ""
-}
+func (g *Grabber) HasControlPlanePods() bool { _ = "STUB: not implemented"; return false }
 
 // GrabFromKubelet returns metrics from kubelet
 func (g *Grabber) GrabFromKubelet(nodeName string) (KubeletMetrics, error) {
-	nodes, err := g.client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{FieldSelector: fields.Set{"metadata.name": nodeName}.AsSelector().String()})
-	if err != nil {
-		return KubeletMetrics{}, err
-	}
-	if len(nodes.Items) != 1 {
-		return KubeletMetrics{}, fmt.Errorf("Error listing nodes with name %v, got %v", nodeName, nodes.Items)
-	}
-	kubeletPort := nodes.Items[0].Status.DaemonEndpoints.KubeletEndpoint.Port
-	return g.grabFromKubeletInternal(nodeName, int(kubeletPort))
+	_ = "STUB: not implemented"
+	return *new(KubeletMetrics), nil
 }
 
 func (g *Grabber) grabFromKubeletInternal(nodeName string, kubeletPort int) (KubeletMetrics, error) {
-	if kubeletPort <= 0 || kubeletPort > 65535 {
-		return KubeletMetrics{}, fmt.Errorf("Invalid Kubelet port %v. Skipping Kubelet's metrics gathering", kubeletPort)
-	}
-	output, err := g.getMetricsFromNode(nodeName, int(kubeletPort))
-	if err != nil {
-		return KubeletMetrics{}, err
-	}
-	return parseKubeletMetrics(output)
+	_ = "STUB: not implemented"
+	return *new(KubeletMetrics), nil
 }
 
 // GrabFromScheduler returns metrics from scheduler
 func (g *Grabber) GrabFromScheduler() (SchedulerMetrics, error) {
-	if !g.grabFromScheduler {
-		return SchedulerMetrics{}, fmt.Errorf("kube-scheduler: %w", MetricsGrabbingDisabledError)
-	}
-
-	var err error
-
-	g.waitForSchedulerReadyOnce.Do(func() {
-		if readyErr := e2epod.WaitTimeoutForPodReadyInNamespace(g.client, g.kubeScheduler, metav1.NamespaceSystem, 5*time.Minute); readyErr != nil {
-			err = fmt.Errorf("error waiting for kube-scheduler pod to be ready: %w", readyErr)
-		}
-	})
-	if err != nil {
-		return SchedulerMetrics{}, err
-	}
-
-	var lastMetricsFetchErr error
-	var output string
-	if metricsWaitErr := wait.PollImmediate(time.Second, time.Minute, func() (bool, error) {
-		output, lastMetricsFetchErr = g.getSecureMetricsFromPod(g.kubeScheduler, metav1.NamespaceSystem, kubeSchedulerPort)
-		return lastMetricsFetchErr == nil, nil
-	}); metricsWaitErr != nil {
-		err := fmt.Errorf("error waiting for kube-scheduler pod to expose metrics: %v; %v", metricsWaitErr, lastMetricsFetchErr)
-		return SchedulerMetrics{}, err
-	}
-
-	return parseSchedulerMetrics(output)
+	_ = "STUB: not implemented"
+	return *new(SchedulerMetrics), nil
 }
 
 // GrabFromClusterAutoscaler returns metrics from cluster autoscaler
 func (g *Grabber) GrabFromClusterAutoscaler() (ClusterAutoscalerMetrics, error) {
-	if !g.HasControlPlanePods() && g.externalClient == nil {
-		return ClusterAutoscalerMetrics{}, fmt.Errorf("ClusterAutoscaler: %w", MetricsGrabbingDisabledError)
-	}
-	var client clientset.Interface
-	var namespace string
-	if g.externalClient != nil {
-		client = g.externalClient
-		namespace = "kubemark"
-	} else {
-		client = g.client
-		namespace = metav1.NamespaceSystem
-	}
-	output, err := g.getMetricsFromPod(client, "cluster-autoscaler", namespace, 8085)
-	if err != nil {
-		return ClusterAutoscalerMetrics{}, err
-	}
-	return parseClusterAutoscalerMetrics(output)
+	_ = "STUB: not implemented"
+	return *new(ClusterAutoscalerMetrics), nil
 }
 
 // GrabFromControllerManager returns metrics from controller manager
 func (g *Grabber) GrabFromControllerManager() (ControllerManagerMetrics, error) {
-	if !g.grabFromControllerManager {
-		return ControllerManagerMetrics{}, fmt.Errorf("kube-controller-manager: %w", MetricsGrabbingDisabledError)
-	}
-
-	var err error
-
-	g.waitForControllerManagerReadyOnce.Do(func() {
-		if readyErr := e2epod.WaitTimeoutForPodReadyInNamespace(g.client, g.kubeControllerManager, metav1.NamespaceSystem, 5*time.Minute); readyErr != nil {
-			err = fmt.Errorf("error waiting for kube-controller-manager pod to be ready: %w", readyErr)
-		}
-	})
-	if err != nil {
-		return ControllerManagerMetrics{}, err
-	}
-
-	var output string
-	var lastMetricsFetchErr error
-	if metricsWaitErr := wait.PollImmediate(time.Second, time.Minute, func() (bool, error) {
-		output, lastMetricsFetchErr = g.getSecureMetricsFromPod(g.kubeControllerManager, metav1.NamespaceSystem, kubeControllerManagerPort)
-		return lastMetricsFetchErr == nil, nil
-	}); metricsWaitErr != nil {
-		err := fmt.Errorf("error waiting for kube-controller-manager to expose metrics: %v; %v", metricsWaitErr, lastMetricsFetchErr)
-		return ControllerManagerMetrics{}, err
-	}
-
-	return parseControllerManagerMetrics(output)
+	_ = "STUB: not implemented"
+	return *new(ControllerManagerMetrics), nil
 }
 
 // GrabFromSnapshotController returns metrics from controller manager
 func (g *Grabber) GrabFromSnapshotController(podName string, port int) (SnapshotControllerMetrics, error) {
-	if !g.grabFromSnapshotController {
-		return SnapshotControllerMetrics{}, fmt.Errorf("volume-snapshot-controller: %w", MetricsGrabbingDisabledError)
-	}
-
-	// Use overrides if provided via test config flags.
-	// Otherwise, use the default volume-snapshot-controller pod name and port.
-	if podName == "" {
-		podName = g.snapshotController
-	}
-	if port == 0 {
-		port = snapshotControllerPort
-	}
-
-	var err error
-
-	g.waitForSnapshotControllerReadyOnce.Do(func() {
-		if readyErr := e2epod.WaitTimeoutForPodReadyInNamespace(g.client, podName, metav1.NamespaceSystem, 5*time.Minute); readyErr != nil {
-			err = fmt.Errorf("error waiting for volume-snapshot-controller pod to be ready: %w", readyErr)
-		}
-	})
-	if err != nil {
-		return SnapshotControllerMetrics{}, err
-	}
-
-	var output string
-	var lastMetricsFetchErr error
-	if metricsWaitErr := wait.PollImmediate(time.Second, time.Minute, func() (bool, error) {
-		output, lastMetricsFetchErr = g.getMetricsFromPod(g.client, podName, metav1.NamespaceSystem, port)
-		return lastMetricsFetchErr == nil, nil
-	}); metricsWaitErr != nil {
-		err = fmt.Errorf("error waiting for volume-snapshot-controller pod to expose metrics: %v; %v", metricsWaitErr, lastMetricsFetchErr)
-		return SnapshotControllerMetrics{}, err
-	}
-
-	return parseSnapshotControllerMetrics(output)
+	_ = "STUB: not implemented"
+	return *new(SnapshotControllerMetrics), nil
 }
+
+// Use overrides if provided via test config flags.
+// Otherwise, use the default volume-snapshot-controller pod name and port.
 
 // GrabFromAPIServer returns metrics from API server
 func (g *Grabber) GrabFromAPIServer() (APIServerMetrics, error) {
-	output, err := g.getMetricsFromAPIServer()
-	if err != nil {
-		return APIServerMetrics{}, nil
-	}
-	return parseAPIServerMetrics(output)
+	_ = "STUB: not implemented"
+	return *new(APIServerMetrics), nil
 }
 
 // Grab returns metrics from corresponding component
 func (g *Grabber) Grab() (Collection, error) {
-	result := Collection{}
-	var errs []error
-	if g.grabFromAPIServer {
-		metrics, err := g.GrabFromAPIServer()
-		if err != nil {
-			errs = append(errs, err)
-		} else {
-			result.APIServerMetrics = metrics
-		}
-	}
-	if g.grabFromScheduler {
-		metrics, err := g.GrabFromScheduler()
-		if err != nil {
-			errs = append(errs, err)
-		} else {
-			result.SchedulerMetrics = metrics
-		}
-	}
-	if g.grabFromControllerManager {
-		metrics, err := g.GrabFromControllerManager()
-		if err != nil {
-			errs = append(errs, err)
-		} else {
-			result.ControllerManagerMetrics = metrics
-		}
-	}
-	if g.grabFromSnapshotController {
-		metrics, err := g.GrabFromSnapshotController(g.snapshotController, snapshotControllerPort)
-		if err != nil {
-			errs = append(errs, err)
-		} else {
-			result.SnapshotControllerMetrics = metrics
-		}
-	}
-	if g.grabFromClusterAutoscaler {
-		metrics, err := g.GrabFromClusterAutoscaler()
-		if err != nil {
-			errs = append(errs, err)
-		} else {
-			result.ClusterAutoscalerMetrics = metrics
-		}
-	}
-	if g.grabFromKubelets {
-		result.KubeletMetrics = make(map[string]KubeletMetrics)
-		nodes, err := g.client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			errs = append(errs, err)
-		} else {
-			for _, node := range nodes.Items {
-				kubeletPort := node.Status.DaemonEndpoints.KubeletEndpoint.Port
-				metrics, err := g.grabFromKubeletInternal(node.Name, int(kubeletPort))
-				if err != nil {
-					errs = append(errs, err)
-				}
-				result.KubeletMetrics[node.Name] = metrics
-			}
-		}
-	}
-	if len(errs) > 0 {
-		return result, fmt.Errorf("Errors while grabbing metrics: %v", errs)
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(Collection), nil
 }
 
 // getMetricsFromPod retrieves metrics data from an insecure port.
 func (g *Grabber) getMetricsFromPod(client clientset.Interface, podName string, namespace string, port int) (string, error) {
-	rawOutput, err := client.CoreV1().RESTClient().Get().
-		Namespace(namespace).
-		Resource("pods").
-		SubResource("proxy").
-		Name(fmt.Sprintf("%s:%d", podName, port)).
-		Suffix("metrics").
-		Do(context.TODO()).Raw()
-	if err != nil {
-		return "", err
-	}
-	return string(rawOutput), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // getSecureMetricsFromPod retrieves metrics from a pod that uses TLS
@@ -411,43 +157,20 @@ func (g *Grabber) getMetricsFromPod(client clientset.Interface, podName string, 
 // https://localhost:<port>/metrics". It uses the same credentials
 // as kubelet.
 func (g *Grabber) getSecureMetricsFromPod(podName string, namespace string, port int) (string, error) {
-	dialer := e2epod.NewDialer(g.client, g.config)
-	metricConfig := rest.CopyConfig(g.config)
-	addr := e2epod.Addr{
-		Namespace: namespace,
-		PodName:   podName,
-		Port:      port,
-	}
-	metricConfig.Dial = func(ctx context.Context, network, address string) (net.Conn, error) {
-		return dialer.DialContainerPort(ctx, addr)
-	}
-	// This should make it possible verify the server, but while it
-	// got past the server name check, certificate validation
-	// still failed.
-	metricConfig.Host = addr.String()
-	metricConfig.ServerName = "localhost"
-	// Verifying the pod certificate with the same root CA
-	// as for the API server led to an error about "unknown root
-	// certificate". Disabling certificate checking on the client
-	// side gets around that and should be good enough for
-	// E2E testing.
-	metricConfig.Insecure = true
-	metricConfig.CAFile = ""
-	metricConfig.CAData = nil
-
-	// clientset.NewForConfig is used because
-	// metricClient.RESTClient() is directly usable, in contrast
-	// to the client constructed by rest.RESTClientFor().
-	metricClient, err := clientset.NewForConfig(metricConfig)
-	if err != nil {
-		return "", err
-	}
-
-	rawOutput, err := metricClient.RESTClient().Get().
-		AbsPath("metrics").
-		Do(context.TODO()).Raw()
-	if err != nil {
-		return "", err
-	}
-	return string(rawOutput), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
+
+// This should make it possible verify the server, but while it
+// got past the server name check, certificate validation
+// still failed.
+
+// Verifying the pod certificate with the same root CA
+// as for the API server led to an error about "unknown root
+// certificate". Disabling certificate checking on the client
+// side gets around that and should be good enough for
+// E2E testing.
+
+// clientset.NewForConfig is used because
+// metricClient.RESTClient() is directly usable, in contrast
+// to the client constructed by rest.RESTClientFor().

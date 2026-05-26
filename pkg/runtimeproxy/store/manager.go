@@ -37,16 +37,12 @@ type ContainerInfo struct {
 }
 
 func (p *PodSandboxInfo) GetPodSandboxHookRequest() *v1alpha1.PodSandboxHookRequest {
-	if p != nil {
-		return p.PodSandboxHookRequest
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *ContainerInfo) GetContainerResourceHookRequest() *v1alpha1.ContainerResourceHookRequest {
-	if c != nil {
-		return c.ContainerResourceHookRequest
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -57,12 +53,7 @@ type metaManager struct {
 }
 
 // reset. currently only used by test case
-func (mm *metaManager) reset() {
-	mm.Lock()
-	defer mm.Unlock()
-	mm.podInfos = make(map[string]*PodSandboxInfo, defaultPoolSize)
-	mm.containerInfos = make(map[string]*ContainerInfo, defaultPoolSize)
-}
+func (mm *metaManager) reset() { _ = "STUB: not implemented"; return }
 
 var m = &metaManager{
 	podInfos:       make(map[string]*PodSandboxInfo, defaultPoolSize),
@@ -71,43 +62,23 @@ var m = &metaManager{
 
 // WritePodSandboxInfo checkpoints the pod level info
 func WritePodSandboxInfo(podUID string, pod *PodSandboxInfo) error {
-	m.Lock()
-	defer m.Unlock()
-	m.podInfos[podUID] = pod
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // WriteContainerInfo returns
 func WriteContainerInfo(containerUID string, container *ContainerInfo) error {
-	m.Lock()
-	defer m.Unlock()
-	m.containerInfos[containerUID] = container
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // GetPodSandboxInfo returns sandbox info
-func GetPodSandboxInfo(podUID string) *PodSandboxInfo {
-	m.RLock()
-	defer m.RUnlock()
-	return m.podInfos[podUID]
-}
+func GetPodSandboxInfo(podUID string) *PodSandboxInfo { _ = "STUB: not implemented"; return nil }
 
-func GetContainerInfo(containerUID string) *ContainerInfo {
-	m.RLock()
-	defer m.RUnlock()
-	return m.containerInfos[containerUID]
-}
+func GetContainerInfo(containerUID string) *ContainerInfo { _ = "STUB: not implemented"; return nil }
 
 // DeletePodSandboxInfo delete pod checkpoint indexed by podUID
-func DeletePodSandboxInfo(podUID string) {
-	m.Lock()
-	defer m.Unlock()
-	delete(m.podInfos, podUID)
-}
+func DeletePodSandboxInfo(podUID string) { _ = "STUB: not implemented"; return }
 
 // DeleteContainerInfo delete container checkpoint indexed by containerUID
-func DeleteContainerInfo(containerUID string) {
-	m.Lock()
-	defer m.Unlock()
-	delete(m.containerInfos, containerUID)
-}
+func DeleteContainerInfo(containerUID string) { _ = "STUB: not implemented"; return }

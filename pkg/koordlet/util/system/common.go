@@ -17,14 +17,7 @@ limitations under the License.
 package system
 
 import (
-	"io"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
 	"syscall"
-
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -32,98 +25,36 @@ var (
 	PageSize      = int64(syscall.Getpagesize())
 )
 
-func CommonFileRead(file string) (string, error) {
-	file = filepath.Join(CommonRootDir, file)
-	klog.V(5).Infof("read %s", file)
-	data, err := os.ReadFile(file)
-	return strings.Trim(string(data), "\n"), err
-}
+func CommonFileRead(file string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func CommonFileWriteIfDifferent(file string, value string) (bool, error) {
-	currentValue, err := CommonFileRead(file)
-	if err != nil {
-		return false, err
-	}
-	if value == currentValue {
-		klog.Infof("resource currentValue equal newValue, skip update resource! file:%s, value %s", file, value)
-		return false, nil
-	}
-	if err := CommonFileWrite(file, value); err != nil {
-		return false, err
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func CommonFileWrite(file string, data string) error {
-	file = filepath.Join(CommonRootDir, file)
-	klog.V(5).Infof("write %s [%s]", file, data)
-	return os.WriteFile(file, []byte(data), 0644)
-}
+func CommonFileWrite(file string, data string) error { _ = "STUB: not implemented"; return nil }
 
 // ReadFileNoStat uses io.ReadAll to read contents of entire file.
 // This is similar to io.ReadFile but without the call to os.Stat, because
 // many files in /proc and /sys report incorrect file sizes (either 0 or 4096).
 // Reads a max file size of 512kB.  For files larger than this, a scanner
 // should be used.
-func ReadFileNoStat(filename string) ([]byte, error) {
-	const maxBufferSize = 1024 * 512
+func ReadFileNoStat(filename string) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
+func FileExists(path string) bool { _ = "STUB: not implemented"; return false }
 
-	reader := io.LimitReader(f, maxBufferSize)
-	return io.ReadAll(reader)
-}
-
-func FileExists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
-func PathExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
+func PathExists(path string) (bool, error) { _ = "STUB: not implemented"; return false, nil }
 
 // ParseKVMap parses a file content into a KV map.
 // e.g. `user 100\nsystem 20` -> `{"user": "100", "system": "20"}`
-func ParseKVMap(content string) map[string]string {
-	m := map[string]string{}
-	lines := strings.Split(content, "\n")
-	for _, line := range lines {
-		lineItems := strings.Fields(line)
-		if len(lineItems) < 2 {
-			klog.V(6).Infof("parse key-value map failed, got invalid number of items, line %s, content %s",
-				line, content)
-			continue
-		}
-		m[lineItems[0]] = lineItems[1]
-	}
-	return m
-}
+func ParseKVMap(content string) map[string]string { _ = "STUB: not implemented"; return nil }
 
 // GoWithNewThread synchronously runs the function in a new goroutine bound to a new OS thread.
 func GoWithNewThread(f func() interface{}) interface{} {
+	_ = "STUB: not implemented"
 	// Lock the thread of the caller goroutine to ensure the thread does not change outside the new goroutine.
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
-	retCh := make(chan interface{})
-	go func() {
-		// When the calling goroutine exits without unlocking the thread, the thread will be terminated.
-		// It helps the function to lock with an individual thread so not to affect the caller goroutine.
-		runtime.LockOSThread()
-		ret := f()
-		retCh <- ret
-	}()
-	ret := <-retCh
-	return ret
+	return nil
 }
+
+// When the calling goroutine exits without unlocking the thread, the thread will be terminated.
+// It helps the function to lock with an individual thread so not to affect the caller goroutine.

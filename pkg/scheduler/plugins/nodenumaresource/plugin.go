@@ -18,31 +18,22 @@ package nodenumaresource
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
-	nrtv1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
 	nrtinformers "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/informers/externalversions"
 	topologylister "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/listers/topology/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	resourceapi "k8s.io/component-helpers/resource"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	schedulingconfig "github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config/validation"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/hinter"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/topologymanager"
 	"github.com/koordinator-sh/koordinator/pkg/util/bitmask"
 	"github.com/koordinator-sh/koordinator/pkg/util/cpuset"
-	reservationutil "github.com/koordinator-sh/koordinator/pkg/util/reservation"
 )
 
 const (
@@ -97,88 +88,35 @@ type pluginOptions struct {
 }
 
 func WithTopologyOptionsManager(topologyOptionsManager TopologyOptionsManager) Option {
-	return func(opts *pluginOptions) {
-		opts.topologyOptionsManager = topologyOptionsManager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithResourceManager(resourceManager ResourceManager) Option {
-	return func(opts *pluginOptions) {
-		opts.resourceManager = resourceManager
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func NewWithOptions(args runtime.Object, handle fwktype.Handle, opts ...Option) (fwktype.Plugin, error) {
-	pluginArgs, ok := args.(*schedulingconfig.NodeNUMAResourceArgs)
-	if !ok {
-		return nil, fmt.Errorf("want args to be of type NodeNUMAResourceArgs, got %T", args)
-	}
-	if err := validation.ValidateNodeNUMAResourceArgs(nil, pluginArgs); err != nil {
-		return nil, err
-	}
-	strategy := pluginArgs.ScoringStrategy.Type
-	scorePlugin, exists := resourceStrategyTypeMap[strategy]
-	if !exists {
-		return nil, fmt.Errorf("scoring strategy %s is not supported", strategy)
-	}
-	scorer := scorePlugin(pluginArgs)
-
-	strategy = pluginArgs.NUMAScoringStrategy.Type
-	scorePlugin, exists = resourceStrategyTypeMap[strategy]
-	if !exists {
-		return nil, fmt.Errorf("numa scoring strategy %s is not supported", strategy)
-	}
-	numaScorer := scorePlugin(pluginArgs)
-
-	options := &pluginOptions{}
-	for _, optFnc := range opts {
-		optFnc(options)
-	}
-
-	if options.topologyOptionsManager == nil {
-		options.topologyOptionsManager = NewTopologyOptionsManager()
-	}
-
-	if options.resourceManager == nil {
-		defaultNUMAAllocateStrategy := GetDefaultNUMAAllocateStrategy(pluginArgs)
-		options.resourceManager = NewResourceManager(handle, defaultNUMAAllocateStrategy, options.topologyOptionsManager)
-	}
-
-	nrtInformerFactory, err := initNRTInformerFactory(handle)
-	if err != nil {
-		return nil, err
-	}
-	if err := registerNodeResourceTopologyEventHandler(nrtInformerFactory, options.topologyOptionsManager); err != nil {
-		return nil, err
-	}
-	registerPodEventHandler(handle, options.resourceManager)
-
-	nrtLister := nrtInformerFactory.Topology().V1alpha1().NodeResourceTopologies().Lister()
-
-	return &Plugin{
-		handle:                 handle.(frameworkext.ExtendedHandle),
-		pluginArgs:             pluginArgs,
-		nrtInformerFactory:     nrtInformerFactory,
-		nrtLister:              nrtLister,
-		scorer:                 scorer,
-		numaScorer:             numaScorer,
-		resourceManager:        options.resourceManager,
-		topologyOptionsManager: options.topologyOptionsManager,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fwktype.Plugin), nil
 }
 
 func New(_ context.Context, args runtime.Object, handle fwktype.Handle) (fwktype.Plugin, error) {
-	return NewWithOptions(args, handle)
+	_ = "STUB: not implemented"
+	return *new(fwktype.Plugin), nil
 }
 
-func (p *Plugin) Name() string { return Name }
+func (p *Plugin) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (p *Plugin) GetResourceManager() ResourceManager {
-	return p.resourceManager
+	_ = "STUB: not implemented"
+	return *new(ResourceManager)
 }
 
 func (p *Plugin) GetTopologyOptionsManager() TopologyOptionsManager {
-	return p.topologyOptionsManager
+	_ = "STUB: not implemented"
+	return *new(TopologyOptionsManager)
 }
 
 // schedulingStateData is the data only kept in the scheduling cycle. It could be cleaned up
@@ -213,589 +151,138 @@ type allocation struct {
 }
 
 func (s *preFilterState) Clone() fwktype.StateData {
-	ns := &preFilterState{
-		skip:                        s.skip,
-		requestCPUBind:              s.requestCPUBind,
-		requests:                    s.requests,
-		requiredCPUBindPolicy:       s.requiredCPUBindPolicy,
-		preferredCPUBindPolicy:      s.preferredCPUBindPolicy,
-		podNUMATopologyPolicy:       s.podNUMATopologyPolicy,
-		podNUMAExclusive:            s.podNUMAExclusive,
-		preferredCPUExclusivePolicy: s.preferredCPUExclusivePolicy,
-		numCPUsNeeded:               s.numCPUsNeeded,
-		allocation:                  s.allocation,
-		hasReservationAffinity:      s.hasReservationAffinity,
-		isPreAllocationRequired:     s.isPreAllocationRequired,
-	}
-	s.schedulingStateData.lock.RLock()
-	defer s.schedulingStateData.lock.RUnlock()
-	if s.preemptibleState != nil {
-		preemptibleState := make(map[string]*preemptibleNodeState, len(s.preemptibleState))
-		for nodeName, nodeState := range s.preemptibleState {
-			preemptibleState[nodeName] = nodeState.Clone()
-		}
-		ns.preemptibleState = preemptibleState
-	}
-	return ns
+	_ = "STUB: not implemented"
+	return *new(fwktype.StateData)
 }
 
 // CleanSchedulingData clears the scheduling cycle data in the stateData to reduce memory cost before entering
 // the binding cycle.
-func (s *preFilterState) CleanSchedulingData() {
-	s.schedulingStateData = schedulingStateData{}
-}
+func (s *preFilterState) CleanSchedulingData() { _ = "STUB: not implemented"; return }
 
 func getPreFilterState(cycleState fwktype.CycleState) (*preFilterState, *fwktype.Status) {
-	value, err := cycleState.Read(stateKey)
-	if err != nil {
-		return nil, fwktype.AsStatus(err)
-	}
-	state := value.(*preFilterState)
-	return state, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *Plugin) EventsToRegister(_ context.Context) ([]fwktype.ClusterEventWithHint, error) {
+	_ = "STUB: not implemented"
 	// To register a custom event, follow the naming convention at:
 	// https://github.com/kubernetes/kubernetes/blob/e1ad9bee5bba8fbe85a6bf6201379ce8b1a611b1/pkg/scheduler/eventhandlers.go#L415-L422
-	gvk := fmt.Sprintf("noderesourcetopologies.%v.%v", nrtv1alpha1.SchemeGroupVersion.Version, nrtv1alpha1.SchemeGroupVersion.Group)
-	return []fwktype.ClusterEventWithHint{
-		{Event: fwktype.ClusterEvent{Resource: fwktype.Pod, ActionType: fwktype.Delete}},
-		{Event: fwktype.ClusterEvent{Resource: fwktype.EventResource(gvk), ActionType: fwktype.Add | fwktype.Update | fwktype.Delete}},
-	}, nil
+	return nil, nil
 }
 
 func (p *Plugin) PreFilter(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodes []fwktype.NodeInfo) (*fwktype.PreFilterResult, *fwktype.Status) {
-	resourceSpec, err := extension.GetResourceSpec(pod.Annotations)
-	if err != nil {
-		return nil, fwktype.NewStatus(fwktype.Error, err.Error())
-	}
-	numaSpec, err := extension.GetNUMATopologySpec(pod.Annotations)
-	if err != nil {
-		return nil, fwktype.NewStatus(fwktype.Error, err.Error())
-	}
-
-	requests := resourceapi.PodRequests(pod, resourceapi.PodResourcesOptions{})
-	if quotav1.IsZero(requests) {
-		cycleState.Write(stateKey, &preFilterState{
-			skip: true,
-		})
-		return nil, fwktype.NewStatus(fwktype.Skip)
-	}
-	reservationAffinity, err := reservationutil.GetRequiredReservationAffinity(pod)
-	if err != nil {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-	}
-	requestedCPU := requests.Cpu().MilliValue()
-	state := &preFilterState{
-		requestCPUBind:          false,
-		requests:                requests,
-		numCPUsNeeded:           int(requestedCPU / 1000),
-		podNUMATopologyPolicy:   numaSpec.NUMATopologyPolicy,
-		podNUMAExclusive:        numaSpec.SingleNUMANodeExclusive,
-		hasReservationAffinity:  reservationAffinity != nil,
-		isPreAllocationRequired: extension.IsPreAllocationRequired(pod.Labels),
-	}
-
-	if schedulingHint := hinter.GetSchedulingHintState(cycleState); schedulingHint != nil {
-		if _, ok := schedulingHint.Extensions[Name]; ok {
-			resourceStatus, err := extension.GetResourceStatus(pod.Annotations)
-			if err != nil {
-				return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-			}
-			if resourceStatus.NUMANodeResources != nil || resourceStatus.CPUSet != "" {
-				alloc := &allocation{
-					numaNodeResource: map[int]corev1.ResourceList{},
-				}
-				for _, resource := range resourceStatus.NUMANodeResources {
-					alloc.numaNodeResource[int(resource.Node)] = resource.Resources
-				}
-				alloc.cpuset = cpuset.MustParse(resourceStatus.CPUSet)
-				state.designatedAllocation = alloc
-			}
-		}
-	}
-
-	if AllowUseCPUSet(pod) {
-		cpuBindPolicy := schedulingconfig.CPUBindPolicy(resourceSpec.PreferredCPUBindPolicy)
-		if cpuBindPolicy == "" || cpuBindPolicy == schedulingconfig.CPUBindPolicyDefault {
-			cpuBindPolicy = p.pluginArgs.DefaultCPUBindPolicy
-		}
-		requiredCPUBindPolicy := schedulingconfig.CPUBindPolicy(resourceSpec.RequiredCPUBindPolicy)
-		if requiredCPUBindPolicy == schedulingconfig.CPUBindPolicyDefault {
-			requiredCPUBindPolicy = p.pluginArgs.DefaultCPUBindPolicy
-		}
-		if requiredCPUBindPolicy != "" {
-			cpuBindPolicy = requiredCPUBindPolicy
-		}
-
-		if cpuBindPolicy == schedulingconfig.CPUBindPolicyFullPCPUs ||
-			cpuBindPolicy == schedulingconfig.CPUBindPolicySpreadByPCPUs {
-			if requestedCPU%1000 != 0 {
-				return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrInvalidRequestedCPUs)
-			}
-
-			if requestedCPU > 0 {
-				state.requestCPUBind = true
-				state.requiredCPUBindPolicy = requiredCPUBindPolicy
-				state.preferredCPUBindPolicy = cpuBindPolicy
-				state.preferredCPUExclusivePolicy = resourceSpec.PreferredCPUExclusivePolicy
-			}
-		}
-	}
-
-	cycleState.Write(stateKey, state)
-	topologymanager.InitStore(cycleState)
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func (p *Plugin) PreFilterExtensions() fwktype.PreFilterExtensions {
-	return p
+	_ = "STUB: not implemented"
+	return *new(fwktype.PreFilterExtensions)
 }
 
 func (p *Plugin) Filter(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeInfo fwktype.NodeInfo) *fwktype.Status {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-	if state.skip {
-		return nil
-	}
-	node := nodeInfo.Node()
-	if node == nil {
-		return fwktype.NewStatus(fwktype.Error, "node not found")
-	}
-	topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-	podNUMATopologyPolicy := state.podNUMATopologyPolicy
-	numaTopologyPolicy := getNUMATopologyPolicy(node.Labels, topologyOptions.NUMATopologyPolicy)
-	numaTopologyPolicy, err := mergeTopologyPolicy(numaTopologyPolicy, podNUMATopologyPolicy)
-	if err != nil {
-		return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrNotMatchNUMATopology)
-	}
-	if state.designatedAllocation != nil {
-		status = p.allocate(ctx, cycleState, pod, nodeInfo.Node(), numaTopologyPolicy)
-		if !status.IsSuccess() {
-			return status
-		}
-		return nil
-	}
-	nodeCPUBindPolicy := extension.GetNodeCPUBindPolicy(node.Labels, topologyOptions.Policy)
-	requestCPUBind, status := requestCPUBind(state, nodeCPUBindPolicy)
-	if !status.IsSuccess() {
-		return status
-	}
-	if status := p.filterAmplifiedCPUs(state.requests.Cpu().MilliValue(), nodeInfo, requestCPUBind); !status.IsSuccess() {
-		return status
-	}
-
-	if requestCPUBind {
-		// It's necessary to force node to have NodeResourceTopology and CPUTopology
-		// We must satisfy the user's CPUSet request. Even if some nodes in the cluster have resources,
-		// they cannot be allocated without valid CPU topology.
-		if !topologyOptions.CPUTopology.IsValid() {
-			return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrInvalidCPUTopology)
-		}
-
-		requiredCPUBindPolicy := state.requiredCPUBindPolicy
-		if nodeCPUBindPolicy == extension.NodeCPUBindPolicyFullPCPUsOnly {
-			requiredCPUBindPolicy = schedulingconfig.CPUBindPolicyFullPCPUs
-		} else if nodeCPUBindPolicy == extension.NodeCPUBindPolicySpreadByPCPUs {
-			requiredCPUBindPolicy = schedulingconfig.CPUBindPolicySpreadByPCPUs
-		}
-		if state.requiredCPUBindPolicy != "" && state.requiredCPUBindPolicy != requiredCPUBindPolicy {
-			return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrCPUBindPolicyConflict)
-		}
-
-		if requiredCPUBindPolicy == schedulingconfig.CPUBindPolicyFullPCPUs {
-			if state.numCPUsNeeded%topologyOptions.CPUTopology.CPUsPerCore() != 0 {
-				return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrSMTAlignmentError)
-			}
-		}
-
-		if requiredCPUBindPolicy != "" && numaTopologyPolicy == extension.NUMATopologyPolicyNone {
-			resourceOptions, err := p.getResourceOptions(state, node, requestCPUBind, topologymanager.NUMATopologyHint{}, topologyOptions)
-			if err != nil {
-				return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-			}
-
-			reservationRestoreState := getReservationRestoreState(cycleState)
-			restoreState := reservationRestoreState.getNodeState(node.Name)
-
-			podAllocation, status := tryAllocateFromReusable(p.resourceManager, restoreState, resourceOptions, restoreState.matched, pod, node)
-			if !status.IsSuccess() {
-				return status
-			}
-			if podAllocation != nil {
-				return nil
-			}
-
-			_, status = tryAllocateFromNode(p.resourceManager, nil, restoreState, resourceOptions, pod, node)
-			if !status.IsSuccess() {
-				return status
-			}
-			return nil
-		}
-	}
-
-	// FIXME: move it ahead the resourceManager.Allocate so that we can check with NUMA hints almost in the Filter
-	if numaTopologyPolicy != extension.NUMATopologyPolicyNone && numaTopologyPolicy != extension.NUMATopologyPolicyBestEffort {
-		// when numa topology policy is set on node, we should maintain the same behavior as before, so we only
-		// set default podNUMAExclusive when podNUMATopologyPolicy is not none
-		podNUMAExclusive := state.podNUMAExclusive
-		if podNUMAExclusive == "" && podNUMATopologyPolicy != "" {
-			podNUMAExclusive = extension.NumaTopologyExclusiveRequired
-		}
-		return p.FilterByNUMANode(ctx, cycleState, pod, node, numaTopologyPolicy, podNUMAExclusive, topologyOptions)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// It's necessary to force node to have NodeResourceTopology and CPUTopology
+// We must satisfy the user's CPUSet request. Even if some nodes in the cluster have resources,
+// they cannot be allocated without valid CPU topology.
+
+// FIXME: move it ahead the resourceManager.Allocate so that we can check with NUMA hints almost in the Filter
+
+// when numa topology policy is set on node, we should maintain the same behavior as before, so we only
+// set default podNUMAExclusive when podNUMATopologyPolicy is not none
 
 func (p *Plugin) filterAmplifiedCPUs(podRequestMilliCPU int64, nodeInfo fwktype.NodeInfo, requestCPUBind bool) *fwktype.Status {
-	if podRequestMilliCPU == 0 {
-		return nil
-	}
-
-	node := nodeInfo.Node()
-	if node == nil {
-		return fwktype.NewStatus(fwktype.Error, "node not found")
-	}
-	cpuAmplificationRatio, err := extension.GetNodeResourceAmplificationRatio(node.Annotations, corev1.ResourceCPU)
-	if err != nil {
-		return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrInvalidCPUAmplificationRatio)
-	}
-	if cpuAmplificationRatio <= 1 {
-		return nil
-	}
-
-	if requestCPUBind {
-		podRequestMilliCPU = extension.Amplify(podRequestMilliCPU, cpuAmplificationRatio)
-	}
-
-	// TODO(joseph): Reservations and preemption should be considered here.
-	// TODO: support allocate reserved cpus with amplified ratios
-	_, allocated, err := p.resourceManager.GetAvailableCPUs(node.Name, cpuset.CPUSet{})
-	if err != nil {
-		return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-	}
-	allocatedMilliCPU := int64(allocated.CPUs().Size() * 1000)
-	requestedMilliCPU := nodeInfo.GetRequested().GetMilliCPU()
-	if requestedMilliCPU >= allocatedMilliCPU && allocatedMilliCPU > 0 {
-		requestedMilliCPU = requestedMilliCPU - allocatedMilliCPU
-		requestedMilliCPU += extension.Amplify(allocatedMilliCPU, cpuAmplificationRatio)
-	}
-	if podRequestMilliCPU > nodeInfo.GetAllocatable().GetMilliCPU()-requestedMilliCPU {
-		return fwktype.NewStatus(fwktype.Unschedulable, ErrInsufficientAmplifiedCPU)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// TODO(joseph): Reservations and preemption should be considered here.
+// TODO: support allocate reserved cpus with amplified ratios
+
 func (p *Plugin) FilterReservation(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, reservationInfo *frameworkext.ReservationInfo, nodeInfo fwktype.NodeInfo) *fwktype.Status {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (p *Plugin) FilterNominateReservation(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, reservationInfo *frameworkext.ReservationInfo, nodeName string) *fwktype.Status {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-	if state.skip {
-		return nil
-	}
-
-	nodeInfo, err := p.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
-	if err != nil {
-		return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting node %q from Snapshot: %v", nodeName, err))
-	}
-	node := nodeInfo.Node()
-	if node == nil {
-		return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting nil node %q from Snapshot", nodeName))
-	}
-
-	topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-	nodeCPUBindPolicy := extension.GetNodeCPUBindPolicy(node.Labels, topologyOptions.Policy)
-	podNUMATopologyPolicy := state.podNUMATopologyPolicy
-	numaTopologyPolicy := getNUMATopologyPolicy(node.Labels, topologyOptions.NUMATopologyPolicy)
-	// we have checked in filter, so we will not get error in reserve
-	numaTopologyPolicy, _ = mergeTopologyPolicy(numaTopologyPolicy, podNUMATopologyPolicy)
-	requestCPUBind, status := requestCPUBind(state, nodeCPUBindPolicy)
-	if !status.IsSuccess() {
-		return status
-	}
-	if !requestCPUBind && numaTopologyPolicy == extension.NUMATopologyPolicyNone {
-		return nil
-	}
-
-	if requestCPUBind {
-		if !topologyOptions.CPUTopology.IsValid() {
-			return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrInvalidCPUTopology)
-		}
-	}
-
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	restoreState := reservationRestoreState.getNodeState(nodeName)
-
-	store := topologymanager.GetStore(cycleState)
-	affinity, _ := store.GetAffinity(nodeName)
-	resourceOptions, err := p.getResourceOptions(state, node, requestCPUBind, affinity, topologyOptions)
-	if err != nil {
-		return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-	}
-
-	// Here we want to filter if the pod can fit the reservation by this plugin, no matter the reservation is scheduled or not.
-	// But the tryAllocateFromReusable restricts that the pod should allocate from an scheduled reservation.
-	// So for pre-allocation, we keep the FilterNominateReservation but swap the allocate func inside for pre-allocation.
-	if restoreState.preAllocationRInfo != nil { // use the cycle state to avoid misunderstanding, e.g. a normal pod allocate from a scheduled pre-allocation reservation
-		matchedPreAllocatableAlloc, ok := restoreState.matched[pod.GetUID()]
-		if !ok {
-			klog.V(5).Infof("nominated pre-allocatable %v doesn't reserve numa resource or cpuset, reservation %s", klog.KObj(pod), reservationInfo.GetName())
-			return nil
-		}
-		_, status = tryAllocateFromReusable(p.resourceManager, restoreState, resourceOptions, map[types.UID]reusableAlloc{pod.GetUID(): matchedPreAllocatableAlloc}, reservationInfo.GetReservePod(), node)
-		return status
-	}
-
-	matchedReservationAlloc, ok := restoreState.matched[reservationInfo.UID()]
-	if !ok {
-		klog.V(5).Infof("nominated reservation %v doesn't reserve numa resource or cpuset, pod %s", klog.KObj(reservationInfo.Reservation), klog.KObj(pod))
-		return nil
-	}
-
-	result, status := tryAllocateFromReusable(p.resourceManager, restoreState, resourceOptions, map[types.UID]reusableAlloc{reservationInfo.UID(): matchedReservationAlloc}, pod, node)
-	if !status.IsSuccess() {
-		return status
-	}
-	if result == nil {
-		// tryAllocateFromReusable returned nil/nil ("no reservation satisfied, but fallback allowed").
-		// In the FilterNominateReservation context, this means the reservation's NUMA scope is
-		// incompatible with the current best topology hint; treat it as unschedulable so this
-		// reservation is excluded from the nominator candidate pool.
-		return fwktype.NewStatus(fwktype.Unschedulable, "reservation NUMA scope is incompatible with the best topology hint")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// we have checked in filter, so we will not get error in reserve
+
+// Here we want to filter if the pod can fit the reservation by this plugin, no matter the reservation is scheduled or not.
+// But the tryAllocateFromReusable restricts that the pod should allocate from an scheduled reservation.
+// So for pre-allocation, we keep the FilterNominateReservation but swap the allocate func inside for pre-allocation.
+// use the cycle state to avoid misunderstanding, e.g. a normal pod allocate from a scheduled pre-allocation reservation
+
+// tryAllocateFromReusable returned nil/nil ("no reservation satisfied, but fallback allowed").
+// In the FilterNominateReservation context, this means the reservation's NUMA scope is
+// incompatible with the current best topology hint; treat it as unschedulable so this
+// reservation is excluded from the nominator candidate pool.
 
 func (p *Plugin) Reserve(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	// ReservationRestoreState is O(n) complexity of node number of the cluster.
-	// clearData clears all nodes' data in the cycleState to reduce memory cost before entering the binding cycle.
-	defer reservationRestoreState.clearData()
-
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-	if state.skip {
-		return nil
-	}
-	if state.allocation == nil {
-		nodeInfo, err := p.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
-		if err != nil {
-			return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting node %q from Snapshot: %v", nodeName, err))
-		}
-		node := nodeInfo.Node()
-		if node == nil {
-			return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting nil node %q from Snapshot", nodeName))
-		}
-		topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-		podNUMATopologyPolicy := state.podNUMATopologyPolicy
-		numaTopologyPolicy := getNUMATopologyPolicy(node.Labels, topologyOptions.NUMATopologyPolicy)
-		// we have check in filter, so we will not get error in reserve
-		numaTopologyPolicy, _ = mergeTopologyPolicy(numaTopologyPolicy, podNUMATopologyPolicy)
-		if numaTopologyPolicy == extension.NUMATopologyPolicyBestEffort {
-			podNUMAExclusive := state.podNUMAExclusive
-			// when numa topology policy is set on node, we should maintain the same behavior as before, so we only
-			// set default podNUMAExclusive when podNUMATopologyPolicy is not none
-			if podNUMAExclusive == "" && podNUMATopologyPolicy != "" {
-				podNUMAExclusive = extension.NumaTopologyExclusiveRequired
-			}
-			status := p.FilterByNUMANode(ctx, cycleState, pod, node, numaTopologyPolicy, podNUMAExclusive, topologyOptions)
-			if !status.IsSuccess() {
-				return status
-			}
-		}
-		status := p.allocate(ctx, cycleState, pod, nodeInfo.Node(), numaTopologyPolicy)
-		if !status.IsSuccess() {
-			return status
-		}
-	}
-
-	if state.allocation != nil {
-		p.resourceManager.Update(nodeName, state.allocation)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// ReservationRestoreState is O(n) complexity of node number of the cluster.
+// clearData clears all nodes' data in the cycleState to reduce memory cost before entering the binding cycle.
+
+// we have check in filter, so we will not get error in reserve
+
+// when numa topology policy is set on node, we should maintain the same behavior as before, so we only
+// set default podNUMAExclusive when podNUMATopologyPolicy is not none
 
 func (p *Plugin) allocate(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, node *corev1.Node, numaTopologyPolicy extension.NUMATopologyPolicy) *fwktype.Status {
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	// ReservationRestoreState is O(n) complexity of node number of the cluster.
-	// clearData clears all nodes' data in the cycleState to reduce memory cost before entering the binding cycle.
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-	if state.skip {
-		return nil
-	}
-
-	topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-	nodeCPUBindPolicy := extension.GetNodeCPUBindPolicy(node.Labels, topologyOptions.Policy)
-	requestCPUBind, status := requestCPUBind(state, nodeCPUBindPolicy)
-	if !status.IsSuccess() {
-		return status
-	}
-	if !requestCPUBind && numaTopologyPolicy == extension.NUMATopologyPolicyNone {
-		return nil
-	}
-
-	if requestCPUBind {
-		if !topologyOptions.CPUTopology.IsValid() {
-			return fwktype.NewStatus(fwktype.Error, ErrInvalidCPUTopology)
-		}
-	}
-
-	// TODO: de-duplicate logic done by the Filter phase and move head the pre-process of the resource options
-	store := topologymanager.GetStore(cycleState)
-	affinity, _ := store.GetAffinity(node.Name)
-	resourceOptions, err := p.getResourceOptions(state, node, requestCPUBind, affinity, topologyOptions)
-	if err != nil {
-		return fwktype.AsStatus(err)
-	}
-
-	restoreState := reservationRestoreState.getNodeState(node.Name)
-
-	result, status := p.allocateWithNominated(restoreState, resourceOptions, pod, node)
-	if !status.IsSuccess() {
-		return status
-	}
-
-	// Finally, try to allocate from node remaining resources
-	if result == nil {
-		result, status = tryAllocateFromNode(p.resourceManager, state, restoreState, resourceOptions, pod, node)
-		if !status.IsSuccess() {
-			return status
-		}
-	}
-	state.allocation = result
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// ReservationRestoreState is O(n) complexity of node number of the cluster.
+// clearData clears all nodes' data in the cycleState to reduce memory cost before entering the binding cycle.
+
+// TODO: de-duplicate logic done by the Filter phase and move head the pre-process of the resource options
+
+// Finally, try to allocate from node remaining resources
+
 func getDesignatedNUMAHints(alloc *allocation) bitmask.BitMask {
-	var numaNodes []int
-	for numaNode := range alloc.numaNodeResource {
-		numaNodes = append(numaNodes, numaNode)
-	}
-	bitMask, _ := bitmask.NewBitMask(numaNodes...)
-	return bitMask
+	_ = "STUB: not implemented"
+	return *new(bitmask.BitMask)
 }
 
 func (p *Plugin) Unreserve(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return
-	}
-	if state.allocation != nil {
-		p.resourceManager.Release(nodeName, pod.UID)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *Plugin) PreBindPreFlight(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (p *Plugin) PreBind(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
-	return p.preBindObject(ctx, cycleState, pod, nodeName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *Plugin) PreBindReservation(ctx context.Context, cycleState fwktype.CycleState, reservation *schedulingv1alpha1.Reservation, nodeName string) *fwktype.Status {
-	return p.preBindObject(ctx, cycleState, reservation, nodeName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *Plugin) preBindObject(ctx context.Context, cycleState fwktype.CycleState, object metav1.Object, nodeName string) *fwktype.Status {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-	if state.skip || state.allocation == nil {
-		return nil
-	}
-
-	nodeInfo, err := p.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
-	if err != nil {
-		return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting node %q from Snapshot: %v", nodeName, err))
-	}
-	node := nodeInfo.Node()
-	if node == nil {
-		return fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting nil node %q from Snapshot", nodeName))
-	}
-	topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-	nodeCPUBindPolicy := extension.GetNodeCPUBindPolicy(node.Labels, topologyOptions.Policy)
-	requestCPUBind, status := requestCPUBind(state, nodeCPUBindPolicy)
-	if !status.IsSuccess() {
-		return status
-	}
-
-	if requestCPUBind {
-		if err := appendResourceSpecIfMissed(object, state, node, &topologyOptions); err != nil {
-			return fwktype.AsStatus(err)
-		}
-	}
-
-	resourceStatus := &extension.ResourceStatus{
-		CPUSet: state.allocation.CPUSet.String(),
-	}
-	for _, nodeRes := range state.allocation.NUMANodeResources {
-		resourceStatus.NUMANodeResources = append(resourceStatus.NUMANodeResources, extension.NUMANodeResource{
-			Node:      int32(nodeRes.Node),
-			Resources: nodeRes.Resources,
-		})
-	}
-	if err := extension.SetResourceStatus(object, resourceStatus); err != nil {
-		return fwktype.AsStatus(err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (p *Plugin) getResourceOptions(state *preFilterState, node *corev1.Node, requestCPUBind bool, affinity topologymanager.NUMATopologyHint, topologyOptions TopologyOptions) (*ResourceOptions, error) {
-	if err := amplifyNUMANodeResources(node, &topologyOptions); err != nil {
-		return nil, err
-	}
-
-	amplificationRatio := topologyOptions.AmplificationRatios[corev1.ResourceCPU]
-
-	requests := state.requests
-	if requestCPUBind && amplificationRatio > 1 {
-		requests = requests.DeepCopy()
-		extension.AmplifyResourceList(requests, topologyOptions.AmplificationRatios, corev1.ResourceCPU)
-	}
-
-	cpuBindPolicy, requiredCPUBindPolicy, err := getCPUBindPolicy(&topologyOptions, node, state.requiredCPUBindPolicy, state.preferredCPUBindPolicy)
-	if err != nil {
-		return nil, err
-	}
-
-	var nodePreemptionState *preemptibleNodeState
-	state.schedulingStateData.lock.RLock()
-	if state.preemptibleState != nil && state.preemptibleState[node.Name] != nil {
-		nodePreemptionState = state.preemptibleState[node.Name].Clone()
-	}
-	state.schedulingStateData.lock.RUnlock()
-
-	options := &ResourceOptions{
-		requests:                requests,
-		originalRequests:        state.requests,
-		numCPUsNeeded:           state.numCPUsNeeded,
-		requestCPUBind:          requestCPUBind,
-		requiredCPUBindPolicy:   requiredCPUBindPolicy,
-		cpuBindPolicy:           cpuBindPolicy,
-		cpuExclusivePolicy:      state.preferredCPUExclusivePolicy,
-		hint:                    affinity,
-		requiredFromReservation: state.hasReservationAffinity,
-		requiredPreAllocation:   state.isPreAllocationRequired,
-		topologyOptions:         topologyOptions,
-		nodePreemptionState:     nodePreemptionState,
-	}
-	return options, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func tryAllocateFromNode(
@@ -806,68 +293,22 @@ func tryAllocateFromNode(
 	pod *corev1.Pod,
 	node *corev1.Node,
 ) (allocation *PodAllocation, status *fwktype.Status) {
-	if preFilterState != nil && preFilterState.designatedAllocation != nil {
-		resourceOptions.requiredResources = preFilterState.designatedAllocation.numaNodeResource
-		resourceOptions.preferredCPUs = preFilterState.designatedAllocation.cpuset
-		if len(preFilterState.designatedAllocation.numaNodeResource) > 0 {
-			resourceOptions.hint = topologymanager.NUMATopologyHint{
-				NUMANodeAffinity: getDesignatedNUMAHints(preFilterState.designatedAllocation),
-			}
-		}
-		resourceOptions.preemptibleCPUs = cpuset.NewCPUSet()
-		defer func() {
-			if allocation != nil && !allocation.CPUSet.Equals(preFilterState.designatedAllocation.cpuset) {
-				allocation = nil
-				status = fwktype.NewStatus(fwktype.Unschedulable, ErrNotEnoughCPUs)
-			}
-		}()
-	} else {
-		resourceOptions.requiredResources = nil
-		// Return both unmatched and matched reservation owner usage to eliminate double accounting.
-		// For each reservation, the fake reservation pod occupies R.Spec.Resources while its owner
-		// pods are independently accounted in the node cache. Only the second-layer owner usage
-		// (already consumed inside the reservation) should be returned here; R.Spec.Resources remain
-		// deducted as they are still reserved from the pod's perspective when going through the
-		// node-free path, so the pod cannot steal any reservation capacity.
-		resourceOptions.reusableResources = appendAllocated(nil, restoreState.mergedUnmatchedUsed, restoreState.mergedMatchedAllocated)
-		resourceOptions.preferredCPUs = cpuset.NewCPUSet()
-		resourceOptions.preemptibleCPUs = cpuset.NewCPUSet()
-	}
-
-	// update with node preemption state
-	if resourceOptions.nodePreemptionState != nil && resourceOptions.nodePreemptionState.nodeAlloc != nil {
-		nodePreemptionAlloc := resourceOptions.nodePreemptionState.nodeAlloc
-		resourceOptions.reusableResources = nodePreemptionAlloc.AppendNUMAResources(resourceOptions.reusableResources)
-		resourceOptions.preemptibleCPUs = nodePreemptionAlloc.AppendCPUSet(resourceOptions.preemptibleCPUs)
-	}
-
-	return manager.Allocate(node, pod, resourceOptions)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Return both unmatched and matched reservation owner usage to eliminate double accounting.
+// For each reservation, the fake reservation pod occupies R.Spec.Resources while its owner
+// pods are independently accounted in the node cache. Only the second-layer owner usage
+// (already consumed inside the reservation) should be returned here; R.Spec.Resources remain
+// deducted as they are still reserved from the pod's perspective when going through the
+// node-free path, so the pod cannot steal any reservation capacity.
+
+// update with node preemption state
 
 func appendResourceSpecIfMissed(object metav1.Object, state *preFilterState, node *corev1.Node, topologyOpts *TopologyOptions) error {
-	cpuBindPolicy, required, err := getCPUBindPolicy(topologyOpts, node, state.requiredCPUBindPolicy, state.preferredCPUBindPolicy)
-	if err != nil {
-		return err
-	}
-
-	// Write back ResourceSpec annotation if the Pod hasn't specified CPUBindPolicy
-	shouldWriteBack := false
-	annotations := object.GetAnnotations()
-	resourceSpec, _ := extension.GetResourceSpec(annotations)
-	if required && (resourceSpec.RequiredCPUBindPolicy == "" || resourceSpec.RequiredCPUBindPolicy == extension.CPUBindPolicyDefault) {
-		resourceSpec.RequiredCPUBindPolicy = extension.CPUBindPolicy(cpuBindPolicy)
-		shouldWriteBack = true
-	}
-	if resourceSpec.PreferredCPUBindPolicy == extension.CPUBindPolicyDefault {
-		resourceSpec.PreferredCPUBindPolicy = extension.CPUBindPolicy(cpuBindPolicy)
-		shouldWriteBack = true
-	}
-	if resourceSpec.RequiredCPUBindPolicy == "" && resourceSpec.PreferredCPUBindPolicy == "" && cpuBindPolicy != "" {
-		resourceSpec.PreferredCPUBindPolicy = extension.CPUBindPolicy(cpuBindPolicy)
-		shouldWriteBack = true
-	}
-	if !shouldWriteBack {
-		return nil
-	}
-	return extension.SetResourceSpec(object, resourceSpec)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Write back ResourceSpec annotation if the Pod hasn't specified CPUBindPolicy

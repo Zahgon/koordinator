@@ -17,8 +17,6 @@ limitations under the License.
 package metrics
 
 import (
-	"strconv"
-
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/koordinator-sh/koordinator/pkg/util/metrics"
@@ -49,44 +47,16 @@ var (
 )
 
 func RecordContainerCoreSchedCookie(namespace, podName, podUID, containerName, containerID, groupID string, cookieID uint64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PodNamespace] = namespace
-	labels[PodName] = podName
-	labels[PodUID] = podUID
-	labels[ContainerName] = containerName
-	labels[ContainerID] = containerID
-	labels[CoreSchedGroupKey] = groupID
-	labels[CoreSchedCookieKey] = strconv.FormatUint(cookieID, 10)
-	ContainerCoreSchedCookie.WithSet(labels, 1.0)
+	_ = "STUB: not implemented"
+	return
 }
 
 func ResetContainerCoreSchedCookie(namespace, podName, podUID, containerName, containerID, groupID string, cookieID uint64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PodNamespace] = namespace
-	labels[PodName] = podName
-	labels[PodUID] = podUID
-	labels[ContainerName] = containerName
-	labels[ContainerID] = containerID
-	labels[CoreSchedGroupKey] = groupID
-	labels[CoreSchedCookieKey] = strconv.FormatUint(cookieID, 10)
-	ContainerCoreSchedCookie.Delete(labels)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordCoreSchedCookieManageStatus(groupID string, isSucceeded bool) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[CoreSchedGroupKey] = groupID
-	labels[StatusKey] = StatusSucceed
-	if !isSucceeded {
-		labels[StatusKey] = StatusFailed
-	}
-	CoreSchedCookieManageStatus.WithInc(labels)
+	_ = "STUB: not implemented"
+	return
 }

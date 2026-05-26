@@ -17,18 +17,10 @@ limitations under the License.
 package system
 
 import (
-	"context"
 	"fmt"
-	"os"
 	"strings"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
-	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 type CgroupDriverType string
@@ -54,9 +46,7 @@ const (
 	RuntimeTypeUnknown    = "unknown"
 )
 
-func (c CgroupDriverType) Validate() bool {
-	return c == Cgroupfs || c == Systemd
-}
+func (c CgroupDriverType) Validate() bool { _ = "STUB: not implemented"; return false }
 
 type Formatter struct {
 	ParentDir string
@@ -213,88 +203,24 @@ var cgroupPathFormatterInCgroupfs = Formatter{
 var CgroupPathFormatter = GetCgroupFormatter()
 
 // GetCgroupFormatter gets the cgroup formatter simply looking up the cgroup directory names.
-func GetCgroupFormatter() Formatter {
-	nodeName := os.Getenv("NODE_NAME")
-	// setup cgroup path formatter from cgroup driver type
-	driver := GetCgroupDriverFromCgroupName()
-	if driver.Validate() {
-		klog.Infof("Node %s use '%s' as cgroup driver guessed with the cgroup name", nodeName, string(driver))
-		return GetCgroupPathFormatter(driver)
-	}
-	klog.V(4).Infof("can not guess cgroup driver from 'kubepods' cgroup name")
-	return cgroupPathFormatterInSystemd
-}
+func GetCgroupFormatter() Formatter { _ = "STUB: not implemented"; return *new(Formatter) }
+
+// setup cgroup path formatter from cgroup driver type
 
 // GetCgroupDriver gets the cgroup driver both from the cgroup directory names and kubelet configs. Check kubelet
 // config can be slow, so it should be called infrequently.
-func GetCgroupDriver() CgroupDriverType {
-	nodeName := os.Getenv("NODE_NAME")
-	driver := GetCgroupDriverFromCgroupName()
-	if driver.Validate() {
-		klog.Infof("Node %s use '%s' as cgroup driver according to the cgroup name", nodeName, string(driver))
-		return driver
-	}
+func GetCgroupDriver() CgroupDriverType { _ = "STUB: not implemented"; return *new(CgroupDriverType) }
 
-	// get cgroup driver from the kubelet config; it may take at most 60s
-	driver, err := GetCgroupDriverFromKubelet(nodeName)
-	if err != nil {
-		klog.Errorf("failed to get cgroup driver from kubelet config: %v", err)
-		return Systemd
-	}
-
-	klog.Infof("Node %s use '%s' as cgroup driver according to the kubelet config", nodeName, string(driver))
-	return driver
-}
+// get cgroup driver from the kubelet config; it may take at most 60s
 
 func GetCgroupDriverFromKubelet(nodeName string) (CgroupDriverType, error) {
-	var cgroupDriver CgroupDriverType
-	if pollErr := wait.PollImmediate(time.Second*10, time.Minute, func() (bool, error) {
-		cfg, err := config.GetConfig()
-		if err != nil {
-			klog.Errorf("failed to get kube restConfig. error: %v", err)
-			return false, nil
-		}
-		kubeClient := clientset.NewForConfigOrDie(cfg)
-		node, err := kubeClient.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
-		if err != nil {
-			klog.Errorf("failed to get node %v. error: %v", nodeName, err)
-			return false, nil
-		}
-
-		port := int(node.Status.DaemonEndpoints.KubeletEndpoint.Port)
-		if driver, err := GetCgroupDriverFromKubeletPort(port); err == nil && driver.Validate() {
-			cgroupDriver = driver
-			return true, nil
-		} else {
-			klog.Errorf("failed to get cgroup driver from kubelet, retry...: %v", err)
-			return false, nil
-		}
-	}); pollErr != nil {
-		return "", pollErr
-	}
-
-	return cgroupDriver, nil
+	_ = "STUB: not implemented"
+	return *new(CgroupDriverType), nil
 }
 
 func GetCgroupPathFormatter(driver CgroupDriverType) Formatter {
-	switch driver {
-	case Systemd:
-		return cgroupPathFormatterInSystemd
-	case Cgroupfs:
-		return cgroupPathFormatterInCgroupfs
-	default:
-		klog.Warningf("cgroup driver formatter not supported: '%s'", string(driver))
-		return cgroupPathFormatterInSystemd
-	}
+	_ = "STUB: not implemented"
+	return *new(Formatter)
 }
 
-func SetupCgroupPathFormatter(driver CgroupDriverType) {
-	switch driver {
-	case Systemd:
-		CgroupPathFormatter = cgroupPathFormatterInSystemd
-	case Cgroupfs:
-		CgroupPathFormatter = cgroupPathFormatterInCgroupfs
-	default:
-		klog.Warningf("cgroup driver formatter not supported: '%s'", string(driver))
-	}
-}
+func SetupCgroupPathFormatter(driver CgroupDriverType) { _ = "STUB: not implemented"; return }

@@ -18,24 +18,14 @@ package handler
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
-func GetCrioEndpoint() string {
-	return filepath.Join(system.Conf.VarRunRootDir, "crio/crio.sock")
-}
+func GetCrioEndpoint() string { _ = "STUB: not implemented"; return "" }
 
-func GetCrioEndpoint2() string {
-	return filepath.Join(system.Conf.VarRunRootDir, "crio.sock")
-}
+func GetCrioEndpoint2() string { _ = "STUB: not implemented"; return "" }
 
 type CrioRuntimeHandler struct {
 	runtimeServiceClient runtimeapi.RuntimeServiceClient
@@ -44,57 +34,16 @@ type CrioRuntimeHandler struct {
 }
 
 func NewCrioRuntimeHandler(endpoint string) (ContainerRuntimeHandler, error) {
-	ep := strings.TrimPrefix(endpoint, "unix://")
-	if _, err := os.Stat(ep); err != nil {
-		return nil, err
-	}
-
-	client, err := getRuntimeClient(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	return &CrioRuntimeHandler{
-		runtimeServiceClient: client,
-		timeout:              defaultConnectionTimeout,
-		endpoint:             endpoint,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ContainerRuntimeHandler), nil
 }
 
 func (c *CrioRuntimeHandler) StopContainer(ctx context.Context, containerID string, timeout int64) error {
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-	t := c.timeout + time.Duration(timeout)
-	ctx, cancel := context.WithTimeout(ctx, t)
-	defer cancel()
-
-	request := &runtimeapi.StopContainerRequest{
-		ContainerId: containerID,
-		Timeout:     timeout,
-	}
-	_, err := c.runtimeServiceClient.StopContainer(ctx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *CrioRuntimeHandler) UpdateContainerResources(containerID string, opts UpdateOptions) error {
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
-	defer cancel()
-	request := &runtimeapi.UpdateContainerResourcesRequest{
-		ContainerId: containerID,
-		Linux: &runtimeapi.LinuxContainerResources{
-			CpuPeriod:          opts.CPUPeriod,
-			CpuQuota:           opts.CPUQuota,
-			CpuShares:          opts.CPUShares,
-			CpusetCpus:         opts.CpusetCpus,
-			CpusetMems:         opts.CpusetMems,
-			MemoryLimitInBytes: opts.MemoryLimitInBytes,
-			OomScoreAdj:        opts.OomScoreAdj,
-		},
-	}
-	_, err := c.runtimeServiceClient.UpdateContainerResources(ctx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }

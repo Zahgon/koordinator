@@ -19,22 +19,11 @@ package coscheduling
 
 import (
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/coscheduling/controller"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/coscheduling/core"
 )
 
 var _ frameworkext.ControllerProvider = &Coscheduling{}
 
 func (cs *Coscheduling) NewControllers() ([]frameworkext.Controller, error) {
-	handle := cs.frameworkHandler
-	podInformer := handle.SharedInformerFactory().Core().V1().Pods()
-	pgMgr := cs.pgMgr.(*core.PodGroupManager)
-	var controllerWorkers int
-	if cs.args == nil {
-		controllerWorkers = 1
-	} else {
-		controllerWorkers = int(cs.args.ControllerWorkers)
-	}
-	podGroupController := controller.NewPodGroupController(cs.pgInformer, podInformer, cs.pgClient, pgMgr, controllerWorkers)
-	return []frameworkext.Controller{podGroupController}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

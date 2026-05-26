@@ -17,13 +17,8 @@ limitations under the License.
 package cache
 
 import (
-	"fmt"
 	"sync"
 	"time"
-
-	"k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -44,82 +39,30 @@ type Cache struct {
 	mu                sync.Mutex
 }
 
-func NewCacheDefault() *Cache {
-	return &Cache{
-		items:             map[string]item{},
-		defaultExpiration: defaultExpiration,
-		gcInterval:        defaultGCInterval,
-	}
-}
+func NewCacheDefault() *Cache { _ = "STUB: not implemented"; return nil }
 
 func NewCache(expiration time.Duration, gcInterval time.Duration) *Cache {
-	cache := Cache{
-		items:             map[string]item{},
-		defaultExpiration: expiration,
-		gcInterval:        gcInterval,
-	}
-	if cache.defaultExpiration <= 0 {
-		cache.defaultExpiration = defaultExpiration
-	}
-	if cache.gcInterval <= time.Second {
-		cache.gcInterval = defaultGCInterval
-	}
-	return &cache
-}
-
-func (c *Cache) Run(stopCh <-chan struct{}) error {
-	defer runtime.HandleCrash()
-	c.gcStarted = true
-	go wait.Until(func() {
-		c.gcExpiredCache()
-	}, c.gcInterval, stopCh)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (c *Cache) gcExpiredCache() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	gcTime := time.Now()
+func (c *Cache) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }
 
-	for key, item := range c.items {
-		if gcTime.After(item.expirationTime) {
-			delete(c.items, key)
-		}
-	}
-	klog.V(4).Infof("gc resource update executor, current size %v", len(c.items))
-}
+func (c *Cache) gcExpiredCache() { _ = "STUB: not implemented"; return }
 
 func (c *Cache) Set(key string, value interface{}, expiration time.Duration) error {
-	return c.set(key, value, expiration)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *Cache) SetDefault(key string, value interface{}) error {
-	return c.set(key, value, c.defaultExpiration)
-}
-
-func (c *Cache) set(key string, value interface{}, expiration time.Duration) error {
-	if !c.gcStarted {
-		return fmt.Errorf("cache GC is not started yet")
-	}
-	item := item{
-		object:         value,
-		expirationTime: time.Now().Add(expiration),
-	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.items[key] = item
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (c *Cache) Get(key string) (interface{}, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	item, ok := c.items[key]
-	if !ok {
-		return nil, false
-	}
-	if item.expirationTime.Before(time.Now()) {
-		return nil, false
-	}
-	return item.object, true
+func (c *Cache) set(key string, value interface{}, expiration time.Duration) error {
+	_ = "STUB: not implemented"
+	return nil
 }
+
+func (c *Cache) Get(key string) (interface{}, bool) { _ = "STUB: not implemented"; return nil, false }

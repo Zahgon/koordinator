@@ -17,8 +17,6 @@ limitations under the License.
 package metrics
 
 import (
-	"context"
-
 	"k8s.io/component-base/metrics/testutil"
 )
 
@@ -26,27 +24,19 @@ import (
 type APIServerMetrics testutil.Metrics
 
 // Equal returns true if all metrics are the same as the arguments.
-func (m *APIServerMetrics) Equal(o APIServerMetrics) bool {
-	return (*testutil.Metrics)(m).Equal(testutil.Metrics(o))
-}
+func (m *APIServerMetrics) Equal(o APIServerMetrics) bool { _ = "STUB: not implemented"; return false }
 
 func newAPIServerMetrics() APIServerMetrics {
-	result := testutil.NewMetrics()
-	return APIServerMetrics(result)
+	_ = "STUB: not implemented"
+	return *new(APIServerMetrics)
 }
 
 func parseAPIServerMetrics(data string) (APIServerMetrics, error) {
-	result := newAPIServerMetrics()
-	if err := testutil.ParseMetrics(data, (*testutil.Metrics)(&result)); err != nil {
-		return APIServerMetrics{}, err
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(APIServerMetrics), nil
 }
 
 func (g *Grabber) getMetricsFromAPIServer() (string, error) {
-	rawOutput, err := g.client.CoreV1().RESTClient().Get().RequestURI("/metrics").Do(context.TODO()).Raw()
-	if err != nil {
-		return "", err
-	}
-	return string(rawOutput), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }

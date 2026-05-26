@@ -19,22 +19,17 @@ limitations under the License.
 
 package impl
 
-func (s *statesInformer) reportDevice() {
-	return
-}
+func (s *statesInformer) reportDevice() { _ = "STUB: not implemented"; return }
 
-func (s *statesInformer) reportRDMADevice() { return }
+func (s *statesInformer) reportRDMADevice() { _ = "STUB: not implemented"; return }
 
-func (s *statesInformer) reportXPUDevice() { return }
+func (s *statesInformer) reportXPUDevice() { _ = "STUB: not implemented"; return }
 
-func (s *statesInformer) initGPU() bool {
-	return false
-}
+func (s *statesInformer) initGPU() bool { _ = "STUB: not implemented"; return false }
 
-func (s *statesInformer) gpuHealCheck(stopCh <-chan struct{}) {
-	return
-}
+func (s *statesInformer) gpuHealCheck(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
 func (s *statesInformer) getGPUDriverAndModel() (string, string) {
+	_ = "STUB: not implemented"
 	return "", ""
 }

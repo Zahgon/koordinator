@@ -18,24 +18,16 @@ package handler
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	v1 "k8s.io/cri-api/pkg/apis/runtime/v1"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 const (
 	PouchEndpointSubFilepath = "pouchcri.sock"
 )
 
-func GetPouchEndpoint() string {
-	return filepath.Join(system.Conf.VarRunRootDir, PouchEndpointSubFilepath)
-}
+func GetPouchEndpoint() string { _ = "STUB: not implemented"; return "" }
 
 type PouchRuntimeHandler struct {
 	runtimeServiceClient v1.RuntimeServiceClient
@@ -44,64 +36,25 @@ type PouchRuntimeHandler struct {
 }
 
 func NewPouchRuntimeHandler(endpoint string) (ContainerRuntimeHandler, error) {
-	ep := strings.TrimPrefix(endpoint, "unix://")
-	if _, err := os.Stat(ep); err != nil {
-		return nil, err
-	}
-	// use v1alpha2 protocol
-	client, err := getRuntimeV1alpha2Client(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	return &PouchRuntimeHandler{
-		runtimeServiceClient: client,
-		timeout:              defaultConnectionTimeout,
-		endpoint:             endpoint,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ContainerRuntimeHandler), nil
 }
+
+// use v1alpha2 protocol
 
 func (c *PouchRuntimeHandler) StopContainer(ctx context.Context, containerID string, timeout int64) error {
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-
-	request := &v1.StopContainerRequest{
-		ContainerId: containerID,
-		Timeout:     timeout,
-	}
-	// pouch cannot handle context with timeout
-	_, err := c.runtimeServiceClient.StopContainer(context.Background(), request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// pouch cannot handle context with timeout
+
 func (c *PouchRuntimeHandler) UpdateContainerResources(containerID string, opts UpdateOptions) error {
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
-	defer cancel()
-	request := &v1.UpdateContainerResourcesRequest{
-		ContainerId: containerID,
-		Linux: &v1.LinuxContainerResources{
-			CpuPeriod:          opts.CPUPeriod,
-			CpuQuota:           opts.CPUQuota,
-			CpuShares:          opts.CPUShares,
-			CpusetCpus:         opts.CpusetCpus,
-			CpusetMems:         opts.CpusetMems,
-			MemoryLimitInBytes: opts.MemoryLimitInBytes,
-			OomScoreAdj:        opts.OomScoreAdj,
-		},
-	}
-	_, err := c.runtimeServiceClient.UpdateContainerResources(ctx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getRuntimeV1alpha2Client(endpoint string) (v1.RuntimeServiceClient, error) {
-	conn, err := getClientConnection(endpoint)
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect: %v", err)
-	}
-	runtimeClient := v1.NewRuntimeServiceClient(conn)
-	return runtimeClient, nil
+	_ = "STUB: not implemented"
+	return *new(v1.RuntimeServiceClient), nil
 }

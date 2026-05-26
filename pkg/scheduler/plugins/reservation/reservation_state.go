@@ -109,63 +109,12 @@ type nodeDiagnosisState struct {
 }
 
 func (s *stateData) Clone() fwktype.StateData {
-	ns := &stateData{
-		schedulingStateData: schedulingStateData{
-			hasAffinity:              s.hasAffinity,
-			reservationName:          s.reservationName,
-			podRequests:              s.podRequests,
-			podRequestsResources:     s.podRequestsResources,
-			podResourceNames:         s.podResourceNames,
-			isPreAllocationRequired:  s.isPreAllocationRequired,
-			nodeReservationStates:    s.nodeReservationStates,
-			nodeReservationDiagnosis: s.nodeReservationDiagnosis,
-			preferredNode:            s.preferredNode,
-		},
-		assumed:                 s.assumed,
-		rInfo:                   s.rInfo,
-		preAllocated:            s.preAllocated,
-		hasReservationAllocated: s.hasReservationAllocated,
-	}
-
-	s.preemptLock.RLock()
-	defer s.preemptLock.RUnlock()
-
-	preemptible := map[string]corev1.ResourceList{}
-	for nodeName, returned := range s.preemptible {
-		preemptible[nodeName] = returned.DeepCopy()
-	}
-	ns.preemptible = preemptible
-
-	preemptibleInRRs := map[string]map[types.UID]corev1.ResourceList{}
-	for nodeName, rrs := range s.preemptibleInRRs {
-		rrInNode := preemptibleInRRs[nodeName]
-		if rrInNode == nil {
-			rrInNode = map[types.UID]corev1.ResourceList{}
-			preemptibleInRRs[nodeName] = rrInNode
-		}
-		for reservationUID, returned := range rrs {
-			rrInNode[reservationUID] = returned.DeepCopy()
-		}
-	}
-	ns.preemptibleInRRs = preemptibleInRRs
-
-	return ns
+	_ = "STUB: not implemented"
+	return *new(fwktype.StateData)
 }
 
 // CleanSchedulingData clears the scheduling cycle data in the stateData to reduce memory cost before entering
 // the binding cycle.
-func (s *stateData) CleanSchedulingData() {
-	s.schedulingStateData = schedulingStateData{}
-}
+func (s *stateData) CleanSchedulingData() { _ = "STUB: not implemented"; return }
 
-func getStateData(cycleState fwktype.CycleState) *stateData {
-	v, err := cycleState.Read(stateKey)
-	if err != nil {
-		return &stateData{}
-	}
-	s, ok := v.(*stateData)
-	if !ok || s == nil {
-		return &stateData{}
-	}
-	return s
-}
+func getStateData(cycleState fwktype.CycleState) *stateData { _ = "STUB: not implemented"; return nil }

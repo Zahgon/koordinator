@@ -19,20 +19,12 @@ package quotaevaluate
 import (
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 )
 
 func GetQuotaAdmission(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	admission, err := extension.GetAdmission(quota)
-	if err != nil {
-		return nil, err
-	}
-
-	// admission is empty (it may not be configured or may have no content), return max
-	if len(admission) == 0 {
-		return quota.Spec.Max, nil
-	}
-
-	return admission, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
+
+// admission is empty (it may not be configured or may have no content), return max

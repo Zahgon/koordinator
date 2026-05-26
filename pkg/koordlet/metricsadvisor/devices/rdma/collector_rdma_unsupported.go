@@ -24,6 +24,7 @@ import (
 )
 
 func GetNetDevice() (metriccache.Devices, error) {
+	_ = "STUB: not implemented"
 	// TODO: support rdma devices on non-linux
-	return nil, nil
+	return *new(metriccache.Devices), nil
 }

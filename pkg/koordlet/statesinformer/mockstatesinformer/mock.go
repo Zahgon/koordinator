@@ -27,8 +27,6 @@
 package mock_statesinformer
 
 import (
-	reflect "reflect"
-
 	v1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
 	v1alpha10 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	statesinformer "github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
@@ -50,136 +48,112 @@ type MockStatesInformerMockRecorder struct {
 
 // NewMockStatesInformer creates a new mock instance.
 func NewMockStatesInformer(ctrl *gomock.Controller) *MockStatesInformer {
-	mock := &MockStatesInformer{ctrl: ctrl}
-	mock.recorder = &MockStatesInformerMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockStatesInformer) EXPECT() *MockStatesInformerMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// GetAllPods mocks base method.
+	return nil
 }
 
-// GetAllPods mocks base method.
 func (m *MockStatesInformer) GetAllPods() []*statesinformer.PodMeta {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllPods")
-	ret0, _ := ret[0].([]*statesinformer.PodMeta)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetAllPods indicates an expected call of GetAllPods.
 func (mr *MockStatesInformerMockRecorder) GetAllPods() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPods", reflect.TypeOf((*MockStatesInformer)(nil).GetAllPods))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetNode mocks base method.
-func (m *MockStatesInformer) GetNode() *v1.Node {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNode")
-	ret0, _ := ret[0].(*v1.Node)
-	return ret0
-}
+func (m *MockStatesInformer) GetNode() *v1.Node { _ = "STUB: not implemented"; return nil }
 
 // GetNode indicates an expected call of GetNode.
 func (mr *MockStatesInformerMockRecorder) GetNode() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNode", reflect.TypeOf((*MockStatesInformer)(nil).GetNode))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetNodeMetricSpec mocks base method.
 func (m *MockStatesInformer) GetNodeMetricSpec() *v1alpha10.NodeMetricSpec {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNodeMetricSpec")
-	ret0, _ := ret[0].(*v1alpha10.NodeMetricSpec)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetNodeMetricSpec indicates an expected call of GetNodeMetricSpec.
 func (mr *MockStatesInformerMockRecorder) GetNodeMetricSpec() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNodeMetricSpec", reflect.TypeOf((*MockStatesInformer)(nil).GetNodeMetricSpec))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetNodeSLO mocks base method.
-func (m *MockStatesInformer) GetNodeSLO() *v1alpha10.NodeSLO {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNodeSLO")
-	ret0, _ := ret[0].(*v1alpha10.NodeSLO)
-	return ret0
-}
+func (m *MockStatesInformer) GetNodeSLO() *v1alpha10.NodeSLO { _ = "STUB: not implemented"; return nil }
 
 // GetNodeSLO indicates an expected call of GetNodeSLO.
 func (mr *MockStatesInformerMockRecorder) GetNodeSLO() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNodeSLO", reflect.TypeOf((*MockStatesInformer)(nil).GetNodeSLO))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetNodeTopo mocks base method.
 func (m *MockStatesInformer) GetNodeTopo() *v1alpha1.NodeResourceTopology {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNodeTopo")
-	ret0, _ := ret[0].(*v1alpha1.NodeResourceTopology)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetNodeTopo indicates an expected call of GetNodeTopo.
 func (mr *MockStatesInformerMockRecorder) GetNodeTopo() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNodeTopo", reflect.TypeOf((*MockStatesInformer)(nil).GetNodeTopo))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetVolumeName mocks base method.
 func (m *MockStatesInformer) GetVolumeName(pvcNamespace, pvcName string) string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetVolumeName", pvcNamespace, pvcName)
-	ret0, _ := ret[0].(string)
-	return ret0
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // GetVolumeName indicates an expected call of GetVolumeName.
 func (mr *MockStatesInformerMockRecorder) GetVolumeName(pvcNamespace, pvcName any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVolumeName", reflect.TypeOf((*MockStatesInformer)(nil).GetVolumeName), pvcNamespace, pvcName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // HasSynced mocks base method.
-func (m *MockStatesInformer) HasSynced() bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HasSynced")
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
+func (m *MockStatesInformer) HasSynced() bool { _ = "STUB: not implemented"; return false }
 
 // HasSynced indicates an expected call of HasSynced.
 func (mr *MockStatesInformerMockRecorder) HasSynced() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasSynced", reflect.TypeOf((*MockStatesInformer)(nil).HasSynced))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegisterCallbacks mocks base method.
 func (m *MockStatesInformer) RegisterCallbacks(objType statesinformer.RegisterType, name, description string, callbackFn statesinformer.UpdateCbFn) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RegisterCallbacks", objType, name, description, callbackFn)
+	_ = "STUB: not implemented"
+	return
 }
 
 // RegisterCallbacks indicates an expected call of RegisterCallbacks.
 func (mr *MockStatesInformerMockRecorder) RegisterCallbacks(objType, name, description, callbackFn any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterCallbacks", reflect.TypeOf((*MockStatesInformer)(nil).RegisterCallbacks), objType, name, description, callbackFn)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Run mocks base method.
 func (m *MockStatesInformer) Run(stopCh <-chan struct{}) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Run", stopCh)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Run indicates an expected call of Run.
 func (mr *MockStatesInformerMockRecorder) Run(stopCh any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockStatesInformer)(nil).Run), stopCh)
+	_ = "STUB: not implemented"
+	return nil
 }

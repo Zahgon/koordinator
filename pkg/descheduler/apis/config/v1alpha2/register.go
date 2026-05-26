@@ -35,13 +35,12 @@ const GroupVersion = "v1alpha2"
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: GroupVersion}
 
 // Kind takes an unqualified kind and returns a Group qualified GroupKind
-func Kind(kind string) schema.GroupKind {
-	return SchemeGroupVersion.WithKind(kind).GroupKind()
-}
+func Kind(kind string) schema.GroupKind { _ = "STUB: not implemented"; return *new(schema.GroupKind) }
 
 // Resource takes an unqualified resource and returns a Group qualified GroupResource
 func Resource(resource string) schema.GroupResource {
-	return SchemeGroupVersion.WithResource(resource).GroupResource()
+	_ = "STUB: not implemented"
+	return *new(schema.GroupResource)
 }
 
 func init() {
@@ -51,13 +50,4 @@ func init() {
 	localSchemeBuilder.Register(addKnownTypes, addDefaultingFuncs)
 }
 
-func addKnownTypes(scheme *runtime.Scheme) error {
-	scheme.AddKnownTypes(SchemeGroupVersion,
-		&DeschedulerConfiguration{},
-		&MigrationControllerArgs{},
-		&LowNodeLoadArgs{},
-		&CustomPriorityArgs{},
-	)
-
-	return nil
-}
+func addKnownTypes(scheme *runtime.Scheme) error { _ = "STUB: not implemented"; return nil }

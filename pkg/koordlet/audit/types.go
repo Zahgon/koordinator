@@ -89,56 +89,31 @@ type EventReader interface {
 }
 
 // Node set the event type to 'node'
-func (e *EventHelper) Node() *EventHelper {
-	e.Event.Type = "node"
-	return e
-}
+func (e *EventHelper) Node() *EventHelper { _ = "STUB: not implemented"; return nil }
 
 // Pod set the event type to 'pod'
 func (e *EventHelper) Pod(ns string, name string) *EventHelper {
-	e.Event.Type = "pod"
-	e.Event.Namespace = ns
-	e.Event.Name = name
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Group set the event type to resource
-func (e *EventHelper) Group(name string) *EventHelper {
-	e.Event.Type = "group"
-	e.Event.Name = name
-	return e
-}
+func (e *EventHelper) Group(name string) *EventHelper { _ = "STUB: not implemented"; return nil }
 
 // Unknown set the event type to unknown object(pod, node or something else)
-func (e *EventHelper) Unknown(name string) *EventHelper {
-	e.Event.Type = "unknown"
-	e.Event.Name = name
-	return e
-}
+func (e *EventHelper) Unknown(name string) *EventHelper { _ = "STUB: not implemented"; return nil }
 
 // Container set the event container to name
-func (e *EventHelper) Container(name string) *EventHelper {
-	e.Event.Container = name
-	return e
-}
+func (e *EventHelper) Container(name string) *EventHelper { _ = "STUB: not implemented"; return nil }
 
 // Reason set the event reason to reason
-func (e *EventHelper) Reason(reason string) *EventHelper {
-	e.Event.Reason = reason
-	return e
-}
+func (e *EventHelper) Reason(reason string) *EventHelper { _ = "STUB: not implemented"; return nil }
 
 // Message set the message as the inputs
 func (e *EventHelper) Message(format string, args ...interface{}) *EventHelper {
-	e.Event.Message = fmt.Sprintf(format, args...)
-	return e
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Do write the event to the writer
-func (e *EventHelper) Do() error {
-	e.Event.CreatedAt = time.Now().Local()
-	if e.writer != nil {
-		return e.writer.Log(e.verbose, &e.Event)
-	}
-	return errWriterIsNull
-}
+func (e *EventHelper) Do() error { _ = "STUB: not implemented"; return nil }

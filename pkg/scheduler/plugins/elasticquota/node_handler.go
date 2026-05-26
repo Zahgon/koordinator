@@ -16,52 +16,8 @@ limitations under the License.
 
 package elasticquota
 
-import (
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-)
+func (g *Plugin) OnNodeAdd(obj interface{}) { _ = "STUB: not implemented"; return }
 
-func (g *Plugin) OnNodeAdd(obj interface{}) {
-	node, ok := obj.(*corev1.Node)
-	if !ok {
-		return
-	}
-	if node.DeletionTimestamp != nil {
-		klog.V(5).Infof("OnNodeAddFunc add:%v delete:%v", node.Name, node.DeletionTimestamp)
-		return
-	}
+func (g *Plugin) OnNodeUpdate(oldObj, newObj interface{}) { _ = "STUB: not implemented"; return }
 
-	g.groupQuotaManager.OnNodeAdd(node)
-}
-
-func (g *Plugin) OnNodeUpdate(oldObj, newObj interface{}) {
-	newNode := newObj.(*corev1.Node)
-	oldNode := oldObj.(*corev1.Node)
-
-	if newNode.ResourceVersion == oldNode.ResourceVersion {
-		klog.Warningf("update node warning, update version for the same, nodeName:%v", newNode.Name)
-		return
-	}
-	if newNode.DeletionTimestamp != nil {
-		klog.V(5).Infof("OnNodeUpdateFunc update:%v delete:%v", newNode.Name, newNode.DeletionTimestamp)
-		return
-	}
-
-	g.groupQuotaManager.OnNodeUpdate(oldNode, newNode)
-}
-
-func (g *Plugin) OnNodeDelete(obj interface{}) {
-	var node *corev1.Node
-	switch t := obj.(type) {
-	case *corev1.Node:
-		node = t
-	case cache.DeletedFinalStateUnknown:
-		node, _ = t.Obj.(*corev1.Node)
-	}
-	if node == nil {
-		return
-	}
-
-	g.groupQuotaManager.OnNodeDelete(node)
-}
+func (g *Plugin) OnNodeDelete(obj interface{}) { _ = "STUB: not implemented"; return }

@@ -17,8 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -215,165 +213,68 @@ type KubeletCPUManagerPolicy struct {
 }
 
 func GetNUMATopologySpec(annotations map[string]string) (*NUMATopologySpec, error) {
-	numaSpec := &NUMATopologySpec{}
-	data, ok := annotations[AnnotationNUMATopologySpec]
-	if !ok {
-		return numaSpec, nil
-	}
-	err := json.Unmarshal([]byte(data), numaSpec)
-	if err != nil {
-		return nil, err
-	}
-	return numaSpec, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetResourceSpec parses ResourceSpec from annotations
 func GetResourceSpec(annotations map[string]string) (*ResourceSpec, error) {
-	resourceSpec := &ResourceSpec{}
-	data, ok := annotations[AnnotationResourceSpec]
-	if !ok {
-		return resourceSpec, nil
-	}
-	err := json.Unmarshal([]byte(data), resourceSpec)
-	if err != nil {
-		return nil, err
-	}
-	return resourceSpec, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetResourceSpec(obj metav1.Object, spec *ResourceSpec) error {
-	data, err := json.Marshal(spec)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationResourceSpec] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // GetResourceStatus parses ResourceStatus from annotations
 func GetResourceStatus(annotations map[string]string) (*ResourceStatus, error) {
-	resourceStatus := &ResourceStatus{}
-	data, ok := annotations[AnnotationResourceStatus]
-	if !ok {
-		return resourceStatus, nil
-	}
-	err := json.Unmarshal([]byte(data), resourceStatus)
-	if err != nil {
-		return nil, err
-	}
-	return resourceStatus, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetResourceStatus(obj metav1.Object, status *ResourceStatus) error {
-	if obj == nil {
-		return nil
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	data, err := json.Marshal(status)
-	if err != nil {
-		return err
-	}
-	annotations[AnnotationResourceStatus] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetCPUTopology(annotations map[string]string) (*CPUTopology, error) {
-	topology := &CPUTopology{}
-	data, ok := annotations[AnnotationNodeCPUTopology]
-	if !ok {
-		return topology, nil
-	}
-	err := json.Unmarshal([]byte(data), topology)
-	if err != nil {
-		return nil, err
-	}
-	return topology, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetPodCPUAllocs(annotations map[string]string) (PodCPUAllocs, error) {
-	var allocs PodCPUAllocs
-	data, ok := annotations[AnnotationNodeCPUAllocs]
-	if !ok {
-		return allocs, nil
-	}
-	err := json.Unmarshal([]byte(data), &allocs)
-	if err != nil {
-		return nil, err
-	}
-	return allocs, nil
+	_ = "STUB: not implemented"
+	return *new(PodCPUAllocs), nil
 }
 
 func GetNodeCPUSharePools(nodeTopoAnnotations map[string]string) ([]CPUSharedPool, error) {
-	var cpuSharePools []CPUSharedPool
-	data, ok := nodeTopoAnnotations[AnnotationNodeCPUSharedPools]
-	if !ok {
-		return cpuSharePools, nil
-	}
-	err := json.Unmarshal([]byte(data), &cpuSharePools)
-	if err != nil {
-		return nil, err
-	}
-	return cpuSharePools, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetNodeBECPUSharePools(nodeTopoAnnotations map[string]string) ([]CPUSharedPool, error) {
-	var beCPUSharePools []CPUSharedPool
-	data, ok := nodeTopoAnnotations[AnnotationNodeBECPUSharedPools]
-	if !ok {
-		return beCPUSharePools, nil
-	}
-	err := json.Unmarshal([]byte(data), &beCPUSharePools)
-	if err != nil {
-		return nil, err
-	}
-	return beCPUSharePools, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetKubeletCPUManagerPolicy(annotations map[string]string) (*KubeletCPUManagerPolicy, error) {
-	cpuManagerPolicy := &KubeletCPUManagerPolicy{}
-	data, ok := annotations[AnnotationKubeletCPUManagerPolicy]
-	if !ok {
-		return cpuManagerPolicy, nil
-	}
-	err := json.Unmarshal([]byte(data), cpuManagerPolicy)
-	if err != nil {
-		return nil, err
-	}
-	return cpuManagerPolicy, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetNodeCPUBindPolicy(nodeLabels map[string]string, kubeletCPUPolicy *KubeletCPUManagerPolicy) NodeCPUBindPolicy {
-	nodeCPUBindPolicy := NodeCPUBindPolicy(nodeLabels[LabelNodeCPUBindPolicy])
-	if nodeCPUBindPolicy == NodeCPUBindPolicyFullPCPUsOnly ||
-		(kubeletCPUPolicy != nil && kubeletCPUPolicy.Policy == KubeletCPUManagerPolicyStatic &&
-			kubeletCPUPolicy.Options[KubeletCPUManagerPolicyFullPCPUsOnlyOption] == "true") {
-		return NodeCPUBindPolicyFullPCPUsOnly
-	}
-	if nodeCPUBindPolicy == NodeCPUBindPolicySpreadByPCPUs {
-		return nodeCPUBindPolicy
-	}
-	return NodeCPUBindPolicyNone
+	_ = "STUB: not implemented"
+	return *new(NodeCPUBindPolicy)
 }
 
 func GetNodeNUMATopologyPolicy(labels map[string]string) NUMATopologyPolicy {
-	return NUMATopologyPolicy(labels[LabelNUMATopologyPolicy])
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyPolicy)
 }
 
 func SetNodeNUMATopologyPolicy(obj metav1.Object, policy NUMATopologyPolicy) {
-	labels := obj.GetLabels()
-	if labels == nil {
-		labels = map[string]string{}
-	}
-	labels[LabelNUMATopologyPolicy] = string(policy)
-	obj.SetLabels(labels)
+	_ = "STUB: not implemented"
 	return
 }

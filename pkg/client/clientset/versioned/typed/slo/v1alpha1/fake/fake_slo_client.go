@@ -29,16 +29,18 @@ type FakeSloV1alpha1 struct {
 }
 
 func (c *FakeSloV1alpha1) NodeMetrics() v1alpha1.NodeMetricInterface {
-	return newFakeNodeMetrics(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.NodeMetricInterface)
 }
 
 func (c *FakeSloV1alpha1) NodeSLOs() v1alpha1.NodeSLOInterface {
-	return newFakeNodeSLOs(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.NodeSLOInterface)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSloV1alpha1) RESTClient() rest.Interface {
-	var ret *rest.RESTClient
-	return ret
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

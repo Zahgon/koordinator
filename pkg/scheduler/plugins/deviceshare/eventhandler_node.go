@@ -17,29 +17,10 @@ limitations under the License.
 package deviceshare
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/tools/cache"
 )
 
 func registerNodeEventHandler(sharedInformerFactory informers.SharedInformerFactory) {
-	sharedInformerFactory.Core().V1().Nodes().Informer().AddEventHandler(
-		cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				var node *corev1.Node
-				switch t := obj.(type) {
-				case *corev1.Node:
-					node = t
-				case cache.DeletedFinalStateUnknown:
-					var ok bool
-					node, ok = t.Obj.(*corev1.Node)
-					if !ok {
-						return
-					}
-				default:
-					return
-				}
-				deleteNodeLock(node.Name)
-			},
-		})
+	_ = "STUB: not implemented"
+	return
 }

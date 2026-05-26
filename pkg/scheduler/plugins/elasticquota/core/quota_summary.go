@@ -53,16 +53,4 @@ type QuotaInfoSummary struct {
 	PodCache map[string]*SimplePodInfo `json:"podCache,omitempty"`
 }
 
-func NewQuotaInfoSummary() *QuotaInfoSummary {
-	return &QuotaInfoSummary{
-		Max:          make(v1.ResourceList),
-		Min:          make(v1.ResourceList),
-		AutoScaleMin: make(v1.ResourceList),
-		Used:         make(v1.ResourceList),
-		Request:      make(v1.ResourceList),
-		SharedWeight: make(v1.ResourceList),
-		Runtime:      make(v1.ResourceList),
-		ChildRequest: make(v1.ResourceList),
-		PodCache:     make(map[string]*SimplePodInfo),
-	}
-}
+func NewQuotaInfoSummary() *QuotaInfoSummary { _ = "STUB: not implemented"; return nil }

@@ -16,14 +16,6 @@ limitations under the License.
 
 package system
 
-import (
-	"errors"
-	"fmt"
-	"path/filepath"
-	"strconv"
-	"strings"
-)
-
 const (
 	DefaultCPUCFSPeriod int64 = 100000
 	CPUShareKubeBEValue int64 = 2
@@ -66,193 +58,57 @@ type NumaMemoryPages struct {
 }
 
 func (m *MemoryStatRaw) Usage() int64 {
+	_ = "STUB: not implemented"
 	// memory.stat usage: total_inactive_anon + total_active_anon + total_unevictable
-	return m.InactiveAnon + m.ActiveAnon + m.Unevictable
+	return 0
 }
 
 func (m *MemoryStatRaw) UsageWithPageCache() int64 {
+	_ = "STUB: not implemented"
 	// memory.stat usage: total_inactive_anon + total_active_anon + total_unevictable + total_activefile + total_inactivefile
-	return m.InactiveAnon + m.ActiveAnon + m.Unevictable + m.ActiveFile + m.InactiveFile
+	return 0
 }
 
 // GetCgroupFilePath gets the full path of the given cgroup dir and resource.
 // @cgroupTaskDir kubepods.slice/kubepods-pod7712555c_ce62_454a_9e18_9ff0217b8941.slice/
 // @return /sys/fs/cgroup/cpu/kubepods.slice/kubepods-pod7712555c_ce62_454a_9e18_9ff0217b8941.slice/cpu.shares
 func GetCgroupFilePath(cgroupTaskDir string, r Resource) string {
-	return r.Path(cgroupTaskDir)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func ParseCPUStatRaw(content string) (*CPUStatRaw, error) {
-	cpuStatRaw := &CPUStatRaw{}
-
-	m := ParseKVMap(content)
-	for _, t := range []struct {
-		key   string
-		value *int64
-	}{
-		{
-			key:   "nr_periods",
-			value: &cpuStatRaw.NrPeriods,
-		},
-		{
-			key:   "nr_throttled",
-			value: &cpuStatRaw.NrThrottled,
-		},
-		{
-			key:   "throttled_time",
-			value: &cpuStatRaw.ThrottledNanoSeconds,
-		},
-	} {
-		valueStr, ok := m[t.key]
-		if !ok {
-			return nil, fmt.Errorf("parse cpu.stat failed, raw content %s, err: missing field %s", content, t.key)
-		}
-		v, err := strconv.ParseInt(valueStr, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parse cpu.stat failed, raw content %s, field %s, err: %v", content, t.key, err)
-		}
-		*t.value = v
-	}
-
-	return cpuStatRaw, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func ParseMemoryStatRaw(content string) (*MemoryStatRaw, error) {
-	memoryStatRaw := &MemoryStatRaw{}
-
-	m := ParseKVMap(content)
-	for _, t := range []struct {
-		key   string
-		value *int64
-	}{
-		{
-			key:   "total_cache",
-			value: &memoryStatRaw.Cache,
-		},
-		{
-			key:   "total_rss",
-			value: &memoryStatRaw.RSS,
-		},
-		{
-			key:   "total_inactive_file",
-			value: &memoryStatRaw.InactiveFile,
-		},
-		{
-			key:   "total_active_file",
-			value: &memoryStatRaw.ActiveFile,
-		},
-		{
-			key:   "total_inactive_anon",
-			value: &memoryStatRaw.InactiveAnon,
-		},
-		{
-			key:   "total_active_anon",
-			value: &memoryStatRaw.ActiveAnon,
-		},
-		{
-			key:   "total_unevictable",
-			value: &memoryStatRaw.Unevictable,
-		},
-	} {
-		valueStr, ok := m[t.key]
-		if !ok {
-			return nil, fmt.Errorf("parse memory.stat failed, raw content %s, err: missing field %s", content, t.key)
-		}
-		v, err := strconv.ParseInt(valueStr, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parse memory.stat failed, raw content %s, field %s, err: %v", content, t.key, err)
-		}
-		*t.value = v
-	}
-
-	return memoryStatRaw, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func ParseMemoryNumaStat(content string) ([]NumaMemoryPages, error) {
-	stat := []NumaMemoryPages{}
-	parseErr := errors.New("parse cgroup memory numa stat err")
-	lines := strings.Split(content, "\n")
-	if len(lines) <= 0 {
-		return nil, parseErr
-	}
-	line := strings.TrimSpace(lines[0])
-	if len(line) <= 0 || !strings.HasPrefix(line, "total") {
-		return nil, parseErr
-	}
-	mems := strings.Split(line, " ")
-	if len(mems) < 2 {
-		return nil, parseErr
-	}
-	for i := 1; i < len(mems); i++ {
-		str := strings.Split(mems[i], "=")
-		numaStr := strings.TrimLeft(str[0], "N")
-		numaId, err := strconv.Atoi(numaStr)
-		if err != nil {
-			return nil, err
-		}
-		pagesCnt, err := strconv.ParseUint(str[1], 10, 64)
-		if err != nil {
-			return nil, err
-		}
-		stat = append(stat, NumaMemoryPages{NumaId: numaId, PagesNum: pagesCnt})
-
-	}
-	return stat, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ParseCgroupProcs parses the content in cgroup.procs.
 // pattern: `7742\n10971\n11049\n11051...`
 // TODO: refactor with readCgroupAndParseInt32Slice via Generics.
-func ParseCgroupProcs(content string) ([]uint32, error) {
-	pidStrs := strings.Fields(strings.TrimSpace(content))
-	pids := make([]uint32, len(pidStrs))
-	for i := 0; i < len(pidStrs); i++ {
-		p, err := strconv.ParseUint(pidStrs[i], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse row %s into pid, err: %w", pidStrs[i], err)
-		}
-		pids[i] = uint32(p)
-	}
-	return pids, nil
-}
+func ParseCgroupProcs(content string) ([]uint32, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func CalcCPUThrottledRatio(curPoint, prePoint *CPUStatRaw) float64 {
-	deltaPeriod := curPoint.NrPeriods - prePoint.NrPeriods
-	deltaThrottled := curPoint.NrThrottled - prePoint.NrThrottled
-	throttledRatio := float64(0)
-	if deltaPeriod > 0 {
-		throttledRatio = float64(deltaThrottled) / float64(deltaPeriod)
-	}
-	return throttledRatio
+	_ = "STUB: not implemented"
+	return 0
 }
 
-func GetRootCgroupSubfsDir(subfs string) string {
-	if GetCurrentCgroupVersion() == CgroupVersionV2 {
-		return filepath.Join(Conf.CgroupRootDir)
-	}
-	return filepath.Join(Conf.CgroupRootDir, subfs)
-}
+func GetRootCgroupSubfsDir(subfs string) string { _ = "STUB: not implemented"; return "" }
 
-func MilliCPUToShares(milliCPURequest int64) int64 {
-	if milliCPURequest <= 0 {
-		return CPUSharesMinValue
-	}
-	cpuShares := milliCPURequest * CPUShareUnitValue / 1000
-	if cpuShares < CPUSharesMinValue {
-		cpuShares = CPUSharesMinValue
-	}
-	if cpuShares > CPUSharesMaxValue {
-		cpuShares = CPUSharesMaxValue
-	}
-	return cpuShares
-}
+func MilliCPUToShares(milliCPURequest int64) int64 { _ = "STUB: not implemented"; return 0 }
 
-func MilliCPUToQuota(milliCPULimit int64) int64 {
-	cfsQuota := milliCPULimit * CFSBasePeriodValue / 1000 // TBD: assert base cfs period not changed
-	if cfsQuota <= 0 {                                    // unlimited
-		cfsQuota = -1
-	} else if cfsQuota < CFSQuotaMinValue { // cfs_quota_us should be no less than 1000
-		cfsQuota = CFSQuotaMinValue
-	}
-	return cfsQuota
-}
+func MilliCPUToQuota(milliCPULimit int64) int64 { _ = "STUB: not implemented"; return 0 }
+
+// TBD: assert base cfs period not changed
+// unlimited
+
+// cfs_quota_us should be no less than 1000

@@ -40,11 +40,11 @@ limitations under the License.
 package v1alpha1
 
 import (
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -74,65 +74,27 @@ type PodSandboxMetadata struct {
 	Attempt uint32 `protobuf:"varint,4,opt,name=attempt,proto3" json:"attempt,omitempty"`
 }
 
-func (x *PodSandboxMetadata) Reset() {
-	*x = PodSandboxMetadata{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *PodSandboxMetadata) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *PodSandboxMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *PodSandboxMetadata) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*PodSandboxMetadata) ProtoMessage() {}
+func (*PodSandboxMetadata) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *PodSandboxMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use PodSandboxMetadata.ProtoReflect.Descriptor instead.
-func (*PodSandboxMetadata) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{0}
-}
+func (*PodSandboxMetadata) Descriptor() ([]byte, []int) { _ = "STUB: not implemented"; return nil, nil }
 
-func (x *PodSandboxMetadata) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
+func (x *PodSandboxMetadata) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (x *PodSandboxMetadata) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
+func (x *PodSandboxMetadata) GetUid() string { _ = "STUB: not implemented"; return "" }
 
-func (x *PodSandboxMetadata) GetNamespace() string {
-	if x != nil {
-		return x.Namespace
-	}
-	return ""
-}
+func (x *PodSandboxMetadata) GetNamespace() string { _ = "STUB: not implemented"; return "" }
 
-func (x *PodSandboxMetadata) GetAttempt() uint32 {
-	if x != nil {
-		return x.Attempt
-	}
-	return 0
-}
+func (x *PodSandboxMetadata) GetAttempt() uint32 { _ = "STUB: not implemented"; return 0 }
 
 // RunPodSandboxHookRequest is sent to RuntimeHookServer before pod creating request transferred to
 // backend containerd or dockerd. This Request is generated basing on CRI's RunPodSandboxRequest, including pod
@@ -160,84 +122,49 @@ type PodSandboxHookRequest struct {
 	Resources *LinuxContainerResources `protobuf:"bytes,7,opt,name=resources,proto3" json:"resources,omitempty"`
 }
 
-func (x *PodSandboxHookRequest) Reset() {
-	*x = PodSandboxHookRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *PodSandboxHookRequest) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *PodSandboxHookRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *PodSandboxHookRequest) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*PodSandboxHookRequest) ProtoMessage() {}
+func (*PodSandboxHookRequest) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *PodSandboxHookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use PodSandboxHookRequest.ProtoReflect.Descriptor instead.
 func (*PodSandboxHookRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{1}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (x *PodSandboxHookRequest) GetPodMeta() *PodSandboxMetadata {
-	if x != nil {
-		return x.PodMeta
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (x *PodSandboxHookRequest) GetRuntimeHandler() string {
-	if x != nil {
-		return x.RuntimeHandler
-	}
-	return ""
-}
+func (x *PodSandboxHookRequest) GetRuntimeHandler() string { _ = "STUB: not implemented"; return "" }
 
 func (x *PodSandboxHookRequest) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *PodSandboxHookRequest) GetAnnotations() map[string]string {
-	if x != nil {
-		return x.Annotations
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (x *PodSandboxHookRequest) GetCgroupParent() string {
-	if x != nil {
-		return x.CgroupParent
-	}
-	return ""
-}
+func (x *PodSandboxHookRequest) GetCgroupParent() string { _ = "STUB: not implemented"; return "" }
 
 func (x *PodSandboxHookRequest) GetOverhead() *LinuxContainerResources {
-	if x != nil {
-		return x.Overhead
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *PodSandboxHookRequest) GetResources() *LinuxContainerResources {
-	if x != nil {
-		return x.Resources
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -260,63 +187,37 @@ type PodSandboxHookResponse struct {
 	Resources *LinuxContainerResources `protobuf:"bytes,4,opt,name=resources,proto3" json:"resources,omitempty"`
 }
 
-func (x *PodSandboxHookResponse) Reset() {
-	*x = PodSandboxHookResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *PodSandboxHookResponse) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *PodSandboxHookResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *PodSandboxHookResponse) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*PodSandboxHookResponse) ProtoMessage() {}
+func (*PodSandboxHookResponse) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *PodSandboxHookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use PodSandboxHookResponse.ProtoReflect.Descriptor instead.
 func (*PodSandboxHookResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{2}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (x *PodSandboxHookResponse) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *PodSandboxHookResponse) GetAnnotations() map[string]string {
-	if x != nil {
-		return x.Annotations
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (x *PodSandboxHookResponse) GetCgroupParent() string {
-	if x != nil {
-		return x.CgroupParent
-	}
-	return ""
-}
+func (x *PodSandboxHookResponse) GetCgroupParent() string { _ = "STUB: not implemented"; return "" }
 
 func (x *PodSandboxHookResponse) GetResources() *LinuxContainerResources {
-	if x != nil {
-		return x.Resources
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -351,105 +252,52 @@ type LinuxContainerResources struct {
 	MemorySwapLimitInBytes int64 `protobuf:"varint,10,opt,name=memory_swap_limit_in_bytes,json=memorySwapLimitInBytes,proto3" json:"memory_swap_limit_in_bytes,omitempty"`
 }
 
-func (x *LinuxContainerResources) Reset() {
-	*x = LinuxContainerResources{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *LinuxContainerResources) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *LinuxContainerResources) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *LinuxContainerResources) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*LinuxContainerResources) ProtoMessage() {}
+func (*LinuxContainerResources) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *LinuxContainerResources) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use LinuxContainerResources.ProtoReflect.Descriptor instead.
 func (*LinuxContainerResources) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{3}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (x *LinuxContainerResources) GetCpuPeriod() int64 {
-	if x != nil {
-		return x.CpuPeriod
-	}
-	return 0
-}
+func (x *LinuxContainerResources) GetCpuPeriod() int64 { _ = "STUB: not implemented"; return 0 }
 
-func (x *LinuxContainerResources) GetCpuQuota() int64 {
-	if x != nil {
-		return x.CpuQuota
-	}
-	return 0
-}
+func (x *LinuxContainerResources) GetCpuQuota() int64 { _ = "STUB: not implemented"; return 0 }
 
-func (x *LinuxContainerResources) GetCpuShares() int64 {
-	if x != nil {
-		return x.CpuShares
-	}
-	return 0
-}
+func (x *LinuxContainerResources) GetCpuShares() int64 { _ = "STUB: not implemented"; return 0 }
 
 func (x *LinuxContainerResources) GetMemoryLimitInBytes() int64 {
-	if x != nil {
-		return x.MemoryLimitInBytes
-	}
+	_ = "STUB: not implemented"
 	return 0
 }
 
-func (x *LinuxContainerResources) GetOomScoreAdj() int64 {
-	if x != nil {
-		return x.OomScoreAdj
-	}
-	return 0
-}
+func (x *LinuxContainerResources) GetOomScoreAdj() int64 { _ = "STUB: not implemented"; return 0 }
 
-func (x *LinuxContainerResources) GetCpusetCpus() string {
-	if x != nil {
-		return x.CpusetCpus
-	}
-	return ""
-}
+func (x *LinuxContainerResources) GetCpusetCpus() string { _ = "STUB: not implemented"; return "" }
 
-func (x *LinuxContainerResources) GetCpusetMems() string {
-	if x != nil {
-		return x.CpusetMems
-	}
-	return ""
-}
+func (x *LinuxContainerResources) GetCpusetMems() string { _ = "STUB: not implemented"; return "" }
 
 func (x *LinuxContainerResources) GetHugepageLimits() []*HugepageLimit {
-	if x != nil {
-		return x.HugepageLimits
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *LinuxContainerResources) GetUnified() map[string]string {
-	if x != nil {
-		return x.Unified
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *LinuxContainerResources) GetMemorySwapLimitInBytes() int64 {
-	if x != nil {
-		return x.MemorySwapLimitInBytes
-	}
+	_ = "STUB: not implemented"
 	return 0
 }
 
@@ -468,51 +316,23 @@ type HugepageLimit struct {
 	Limit uint64 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 }
 
-func (x *HugepageLimit) Reset() {
-	*x = HugepageLimit{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *HugepageLimit) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *HugepageLimit) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *HugepageLimit) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*HugepageLimit) ProtoMessage() {}
+func (*HugepageLimit) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *HugepageLimit) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use HugepageLimit.ProtoReflect.Descriptor instead.
-func (*HugepageLimit) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{4}
-}
+func (*HugepageLimit) Descriptor() ([]byte, []int) { _ = "STUB: not implemented"; return nil, nil }
 
-func (x *HugepageLimit) GetPageSize() string {
-	if x != nil {
-		return x.PageSize
-	}
-	return ""
-}
+func (x *HugepageLimit) GetPageSize() string { _ = "STUB: not implemented"; return "" }
 
-func (x *HugepageLimit) GetLimit() uint64 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
+func (x *HugepageLimit) GetLimit() uint64 { _ = "STUB: not implemented"; return 0 }
 
 type ContainerMetadata struct {
 	state         protoimpl.MessageState
@@ -527,58 +347,25 @@ type ContainerMetadata struct {
 	Id string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
 }
 
-func (x *ContainerMetadata) Reset() {
-	*x = ContainerMetadata{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *ContainerMetadata) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *ContainerMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *ContainerMetadata) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*ContainerMetadata) ProtoMessage() {}
+func (*ContainerMetadata) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *ContainerMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use ContainerMetadata.ProtoReflect.Descriptor instead.
-func (*ContainerMetadata) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{5}
-}
+func (*ContainerMetadata) Descriptor() ([]byte, []int) { _ = "STUB: not implemented"; return nil, nil }
 
-func (x *ContainerMetadata) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
+func (x *ContainerMetadata) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (x *ContainerMetadata) GetAttempt() uint32 {
-	if x != nil {
-		return x.Attempt
-	}
-	return 0
-}
+func (x *ContainerMetadata) GetAttempt() uint32 { _ = "STUB: not implemented"; return 0 }
 
-func (x *ContainerMetadata) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
+func (x *ContainerMetadata) GetId() string { _ = "STUB: not implemented"; return "" }
 
 // ContainerResourceHookRequest is sent to RuntimeHookServer before/after container related operations including
 // pre-container-start, post-container-create, pre-container-resource-update, post-container-stop.
@@ -600,98 +387,65 @@ type ContainerResourceHookRequest struct {
 	ContainerEnvs   map[string]string `protobuf:"bytes,9,rep,name=container_envs,json=containerEnvs,proto3" json:"container_envs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"` // TODO: add the error info from containerd/dockerd
 }
 
-func (x *ContainerResourceHookRequest) Reset() {
-	*x = ContainerResourceHookRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *ContainerResourceHookRequest) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *ContainerResourceHookRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *ContainerResourceHookRequest) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*ContainerResourceHookRequest) ProtoMessage() {}
+func (*ContainerResourceHookRequest) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *ContainerResourceHookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use ContainerResourceHookRequest.ProtoReflect.Descriptor instead.
 func (*ContainerResourceHookRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{6}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (x *ContainerResourceHookRequest) GetPodMeta() *PodSandboxMetadata {
-	if x != nil {
-		return x.PodMeta
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetContainerMeta() *ContainerMetadata {
-	if x != nil {
-		return x.ContainerMeta
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetContainerAnnotations() map[string]string {
-	if x != nil {
-		return x.ContainerAnnotations
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetContainerResources() *LinuxContainerResources {
-	if x != nil {
-		return x.ContainerResources
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetPodResources() *LinuxContainerResources {
-	if x != nil {
-		return x.PodResources
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetPodAnnotations() map[string]string {
-	if x != nil {
-		return x.PodAnnotations
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetPodLabels() map[string]string {
-	if x != nil {
-		return x.PodLabels
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookRequest) GetPodCgroupParent() string {
-	if x != nil {
-		return x.PodCgroupParent
-	}
+	_ = "STUB: not implemented"
 	return ""
 }
 
 func (x *ContainerResourceHookRequest) GetContainerEnvs() map[string]string {
-	if x != nil {
-		return x.ContainerEnvs
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -709,63 +463,40 @@ type ContainerResourceHookResponse struct {
 	ContainerEnvs        map[string]string        `protobuf:"bytes,4,rep,name=container_envs,json=containerEnvs,proto3" json:"container_envs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
-func (x *ContainerResourceHookResponse) Reset() {
-	*x = ContainerResourceHookResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
+func (x *ContainerResourceHookResponse) Reset() { _ = "STUB: not implemented"; return }
 
-func (x *ContainerResourceHookResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
+func (x *ContainerResourceHookResponse) String() string { _ = "STUB: not implemented"; return "" }
 
-func (*ContainerResourceHookResponse) ProtoMessage() {}
+func (*ContainerResourceHookResponse) ProtoMessage() { _ = "STUB: not implemented"; return }
 
 func (x *ContainerResourceHookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
+	_ = "STUB: not implemented"
+	return *new(protoreflect.Message)
 }
 
 // Deprecated: Use ContainerResourceHookResponse.ProtoReflect.Descriptor instead.
 func (*ContainerResourceHookResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_rawDescGZIP(), []int{7}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (x *ContainerResourceHookResponse) GetContainerAnnotations() map[string]string {
-	if x != nil {
-		return x.ContainerAnnotations
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookResponse) GetContainerResources() *LinuxContainerResources {
-	if x != nil {
-		return x.ContainerResources
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (x *ContainerResourceHookResponse) GetPodCgroupParent() string {
-	if x != nil {
-		return x.PodCgroupParent
-	}
+	_ = "STUB: not implemented"
 	return ""
 }
 
 func (x *ContainerResourceHookResponse) GetContainerEnvs() map[string]string {
-	if x != nil {
-		return x.ContainerEnvs
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -1059,12 +790,7 @@ var (
 	file_api_proto_rawDescData = file_api_proto_rawDesc
 )
 
-func file_api_proto_rawDescGZIP() []byte {
-	file_api_proto_rawDescOnce.Do(func() {
-		file_api_proto_rawDescData = protoimpl.X.CompressGZIP(file_api_proto_rawDescData)
-	})
-	return file_api_proto_rawDescData
-}
+func file_api_proto_rawDescGZIP() []byte { _ = "STUB: not implemented"; return nil }
 
 var file_api_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_api_proto_goTypes = []interface{}{
@@ -1131,125 +857,5 @@ var file_api_proto_depIdxs = []int32{
 	0,  // [0:21] is the sub-list for field type_name
 }
 
-func init() { file_api_proto_init() }
-func file_api_proto_init() {
-	if File_api_proto != nil {
-		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_api_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PodSandboxMetadata); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PodSandboxHookRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PodSandboxHookResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LinuxContainerResources); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HugepageLimit); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ContainerMetadata); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ContainerResourceHookRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_api_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ContainerResourceHookResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
-	type x struct{}
-	out := protoimpl.TypeBuilder{
-		File: protoimpl.DescBuilder{
-			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_api_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   19,
-			NumExtensions: 0,
-			NumServices:   1,
-		},
-		GoTypes:           file_api_proto_goTypes,
-		DependencyIndexes: file_api_proto_depIdxs,
-		MessageInfos:      file_api_proto_msgTypes,
-	}.Build()
-	File_api_proto = out.File
-	file_api_proto_rawDesc = nil
-	file_api_proto_goTypes = nil
-	file_api_proto_depIdxs = nil
-}
+func init()                { file_api_proto_init() }
+func file_api_proto_init() { _ = "STUB: not implemented"; return }

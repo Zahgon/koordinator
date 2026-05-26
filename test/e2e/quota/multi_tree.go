@@ -36,7 +36,6 @@ import (
 	"github.com/koordinator-sh/koordinator/pkg/util"
 	"github.com/koordinator-sh/koordinator/test/e2e/framework"
 	e2enode "github.com/koordinator-sh/koordinator/test/e2e/framework/node"
-	imageutils "github.com/koordinator-sh/koordinator/test/utils/image"
 )
 
 var QuotaE2eLabel = "koord-quota-e2e"
@@ -480,34 +479,8 @@ var _ = SIGDescribe("multi-quota-tree", func() {
 })
 
 func createQuotaE2EPod(namespace, name, quotaName string, requests corev1.ResourceList) *corev1.Pod {
-	pod := &corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-			Labels: map[string]string{
-				QuotaE2eLabel:            "true",
-				extension.LabelQuotaName: quotaName,
-			},
-			Annotations: map[string]string{},
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Name:  "quota-e2e-testa",
-					Image: imageutils.GetPauseImageName(),
-					Resources: corev1.ResourceRequirements{
-						Requests: requests,
-					},
-				},
-			},
-			// tolerate all nodes.
-			Tolerations: []corev1.Toleration{
-				corev1.Toleration{
-					Operator: corev1.TolerationOpExists,
-				},
-			},
-		},
-	}
-
-	return pod
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// tolerate all nodes.

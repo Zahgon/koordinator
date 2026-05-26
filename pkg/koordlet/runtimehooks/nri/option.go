@@ -17,15 +17,12 @@ limitations under the License.
 package nri
 
 import (
-	"fmt"
-	"path/filepath"
 	"time"
 
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/record"
 
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 	rmconfig "github.com/koordinator-sh/koordinator/pkg/runtimeproxy/config"
 )
 
@@ -44,14 +41,9 @@ type Options struct {
 }
 
 func (o Options) Validate() error {
+	_ = "STUB: not implemented"
 	// a fast check for the NRI support status
-	completeNriSocketPath := o.GetNRISocketPath()
-	if !system.FileExists(completeNriSocketPath) {
-		return fmt.Errorf("nri socket path %q does not exist", completeNriSocketPath)
-	}
 	return nil
 }
 
-func (o Options) GetNRISocketPath() string {
-	return filepath.Join(system.Conf.VarRunRootDir, o.NriSocketPath)
-}
+func (o Options) GetNRISocketPath() string { _ = "STUB: not implemented"; return "" }

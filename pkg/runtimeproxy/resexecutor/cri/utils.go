@@ -20,82 +20,24 @@ import (
 	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 
 	"github.com/koordinator-sh/koordinator/apis/runtime/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/runtimeproxy/utils"
 )
 
 func transferToKoordResources(r *runtimeapi.LinuxContainerResources) *v1alpha1.LinuxContainerResources {
-	linuxResources := &v1alpha1.LinuxContainerResources{
-		CpuPeriod:              r.GetCpuPeriod(),
-		CpuQuota:               r.GetCpuQuota(),
-		CpuShares:              r.GetCpuShares(),
-		MemoryLimitInBytes:     r.GetMemoryLimitInBytes(),
-		OomScoreAdj:            r.GetOomScoreAdj(),
-		CpusetCpus:             r.GetCpusetCpus(),
-		CpusetMems:             r.GetCpusetMems(),
-		Unified:                r.GetUnified(),
-		MemorySwapLimitInBytes: r.GetMemorySwapLimitInBytes(),
-	}
-
-	for _, item := range r.GetHugepageLimits() {
-		linuxResources.HugepageLimits = append(linuxResources.HugepageLimits, &v1alpha1.HugepageLimit{
-			PageSize: item.GetPageSize(),
-			Limit:    item.GetLimit(),
-		})
-	}
-	return linuxResources
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func transferToCRIResources(r *v1alpha1.LinuxContainerResources) *runtimeapi.LinuxContainerResources {
-	linuxResources := &runtimeapi.LinuxContainerResources{
-		CpuPeriod:              r.GetCpuPeriod(),
-		CpuQuota:               r.GetCpuQuota(),
-		CpuShares:              r.GetCpuShares(),
-		MemoryLimitInBytes:     r.GetMemoryLimitInBytes(),
-		OomScoreAdj:            r.GetOomScoreAdj(),
-		CpusetCpus:             r.GetCpusetCpus(),
-		CpusetMems:             r.GetCpusetMems(),
-		Unified:                r.GetUnified(),
-		MemorySwapLimitInBytes: r.GetMemorySwapLimitInBytes(),
-	}
-
-	for _, item := range r.GetHugepageLimits() {
-		linuxResources.HugepageLimits = append(linuxResources.HugepageLimits, &runtimeapi.HugepageLimit{
-			PageSize: item.GetPageSize(),
-			Limit:    item.GetLimit(),
-		})
-	}
-	return linuxResources
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func updateResource(a, b *v1alpha1.LinuxContainerResources) *v1alpha1.LinuxContainerResources {
-	if a == nil || b == nil {
-		return a
-	}
-	if b.CpuPeriod > 0 {
-		a.CpuPeriod = b.CpuPeriod
-	}
-	if b.CpuQuota != 0 { // -1 is valid
-		a.CpuQuota = b.CpuQuota
-	}
-	if b.CpuShares > 0 {
-		a.CpuShares = b.CpuShares
-	}
-	if b.MemoryLimitInBytes > 0 {
-		a.MemoryLimitInBytes = b.MemoryLimitInBytes
-	}
-	if b.OomScoreAdj >= -1000 && b.OomScoreAdj <= 1000 {
-		a.OomScoreAdj = b.OomScoreAdj
-	}
-
-	a.CpusetCpus = b.CpusetCpus
-	a.CpusetMems = b.CpusetMems
-
-	a.Unified = utils.MergeMap(a.Unified, b.Unified)
-	if b.MemorySwapLimitInBytes > 0 {
-		a.MemorySwapLimitInBytes = b.MemorySwapLimitInBytes
-	}
-	return a
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// -1 is valid
 
 // updateResourceByUpdateContainerResourceRequest updates resources in cache by UpdateContainerResource request.
 // updateResourceByUpdateContainerResourceRequest will omit OomScoreAdj.
@@ -103,67 +45,23 @@ func updateResource(a, b *v1alpha1.LinuxContainerResources) *v1alpha1.LinuxConta
 // Normally kubelet won't send UpdateContainerResource request, so if some components want to send it and want to update OomScoreAdj,
 // please use hook to achieve it.
 func updateResourceByUpdateContainerResourceRequest(a, b *v1alpha1.LinuxContainerResources) *v1alpha1.LinuxContainerResources {
-	if a == nil || b == nil {
-		return a
-	}
-	if b.CpuPeriod > 0 {
-		a.CpuPeriod = b.CpuPeriod
-	}
-	if b.CpuQuota != 0 { // -1 is valid
-		a.CpuQuota = b.CpuQuota
-	}
-	if b.CpuShares > 0 {
-		a.CpuShares = b.CpuShares
-	}
-	if b.MemoryLimitInBytes > 0 {
-		a.MemoryLimitInBytes = b.MemoryLimitInBytes
-	}
-	if b.CpusetCpus != "" {
-		a.CpusetCpus = b.CpusetCpus
-	}
-	if b.CpusetMems != "" {
-		a.CpusetMems = b.CpusetMems
-	}
-	a.Unified = utils.MergeMap(a.Unified, b.Unified)
-	if b.MemorySwapLimitInBytes > 0 {
-		a.MemorySwapLimitInBytes = b.MemorySwapLimitInBytes
-	}
-	return a
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// -1 is valid
+
 func transferToKoordContainerEnvs(envs []*runtimeapi.KeyValue) map[string]string {
-	res := make(map[string]string)
-	if envs == nil {
-		return res
-	}
-	for _, item := range envs {
-		res[item.GetKey()] = item.GetValue()
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func transferToCRIContainerEnvs(envs map[string]string) []*runtimeapi.KeyValue {
-	var res []*runtimeapi.KeyValue
-	if envs == nil {
-		return res
-	}
-	for key, val := range envs {
-		res = append(res, &runtimeapi.KeyValue{
-			Key:   key,
-			Value: val,
-		})
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func IsKeyValExistInLabels(labels map[string]string, key, val string) bool {
-	if labels == nil {
-		return false
-	}
-	for curKey, curVal := range labels {
-		if curKey == key && curVal == val {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }

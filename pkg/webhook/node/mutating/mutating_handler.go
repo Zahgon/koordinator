@@ -18,18 +18,10 @@ package mutating
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
-	"reflect"
-	"time"
 
-	admissionv1 "k8s.io/api/admission/v1"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/koordinator-sh/koordinator/pkg/webhook/metrics"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/node/plugins"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/node/plugins/resourceamplification"
 )
@@ -72,92 +64,36 @@ func shouldIgnoreIfNotNode(req admission.Request) bool {
 
 // NewNodeStatusMutatingHandler creates a new handler for node/status.
 func NewNodeStatusMutatingHandler(c client.Client, d admission.Decoder) *NodeMutatingHandler {
-	handler := &NodeMutatingHandler{
-		ignoreFilter: shouldIgnoreIfNotNodeStatus,
-		Client:       c,
-		Decoder:      d,
-	}
-	return handler
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ admission.Handler = &NodeMutatingHandler{}
 
 func shouldIgnoreIfNotNodeStatus(req admission.Request) bool {
+	_ = "STUB: not implemented"
 	// Ignore all calls to nodes or resources other than node status.
-	return req.AdmissionRequest.Resource.Resource != "nodes" || req.AdmissionRequest.SubResource != "status"
+	return false
 }
 
 // Handle handles admission requests.
 func (h *NodeMutatingHandler) Handle(ctx context.Context, req admission.Request) (resp admission.Response) {
-	if h.ignoreFilter(req) {
-		return admission.Allowed("")
-	}
-
-	obj := &corev1.Node{}
-	var oldObj *corev1.Node
-
-	var err error
-	if req.Operation != admissionv1.Delete {
-		err = h.Decoder.Decode(req, obj)
-		if err != nil {
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-	} else {
-		if len(req.OldObject.Raw) != 0 {
-			if err = h.Decoder.DecodeRaw(req.OldObject, obj); err != nil {
-				return admission.Errored(http.StatusBadRequest, err)
-			}
-		}
-	}
-
-	if req.Operation == admissionv1.Update {
-		oldObj = &corev1.Node{}
-		err = h.Decoder.DecodeRaw(req.OldObject, oldObj)
-		if err != nil {
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-	}
-
-	clone := obj.DeepCopy()
-
-	for _, plugin := range nodeMutatingPlugins {
-		start := time.Now()
-		if err := plugin.Admit(ctx, req, obj, oldObj); err != nil {
-			metrics.RecordWebhookDurationMilliseconds(metrics.MutatingWebhook,
-				metrics.Node, string(req.Operation), err, plugin.Name(), time.Since(start).Seconds())
-			return admission.Errored(http.StatusInternalServerError, err)
-		}
-		metrics.RecordWebhookDurationMilliseconds(metrics.MutatingWebhook,
-			metrics.Node, string(req.Operation), nil, plugin.Name(), time.Since(start).Seconds())
-	}
-
-	if reflect.DeepEqual(obj, clone) {
-		return admission.Allowed("")
-	}
-	marshaled, err := json.Marshal(obj)
-	if err != nil {
-		klog.Errorf("Failed to marshal mutated Node %s, err: %v", obj.Name, err)
-		return admission.Errored(http.StatusInternalServerError, err)
-	}
-	original, err := json.Marshal(clone)
-	if err != nil {
-		return admission.Errored(http.StatusInternalServerError, err)
-	}
-	return admission.PatchResponseFromRaw(original, marshaled)
+	_ = "STUB: not implemented"
+	return *new(admission.Response)
 }
 
 // var _ inject.Client = &NodeMutatingHandler{}
 
 // InjectClient injects the client into the PodMutatingHandler
 func (n *NodeMutatingHandler) InjectClient(c client.Client) error {
-	n.Client = c
+	_ = "STUB: not implemented"
 	return nil
-}
 
-// var _ admission.DecoderInjector = &NodeMutatingHandler{}
+	// var _ admission.DecoderInjector = &NodeMutatingHandler{}
+}
 
 // InjectDecoder injects the decoder into the PodMutatingHandler
 func (n *NodeMutatingHandler) InjectDecoder(d admission.Decoder) error {
-	n.Decoder = d
+	_ = "STUB: not implemented"
 	return nil
 }

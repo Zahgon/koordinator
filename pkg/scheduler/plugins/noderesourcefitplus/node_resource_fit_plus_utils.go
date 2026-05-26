@@ -18,13 +18,7 @@ package noderesourcesfitplus
 
 import (
 	v1 "k8s.io/api/core/v1"
-	utilfeature "k8s.io/apiserver/pkg/util/feature"
-	"k8s.io/component-helpers/resource"
-	"k8s.io/klog/v2"
-	fwk "k8s.io/kube-scheduler/framework"
 	fwktype "k8s.io/kube-scheduler/framework"
-	k8sConfig "k8s.io/kubernetes/pkg/scheduler/apis/config"
-	schedutil "k8s.io/kubernetes/pkg/scheduler/util"
 
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
 )
@@ -33,78 +27,24 @@ type ResourceAllocationPriority struct {
 	scorer func(nodeName string, args *config.NodeResourcesFitPlusArgs, requestedMap, allocatableMap map[v1.ResourceName]int64) int64
 }
 
-func mostRequestedScore(requested, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if requested > capacity {
-		requested = capacity
-	}
+func mostRequestedScore(requested, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }
 
-	return requested * fwk.MaxNodeScore / capacity
-}
-
-func leastRequestedScore(requested, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if requested > capacity {
-		return 0
-	}
-
-	return ((capacity - requested) * fwk.MaxNodeScore) / capacity
-}
+func leastRequestedScore(requested, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }
 
 func resourceScorer(nodeName string, args *config.NodeResourcesFitPlusArgs, requestedMap, allocatableMap map[v1.ResourceName]int64) int64 {
-	var nodeScore int64
-	var weightSum int64
-
-	for resourceName, requested := range requestedMap {
-		if _, ok := args.Resources[resourceName]; !ok {
-			continue
-		}
-		resourceArgs := args.Resources[resourceName]
-
-		var resourceScore int64
-
-		switch resourceArgs.Type {
-		case k8sConfig.MostAllocated:
-			resourceScore = mostRequestedScore(requested, allocatableMap[resourceName])
-		case k8sConfig.LeastAllocated:
-			resourceScore = leastRequestedScore(requested, allocatableMap[resourceName])
-		}
-		nodeScore += resourceScore * resourceArgs.Weight
-		weightSum += resourceArgs.Weight
-
-	}
-	if weightSum == 0 {
-		return fwk.MaxNodeScore
-	}
-
-	i := nodeScore / weightSum
-
-	return i
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (r *ResourceAllocationPriority) getResourceScore(args *config.NodeResourcesFitPlusArgs, podRequestNames []v1.ResourceName, pod *v1.Pod, nodeInfo fwktype.NodeInfo, nodeName string) int64 {
-	requested := make(resourceToValueMap, len(podRequestNames))
-	allocatable := make(resourceToValueMap, len(podRequestNames))
-	for _, resourceName := range podRequestNames {
-		allocatable[resourceName], requested[resourceName] = calculateResourceAllocatableRequest(nodeInfo, pod, resourceName)
-	}
-
-	score := r.scorer(nodeName, args, requested, allocatable)
-
-	return score
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func computePodResourceRequest(pod *v1.Pod) *preScoreState {
+	_ = "STUB: not implemented"
 	// pod hasn't scheduled yet so we don't need to worry about InPlacePodVerticalScalingEnabled
-	reqs := resource.PodRequests(pod, resource.PodResourcesOptions{})
-	result := &preScoreState{}
-	result.SetMaxResource(reqs)
-	result.ResourceName = fitsPodRequestName(result.Resource)
-	return result
+	return nil
 }
 
 // resourceToValueMap contains resource name and score.
@@ -112,25 +52,7 @@ type resourceToValueMap map[v1.ResourceName]int64
 
 // calculateResourceAllocatableRequest returns resources Allocatable and Requested values
 func calculateResourceAllocatableRequest(nodeInfo fwktype.NodeInfo, pod *v1.Pod, resource v1.ResourceName) (int64, int64) {
-	podRequest := calculatePodResourceRequest(pod, resource)
-	switch resource {
-	case v1.ResourceCPU:
-		return nodeInfo.GetAllocatable().GetMilliCPU(), nodeInfo.GetNonZeroRequested().GetMilliCPU() + podRequest
-	case v1.ResourceMemory:
-		return nodeInfo.GetAllocatable().GetMemory(), nodeInfo.GetNonZeroRequested().GetMemory() + podRequest
-
-	case v1.ResourceEphemeralStorage:
-		return nodeInfo.GetAllocatable().GetEphemeralStorage(), nodeInfo.GetRequested().GetEphemeralStorage() + podRequest
-	default:
-		if schedutil.IsScalarResourceName(resource) {
-			return nodeInfo.GetAllocatable().GetScalarResources()[resource], nodeInfo.GetRequested().GetScalarResources()[resource] + podRequest
-		}
-	}
-	if klog.V(10).Enabled() {
-		klog.Infof("requested resource %v not considered for node score calculation",
-			resource,
-		)
-	}
+	_ = "STUB: not implemented"
 	return 0, 0
 }
 
@@ -139,68 +61,23 @@ func calculateResourceAllocatableRequest(nodeInfo fwktype.NodeInfo, pod *v1.Pod,
 // It follows the KEP-753 sidecar container resource calculation:
 // podResourceRequest = max(sum(Containers) + sum(SidecarInitContainers), max(Regular_InitContainer + preceding_sidecars)) + overHead
 func calculatePodResourceRequest(pod *v1.Pod, resource v1.ResourceName) int64 {
-	var podRequest int64
-	for i := range pod.Spec.Containers {
-		container := &pod.Spec.Containers[i]
-		value := GetNonzeroRequestForResource(resource, &container.Resources.Requests)
-		podRequest += value
-	}
-
-	// Sidecar containers (initContainers with restartPolicy=Always) run alongside
-	// regular containers, so their requests should be summed.
-	// Regular init containers use max-based comparison.
-	for i := range pod.Spec.InitContainers {
-		initContainer := &pod.Spec.InitContainers[i]
-		value := GetNonzeroRequestForResource(resource, &initContainer.Resources.Requests)
-		if initContainer.RestartPolicy != nil && *initContainer.RestartPolicy == v1.ContainerRestartPolicyAlways {
-			podRequest += value
-		} else {
-			if podRequest < value {
-				podRequest = value
-			}
-		}
-	}
-
-	// If Overhead is being utilized, add to the total requests for the pod
-	if pod.Spec.Overhead != nil && utilfeature.DefaultFeatureGate.Enabled("PodOverhead") {
-		if quantity, found := pod.Spec.Overhead[resource]; found {
-			podRequest += quantity.Value()
-		}
-	}
-
-	return podRequest
+	_ = "STUB: not implemented"
+	return 0
 }
+
+// Sidecar containers (initContainers with restartPolicy=Always) run alongside
+// regular containers, so their requests should be summed.
+// Regular init containers use max-based comparison.
+
+// If Overhead is being utilized, add to the total requests for the pod
 
 // GetNonzeroRequestForResource returns the default resource request if none is found or
 // what is provided on the request.
 func GetNonzeroRequestForResource(resource v1.ResourceName, requests *v1.ResourceList) int64 {
-	switch resource {
-	case v1.ResourceCPU:
-		// Override if un-set, but not if explicitly set to zero
-		if _, found := (*requests)[v1.ResourceCPU]; !found {
-			return schedutil.DefaultMilliCPURequest
-		}
-		return requests.Cpu().MilliValue()
-	case v1.ResourceMemory:
-		// Override if un-set, but not if explicitly set to zero
-		if _, found := (*requests)[v1.ResourceMemory]; !found {
-			return schedutil.DefaultMemoryRequest
-		}
-		return requests.Memory().Value()
-	case v1.ResourceEphemeralStorage:
-		quantity, found := (*requests)[v1.ResourceEphemeralStorage]
-		if !found {
-			return 0
-		}
-		return quantity.Value()
-	default:
-		if schedutil.IsScalarResourceName(resource) {
-			quantity, found := (*requests)[resource]
-			if !found {
-				return 0
-			}
-			return quantity.Value()
-		}
-	}
+	_ = "STUB: not implemented"
 	return 0
 }
+
+// Override if un-set, but not if explicitly set to zero
+
+// Override if un-set, but not if explicitly set to zero

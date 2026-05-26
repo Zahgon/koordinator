@@ -17,17 +17,7 @@ limitations under the License.
 package plugins
 
 import (
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins/custompriority"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins/kubernetes"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins/loadaware"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/runtime"
 )
 
-func NewInTreeRegistry() runtime.Registry {
-	registry := runtime.Registry{
-		loadaware.LowNodeLoadName:               loadaware.NewLowNodeLoad,
-		custompriority.PluginCustomPriorityName: custompriority.NewCustomPriority,
-	}
-	kubernetes.SetupK8sDeschedulerPlugins(registry)
-	return registry
-}
+func NewInTreeRegistry() runtime.Registry { _ = "STUB: not implemented"; return *new(runtime.Registry) }

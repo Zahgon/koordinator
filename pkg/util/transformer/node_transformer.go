@@ -19,10 +19,6 @@ package transformer
 import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 var nodeTransformers = []func(node *corev1.Node){
@@ -31,45 +27,15 @@ var nodeTransformers = []func(node *corev1.Node){
 	TransformNodeDeprecatedDeviceResources,
 }
 
-func InstallNodeTransformer(informer cache.SharedIndexInformer) {
-	if err := informer.SetTransform(TransformNode); err != nil {
-		klog.Fatalf("Failed to SetTransform with node, err: %v", err)
-	}
-}
+func InstallNodeTransformer(informer cache.SharedIndexInformer) { _ = "STUB: not implemented"; return }
 
 func TransformNode(obj interface{}) (interface{}, error) {
-	var node *corev1.Node
-	switch t := obj.(type) {
-	case *corev1.Node:
-		node = t
-	case cache.DeletedFinalStateUnknown:
-		node, _ = t.Obj.(*corev1.Node)
-	}
-	if node == nil {
-		return obj, nil
-	}
-
-	for _, fn := range nodeTransformers {
-		fn(node)
-	}
-
-	if unknown, ok := obj.(cache.DeletedFinalStateUnknown); ok {
-		unknown.Obj = node
-		return unknown, nil
-	}
-	return node, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func TransformNodeWithNodeReservation(node *corev1.Node) {
-	node.Status.Allocatable, _ = util.TrimNodeAllocatableByNodeReservation(node)
-}
+func TransformNodeWithNodeReservation(node *corev1.Node) { _ = "STUB: not implemented"; return }
 
-func TransformNodeDeprecatedBatchResources(node *corev1.Node) {
-	replaceAndEraseWithResourcesMapper(node.Status.Allocatable, apiext.DeprecatedBatchResourcesMapper)
-	replaceAndEraseWithResourcesMapper(node.Status.Capacity, apiext.DeprecatedBatchResourcesMapper)
-}
+func TransformNodeDeprecatedBatchResources(node *corev1.Node) { _ = "STUB: not implemented"; return }
 
-func TransformNodeDeprecatedDeviceResources(node *corev1.Node) {
-	replaceAndEraseWithResourcesMapper(node.Status.Allocatable, apiext.DeprecatedDeviceResourcesMapper)
-	replaceAndEraseWithResourcesMapper(node.Status.Capacity, apiext.DeprecatedDeviceResourcesMapper)
-}
+func TransformNodeDeprecatedDeviceResources(node *corev1.Node) { _ = "STUB: not implemented"; return }

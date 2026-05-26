@@ -17,8 +17,6 @@ limitations under the License.
 package rule
 
 import (
-	"fmt"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
 )
 
@@ -30,49 +28,21 @@ type funcInject struct {
 	f func(interface{}) error
 }
 
-func (fi *funcInject) Apply(o interface{}) error {
-	return fi.f(o)
-}
+func (fi *funcInject) Apply(o interface{}) error { _ = "STUB: not implemented"; return nil }
 
-func NewFuncInject(f func(interface{}) error) *funcInject {
-	return &funcInject{
-		f: f,
-	}
-}
+func NewFuncInject(f func(interface{}) error) *funcInject { _ = "STUB: not implemented"; return nil }
 
 func WithParseFunc(t statesinformer.RegisterType, parseFunc ParseRuleFn) InjectOption {
-	return NewFuncInject(func(o interface{}) error {
-		switch o := o.(type) {
-		case *Rule:
-			o.parseRuleType = t
-			o.parseRuleFn = parseFunc
-		default:
-			return fmt.Errorf("WithSystemSupported is invalid for type %T", o)
-		}
-		return nil
-	})
+	_ = "STUB: not implemented"
+	return *new(InjectOption)
 }
 
 func WithUpdateCallback(updateCb UpdateCbFn) InjectOption {
-	return NewFuncInject(func(o interface{}) error {
-		switch o := o.(type) {
-		case *Rule:
-			o.callbacks = append(o.callbacks, updateCb)
-		default:
-			return fmt.Errorf("WithUpdateCallback is invalid for type %T", o)
-		}
-		return nil
-	})
+	_ = "STUB: not implemented"
+	return *new(InjectOption)
 }
 
 func WithSystemSupported(sysSupportFn SysSupportFn) InjectOption {
-	return NewFuncInject(func(o interface{}) error {
-		switch o := o.(type) {
-		case *Rule:
-			o.systemSupported = sysSupportFn()
-		default:
-			return fmt.Errorf("WithSystemSupported is invalid for type %T", o)
-		}
-		return nil
-	})
+	_ = "STUB: not implemented"
+	return *new(InjectOption)
 }

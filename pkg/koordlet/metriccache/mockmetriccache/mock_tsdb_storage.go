@@ -27,7 +27,6 @@
 package mock_metriccache
 
 import (
-	reflect "reflect"
 	time "time"
 
 	metriccache "github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
@@ -48,57 +47,45 @@ type MockTSDBStorageMockRecorder struct {
 
 // NewMockTSDBStorage creates a new mock instance.
 func NewMockTSDBStorage(ctrl *gomock.Controller) *MockTSDBStorage {
-	mock := &MockTSDBStorage{ctrl: ctrl}
-	mock.recorder = &MockTSDBStorageMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockTSDBStorage) EXPECT() *MockTSDBStorageMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Appender mocks base method.
+	return nil
 }
 
-// Appender mocks base method.
 func (m *MockTSDBStorage) Appender() metriccache.Appender {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Appender")
-	ret0, _ := ret[0].(metriccache.Appender)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(metriccache.Appender)
 }
 
 // Appender indicates an expected call of Appender.
 func (mr *MockTSDBStorageMockRecorder) Appender() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Appender", reflect.TypeOf((*MockTSDBStorage)(nil).Appender))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Close mocks base method.
-func (m *MockTSDBStorage) Close() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Close")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
+func (m *MockTSDBStorage) Close() error { _ = "STUB: not implemented"; return nil }
 
 // Close indicates an expected call of Close.
-func (mr *MockTSDBStorageMockRecorder) Close() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockTSDBStorage)(nil).Close))
-}
+func (mr *MockTSDBStorageMockRecorder) Close() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // Querier mocks base method.
 func (m *MockTSDBStorage) Querier(startTime, endTime time.Time) (metriccache.Querier, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Querier", startTime, endTime)
-	ret0, _ := ret[0].(metriccache.Querier)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return *new(metriccache.Querier), nil
 }
 
 // Querier indicates an expected call of Querier.
 func (mr *MockTSDBStorageMockRecorder) Querier(startTime, endTime any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Querier", reflect.TypeOf((*MockTSDBStorage)(nil).Querier), startTime, endTime)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockAppendable is a mock of Appendable interface.
@@ -115,28 +102,27 @@ type MockAppendableMockRecorder struct {
 
 // NewMockAppendable creates a new mock instance.
 func NewMockAppendable(ctrl *gomock.Controller) *MockAppendable {
-	mock := &MockAppendable{ctrl: ctrl}
-	mock.recorder = &MockAppendableMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAppendable) EXPECT() *MockAppendableMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Appender mocks base method.
+	return nil
 }
 
-// Appender mocks base method.
 func (m *MockAppendable) Appender() metriccache.Appender {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Appender")
-	ret0, _ := ret[0].(metriccache.Appender)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(metriccache.Appender)
 }
 
 // Appender indicates an expected call of Appender.
 func (mr *MockAppendableMockRecorder) Appender() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Appender", reflect.TypeOf((*MockAppendable)(nil).Appender))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockAppender is a mock of Appender interface.
@@ -152,44 +138,32 @@ type MockAppenderMockRecorder struct {
 }
 
 // NewMockAppender creates a new mock instance.
-func NewMockAppender(ctrl *gomock.Controller) *MockAppender {
-	mock := &MockAppender{ctrl: ctrl}
-	mock.recorder = &MockAppenderMockRecorder{mock}
-	return mock
-}
+func NewMockAppender(ctrl *gomock.Controller) *MockAppender { _ = "STUB: not implemented"; return nil }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAppender) EXPECT() *MockAppenderMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Append mocks base method.
+	return nil
 }
 
-// Append mocks base method.
 func (m *MockAppender) Append(s []metriccache.MetricSample) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Append", s)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Append indicates an expected call of Append.
 func (mr *MockAppenderMockRecorder) Append(s any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Append", reflect.TypeOf((*MockAppender)(nil).Append), s)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Commit mocks base method.
-func (m *MockAppender) Commit() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Commit")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
+func (m *MockAppender) Commit() error { _ = "STUB: not implemented"; return nil }
 
 // Commit indicates an expected call of Commit.
-func (mr *MockAppenderMockRecorder) Commit() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MockAppender)(nil).Commit))
-}
+func (mr *MockAppenderMockRecorder) Commit() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // MockQueryable is a mock of Queryable interface.
 type MockQueryable struct {
@@ -205,29 +179,27 @@ type MockQueryableMockRecorder struct {
 
 // NewMockQueryable creates a new mock instance.
 func NewMockQueryable(ctrl *gomock.Controller) *MockQueryable {
-	mock := &MockQueryable{ctrl: ctrl}
-	mock.recorder = &MockQueryableMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockQueryable) EXPECT() *MockQueryableMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Querier mocks base method.
+	return nil
 }
 
-// Querier mocks base method.
 func (m *MockQueryable) Querier(startTime, endTime time.Time) (metriccache.Querier, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Querier", startTime, endTime)
-	ret0, _ := ret[0].(metriccache.Querier)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return *new(metriccache.Querier), nil
 }
 
 // Querier indicates an expected call of Querier.
 func (mr *MockQueryableMockRecorder) Querier(startTime, endTime any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Querier", reflect.TypeOf((*MockQueryable)(nil).Querier), startTime, endTime)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // MockQuerier is a mock of Querier interface.
@@ -243,53 +215,41 @@ type MockQuerierMockRecorder struct {
 }
 
 // NewMockQuerier creates a new mock instance.
-func NewMockQuerier(ctrl *gomock.Controller) *MockQuerier {
-	mock := &MockQuerier{ctrl: ctrl}
-	mock.recorder = &MockQuerierMockRecorder{mock}
-	return mock
-}
+func NewMockQuerier(ctrl *gomock.Controller) *MockQuerier { _ = "STUB: not implemented"; return nil }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockQuerier) EXPECT() *MockQuerierMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Close mocks base method.
+	return nil
 }
 
-// Close mocks base method.
-func (m *MockQuerier) Close() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Close")
-}
+func (m *MockQuerier) Close() { _ = "STUB: not implemented"; return }
 
 // Close indicates an expected call of Close.
-func (mr *MockQuerierMockRecorder) Close() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockQuerier)(nil).Close))
-}
+func (mr *MockQuerierMockRecorder) Close() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // Query mocks base method.
 func (m *MockQuerier) Query(meta metriccache.MetricMeta, hints *metriccache.QueryHints, result metriccache.MetricResult) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Query", meta, hints, result)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Query indicates an expected call of Query.
 func (mr *MockQuerierMockRecorder) Query(meta, hints, result any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockQuerier)(nil).Query), meta, hints, result)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // QueryAndClose mocks base method.
 func (m *MockQuerier) QueryAndClose(meta metriccache.MetricMeta, hints *metriccache.QueryHints, result metriccache.MetricResult) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "QueryAndClose", meta, hints, result)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // QueryAndClose indicates an expected call of QueryAndClose.
 func (mr *MockQuerierMockRecorder) QueryAndClose(meta, hints, result any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryAndClose", reflect.TypeOf((*MockQuerier)(nil).QueryAndClose), meta, hints, result)
+	_ = "STUB: not implemented"
+	return nil
 }

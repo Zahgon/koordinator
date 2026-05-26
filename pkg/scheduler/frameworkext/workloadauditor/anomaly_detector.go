@@ -73,163 +73,76 @@ package workloadauditor
 //   (scheduled / deleted / gangScheduled / gangDeleted).
 
 import (
-	"strings"
 	"time"
-
-	"k8s.io/klog/v2"
 )
 
 // checkRecordAnomaly is called after every appendRecord to detect anomalies
 // based on the newly appended record type and the workload's accumulated state.
 func checkRecordAnomaly(config *WorkloadAuditorConfig, wr *WorkloadRecord, recordType RecordType, message string) {
-	now := time.Now()
-
-	switch recordType {
-	case RecordTypePreemptNominated:
-		handlePreemptNominated(config, wr, now, recordType, message)
-	case RecordTypePreemptFailure:
-		handlePreemptionInvalidation(wr, recordType, message)
-		handleVictimRescheduleCheck(config, wr, now, recordType, message)
-		finalizePreemptionCycleIfActive(config, wr, now, recordType, message)
-	case RecordTypeScheduleFailure:
-		handlePreemptionInvalidation(wr, recordType, message)
-		handleVictimRescheduleCheck(config, wr, now, recordType, message)
-		finalizePreemptionCycleIfActive(config, wr, now, recordType, message)
-	case RecordTypeScheduled:
-		handleVictimRescheduleCheck(config, wr, now, recordType, message)
-		finalizePreemptionCycleIfActive(config, wr, now, recordType, message)
-	case RecordTypeVictimAllDeleted:
-		handleVictimAllDeleted(config, wr, now, recordType, message)
-	case RecordTypePreemptVictimDeleting:
-		wr.preemptVictimDeletingCountSinceNom++
-	case RecordTypeGatedByQueueAdmission:
-		// Pod is gated and cannot be dequeued; cancel any pending reschedule wait.
-		wr.lastVictimAllDeletedTime = nil
-	}
-
-	// Inter-event interval tracking within the current dequeue-attempt round.
-	trackSchedulingEventInterval(config, wr, recordType, now, message)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Pod is gated and cannot be dequeued; cancel any pending reschedule wait.
+
+// Inter-event interval tracking within the current dequeue-attempt round.
 
 // handlePreemptNominated handles all rules triggered by a preemptNominated event.
 func handlePreemptNominated(config *WorkloadAuditorConfig, wr *WorkloadRecord, now time.Time, triggerType RecordType, triggerMsg string) {
+	_ = "STUB: not implemented"
 	// Finalize the previous preemption cycle if one was active (interrupted)
-	if wr.lastPreemptNominatedTime != nil {
-		finalizePreemptionCycle(config, wr, now, false, triggerType, triggerMsg)
-	}
-
-	// Repeated preemption detection (count already incremented by appendRecord)
-	nomCount := wr.recordTypeCounts[RecordTypePreemptNominated]
-	if nomCount > 1 {
-		RepeatedPreemptionTotal.WithLabelValues(wr.labelValues...).Inc()
-		klog.Infof("workloadauditor: ALERT: repeated preemption for workload %s %s, count=%d, trigger=%s, message=%q",
-			wr.WorkloadKey, wr.labelDetail, nomCount, triggerType, triggerMsg)
-	}
-
-	// Preemption invalidation: a new preemptNominated after a previous one
-	if nomCount >= 2 && !wr.lastPreemptNominatedInvalidated {
-		wr.lastPreemptNominatedInvalidated = true
-		PreemptionInvalidationsTotal.WithLabelValues(wr.labelValues...).Inc()
-		klog.Infof("workloadauditor: ALERT: preemption invalidated by new preemption for workload %s %s, trigger=%s, message=%q",
-			wr.WorkloadKey, wr.labelDetail, triggerType, triggerMsg)
-	}
-
-	// Reset state for the new preemption cycle
-	wr.lastPreemptNominatedInvalidated = false
-	wr.lastPreemptNominatedTime = &now
-	wr.preemptVictimDeletingCountSinceNom = 0
-
-	// Also check if we were waiting for a reschedule after victim deletion
-	handleVictimRescheduleCheck(config, wr, now, triggerType, triggerMsg)
+	return
 }
+
+// Repeated preemption detection (count already incremented by appendRecord)
+
+// Preemption invalidation: a new preemptNominated after a previous one
+
+// Reset state for the new preemption cycle
+
+// Also check if we were waiting for a reschedule after victim deletion
 
 // handlePreemptionInvalidation checks whether a failure event invalidates
 // the most recent preemptNominated result.
 func handlePreemptionInvalidation(wr *WorkloadRecord, recordType RecordType, message string) {
-	if wr.recordTypeCounts[RecordTypePreemptNominated] < 1 || wr.lastPreemptNominatedInvalidated {
-		return
-	}
-	wr.lastPreemptNominatedInvalidated = true
-	PreemptionInvalidationsTotal.WithLabelValues(wr.labelValues...).Inc()
-	klog.Infof("workloadauditor: ALERT: preemption invalidated by %s for workload %s %s, message=%q",
-		recordType, wr.WorkloadKey, wr.labelDetail, message)
+	_ = "STUB: not implemented"
+	return
 }
 
 // handleVictimRescheduleCheck checks if a scheduling result arrives after
 // victimAllDeleted, measure the latency and alert if it exceeds the threshold.
 func handleVictimRescheduleCheck(config *WorkloadAuditorConfig, wr *WorkloadRecord, now time.Time, triggerType RecordType, triggerMsg string) {
-	if wr.lastVictimAllDeletedTime == nil {
-		return
-	}
-	duration := now.Sub(*wr.lastVictimAllDeletedTime)
-	VictimRescheduleDurationSeconds.WithLabelValues(wr.labelValues...).Observe(duration.Seconds())
-	if duration > config.VictimRescheduleDuration {
-		klog.Infof("workloadauditor: ALERT: slow reschedule after victim deletion for workload %s %s, duration=%v (threshold %v), trigger=%s, message=%q",
-			wr.WorkloadKey, wr.labelDetail, duration, config.VictimRescheduleDuration, triggerType, triggerMsg)
-	}
-	wr.lastVictimAllDeletedTime = nil
+	_ = "STUB: not implemented"
+	return
 }
 
 // finalizePreemptionCycleIfActive finalizes the current preemption cycle if one
 // is active, then clears the cycle state.
 func finalizePreemptionCycleIfActive(config *WorkloadAuditorConfig, wr *WorkloadRecord, now time.Time, triggerType RecordType, triggerMsg string) {
-	if wr.lastPreemptNominatedTime == nil {
-		return
-	}
-	finalizePreemptionCycle(config, wr, now, false, triggerType, triggerMsg)
-	wr.lastPreemptNominatedTime = nil
+	_ = "STUB: not implemented"
+	return
 }
 
 // handleVictimAllDeleted handles state setup and cycle finalization
 // when all victims have been deleted.
 func handleVictimAllDeleted(config *WorkloadAuditorConfig, wr *WorkloadRecord, now time.Time, triggerType RecordType, triggerMsg string) {
+	_ = "STUB: not implemented"
 	// Finalize the preemption cycle (preemptNominated -> victimAllDeleted, normal completion)
-	if wr.lastPreemptNominatedTime != nil {
-		finalizePreemptionCycle(config, wr, now, true, triggerType, triggerMsg)
-		wr.lastPreemptNominatedTime = nil
-	}
-
-	// Mark that we are now waiting for a reschedule result
-	wr.lastVictimAllDeletedTime = &now
+	return
 }
+
+// Mark that we are now waiting for a reschedule result
 
 // finalizePreemptionCycle observes metrics for a completed preemption cycle.
 // victimDeleted indicates whether the cycle completed normally (victimAllDeleted)
 // or was interrupted by another event (next preemption, scheduled, failure, deletion).
 func finalizePreemptionCycle(config *WorkloadAuditorConfig, wr *WorkloadRecord, endTime time.Time, victimDeleted bool, triggerType RecordType, triggerMsg string) {
-	duration := endTime.Sub(*wr.lastPreemptNominatedTime)
-	retries := wr.preemptVictimDeletingCountSinceNom
-
-	if victimDeleted {
-		PreemptionToVictimDeletedSeconds.WithLabelValues(wr.labelValues...).Observe(duration.Seconds())
-	} else {
-		PreemptionCycleInterruptedSeconds.WithLabelValues(wr.labelValues...).Observe(duration.Seconds())
-	}
-	PreemptionVictimDeletingRetries.WithLabelValues(wr.labelValues...).Observe(float64(retries))
-
-	if retries > config.VictimDeletingRetries {
-		klog.Infof("workloadauditor: ALERT: excessive victim deleting retries for workload %s %s, retries=%d (threshold %d), trigger=%s, message=%q",
-			wr.WorkloadKey, wr.labelDetail, retries, config.VictimDeletingRetries, triggerType, triggerMsg)
-	}
-	if victimDeleted {
-		if duration > config.VictimDeletionDuration {
-			klog.Infof("workloadauditor: ALERT: slow victim deletion for workload %s %s, duration=%v (threshold %v), trigger=%s, message=%q",
-				wr.WorkloadKey, wr.labelDetail, duration, config.VictimDeletionDuration, triggerType, triggerMsg)
-		}
-	} else {
-		if duration > config.VictimDeletionDuration {
-			klog.Infof("workloadauditor: ALERT: preemption cycle interrupted (victim not fully deleted) for workload %s %s, duration=%v (threshold %v), trigger=%s, message=%q",
-				wr.WorkloadKey, wr.labelDetail, duration, config.VictimDeletionDuration, triggerType, triggerMsg)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // isRoundStarter returns true if the record type starts a new dequeue-attempt round.
-func isRoundStarter(recordType RecordType) bool {
-	return recordType == RecordTypeCreate ||
-		recordType == RecordTypeAdmissionPassed ||
-		strings.HasPrefix(string(recordType), "gangMinMemberSatisfied")
-}
+func isRoundStarter(recordType RecordType) bool { _ = "STUB: not implemented"; return false }
 
 // trackSchedulingEventInterval measures the time between consecutive scheduling
 // events within a dequeue-attempt round.
@@ -237,50 +150,22 @@ func isRoundStarter(recordType RecordType) bool {
 // Round ender (gatedByQueueAdmission) clears the timer.
 // All other scheduling events measure and update the timer.
 func trackSchedulingEventInterval(config *WorkloadAuditorConfig, wr *WorkloadRecord, recordType RecordType, now time.Time, message string) {
-	if isRoundStarter(recordType) {
-		// Round starter: begin a new timer, no measurement.
-		wr.lastSchedulingEventTime = &now
-		return
-	}
-
-	if recordType == RecordTypeGatedByQueueAdmission {
-		// Round ender: clear the timer. No metric observation needed.
-		wr.lastSchedulingEventTime = nil
-		return
-	}
-
-	// victimAllDeleted is not a dequeue-driven scheduling event; skip interval tracking.
-	if recordType == RecordTypeVictimAllDeleted {
-		return
-	}
-
-	// Mid-round scheduling event: measure and update the timer.
-	if wr.lastSchedulingEventTime != nil {
-		duration := now.Sub(*wr.lastSchedulingEventTime)
-		SchedulingEventIntervalSeconds.WithLabelValues(wr.labelValues...).Observe(duration.Seconds())
-		if duration > config.SchedulingEventInterval {
-			klog.Infof("workloadauditor: ALERT: long scheduling event interval for workload %s %s, duration=%v (threshold %v), trigger=%s, message=%q",
-				wr.WorkloadKey, wr.labelDetail, duration, config.SchedulingEventInterval, recordType, message)
-		}
-	}
-	wr.lastSchedulingEventTime = &now
+	_ = "STUB: not implemented"
+	return
 }
+
+// Round starter: begin a new timer, no measurement.
+
+// Round ender: clear the timer. No metric observation needed.
+
+// victimAllDeleted is not a dequeue-driven scheduling event; skip interval tracking.
+
+// Mid-round scheduling event: measure and update the timer.
 
 // finalizeWorkloadRecord is called just before a workload record is removed from
 // the map. It flushes any remaining preemption cycle and observes event-count histograms.
-func finalizeWorkloadRecord(wr *WorkloadRecord, outcome string) {
-	klog.V(4).Infof("WorkloadAuditor finalize: workloadKey=%s %s, outcome=%s, recordTypeCounts=%v",
-		wr.WorkloadKey, wr.labelDetail, outcome, wr.recordTypeCounts)
-	now := time.Now()
+func finalizeWorkloadRecord(wr *WorkloadRecord, outcome string) { _ = "STUB: not implemented"; return }
 
-	// Finalize any open preemption cycle (interrupted — workload deleted before victimAllDeleted)
-	if wr.lastPreemptNominatedTime != nil {
-		PreemptionCycleInterruptedSeconds.WithLabelValues(wr.labelValues...).Observe(now.Sub(*wr.lastPreemptNominatedTime).Seconds())
-		PreemptionVictimDeletingRetries.WithLabelValues(wr.labelValues...).Observe(float64(wr.preemptVictimDeletingCountSinceNom))
-	}
+// Finalize any open preemption cycle (interrupted — workload deleted before victimAllDeleted)
 
-	// Observe event counts by record type
-	for recordType, count := range wr.recordTypeCounts {
-		SchedulingEventsBeforeOutcome.WithLabelValues(append(wr.labelValues, string(recordType), outcome)...).Observe(float64(count))
-	}
-}
+// Observe event counts by record type

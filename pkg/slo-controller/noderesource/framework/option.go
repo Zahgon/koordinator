@@ -32,39 +32,27 @@ type Option struct {
 	Builder  *builder.Builder
 }
 
-func NewOption() *Option {
-	return &Option{}
-}
+func NewOption() *Option { _ = "STUB: not implemented"; return nil }
 
-func (o *Option) WithManager(mgr ctrl.Manager) *Option {
-	o.Client = mgr.GetClient()
-	o.Recorder = mgr.GetEventRecorderFor("noderesource")
-	o.Scheme = mgr.GetScheme()
-	return o
-}
+func (o *Option) WithManager(mgr ctrl.Manager) *Option { _ = "STUB: not implemented"; return nil }
 
 func (o *Option) WithControllerBuilder(b *builder.Builder) *Option {
-	o.Builder = b
-	return o
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (o *Option) WithClient(c client.Client) *Option {
-	o.Client = c
-	return o
-}
+func (o *Option) WithClient(c client.Client) *Option { _ = "STUB: not implemented"; return nil }
 
 func (o *Option) WithRecorder(r record.EventRecorder) *Option {
-	o.Recorder = r
-	return o
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (o *Option) WithScheme(s *runtime.Scheme) *Option {
-	o.Scheme = s
-	return o
-}
+func (o *Option) WithScheme(s *runtime.Scheme) *Option { _ = "STUB: not implemented"; return nil }
 
 func (o *Option) CompleteController(r reconcile.Reconciler) error {
-	return o.Builder.Complete(r)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type FilterFn func(string) bool

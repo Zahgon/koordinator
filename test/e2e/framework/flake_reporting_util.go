@@ -17,8 +17,6 @@ limitations under the License.
 package framework
 
 import (
-	"bytes"
-	"fmt"
 	"sync"
 )
 
@@ -30,68 +28,29 @@ type FlakeReport struct {
 }
 
 // NewFlakeReport returns a new flake report.
-func NewFlakeReport() *FlakeReport {
-	return &FlakeReport{
-		Flakes: []string{},
-	}
-}
+func NewFlakeReport() *FlakeReport { _ = "STUB: not implemented"; return nil }
 
 func buildDescription(optionalDescription ...interface{}) string {
-	switch len(optionalDescription) {
-	case 0:
-		return ""
-	default:
-		return fmt.Sprintf(optionalDescription[0].(string), optionalDescription[1:]...)
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // RecordFlakeIfError records the error (if non-nil) as a flake along with an optional description.
 // This can be used as a replacement of framework.ExpectNoError() for non-critical errors that can
 // be considered as 'flakes' to avoid causing failures in tests.
 func (f *FlakeReport) RecordFlakeIfError(err error, optionalDescription ...interface{}) {
-	if err == nil {
-		return
-	}
-	msg := fmt.Sprintf("Unexpected error occurred: %v", err)
-	desc := buildDescription(optionalDescription)
-	if desc != "" {
-		msg = fmt.Sprintf("%v (Description: %v)", msg, desc)
-	}
-	Logf(msg)
-	f.lock.Lock()
-	defer f.lock.Unlock()
-	f.Flakes = append(f.Flakes, msg)
-	f.FlakeCount++
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetFlakeCount returns the flake count.
-func (f *FlakeReport) GetFlakeCount() int {
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-	return f.FlakeCount
-}
+func (f *FlakeReport) GetFlakeCount() int { _ = "STUB: not implemented"; return 0 }
 
 // PrintHumanReadable returns string of flake report.
-func (f *FlakeReport) PrintHumanReadable() string {
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-	buf := bytes.Buffer{}
-	buf.WriteString(fmt.Sprintf("FlakeCount: %v\n", f.FlakeCount))
-	buf.WriteString("Flakes:\n")
-	for _, flake := range f.Flakes {
-		buf.WriteString(fmt.Sprintf("%v\n", flake))
-	}
-	return buf.String()
-}
+func (f *FlakeReport) PrintHumanReadable() string { _ = "STUB: not implemented"; return "" }
 
 // PrintJSON returns the summary of frake report with JSON format.
-func (f *FlakeReport) PrintJSON() string {
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-	return PrettyPrintJSON(f)
-}
+func (f *FlakeReport) PrintJSON() string { _ = "STUB: not implemented"; return "" }
 
 // SummaryKind returns the summary of flake report.
-func (f *FlakeReport) SummaryKind() string {
-	return "FlakeReport"
-}
+func (f *FlakeReport) SummaryKind() string { _ = "STUB: not implemented"; return "" }

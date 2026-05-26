@@ -35,14 +35,4 @@ type NodeDeviceSummary struct {
 	AllocateSet map[schedulingv1alpha1.DeviceType]map[string]map[int]v1.ResourceList `json:"allocateSet"`
 }
 
-func NewNodeDeviceSummary() *NodeDeviceSummary {
-	return &NodeDeviceSummary{
-		DeviceTotal:       make(map[v1.ResourceName]*resource.Quantity),
-		DeviceFree:        make(map[v1.ResourceName]*resource.Quantity),
-		DeviceUsed:        make(map[v1.ResourceName]*resource.Quantity),
-		DeviceTotalDetail: make(map[schedulingv1alpha1.DeviceType]deviceResources),
-		DeviceFreeDetail:  make(map[schedulingv1alpha1.DeviceType]deviceResources),
-		DeviceUsedDetail:  make(map[schedulingv1alpha1.DeviceType]deviceResources),
-		AllocateSet:       make(map[schedulingv1alpha1.DeviceType]map[string]map[int]v1.ResourceList),
-	}
-}
+func NewNodeDeviceSummary() *NodeDeviceSummary { _ = "STUB: not implemented"; return nil }

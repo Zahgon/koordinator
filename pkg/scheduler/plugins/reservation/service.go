@@ -17,8 +17,6 @@ limitations under the License.
 package reservation
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -56,49 +54,4 @@ type NodeReservations struct {
 	Items []ReservationItem `json:"items,omitempty"`
 }
 
-func (pl *Plugin) RegisterEndpoints(group *gin.RouterGroup) {
-	group.GET("/nodeReservations/:nodeName", func(c *gin.Context) {
-		nodeName := c.Param("nodeName")
-		rInfos := pl.reservationCache.ListAvailableReservationInfosOnNode(nodeName, true)
-		if len(rInfos) == 0 {
-			c.JSON(http.StatusOK, &NodeReservations{Items: []ReservationItem{}})
-			return
-		}
-
-		resp := &NodeReservations{
-			Items: make([]ReservationItem, 0, len(rInfos)),
-		}
-
-		for _, r := range rInfos {
-			item := ReservationItem{
-				Name:              r.GetName(),
-				Namespace:         r.GetNamespace(),
-				UID:               r.UID(),
-				AllocateOnce:      r.IsAllocateOnce(),
-				Available:         r.IsAvailable(),
-				Owners:            r.GetPodOwners(),
-				AllocatePolicy:    r.GetAllocatePolicy(),
-				Allocatable:       r.Allocatable,
-				Reserved:          r.Reserved,
-				Allocated:         r.Allocated,
-				AllocatablePorts:  r.AllocatablePorts,
-				AllocatedPorts:    r.AllocatedPorts,
-				AvailableResource: r.Available,
-				AllocatedResource: r.AllocatedResource,
-			}
-			switch r.GetObject().(type) {
-			case *schedulingv1alpha1.Reservation:
-				item.Kind = "Reservation"
-			case *corev1.Pod:
-				item.Kind = "Pod"
-			default:
-				item.Kind = "Unknown"
-			}
-			for _, p := range r.AssignedPods {
-				item.AssignedPods = append(item.AssignedPods, p)
-			}
-			resp.Items = append(resp.Items, item)
-		}
-		c.JSON(http.StatusOK, resp)
-	})
-}
+func (pl *Plugin) RegisterEndpoints(group *gin.RouterGroup) { _ = "STUB: not implemented"; return }

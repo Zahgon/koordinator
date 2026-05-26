@@ -38,15 +38,18 @@ type version struct {
 
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
-	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(Interface)
 }
 
 // ElasticQuotas returns a ElasticQuotaInformer.
 func (v *version) ElasticQuotas() ElasticQuotaInformer {
-	return &elasticQuotaInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(ElasticQuotaInformer)
 }
 
 // PodGroups returns a PodGroupInformer.
 func (v *version) PodGroups() PodGroupInformer {
-	return &podGroupInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(PodGroupInformer)
 }

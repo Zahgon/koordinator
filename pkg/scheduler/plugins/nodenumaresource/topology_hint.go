@@ -20,88 +20,25 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/topologymanager"
 )
 
 func (p *Plugin) FilterByNUMANode(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, node *corev1.Node, policyType apiext.NUMATopologyPolicy, exclusivePolicy apiext.NumaTopologyExclusive, topologyOptions TopologyOptions) *fwktype.Status {
-	if policyType == apiext.NUMATopologyPolicyNone {
-		return nil
-	}
-	numaNodes := topologyOptions.getNUMANodes()
-	if len(numaNodes) == 0 {
-		return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, "node(s) missing NUMA resources")
-	}
-	numaNodesStatus := p.resourceManager.GetNodeAllocation(node.Name).GetAllNUMANodeStatus(len(numaNodes))
-	return p.handle.(frameworkext.FrameworkExtender).RunNUMATopologyManagerAdmit(ctx, cycleState, pod, node, numaNodes, policyType, exclusivePolicy, numaNodesStatus)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *Plugin) GetPodTopologyHints(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, node *corev1.Node) (map[string][]topologymanager.NUMATopologyHint, *fwktype.Status) {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return nil, status
-	}
-	topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-	podNUMATopologyPolicy := state.podNUMATopologyPolicy
-	numaTopologyPolicy := getNUMATopologyPolicy(node.Labels, topologyOptions.NUMATopologyPolicy)
-	// we have check in filter, so we will not get error in reserve
-	numaTopologyPolicy, _ = mergeTopologyPolicy(numaTopologyPolicy, podNUMATopologyPolicy)
-	nodeCPUBindPolicy := apiext.GetNodeCPUBindPolicy(node.Labels, topologyOptions.Policy)
-	requestCPUBind, status := requestCPUBind(state, nodeCPUBindPolicy)
-	if !status.IsSuccess() {
-		return nil, status
-	}
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	restoreState := reservationRestoreState.getNodeState(node.Name)
-	resourceOptions, err := p.getResourceOptions(state, node, requestCPUBind, topologymanager.NUMATopologyHint{}, topologyOptions)
-	if err != nil {
-		return nil, fwktype.AsStatus(err)
-	}
-	resourceOptions.numaScorer = p.numaScorer
-	hints, err := p.resourceManager.GetTopologyHints(node, pod, resourceOptions, numaTopologyPolicy, restoreState)
-	if err != nil {
-		klog.V(5).ErrorS(err, "failed to get topology hints", "pod", klog.KObj(pod), "node", node.Name)
-		return nil, fwktype.NewStatus(fwktype.Unschedulable, "node(s) Insufficient NUMA Node resources")
-	}
-	return hints, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// we have check in filter, so we will not get error in reserve
+
 func (p *Plugin) Allocate(ctx context.Context, cycleState fwktype.CycleState, affinity topologymanager.NUMATopologyHint, pod *corev1.Pod, node *corev1.Node) *fwktype.Status {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-
-	topologyOptions := p.topologyOptionsManager.GetTopologyOptions(node.Name)
-	nodeCPUBindPolicy := apiext.GetNodeCPUBindPolicy(node.Labels, topologyOptions.Policy)
-	requestCPUBind, status := requestCPUBind(state, nodeCPUBindPolicy)
-	if !status.IsSuccess() {
-		return status
-	}
-
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	restoreState := reservationRestoreState.getNodeState(node.Name)
-
-	resourceOptions, err := p.getResourceOptions(state, node, requestCPUBind, affinity, topologyOptions)
-	if err != nil {
-		return fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-	}
-
-	podAllocation, status := tryAllocateFromReusable(p.resourceManager, restoreState, resourceOptions, restoreState.matched, pod, node)
-	if !status.IsSuccess() {
-		return status
-	}
-	if podAllocation != nil {
-		return nil
-	}
-
-	_, status = tryAllocateFromNode(p.resourceManager, nil, restoreState, resourceOptions, pod, node)
-	if !status.IsSuccess() {
-		return status
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

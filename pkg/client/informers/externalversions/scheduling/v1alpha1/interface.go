@@ -44,30 +44,33 @@ type version struct {
 
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
-	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(Interface)
 }
 
 // ClusterNetworkTopologies returns a ClusterNetworkTopologyInformer.
 func (v *version) ClusterNetworkTopologies() ClusterNetworkTopologyInformer {
-	return &clusterNetworkTopologyInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(ClusterNetworkTopologyInformer)
 }
 
 // Devices returns a DeviceInformer.
-func (v *version) Devices() DeviceInformer {
-	return &deviceInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
-}
+func (v *version) Devices() DeviceInformer { _ = "STUB: not implemented"; return *new(DeviceInformer) }
 
 // PodMigrationJobs returns a PodMigrationJobInformer.
 func (v *version) PodMigrationJobs() PodMigrationJobInformer {
-	return &podMigrationJobInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(PodMigrationJobInformer)
 }
 
 // Reservations returns a ReservationInformer.
 func (v *version) Reservations() ReservationInformer {
-	return &reservationInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(ReservationInformer)
 }
 
 // ScheduleExplanations returns a ScheduleExplanationInformer.
 func (v *version) ScheduleExplanations() ScheduleExplanationInformer {
-	return &scheduleExplanationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(ScheduleExplanationInformer)
 }

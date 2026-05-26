@@ -20,19 +20,13 @@ limitations under the License.
 package perf_group
 
 import (
-	"bytes"
-	"encoding/binary"
-	"errors"
-	"fmt"
 	"io"
 	"os"
 	"sync"
 	"syscall"
 	"unsafe"
 
-	"go.uber.org/multierr"
 	"golang.org/x/sys/unix"
-	"k8s.io/klog/v2"
 )
 
 /*
@@ -60,64 +54,25 @@ var (
 	attrMap = make(map[string]*unix.PerfEventAttr)
 )
 
-func InitBufferPool(eventsNums map[int]struct{}) {
-	BufPools = make(map[int]*sync.Pool)
-	for eventNum := range eventsNums {
-		BufPools[eventNum] = &sync.Pool{
-			New: func() interface{} {
-				// https://man7.org/linux/man-pages/man2/perf_event_open.2.html#Reading%20results
-				// 24 means the size of nr, time_enabled, time_running
-				// 16 means the size of value, id
-				// struct read_format {
-				//  u64 nr;            /* The number of events */
-				//  u64 time_enabled;  /* if PERF_FORMAT_TOTAL_TIME_ENABLED */
-				//  u64 time_running;  /* if PERF_FORMAT_TOTAL_TIME_RUNNING */
-				//  struct {
-				//      u64 value;     /* The value of the event */
-				//      u64 id;        /* if PERF_FORMAT_ID */
-				//      u64 lost;      /* if PERF_FORMAT_LOST */
-				//  } values[nr];
-				// };
-				pool := make([]byte, 24+eventNum*16)
-				return &pool
-			},
-		}
-	}
-}
+func InitBufferPool(eventsNums map[int]struct{}) { _ = "STUB: not implemented"; return }
 
-func LibInit() {
-	perfValuePool.New = func() interface{} {
-		return &value{}
-	}
-	initlibpfm.Do(func() {
-		if err := C.pfm_initialize(); err != C.PFM_SUCCESS {
-			klog.Fatalf("Unable to init libpfm: %v", err)
-		}
-	})
-	for _, events := range EventsMap {
-		for _, event := range events {
-			attr, err := createPerfConfig(event)
-			if err != nil {
-				panic(err)
-			}
-			attr.Read_format = unix.PERF_FORMAT_GROUP | unix.PERF_FORMAT_TOTAL_TIME_ENABLED | unix.PERF_FORMAT_TOTAL_TIME_RUNNING | unix.PERF_FORMAT_ID
-			attr.Sample_type = unix.PERF_SAMPLE_IDENTIFIER
-			attr.Size = uint32(unsafe.Sizeof(unix.PerfEventAttr{}))
-			attr.Bits |= unix.PerfBitInherit
-			attr.Bits |= unix.PerfBitDisabled
-			attrMap[event] = attr
-		}
-	}
-}
+// https://man7.org/linux/man-pages/man2/perf_event_open.2.html#Reading%20results
+// 24 means the size of nr, time_enabled, time_running
+// 16 means the size of value, id
+// struct read_format {
+//  u64 nr;            /* The number of events */
+//  u64 time_enabled;  /* if PERF_FORMAT_TOTAL_TIME_ENABLED */
+//  u64 time_running;  /* if PERF_FORMAT_TOTAL_TIME_RUNNING */
+//  struct {
+//      u64 value;     /* The value of the event */
+//      u64 id;        /* if PERF_FORMAT_ID */
+//      u64 lost;      /* if PERF_FORMAT_LOST */
+//  } values[nr];
+// };
 
-func LibFinalize() {
-	closelibpfm.Do(func() {
-		C.pfm_terminate()
-	})
-	for _, attr := range attrMap {
-		C.free(unsafe.Pointer(attr))
-	}
-}
+func LibInit() { _ = "STUB: not implemented"; return }
+
+func LibFinalize() { _ = "STUB: not implemented"; return }
 
 type PerfGroupCollector struct {
 	cgroupFile     *os.File
@@ -155,135 +110,38 @@ type perfValueHeader struct {
 
 // first event is group leader
 func NewPerfGroupCollector(cgroupFile *os.File, cpus []int, events []string, syscallFunc func(trap, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err syscall.Errno)) (collector *PerfGroupCollector, err error) {
-	if len(events) == 0 {
-		err = errors.New("events cannot be empty")
-		return nil, err
-	}
-	collector = &PerfGroupCollector{
-		cgroupFile:     cgroupFile,
-		cpus:           cpus,
-		perfCollectors: map[int]*perfCollector{},
-		idEventMap:     make(map[uint64]string),
-		resultMap:      make(map[string]float64),
-		valueCh:        make(chan perfValue),
-		syscall6:       syscallFunc,
-		closeCh:        make(chan struct{}),
-	}
-	for _, cpu := range cpus {
-		// create perf group
-		var pc perfCollector
-		pc.syscall6 = syscallFunc
-		pc.fds = make([]io.ReadCloser, 0, len(events)-1)
-		pc.cpu = cpu
-		attr := attrMap[events[0]]
-		defaultFd := -1
-		r1, _, e1 := collector.syscall6(syscall.SYS_PERF_EVENT_OPEN, uintptr(unsafe.Pointer(attr)),
-			cgroupFile.Fd(), uintptr(cpu), uintptr(defaultFd), uintptr(unix.PERF_FLAG_PID_CGROUP|unix.PERF_FLAG_FD_CLOEXEC), uintptr(0))
-		if e1 != syscall.Errno(0) {
-			err = multierr.Append(err, fmt.Errorf("failed to create perf fd, Error: %s, cpu: %d, event: %s", unix.ErrnoName(e1), cpu, events[0]))
-			return
-		}
-		leaderFd := os.NewFile(r1, fmt.Sprintf("%s_%d", events[0], cpu))
-		pc.leaderFd = leaderFd
-		var id uint64
-		_, _, e1 = collector.syscall6(syscall.SYS_IOCTL, r1, uintptr(unix.PERF_EVENT_IOC_ID), uintptr(unsafe.Pointer(&id)), 0, 0, 0)
-		if e1 != syscall.Errno(0) {
-			err = multierr.Append(err, fmt.Errorf("failed to get perf id, Error: %s, cpu: %d, event: %s", unix.ErrnoName(e1), cpu, events[0]))
-			return
-		}
-		collector.idEventMap[id] = events[0]
-		for i := 1; i < len(events); i++ {
-			attr := attrMap[events[i]]
-			r1, _, e1 := collector.syscall6(syscall.SYS_PERF_EVENT_OPEN, uintptr(unsafe.Pointer(attr)),
-				cgroupFile.Fd(), uintptr(cpu), r1, uintptr(unix.PERF_FLAG_PID_CGROUP|unix.PERF_FLAG_FD_CLOEXEC), uintptr(0))
-			if e1 != syscall.Errno(0) {
-				err = multierr.Append(err, fmt.Errorf("failed to create perf fd, Error: %s, cpu: %d, event: %s", unix.ErrnoName(e1), cpu, events[i]))
-				return
-			}
-			fd := os.NewFile(r1, fmt.Sprintf("%s_%d", events[i], cpu))
-			pc.fds = append(pc.fds, fd)
-			var id uint64
-			_, _, e1 = collector.syscall6(syscall.SYS_IOCTL, r1, uintptr(unix.PERF_EVENT_IOC_ID), uintptr(unsafe.Pointer(&id)), 0, 0, 0)
-			if e1 != syscall.Errno(0) {
-				err = multierr.Append(err, fmt.Errorf("failed to get perf id, Error: %s, cpu: %d, event: %s", unix.ErrnoName(e1), cpu, events[i]))
-				return
-			}
-			collector.idEventMap[id] = events[i]
-		}
-		// enable perf group
-		_, _, e1 = collector.syscall6(syscall.SYS_IOCTL, leaderFd.Fd(), uintptr(unix.PERF_EVENT_IOC_RESET), unix.PERF_IOC_FLAG_GROUP, 0, 0, 0)
-		if e1 != syscall.Errno(0) {
-			err = multierr.Append(err, fmt.Errorf("failed to reset perf group, Error: %s, cpu: %d, events: %s", unix.ErrnoName(e1), cpu, events))
-			return
-		}
-		_, _, e1 = collector.syscall6(syscall.SYS_IOCTL, leaderFd.Fd(), uintptr(unix.PERF_EVENT_IOC_ENABLE), unix.PERF_IOC_FLAG_GROUP, 0, 0, 0)
-		if e1 != syscall.Errno(0) {
-			err = multierr.Append(err, fmt.Errorf("failed to enable perf group, Error: %s, cpu: %d, events: %s", unix.ErrnoName(e1), cpu, events))
-			return
-		}
-		collector.perfCollectors[cpu] = &pc
-	}
-
-	// collect and statistic perf result
-	go func() {
-		for value := range collector.valueCh {
-			collector.resultMap[collector.idEventMap[value.ID]] += value.Value
-		}
-		close(collector.closeCh)
-	}()
-	return collector, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// create perf group
+
+// enable perf group
+
+// collect and statistic perf result
+
 func GetAndStartPerfGroupCollectorOnContainer(cgroupFile *os.File, cpus []int, events []string) (*PerfGroupCollector, error) {
-	collector, err := NewPerfGroupCollector(cgroupFile, cpus, events, syscall.Syscall6)
-	if err != nil {
-		return nil, err
-	}
-	return collector, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetContainerPerfResult(collector *PerfGroupCollector) (map[string]float64, error) {
-	var err error
-	for _, cpu := range collector.cpus {
-		if pc, ok := collector.perfCollectors[cpu]; ok {
-			if err = pc.collect(collector.valueCh); err != nil {
-				err = multierr.Append(err, err)
-			}
-		}
-	}
-	err = multierr.Append(err, collector.cleanUp())
-	<-collector.closeCh
-
-	return collector.resultMap, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetContainerCyclesAndInstructionsGroup(collector *PerfGroupCollector) (float64, float64, error) {
-	resMap, err := GetContainerPerfResult(collector)
-	if err != nil {
-		return 0, 0, err
-	}
-	return resMap[CYCLES], resMap[INSTRUCTIONS], nil
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }
 
-func (c *PerfGroupCollector) cleanUp() error {
-	err := c.cgroupFile.Close()
-	if err != nil {
-		return fmt.Errorf("close cgroupFile %v, err : %v", c.cgroupFile.Name(), err)
-	}
-	close(c.valueCh)
-	return nil
-}
+func (c *PerfGroupCollector) cleanUp() error { _ = "STUB: not implemented"; return nil }
 
 // caller must free the memory
 func createPerfConfig(event string) (*unix.PerfEventAttr, error) {
+	_ = "STUB: not implemented"
 	// https://pkg.go.dev/cmd/cgo OOM instread of check malloc error
-	perfEventAttrPtr := C.malloc(C.ulong(unsafe.Sizeof(unix.PerfEventAttr{})))
-	C.memset(perfEventAttrPtr, 0, C.ulong(unsafe.Sizeof(unix.PerfEventAttr{})))
-	if err := pfmGetOsEventEncoding(event, perfEventAttrPtr); err != nil {
-		return nil, err
-	}
-
-	return (*unix.PerfEventAttr)(perfEventAttrPtr), nil
+	return nil, nil
 }
 
 // pfmPerfEncodeArgT represents structure that is used to parse perf event name
@@ -299,75 +157,14 @@ type pfmPerfEncodeArgT struct {
 
 // https://man7.org/linux/man-pages/man3/pfm_get_os_event_encoding.3.html
 func pfmGetOsEventEncoding(event string, perfEventAttrPtr unsafe.Pointer) error {
-	arg := pfmPerfEncodeArgT{}
-	arg.attr = perfEventAttrPtr
-	fstr := C.CString("")
-	defer C.free(unsafe.Pointer(fstr))
-	arg.size = C.ulong(unsafe.Sizeof(arg))
-	eventCStr := C.CString(event)
-	defer C.free(unsafe.Pointer(eventCStr))
-	if err := C.pfm_get_os_event_encoding(eventCStr, C.PFM_PLM0|C.PFM_PLM3, C.PFM_OS_PERF_EVENT, unsafe.Pointer(&arg)); err != C.PFM_SUCCESS {
-		return fmt.Errorf("failed to get event encoding: %d", err)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (p *perfCollector) collect(ch chan perfValue) error {
-	if err := p.stop(); err != nil {
-		return err
-	}
-	bufPool := BufPools[len(p.fds)+1]
-	buf := bufPool.Get().(*[]byte)
-	defer bufPool.Put(buf)
-	_, err := p.leaderFd.Read(*buf)
-	if err != nil {
-		return err
-	}
-
-	header := &perfValueHeader{}
-	reader := bytes.NewReader(*buf)
-	if err := binary.Read(reader, binary.LittleEndian, header); err != nil {
-		return err
-	}
-	scalingRatio := 1.0
-	if header.TimeRunning != 0 && header.TimeEnabled != 0 {
-		scalingRatio = float64(header.TimeRunning) / float64(header.TimeEnabled)
-	}
-
-	for i := 0; i < int(header.Nr); i++ {
-		v := perfValuePool.Get().(*value)
-		defer perfValuePool.Put(v)
-		value := &perfValue{}
-		if err := binary.Read(reader, binary.LittleEndian, v); err != nil {
-			return err
-		}
-		value.Value = float64(v.Value) / scalingRatio
-		value.ID = v.ID
-		ch <- *value
-	}
-	return p.close()
-}
+func (p *perfCollector) collect(ch chan perfValue) error { _ = "STUB: not implemented"; return nil }
 
 // stop stops perf group counter
-func (p *perfCollector) stop() error {
-	f := p.leaderFd.(*os.File)
-	_, _, e1 := p.syscall6(syscall.SYS_IOCTL, f.Fd(), uintptr(unix.PERF_EVENT_IOC_DISABLE), unix.PERF_IOC_FLAG_GROUP, 0, 0, 0)
-	if e1 != syscall.Errno(0) {
-		return errors.New(unix.ErrnoName(e1))
-	}
-	return nil
-}
+func (p *perfCollector) stop() error { _ = "STUB: not implemented"; return nil }
 
 // close closes all perf fds
-func (p *perfCollector) close() error {
-	var err error
-	if leaderErr := p.leaderFd.Close(); leaderErr != nil {
-		err = multierr.Append(err, leaderErr)
-	}
-	for _, fd := range p.fds {
-		if closeErr := fd.Close(); closeErr != nil {
-			err = multierr.Append(err, closeErr)
-		}
-	}
-	return err
-}
+func (p *perfCollector) close() error { _ = "STUB: not implemented"; return nil }

@@ -43,12 +43,14 @@ type scheduleExplanationLister struct {
 
 // NewScheduleExplanationLister returns a new ScheduleExplanationLister.
 func NewScheduleExplanationLister(indexer cache.Indexer) ScheduleExplanationLister {
-	return &scheduleExplanationLister{listers.New[*schedulingv1alpha1.ScheduleExplanation](indexer, schedulingv1alpha1.Resource("scheduleexplanation"))}
+	_ = "STUB: not implemented"
+	return *new(ScheduleExplanationLister)
 }
 
 // ScheduleExplanations returns an object that can list and get ScheduleExplanations.
 func (s *scheduleExplanationLister) ScheduleExplanations(namespace string) ScheduleExplanationNamespaceLister {
-	return scheduleExplanationNamespaceLister{listers.NewNamespaced[*schedulingv1alpha1.ScheduleExplanation](s.ResourceIndexer, namespace)}
+	_ = "STUB: not implemented"
+	return *new(ScheduleExplanationNamespaceLister)
 }
 
 // ScheduleExplanationNamespaceLister helps list and get ScheduleExplanations.

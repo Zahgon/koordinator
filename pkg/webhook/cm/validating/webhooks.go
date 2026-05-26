@@ -40,10 +40,11 @@ type cmBuilder struct {
 }
 
 func (b *cmBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *cmBuilder) Build() admission.Handler {
-	return NewConfigMapValidatingHandler(b.mgr.GetClient(), admission.NewDecoder(b.mgr.GetScheme()))
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

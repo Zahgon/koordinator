@@ -19,8 +19,6 @@ package types
 import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-
-	"github.com/koordinator-sh/koordinator/cmd/koord-runtime-proxy/options"
 )
 
 const (
@@ -36,9 +34,4 @@ type ConfigWrapper struct {
 	NetworkingConfig *network.NetworkingConfig
 }
 
-func SkipRuntimeHook(labels map[string]string) bool {
-	if val, ok := labels[options.RuntimeHookServerKey]; ok && val == options.RuntimeHookServerVal {
-		return true
-	}
-	return false
-}
+func SkipRuntimeHook(labels map[string]string) bool { _ = "STUB: not implemented"; return false }

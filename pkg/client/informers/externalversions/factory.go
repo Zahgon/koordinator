@@ -61,41 +61,32 @@ type sharedInformerFactory struct {
 
 // WithCustomResyncConfig sets a custom resync period for the specified informer types.
 func WithCustomResyncConfig(resyncConfig map[v1.Object]time.Duration) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		for k, v := range resyncConfig {
-			factory.customResync[reflect.TypeOf(k)] = v
-		}
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // WithTweakListOptions sets a custom filter on all listers of the configured SharedInformerFactory.
 func WithTweakListOptions(tweakListOptions internalinterfaces.TweakListOptionsFunc) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		factory.tweakListOptions = tweakListOptions
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // WithNamespace limits the SharedInformerFactory to the specified namespace.
 func WithNamespace(namespace string) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		factory.namespace = namespace
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // WithTransform sets a transform on all informers.
 func WithTransform(transform cache.TransformFunc) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		factory.transform = transform
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // NewSharedInformerFactory constructs a new instance of sharedInformerFactory for all namespaces.
 func NewSharedInformerFactory(client versioned.Interface, defaultResync time.Duration) SharedInformerFactory {
-	return NewSharedInformerFactoryWithOptions(client, defaultResync)
+	_ = "STUB: not implemented"
+	return *new(SharedInformerFactory)
 }
 
 // NewFilteredSharedInformerFactory constructs a new instance of sharedInformerFactory.
@@ -104,104 +95,38 @@ func NewSharedInformerFactory(client versioned.Interface, defaultResync time.Dur
 //
 // Deprecated: Please use NewSharedInformerFactoryWithOptions instead
 func NewFilteredSharedInformerFactory(client versioned.Interface, defaultResync time.Duration, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) SharedInformerFactory {
-	return NewSharedInformerFactoryWithOptions(client, defaultResync, WithNamespace(namespace), WithTweakListOptions(tweakListOptions))
+	_ = "STUB: not implemented"
+	return *new(SharedInformerFactory)
 }
 
 // NewSharedInformerFactoryWithOptions constructs a new instance of a SharedInformerFactory with additional options.
 func NewSharedInformerFactoryWithOptions(client versioned.Interface, defaultResync time.Duration, options ...SharedInformerOption) SharedInformerFactory {
-	factory := &sharedInformerFactory{
-		client:           client,
-		namespace:        v1.NamespaceAll,
-		defaultResync:    defaultResync,
-		informers:        make(map[reflect.Type]cache.SharedIndexInformer),
-		startedInformers: make(map[reflect.Type]bool),
-		customResync:     make(map[reflect.Type]time.Duration),
-	}
-
-	// Apply all options
-	for _, opt := range options {
-		factory = opt(factory)
-	}
-
-	return factory
+	_ = "STUB: not implemented"
+	return *new(SharedInformerFactory)
 }
 
-func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
-	f.lock.Lock()
-	defer f.lock.Unlock()
+// Apply all options
 
-	if f.shuttingDown {
-		return
-	}
+func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-	for informerType, informer := range f.informers {
-		if !f.startedInformers[informerType] {
-			f.wg.Add(1)
-			// We need a new variable in each loop iteration,
-			// otherwise the goroutine would use the loop variable
-			// and that keeps changing.
-			informer := informer
-			go func() {
-				defer f.wg.Done()
-				informer.Run(stopCh)
-			}()
-			f.startedInformers[informerType] = true
-		}
-	}
-}
+// We need a new variable in each loop iteration,
+// otherwise the goroutine would use the loop variable
+// and that keeps changing.
 
-func (f *sharedInformerFactory) Shutdown() {
-	f.lock.Lock()
-	f.shuttingDown = true
-	f.lock.Unlock()
+func (f *sharedInformerFactory) Shutdown() { _ = "STUB: not implemented"; return }
 
-	// Will return immediately if there is nothing to wait for.
-	f.wg.Wait()
-}
+// Will return immediately if there is nothing to wait for.
 
 func (f *sharedInformerFactory) WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool {
-	informers := func() map[reflect.Type]cache.SharedIndexInformer {
-		f.lock.Lock()
-		defer f.lock.Unlock()
-
-		informers := map[reflect.Type]cache.SharedIndexInformer{}
-		for informerType, informer := range f.informers {
-			if f.startedInformers[informerType] {
-				informers[informerType] = informer
-			}
-		}
-		return informers
-	}()
-
-	res := map[reflect.Type]bool{}
-	for informType, informer := range informers {
-		res[informType] = cache.WaitForCacheSync(stopCh, informer.HasSynced)
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // InformerFor returns the SharedIndexInformer for obj using an internal
 // client.
 func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer {
-	f.lock.Lock()
-	defer f.lock.Unlock()
-
-	informerType := reflect.TypeOf(obj)
-	informer, exists := f.informers[informerType]
-	if exists {
-		return informer
-	}
-
-	resyncPeriod, exists := f.customResync[informerType]
-	if !exists {
-		resyncPeriod = f.defaultResync
-	}
-
-	informer = newFunc(f.client, resyncPeriod)
-	informer.SetTransform(f.transform)
-	f.informers[informerType] = informer
-
-	return informer
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 // SharedInformerFactory provides shared informers for resources in all known
@@ -267,21 +192,26 @@ type SharedInformerFactory interface {
 }
 
 func (f *sharedInformerFactory) Analysis() analysis.Interface {
-	return analysis.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(analysis.Interface)
 }
 
 func (f *sharedInformerFactory) Config() config.Interface {
-	return config.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(config.Interface)
 }
 
 func (f *sharedInformerFactory) Quota() quota.Interface {
-	return quota.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(quota.Interface)
 }
 
 func (f *sharedInformerFactory) Scheduling() scheduling.Interface {
-	return scheduling.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(scheduling.Interface)
 }
 
 func (f *sharedInformerFactory) Slo() slo.Interface {
-	return slo.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(slo.Interface)
 }

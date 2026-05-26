@@ -17,8 +17,6 @@ limitations under the License.
 package services
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/kube-scheduler/framework"
@@ -34,9 +32,8 @@ type ErrorMessage struct {
 }
 
 func ResponseErrorMessage(c *gin.Context, statusCode int, format string, args ...interface{}) {
-	var e ErrorMessage
-	e.Message = fmt.Sprintf(format, args...)
-	c.JSON(statusCode, e)
+	_ = "STUB: not implemented"
+	return
 }
 
 type NodeInfo struct {
@@ -87,40 +84,4 @@ type NodeInfo struct {
 // HostPortInfo stores mapping from ip to a set of ProtocolPort
 type HostPortInfo map[string][]framework.ProtocolPort
 
-func convertNodeInfo(nodeInfo *k8sfwk.NodeInfo) *NodeInfo {
-	var usedPorts HostPortInfo
-	if len(nodeInfo.UsedPorts) > 0 {
-		usedPorts = make(HostPortInfo)
-		for host, portInfos := range nodeInfo.UsedPorts {
-			ports := make([]framework.ProtocolPort, 0, len(portInfos))
-			for k := range portInfos {
-				ports = append(ports, k)
-			}
-			usedPorts[host] = ports
-		}
-	}
-
-	remaining := nodeInfo.Allocatable.Clone()
-	remaining.MilliCPU -= nodeInfo.Requested.MilliCPU
-	remaining.Memory -= nodeInfo.Requested.Memory
-	remaining.EphemeralStorage -= nodeInfo.Requested.EphemeralStorage
-	remaining.AllowedPodNumber -= nodeInfo.Requested.AllowedPodNumber
-	for k, v := range nodeInfo.Requested.ScalarResources {
-		remaining.AddScalar(k, -v)
-	}
-
-	return &NodeInfo{
-		Node:                         nodeInfo.Node(),
-		Pods:                         nodeInfo.Pods,
-		PodsWithAffinity:             nodeInfo.PodsWithAffinity,
-		PodsWithRequiredAntiAffinity: nodeInfo.PodsWithRequiredAntiAffinity,
-		UsedPorts:                    usedPorts,
-		Requested:                    nodeInfo.Requested,
-		NonZeroRequested:             nodeInfo.NonZeroRequested,
-		Remaining:                    remaining,
-		Allocatable:                  nodeInfo.Allocatable,
-		ImageStates:                  nodeInfo.ImageStates,
-		PVCRefCounts:                 nodeInfo.PVCRefCounts,
-		Generation:                   nodeInfo.Generation,
-	}
-}
+func convertNodeInfo(nodeInfo *k8sfwk.NodeInfo) *NodeInfo { _ = "STUB: not implemented"; return nil }

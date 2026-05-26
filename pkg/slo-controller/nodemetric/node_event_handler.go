@@ -18,10 +18,8 @@ package nodemetric
 
 import (
 	"context"
-	"reflect"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -36,49 +34,30 @@ type EnqueueRequestForNode struct {
 }
 
 func (n *EnqueueRequestForNode) Create(ctx context.Context, e event.TypedCreateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	if node, ok := e.Object.(*corev1.Node); !ok {
-		return
-	} else {
-		q.Add(reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Name: node.Name,
-			},
-		})
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (n *EnqueueRequestForNode) Update(ctx context.Context, e event.TypedUpdateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	newNode, oldNode := e.ObjectNew.(*corev1.Node), e.ObjectOld.(*corev1.Node)
-	// TODO, only use for noderesource
-	if !isNodeUpdated(newNode, oldNode) {
-		return
-	}
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: newNode.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
+// TODO, only use for noderesource
+
 func (n *EnqueueRequestForNode) Delete(ctx context.Context, e event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	if node, ok := e.Object.(*corev1.Node); !ok {
-		return
-	} else {
-		q.Add(reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Name: node.Name,
-			},
-		})
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (n *EnqueueRequestForNode) Generic(ctx context.Context, e event.TypedGenericEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+
+	// isNodeUpdated returns whether the new node's allocatable or labels is different from the old one's
+	return
 }
 
-// isNodeUpdated returns whether the new node's allocatable or labels is different from the old one's
 func isNodeUpdated(newNode *corev1.Node, oldNode *corev1.Node) bool {
-	if newNode == nil || oldNode == nil {
-		return false
-	}
-	return !reflect.DeepEqual(oldNode.Status.Allocatable, newNode.Status.Allocatable) || !reflect.DeepEqual(oldNode.Labels, newNode.Labels)
+	_ = "STUB: not implemented"
+	return false
 }

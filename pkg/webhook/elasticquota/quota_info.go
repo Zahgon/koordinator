@@ -20,8 +20,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
-
-	"github.com/koordinator-sh/koordinator/apis/extension"
 )
 
 type QuotaInfo struct {
@@ -47,56 +45,20 @@ type QuotaCalculateInfo struct {
 }
 
 func NewQuotaInfo(isParent, allowLentResource bool, name, parentName string) *QuotaInfo {
-	return &QuotaInfo{
-		Name:              name,
-		ParentName:        parentName,
-		IsParent:          isParent,
-		AllowLentResource: allowLentResource,
-		CalculateInfo: QuotaCalculateInfo{
-			Max:        v1.ResourceList{},
-			Min:        v1.ResourceList{},
-			Guaranteed: v1.ResourceList{},
-			Allocated:  v1.ResourceList{},
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func NewQuotaInfoFromQuota(quota *v1alpha1.ElasticQuota) *QuotaInfo {
-	isParent := extension.IsParentQuota(quota)
-	parentName := extension.GetParentQuotaName(quota)
-
-	allowLentResource := extension.IsAllowLentResource(quota)
-
-	quotaInfo := NewQuotaInfo(isParent, allowLentResource, quota.Name, parentName)
-	quotaInfo.TreeID = extension.GetQuotaTreeID(quota)
-	quotaInfo.setMinQuotaNoLock(quota.Spec.Min)
-	quotaInfo.setMaxQuotaNoLock(quota.Spec.Max)
-	quotaInfo.IsTreeRoot = extension.IsTreeRootQuota(quota)
-	quotaInfo.AllowForceUpdate = extension.IsAllowForceUpdate(quota)
-	quotaInfo.CalculateInfo.Allocated, _ = extension.GetAllocated(quota)
-	quotaInfo.CalculateInfo.Guaranteed, _ = extension.GetGuaranteed(quota)
-
-	return quotaInfo
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (qi *QuotaInfo) setMaxQuotaNoLock(res v1.ResourceList) {
-	qi.CalculateInfo.Max = res.DeepCopy()
-}
+func (qi *QuotaInfo) setMaxQuotaNoLock(res v1.ResourceList) { _ = "STUB: not implemented"; return }
 
-func (qi *QuotaInfo) setMinQuotaNoLock(res v1.ResourceList) {
-	qi.CalculateInfo.Min = res.DeepCopy()
-}
+func (qi *QuotaInfo) setMinQuotaNoLock(res v1.ResourceList) { _ = "STUB: not implemented"; return }
 
-func (qi *QuotaInfo) GetQuotaSummary() *QuotaInfoSummary {
-	quotaInfoSummary := NewQuotaInfoSummary()
-	quotaInfoSummary.Name = qi.Name
-	quotaInfoSummary.ParentName = qi.ParentName
-	quotaInfoSummary.IsParent = qi.IsParent
-	quotaInfoSummary.AllowLentResource = qi.AllowLentResource
-	quotaInfoSummary.Max = qi.CalculateInfo.Max.DeepCopy()
-	quotaInfoSummary.Min = qi.CalculateInfo.Min.DeepCopy()
-	return quotaInfoSummary
-}
+func (qi *QuotaInfo) GetQuotaSummary() *QuotaInfoSummary { _ = "STUB: not implemented"; return nil }
 
 type QuotaInfoSummary struct {
 	Name              string `json:"name"`
@@ -108,9 +70,4 @@ type QuotaInfoSummary struct {
 	Min v1.ResourceList `json:"min"`
 }
 
-func NewQuotaInfoSummary() *QuotaInfoSummary {
-	return &QuotaInfoSummary{
-		Max: make(v1.ResourceList),
-		Min: make(v1.ResourceList),
-	}
-}
+func NewQuotaInfoSummary() *QuotaInfoSummary { _ = "STUB: not implemented"; return nil }

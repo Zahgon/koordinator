@@ -29,17 +29,11 @@ type mergedGather struct {
 
 // MergedGatherFunc returns a Gatherer that merges the results of multiple Gatherers
 func MergedGatherFunc(g ...prometheus.Gatherer) prometheus.Gatherer {
-	return &mergedGather{gathers: g}
+	_ = "STUB: not implemented"
+	return *new(prometheus.Gatherer)
 }
 
 func (m *mergedGather) Gather() ([]*dto.MetricFamily, error) {
-	result := make([]*dto.MetricFamily, 0)
-	for _, g := range m.gathers {
-		if metrics, err := g.Gather(); err != nil {
-			return result, err
-		} else {
-			result = append(result, metrics...)
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

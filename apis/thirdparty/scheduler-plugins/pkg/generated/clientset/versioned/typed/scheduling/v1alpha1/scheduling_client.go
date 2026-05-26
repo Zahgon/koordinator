@@ -19,8 +19,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -36,59 +34,36 @@ type SchedulingV1alpha1Client struct {
 }
 
 func (c *SchedulingV1alpha1Client) ElasticQuotas(namespace string) ElasticQuotaInterface {
-	return newElasticQuotas(c, namespace)
+	_ = "STUB: not implemented"
+	return *new(ElasticQuotaInterface)
 }
 
 func (c *SchedulingV1alpha1Client) PodGroups(namespace string) PodGroupInterface {
-	return newPodGroups(c, namespace)
+	_ = "STUB: not implemented"
+	return *new(PodGroupInterface)
 }
 
 // NewForConfig creates a new SchedulingV1alpha1Client for the given config.
 func NewForConfig(c *rest.Config) (*SchedulingV1alpha1Client, error) {
-	config := *c
-	if err := setConfigDefaults(&config); err != nil {
-		return nil, err
-	}
-	client, err := rest.RESTClientFor(&config)
-	if err != nil {
-		return nil, err
-	}
-	return &SchedulingV1alpha1Client{client}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewForConfigOrDie creates a new SchedulingV1alpha1Client for the given config and
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *SchedulingV1alpha1Client {
-	client, err := NewForConfig(c)
-	if err != nil {
-		panic(err)
-	}
-	return client
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // New creates a new SchedulingV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *SchedulingV1alpha1Client {
-	return &SchedulingV1alpha1Client{c}
-}
+func New(c rest.Interface) *SchedulingV1alpha1Client { _ = "STUB: not implemented"; return nil }
 
-func setConfigDefaults(config *rest.Config) error {
-	gv := v1alpha1.SchemeGroupVersion
-	config.GroupVersion = &gv
-	config.APIPath = "/apis"
-	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
-
-	if config.UserAgent == "" {
-		config.UserAgent = rest.DefaultKubernetesUserAgent()
-	}
-
-	return nil
-}
+func setConfigDefaults(config *rest.Config) error { _ = "STUB: not implemented"; return nil }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *SchedulingV1alpha1Client) RESTClient() rest.Interface {
-	if c == nil {
-		return nil
-	}
-	return c.restClient
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

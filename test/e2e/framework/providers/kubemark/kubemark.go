@@ -21,8 +21,6 @@ import (
 	"flag"
 	"fmt"
 
-	"k8s.io/client-go/informers"
-	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/kubernetes/pkg/kubemark"
 
@@ -38,8 +36,9 @@ func init() {
 }
 
 func newProvider() (framework.ProviderInterface, error) {
+	_ = "STUB: not implemented"
 	// Actual initialization happens when the e2e framework gets constructed.
-	return &Provider{}, nil
+	return *new(framework.ProviderInterface), nil
 }
 
 // Provider is a structure to handle Kubemark cluster for e2e testing
@@ -51,47 +50,21 @@ type Provider struct {
 
 // ResizeGroup resizes an instance group
 func (p *Provider) ResizeGroup(group string, size int32) error {
-	return p.controller.SetNodeGroupSize(group, int(size))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetGroupNodes returns a node name for the specified node group
 func (p *Provider) GetGroupNodes(group string) ([]string, error) {
-	return p.controller.GetNodeNamesForNodeGroup(group)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // FrameworkBeforeEach prepares clients, configurations etc. for e2e testing
-func (p *Provider) FrameworkBeforeEach(f *framework.Framework) {
-	if *kubemarkExternalKubeConfig != "" && p.controller == nil {
-		externalConfig, err := clientcmd.BuildConfigFromFlags("", *kubemarkExternalKubeConfig)
-		externalConfig.QPS = f.Options.ClientQPS
-		externalConfig.Burst = f.Options.ClientBurst
-		framework.ExpectNoError(err)
-		externalClient, err := clientset.NewForConfig(externalConfig)
-		framework.ExpectNoError(err)
-		f.KubemarkExternalClusterClientSet = externalClient
-		p.closeChannel = make(chan struct{})
-		externalInformerFactory := informers.NewSharedInformerFactory(externalClient, 0)
-		kubemarkInformerFactory := informers.NewSharedInformerFactory(f.ClientSet, 0)
-		kubemarkNodeInformer := kubemarkInformerFactory.Core().V1().Nodes()
-		go kubemarkNodeInformer.Informer().Run(p.closeChannel)
-		p.controller, err = kubemark.NewKubemarkController(externalClient, externalInformerFactory, f.ClientSet, kubemarkNodeInformer)
-		framework.ExpectNoError(err)
-		externalInformerFactory.Start(p.closeChannel)
-		framework.ExpectEqual(p.controller.WaitForCacheSync(p.closeChannel), true)
-		go p.controller.Run(p.closeChannel)
-	}
-}
+func (p *Provider) FrameworkBeforeEach(f *framework.Framework) { _ = "STUB: not implemented"; return }
 
 // FrameworkAfterEach cleans up after e2e testing
-func (p *Provider) FrameworkAfterEach(f *framework.Framework) {
-	if p.closeChannel != nil {
-		close(p.closeChannel)
-		p.controller = nil
-		p.closeChannel = nil
-	}
-}
+func (p *Provider) FrameworkAfterEach(f *framework.Framework) { _ = "STUB: not implemented"; return }
 
 // GroupSize returns the size of an instance group
-func (p *Provider) GroupSize(group string) (int, error) {
-	return p.controller.GetNodeGroupSize(group)
-}
+func (p *Provider) GroupSize(group string) (int, error) { _ = "STUB: not implemented"; return 0, nil }

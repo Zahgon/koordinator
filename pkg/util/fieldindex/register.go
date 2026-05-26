@@ -17,11 +17,9 @@ limitations under the License.
 package fieldindex
 
 import (
-	"context"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -97,16 +95,4 @@ var indexDescriptors = []fieldIndexDescriptor{
 	},
 }
 
-func RegisterFieldIndexes(c cache.Cache) error {
-	var err error
-	registerOnce.Do(func() {
-		for _, descriptor := range indexDescriptors {
-			err = c.IndexField(context.Background(), descriptor.obj, descriptor.field, descriptor.indexerFunc)
-			if err != nil {
-				klog.ErrorS(err, "Failed to register field index", "description", descriptor.description, "field", descriptor.field)
-				return
-			}
-		}
-	})
-	return err
-}
+func RegisterFieldIndexes(c cache.Cache) error { _ = "STUB: not implemented"; return nil }

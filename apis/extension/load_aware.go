@@ -17,9 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"strconv"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -58,43 +55,22 @@ type CustomAggregatedUsage struct {
 }
 
 func GetCustomUsageThresholds(node *corev1.Node) (*CustomUsageThresholds, error) {
-	usageThresholds := &CustomUsageThresholds{}
-	data, ok := node.Annotations[AnnotationCustomUsageThresholds]
-	if !ok {
-		return usageThresholds, nil
-	}
-	err := json.Unmarshal([]byte(data), usageThresholds)
-	if err != nil {
-		return nil, err
-	}
-	return usageThresholds, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // also returns nil if unmarshal error
 func GetCustomEstimatedScalingFactors(pod *corev1.Pod) map[corev1.ResourceName]int64 {
-	if s := pod.Annotations[AnnotationCustomEstimatedScalingFactors]; s != "" {
-		factors := make(map[corev1.ResourceName]int64)
-		if err := json.Unmarshal([]byte(s), &factors); err == nil {
-			return factors
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetCustomEstimatedSecondsAfterPodScheduled(pod *corev1.Pod) int64 {
-	if s := pod.Annotations[AnnotationCustomEstimatedSecondsAfterPodScheduled]; s != "" {
-		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-			return i
-		}
-	}
-	return -1
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func GetCustomEstimatedSecondsAfterInitialized(pod *corev1.Pod) int64 {
-	if s := pod.Annotations[AnnotationCustomEstimatedSecondsAfterInitialized]; s != "" {
-		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-			return i
-		}
-	}
-	return -1
+	_ = "STUB: not implemented"
+	return 0
 }

@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"sort"
 
 	fwktype "k8s.io/kube-scheduler/framework"
 
@@ -22,12 +21,13 @@ type ContextKey struct {
 }
 
 func TopologyStateFromContext(ctx context.Context) *TopologyState {
-	return ctx.Value(ContextKey{}).(*TopologyState)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func ContextWithTopologyState(ctx context.Context, topologyState *TopologyState) context.Context {
-	ctx = context.WithValue(ctx, ContextKey{}, topologyState)
-	return ctx
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 type JobTopologyRequirements struct {
@@ -40,29 +40,11 @@ type JobTopologyRequirements struct {
 }
 
 func GetMustGatherLayer(spec *extension.NetworkTopologySpec, isLayerAncestorFunc networktopology.IsLayerAncestorFunc) schedulingv1alpha1.TopologyLayer {
-	sort.Slice(spec.GatherStrategy, func(i, j int) bool {
-		return !isLayerAncestorFunc(spec.GatherStrategy[i].Layer, spec.GatherStrategy[j].Layer)
-	})
-	for _, rule := range spec.GatherStrategy {
-		if rule.Strategy == extension.NetworkTopologyGatherStrategyMustGather {
-			return rule.Layer
-		}
-	}
-	return ""
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.TopologyLayer)
 }
 
 func GetLayerPodCountMultiple(spec *extension.NetworkTopologySpec) map[schedulingv1alpha1.TopologyLayer]int {
-	if spec == nil {
-		return nil
-	}
-	result := make(map[schedulingv1alpha1.TopologyLayer]int)
-	for _, rule := range spec.GatherStrategy {
-		if rule.PodCountMultiple > 1 {
-			result[rule.Layer] = rule.PodCountMultiple
-		}
-	}
-	if len(result) == 0 {
-		return nil
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }

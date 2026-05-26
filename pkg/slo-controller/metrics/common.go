@@ -67,21 +67,26 @@ var (
 )
 
 func RecordNodeResourceReconcileCount(isSucceeded bool, reason string) {
-	recordNodeCountMetric(NodeResourceReconcileCount, isSucceeded, reason)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeMetricReconcileCount(isSucceeded bool, reason string) {
-	recordNodeCountMetric(NodeMetricReconcileCount, isSucceeded, reason)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeMetricSpecParseCount(isSucceeded bool, reason string) {
-	recordNodeCountMetric(NodeMetricSpecParseCount, isSucceeded, reason)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeSLOReconcileCount(isSucceeded bool, reason string) {
-	recordNodeCountMetric(NodeSLOReconcileCount, isSucceeded, reason)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordNodeSLOSpecParseCount(isSucceeded bool, reason string) {
-	recordNodeCountMetric(NodeSLOSpecParseCount, isSucceeded, reason)
+	_ = "STUB: not implemented"
+	return
 }

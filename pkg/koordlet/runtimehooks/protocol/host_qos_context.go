@@ -19,13 +19,10 @@ package protocol
 import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/record"
-	"k8s.io/klog/v2"
 
 	ext "github.com/koordinator-sh/koordinator/apis/extension"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util"
 )
 
 type HostAppRequest struct {
@@ -35,9 +32,8 @@ type HostAppRequest struct {
 }
 
 func (r *HostAppRequest) FromReconciler(hostAppSpec *slov1alpha1.HostApplicationSpec) {
-	r.Name = hostAppSpec.Name
-	r.QOSClass = hostAppSpec.QoS
-	r.CgroupParent = util.GetHostAppCgroupRelativePath(hostAppSpec)
+	_ = "STUB: not implemented"
+	return
 }
 
 type HostAppResponse struct {
@@ -52,65 +48,37 @@ type HostAppContext struct {
 }
 
 func (c *HostAppContext) RecordEvent(r record.EventRecorder, pod *corev1.Pod) {
+	_ = "STUB: not implemented"
 	//TODO: don't support record pod by host level
+	return
 }
 
 func (c *HostAppContext) FromReconciler(hostAppSpec *slov1alpha1.HostApplicationSpec) {
-	c.Request.FromReconciler(hostAppSpec)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *HostAppContext) ReconcilerProcess(executor resourceexecutor.ResourceUpdateExecutor) {
-	if c.executor == nil {
-		c.executor = executor
-	}
-	c.injectForOrigin()
-	c.injectForExt()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *HostAppContext) ReconcilerDone(executor resourceexecutor.ResourceUpdateExecutor) {
-	c.ReconcilerProcess(executor)
-	c.Update()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *HostAppContext) GetUpdaters() []resourceexecutor.ResourceUpdater {
-	return c.updaters
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *HostAppContext) Update() {
-	klog.V(5).Infof("")
-	c.executor.UpdateBatch(true, c.updaters...)
-	c.updaters = nil
-}
+func (c *HostAppContext) Update() { _ = "STUB: not implemented"; return }
 
 func (c *HostAppContext) injectForOrigin() {
+	_ = "STUB: not implemented"
 	// If CPUSet is not nil and is not an empty string, set cpuset
-	if c.Response.Resources.CPUSet != nil && *c.Response.Resources.CPUSet != "" {
-		eventHelper := audit.V(3).Group(c.Request.Name).Reason("runtime-hooks").Message(
-			"set host application cpuset to %v", *c.Response.Resources.CPUSet)
-		updater, err := injectCPUSet(c.Request.CgroupParent, *c.Response.Resources.CPUSet, eventHelper, c.executor)
-		if err != nil {
-			klog.Infof("set host application %v cpuset %v on cgroup parent %v failed, error %v",
-				c.Request.Name, *c.Response.Resources.CPUSet, c.Request.CgroupParent, err)
-		} else {
-			c.updaters = append(c.updaters, updater)
-			klog.V(5).Infof("set host application %v cpuset %v on cgroup parent %v",
-				c.Request.Name, *c.Response.Resources.CPUSet, c.Request.CgroupParent)
-		}
-	}
+	return
 }
 
-func (c *HostAppContext) injectForExt() {
-	if c.Response.Resources.CPUBvt != nil {
-		eventHelper := audit.V(3).Group(c.Request.Name).Reason("runtime-hooks").Message(
-			"set host application bvt to %v", *c.Response.Resources.CPUBvt)
-		updater, err := injectCPUBvt(c.Request.CgroupParent, *c.Response.Resources.CPUBvt, eventHelper, c.executor)
-		if err != nil {
-			klog.Infof("set host application %v bvt %v on cgroup parent %v failed, error %v", c.Request.Name,
-				*c.Response.Resources.CPUBvt, c.Request.CgroupParent, err)
-		} else {
-			c.updaters = append(c.updaters, updater)
-			klog.V(5).Infof("set host application %v bvt %v on cgroup parent %v", c.Request.Name,
-				*c.Response.Resources.CPUBvt, c.Request.CgroupParent)
-		}
-	}
-}
+func (c *HostAppContext) injectForExt() { _ = "STUB: not implemented"; return }

@@ -18,24 +18,13 @@ package app
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"sync"
 	"time"
 
 	"github.com/spf13/pflag"
-	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/wait"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
-	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler"
 
 	schedulerserverconfig "github.com/koordinator-sh/koordinator/cmd/koord-scheduler/app/config"
-	"github.com/koordinator-sh/koordinator/pkg/features"
 )
 
 var (
@@ -46,15 +35,7 @@ var (
 	syncHardTimeout = 1 * time.Minute
 )
 
-func AddSyncBarrierFlags(fs *pflag.FlagSet) {
-	if fs == nil {
-		return
-	}
-	fs.StringVar(&syncBarrierPodNamespace, "sync-barrier-pod-namespace", syncBarrierPodNamespace, "sync barrier namespace")
-	fs.StringVar(&syncBarrierPodName, "sync-barrier-pod-name", syncBarrierPodName, "sync barrier pod name")
-	fs.DurationVar(&syncHardTimeout, "sync-hard-timeout", syncHardTimeout, "hard timeout for the synchronization process")
-
-}
+func AddSyncBarrierFlags(fs *pflag.FlagSet) { _ = "STUB: not implemented"; return }
 
 // waitForLatestSynced ensures the scheduler's internal cache is logically consistent with the
 // API server's state immediately AFTER acquiring leadership.
@@ -92,147 +73,32 @@ func AddSyncBarrierFlags(fs *pflag.FlagSet) {
 // - Resilience: Gracefully handles missing SyncBarrierPods, API timeouts, and deletions.
 // - Panic Prevention: Uses sync.Once to ensure channels are closed exactly once.
 func waitForLatestSynced(ctx context.Context, cc *schedulerserverconfig.CompletedConfig, sched *scheduler.Scheduler) {
-	if !k8sfeature.DefaultFeatureGate.Enabled(features.SyncBarrier) || syncBarrierPodName == "" {
-		klog.InfoS("SyncBarrierPod not configured, skipping enhanced cache sync")
-		return
-	}
-
-	// Initialize Context with hard timeout
-	syncCtx, cancel := context.WithTimeout(ctx, syncHardTimeout)
-	defer cancel()
-
-	// Use sync.Once to prevent "panic: close of closed channel"
-	var once sync.Once
-	stopCh := make(chan struct{})
-	stopSync := func() {
-		once.Do(func() {
-			close(stopCh)
-		})
-	}
-
-	// Monitor context cancellation to stop the loop
-	go func() {
-		select {
-		case <-syncCtx.Done():
-			stopSync()
-		}
-	}()
-
-	var targetRV string
-	var anchorPod *corev1.Pod
-	barrierAnnotationKey := fmt.Sprintf("scheduling.koordinator.sh/sync-barrier-%s", cc.ComponentConfig.LeaderElection.ResourceName)
-	expectedValue := time.Now().Format(time.RFC3339Nano)
-
-	klog.InfoS("Starting scheduler cache synchronization barrier", "barrierPod", syncBarrierPodName)
-
-	wait.Until(func() {
-		// Defensive check for context expiration
-		if syncCtx.Err() != nil {
-			return
-		}
-
-		podLister := cc.InformerFactory.Core().V1().Pods().Lister()
-
-		// STEP 1: Barrier Flush - Patch the Barrier Pod to generate a targetRV
-		if targetRV == "" {
-			patch := []byte(fmt.Sprintf(`{"metadata":{"annotations":{"%s":"%s"}}}`, barrierAnnotationKey, expectedValue))
-			patchedPod, err := cc.Client.CoreV1().Pods(syncBarrierPodNamespace).Patch(syncCtx, syncBarrierPodName, types.MergePatchType, patch, metav1.PatchOptions{})
-
-			if err != nil {
-				if apierrors.IsNotFound(err) {
-					klog.ErrorS(err, "SyncBarrierPod is missing, aborting enhanced validation", "pod", syncBarrierPodName)
-					stopSync()
-					return
-				}
-				klog.V(3).InfoS("Transient error patching barrier pod, retrying", "err", err)
-				return
-			}
-			targetRV = patchedPod.ResourceVersion
-			klog.InfoS("Sync barrier watermark established", "targetRV", targetRV)
-		}
-
-		// STEP 2: Informer Sync - Wait for Informer to see the targetRV
-		if anchorPod == nil {
-			barrierPod, err := podLister.Pods(syncBarrierPodNamespace).Get(syncBarrierPodName)
-			if err != nil {
-				if apierrors.IsNotFound(err) {
-					klog.ErrorS(err, "SyncBarrierPod disappeared during sync, aborting validation")
-					stopSync()
-					return
-				}
-				return
-			}
-
-			if !isRVReached(barrierPod.ResourceVersion, targetRV) {
-				klog.V(4).InfoS("Informer still catching up to barrier pod", "currentRV", barrierPod.ResourceVersion, "targetRV", targetRV)
-				return
-			}
-
-			// STEP 3: Anchor Snapshot - Capture the latest scheduled pod at this moment
-			pods, err := podLister.List(labels.Everything())
-			if err != nil {
-				klog.V(3).InfoS("Failed to list pods from informer", "err", err)
-				return
-			}
-
-			for _, p := range pods {
-				if p.Spec.NodeName != "" {
-					if anchorPod == nil || isRVReached(p.ResourceVersion, anchorPod.ResourceVersion) {
-						anchorPod = p
-					}
-				}
-			}
-
-			if anchorPod == nil {
-				klog.InfoS("No scheduled pods found at barrier point, sync complete")
-				stopSync()
-				return
-			}
-			klog.InfoS("Anchor pod captured for reconciliation", "pod", klog.KObj(anchorPod), "rv", anchorPod.ResourceVersion)
-		}
-
-		// STEP 4: Cache Reconciliation - Wait for Scheduler Cache to catch up to Anchor
-		cachedPod, err := sched.Cache.GetPod(anchorPod)
-		if err != nil {
-			// If anchor is missing from Cache, verify if it was deleted from API Server
-			_, listerErr := podLister.Pods(anchorPod.Namespace).Get(anchorPod.Name)
-			if apierrors.IsNotFound(listerErr) {
-				klog.InfoS("Anchor pod was deleted from cluster, sync complete", "pod", klog.KObj(anchorPod))
-				stopSync()
-				return
-			}
-			klog.V(4).InfoS("Anchor pod not yet processed by scheduler cache", "pod", klog.KObj(anchorPod))
-			return
-		}
-
-		if isRVReached(cachedPod.ResourceVersion, anchorPod.ResourceVersion) {
-			klog.InfoS("Scheduler cache is now synchronized",
-				"anchorPod", klog.KObj(anchorPod),
-				"cacheRV", cachedPod.ResourceVersion,
-				"barrierRV", targetRV)
-			stopSync()
-		}
-	}, 100*time.Millisecond, stopCh)
-
-	// Final status logging
-	if errors.Is(syncCtx.Err(), context.DeadlineExceeded) {
-		klog.V(3).InfoS("Cache sync validation timed out; starting scheduler with potentially stale cache", "timeout", syncHardTimeout)
-	} else if ctx.Err() != nil {
-		klog.InfoS("Cache sync aborted due to leadership loss or shutdown")
-	} else {
-		klog.InfoS("Cache synchronization completed successfully")
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Initialize Context with hard timeout
+
+// Use sync.Once to prevent "panic: close of closed channel"
+
+// Monitor context cancellation to stop the loop
+
+// Defensive check for context expiration
+
+// STEP 1: Barrier Flush - Patch the Barrier Pod to generate a targetRV
+
+// STEP 2: Informer Sync - Wait for Informer to see the targetRV
+
+// STEP 3: Anchor Snapshot - Capture the latest scheduled pod at this moment
+
+// STEP 4: Cache Reconciliation - Wait for Scheduler Cache to catch up to Anchor
+
+// If anchor is missing from Cache, verify if it was deleted from API Server
+
+// Final status logging
 
 // isRVReached compares two ResourceVersions safely.
 // In Kubernetes (etcd), ResourceVersions are monotonically increasing integers stored as strings.
-func isRVReached(current, target string) bool {
-	if current == target {
-		return true
-	}
-	// Longer string or lexicographically larger string of same length represents a newer RV.
-	if len(current) != len(target) {
-		return len(current) > len(target)
-	}
-	return current > target
-}
+func isRVReached(current, target string) bool { _ = "STUB: not implemented"; return false }
+
+// Longer string or lexicographically larger string of same length represents a newer RV.

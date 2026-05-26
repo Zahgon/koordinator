@@ -17,15 +17,9 @@ limitations under the License.
 package estimator
 
 import (
-	"math"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	resourceapi "k8s.io/component-helpers/resource"
 	fwktype "k8s.io/kube-scheduler/framework"
 
-	"github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
 )
 
@@ -44,98 +38,29 @@ type DefaultEstimator struct {
 }
 
 func NewDefaultEstimator(args *config.LoadAwareSchedulingArgs, handle fwktype.Handle) (Estimator, error) {
-	return &DefaultEstimator{
-		scalingFactors: args.EstimatedScalingFactors,
-		allowCustomize: args.AllowCustomizeEstimation,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Estimator), nil
 }
 
-func (e *DefaultEstimator) Name() string {
-	return defaultEstimatorName
-}
+func (e *DefaultEstimator) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (e *DefaultEstimator) EstimatePod(pod *corev1.Pod) (map[corev1.ResourceName]int64, error) {
-	var factors map[corev1.ResourceName]int64
-	if e.allowCustomize {
-		factors = extension.GetCustomEstimatedScalingFactors(pod)
-	}
-	if len(factors) == 0 {
-		factors = e.scalingFactors
-	} else {
-		for k, v := range e.scalingFactors {
-			if _, ok := factors[k]; !ok {
-				factors[k] = v
-			}
-		}
-	}
-	return estimatedPodUsed(pod, factors), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func estimatedPodUsed(pod *corev1.Pod, scalingFactors map[corev1.ResourceName]int64) map[corev1.ResourceName]int64 {
-	requests, limits := resourceapi.PodRequests(pod, resourceapi.PodResourcesOptions{}), resourceapi.PodLimits(pod, resourceapi.PodResourcesOptions{})
-	estimatedUsed := make(map[corev1.ResourceName]int64)
-	priorityClass := extension.GetPodPriorityClassWithDefault(pod)
-	for resourceName, factor := range scalingFactors {
-		realResourceName := extension.TranslateResourceNameByPriorityClass(priorityClass, resourceName)
-		estimatedUsed[resourceName] = estimatedUsedByResource(requests, limits, realResourceName, factor)
-	}
-	return estimatedUsed
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // TODO(joseph): Do we need to differentiate scalingFactor according to Koordinator Priority type?
 func estimatedUsedByResource(requests, limits corev1.ResourceList, resourceName corev1.ResourceName, scalingFactor int64) int64 {
-	limitQuantity := limits[resourceName]
-	requestQuantity := requests[resourceName]
-	var quantity resource.Quantity
-	if limitQuantity.Cmp(requestQuantity) > 0 {
-		quantity = limitQuantity
-	} else {
-		quantity = requestQuantity
-	}
-
-	if quantity.IsZero() {
-		switch resourceName {
-		case corev1.ResourceCPU, extension.BatchCPU:
-			return DefaultMilliCPURequest
-		case corev1.ResourceMemory, extension.BatchMemory:
-			return DefaultMemoryRequest
-		}
-		return 0
-	}
-
-	var estimatedUsed int64
-	switch resourceName {
-	case corev1.ResourceCPU:
-		estimatedUsed = int64(math.Round(float64(quantity.MilliValue()) * float64(scalingFactor) / 100))
-		if limit := limitQuantity.MilliValue(); limit > 0 && estimatedUsed > limit {
-			estimatedUsed = limit
-		}
-	default:
-		estimatedUsed = int64(math.Round(float64(quantity.Value()) * float64(scalingFactor) / 100))
-		if limit := limitQuantity.Value(); limit > 0 && estimatedUsed > limit {
-			estimatedUsed = limit
-		}
-	}
-	return estimatedUsed
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (e *DefaultEstimator) EstimateNode(node *corev1.Node) (corev1.ResourceList, error) {
-	rawAllocatable, err := extension.GetNodeRawAllocatable(node.Annotations)
-	if err != nil {
-		return node.Status.Allocatable, nil
-	}
-	if len(rawAllocatable) == 0 {
-		return node.Status.Allocatable, nil
-	}
-	if quotav1.Equals(rawAllocatable, node.Status.Allocatable) {
-		return node.Status.Allocatable, nil
-	}
-	allocatableCopy := node.Status.Allocatable.DeepCopy()
-	if allocatableCopy == nil {
-		allocatableCopy = corev1.ResourceList{}
-	}
-	for k, v := range rawAllocatable {
-		allocatableCopy[k] = v
-	}
-	return allocatableCopy, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }

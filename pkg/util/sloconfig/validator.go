@@ -19,10 +19,8 @@ package sloconfig
 import (
 	"sync"
 
-	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	transen "github.com/go-playground/validator/v10/translations/en"
 )
 
 var validatorInstance = &DefaultValidator{}
@@ -34,36 +32,18 @@ type DefaultValidator struct {
 }
 
 func (v *DefaultValidator) StructWithTrans(config interface{}) (validator.ValidationErrorsTranslations, error) {
-	err := v.validator.Struct(config)
-	switch err.(type) {
-	case validator.ValidationErrors:
-		if v.trans != nil {
-			return err.(validator.ValidationErrors).Translate(*v.trans), nil
-		}
-	default:
-	}
-	return nil, err
+	_ = "STUB: not implemented"
+	return *new(validator.ValidationErrorsTranslations), nil
 }
 
-func GetValidatorInstance() *DefaultValidator {
-	validatorInstance.once.Do(func() {
-		validatorInstance.validator, validatorInstance.trans = createValidator()
-	})
-	return validatorInstance
-}
+func GetValidatorInstance() *DefaultValidator { _ = "STUB: not implemented"; return nil }
 
 func createValidator() (*validator.Validate, *ut.Translator) {
-	instance := validator.New()
-	return instance, registerEnTranslator(instance)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func registerEnTranslator(instance *validator.Validate) *ut.Translator {
-	locale := en.New()
-	uni := ut.New(locale, locale)
-	trans, _ := uni.GetTranslator(En)
-	err := transen.RegisterDefaultTranslations(instance, trans)
-	if err != nil {
-		return nil
-	}
-	return &trans
+	_ = "STUB: not implemented"
+	return nil
 }

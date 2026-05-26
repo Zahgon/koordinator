@@ -19,22 +19,15 @@ package core
 import (
 	"sync"
 
-	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
 	listerv1 "k8s.io/client-go/listers/core/v1"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
-	"k8s.io/kubernetes/pkg/scheduler/framework"
 
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 	pgclientset "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/generated/clientset/versioned"
 	pglister "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/generated/listers/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/workloadauditor"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/coscheduling/util"
-	koordutil "github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 type GangCache struct {
@@ -51,411 +44,103 @@ type GangCache struct {
 }
 
 func NewGangCache(args *config.CoschedulingArgs, podLister listerv1.PodLister, pgLister pglister.PodGroupLister, client pgclientset.Interface, handle fwktype.Handle) *GangCache {
-	return &GangCache{
-		gangItems:        make(map[string]*Gang),
-		gangGroupInfoMap: make(map[string]*GangGroupInfo),
-		lock:             new(sync.RWMutex),
-		pluginArgs:       args,
-		podLister:        podLister,
-		pgLister:         pgLister,
-		pgClient:         client,
-		handle:           handle,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gangCache *GangCache) getGangGroupInfo(gangGroupId string, gangGroup []string, createIfNotExist bool) (gangGroupInfo *GangGroupInfo, created bool) {
-	gangCache.lock.Lock()
-	defer gangCache.lock.Unlock()
-
-	if gangCache.gangGroupInfoMap[gangGroupId] == nil {
-		if createIfNotExist {
-			gangGroupInfo = NewGangGroupInfo(gangGroupId, gangGroup)
-			gangGroupInfo.SetInitialized()
-			gangCache.gangGroupInfoMap[gangGroupId] = gangGroupInfo
-			klog.Infof("add gangGroupInfo to cache, gangGroupId: %v", gangGroupId)
-			return gangGroupInfo, true
-		}
-	} else {
-		gangGroupInfo = gangCache.gangGroupInfoMap[gangGroupId]
-	}
-
-	return gangGroupInfo, false
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (gangCache *GangCache) deleteGangGroupInfo(gangGroupId string) {
-	gangCache.lock.Lock()
-	defer gangCache.lock.Unlock()
-
-	delete(gangCache.gangGroupInfoMap, gangGroupId)
-	klog.Infof("delete gangGroupInfo from cache, gangGroupId: %v", gangGroupId)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (gangCache *GangCache) getGangFromCacheByGangId(gangId string, createIfNotExist bool) *Gang {
-	gangCache.lock.Lock()
-	defer gangCache.lock.Unlock()
-	gang := gangCache.gangItems[gangId]
-	if gang == nil && createIfNotExist {
-		gang = NewGang(gangId)
-		gangCache.gangItems[gangId] = gang
-		klog.Infof("getGangFromCache create new gang, gang: %v", gangId)
-	}
-	return gang
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gangCache *GangCache) getAllGangsFromCache() map[string]*Gang {
-	gangCache.lock.RLock()
-	defer gangCache.lock.RUnlock()
-
-	result := make(map[string]*Gang)
-	for gangId, gang := range gangCache.gangItems {
-		result[gangId] = gang
-	}
-
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gangCache *GangCache) deleteGangFromCacheByGangId(gangId string) {
-	gangCache.lock.Lock()
-	defer gangCache.lock.Unlock()
-
-	delete(gangCache.gangItems, gangId)
-	klog.Infof("delete gang from cache, gang: %v", gangId)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (gangCache *GangCache) onPodAdd(obj interface{}) {
-	gangCache.onPodAddInternal(obj, "create")
-}
+func (gangCache *GangCache) onPodAdd(obj interface{}) { _ = "STUB: not implemented"; return }
 
 func (gangCache *GangCache) onPodAddInternal(obj interface{}, action string) {
-	pod, ok := obj.(*v1.Pod)
-	if !ok {
-		return
-	}
-
-	gangName := util.GetGangNameByPod(pod)
-	if gangName == "" {
-		return
-	}
-
-	gangNamespace := pod.Namespace
-	gangId := util.GetId(gangNamespace, gangName)
-	gang := gangCache.getGangFromCacheByGangId(gangId, true)
-
-	// the gang is created in Annotation way
-	if pod.Labels[v1alpha1.PodGroupLabel] == "" {
-		gang.tryInitByPodConfig(pod, gangCache.pluginArgs)
-
-		gangGroup := gang.getGangGroup()
-		gangGroupId := util.GetGangGroupId(gangGroup)
-		gangGroupInfo, created := gangCache.getGangGroupInfo(gangGroupId, gangGroup, true)
-		gang.SetGangGroupInfo(gangGroupInfo)
-		if created && pod.Spec.NodeName == "" && gangCache.isResponsibleForPod(pod) && gangCache.workloadAuditor != nil {
-			gangCache.workloadAuditor.AddGangGroup(gangGroupId)
-		}
-	}
-
-	gang.setChild(pod)
-	if pod.Spec.NodeName != "" {
-		gang.addBoundPod(pod)
-		gang.setResourceSatisfied()
-	} else if action == "create" {
-		// Detect initial gating state for the newly added pod
-		if gang.GangGroupId != "" && gangCache.workloadAuditor != nil {
-			gangCache.workloadAuditor.RecordGangGating(gang.GangGroupId, pod, workloadauditor.PodIsGated(pod))
-		}
-		if gang.isGangWorthRequeue() {
-			if gangCache.handle == nil {
-				// only UT will go here
-				return
-			}
-			if extendedHandle := gangCache.handle.(frameworkext.ExtendedHandle); extendedHandle != nil && extendedHandle.Scheduler() != nil && extendedHandle.Scheduler().GetSchedulingQueue() != nil {
-				addedPod, ok := obj.(*v1.Pod)
-				if !ok {
-					return
-				}
-				klog.V(4).Infof("gang basic check pass, delivery an activate for gang: %s, pod: %s", gangId, addedPod.Name)
-				if gangCache.workloadAuditor != nil {
-					gangCache.workloadAuditor.RecordGangGroup(gang.GangGroupId, addedPod, workloadauditor.RecordTypeGangMinMemberSatisfied, gangId)
-				}
-				extendedHandle.Scheduler().GetSchedulingQueue().Activate(logr.Discard(), map[string]*v1.Pod{util.GetId(addedPod.Namespace, addedPod.Name): addedPod})
-			}
-		}
-	}
-
-	klog.Infof("watch pod %v, Name:%v, pgLabel:%v", action, pod.Name, pod.Labels[v1alpha1.PodGroupLabel])
+	_ = "STUB: not implemented"
+	return
 }
+
+// the gang is created in Annotation way
+
+// Detect initial gating state for the newly added pod
+
+// only UT will go here
 
 func (gangCache *GangCache) onPodUpdate(oldObj, newObj interface{}) {
-	pod, ok := newObj.(*v1.Pod)
-	if !ok {
-		return
-	}
-
-	gangName := util.GetGangNameByPod(pod)
-	if gangName == "" {
-		return
-	}
-
-	if koordutil.IsPodTerminated(pod) {
-		return
-	}
-
-	// Detect gating transitions for gang pods
-	if oldPod, ok := oldObj.(*v1.Pod); ok {
-		oldGated := workloadauditor.PodIsGated(oldPod)
-		newGated := workloadauditor.PodIsGated(pod)
-		if oldGated != newGated {
-			gangId := util.GetId(pod.Namespace, gangName)
-			if gang := gangCache.getGangFromCacheByGangId(gangId, false); gang != nil && gang.GangGroupId != "" && gangCache.workloadAuditor != nil {
-				gangCache.workloadAuditor.RecordGangGating(gang.GangGroupId, pod, newGated)
-			}
-		}
-	}
-
-	gangCache.onPodAddInternal(newObj, "update")
+	_ = "STUB: not implemented"
+	return
 }
 
-func (gangCache *GangCache) onPodDelete(obj interface{}) {
-	pod, ok := obj.(*v1.Pod)
-	if !ok {
-		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
-		if !ok {
-			klog.Errorf("onPodDelete: couldn't get object from tombstone %+v", obj)
-			return
-		}
-		pod, ok = tombstone.Obj.(*v1.Pod)
-		if !ok {
-			klog.Errorf("onPodDelete: tombstone contained object that is not a Pod %+v", tombstone.Obj)
-			return
-		}
-	}
-	gangName := util.GetGangNameByPod(pod)
-	if gangName == "" {
-		return
-	}
+// Detect gating transitions for gang pods
 
-	gangNamespace := pod.Namespace
-	gangId := util.GetId(gangNamespace, gangName)
-	gang := gangCache.getGangFromCacheByGangId(gangId, false)
-	if gang == nil {
-		return
-	}
+func (gangCache *GangCache) onPodDelete(obj interface{}) { _ = "STUB: not implemented"; return }
 
-	shouldDeleteGang := gang.deletePod(pod)
-	if shouldDeleteGang {
-		gangCache.deleteGangFromCacheByGangId(gangId)
+func (gangCache *GangCache) onPodGroupAdd(obj interface{}) { _ = "STUB: not implemented"; return }
 
-		allGangDeleted := true
-		for _, gangId := range gang.GangGroup {
-			if gangCache.getGangFromCacheByGangId(gangId, false) != nil {
-				allGangDeleted = false
-				break
-			}
-		}
-		if allGangDeleted {
-			gangCache.deleteGangGroupInfo(gang.GangGroupInfo.GangGroupId)
-			if gangCache.workloadAuditor != nil {
-				gangCache.workloadAuditor.DeleteGangGroup(gang.GangGroupInfo.GangGroupId)
-			}
-		}
-	}
-
-	klog.Infof("watch pod deleted, Name:%v, pgLabel:%v", pod.Name, pod.Labels[v1alpha1.PodGroupLabel])
-}
-
-func (gangCache *GangCache) onPodGroupAdd(obj interface{}) {
-	pg, ok := obj.(*v1alpha1.PodGroup)
-	if !ok {
-		return
-	}
-	gangNamespace := pg.Namespace
-	gangName := pg.Name
-
-	gangId := util.GetId(gangNamespace, gangName)
-	gang := gangCache.getGangFromCacheByGangId(gangId, true)
-	gang.tryInitByPodGroup(pg, gangCache.pluginArgs)
-	if gangCache.workloadAuditor != nil {
-		phase := pg.Status.Phase
-		if isPodGroupPendingPhase(phase) {
-			gangCache.workloadAuditor.AddGangGroup(gang.GangGroupId)
-		}
-	}
-	if gang.isGangWorthRequeue() {
-		if gangCache.handle == nil {
-			// only UT will go here
-			return
-		}
-		if extendedHandle := gangCache.handle.(frameworkext.ExtendedHandle); extendedHandle != nil && extendedHandle.Scheduler() != nil && extendedHandle.Scheduler().GetSchedulingQueue() != nil {
-			someChildren := gang.pickSomeChildren()
-			if someChildren == nil {
-				return
-			}
-			if gangCache.workloadAuditor != nil {
-				gangCache.workloadAuditor.RecordGangGroup(gang.GangGroupId, someChildren, workloadauditor.RecordTypeGangMinMemberSatisfied, gangId)
-			}
-			klog.V(4).Infof("gang basic check pass, delivery an activate for gang: %s, pod: %s", gangId, someChildren.Name)
-			extendedHandle.Scheduler().GetSchedulingQueue().Activate(logr.Discard(), map[string]*v1.Pod{util.GetId(someChildren.Namespace, someChildren.Name): someChildren})
-		}
-	}
-
-	gangGroup := gang.getGangGroup()
-	gangGroupId := util.GetGangGroupId(gangGroup)
-	gangGroupInfo, _ := gangCache.getGangGroupInfo(gangGroupId, gangGroup, true)
-	gang.SetGangGroupInfo(gangGroupInfo)
-
-	klog.Infof("watch podGroup created, Name:%v", pg.Name)
-}
+// only UT will go here
 
 func (gangCache *GangCache) onPodGroupUpdate(oldObj interface{}, newObj interface{}) {
-	pg, ok := newObj.(*v1alpha1.PodGroup)
-	if !ok {
-		return
-	}
-	gangNamespace := pg.Namespace
-	gangName := pg.Name
-
-	gangId := util.GetId(gangNamespace, gangName)
-	gang := gangCache.getGangFromCacheByGangId(gangId, false)
-	if gang == nil {
-		klog.Errorf("Gang object isn't exist when got Update Event")
-		return
-	}
-
-	// When PodGroup transitions from a pending phase to a non-pending phase,
-	// delete the gang record from the workload auditor.
-	if gangCache.workloadAuditor != nil {
-		oldPg, ok := oldObj.(*v1alpha1.PodGroup)
-		if ok && isPodGroupPendingPhase(oldPg.Status.Phase) && !isPodGroupPendingPhase(pg.Status.Phase) {
-			gangCache.workloadAuditor.DeleteGangGroup(gang.GangGroupId)
-		}
-	}
-
-	isGangWorthRequeueBefore := gang.isGangWorthRequeue()
-	gang.tryInitByPodGroup(pg, gangCache.pluginArgs)
-	if !isGangWorthRequeueBefore && gang.isGangWorthRequeue() {
-		if gangCache.handle == nil {
-			// only UT will go here
-			return
-		}
-		if extendedHandle := gangCache.handle.(frameworkext.ExtendedHandle); extendedHandle != nil && extendedHandle.Scheduler() != nil && extendedHandle.Scheduler().GetSchedulingQueue() != nil {
-			someChildren := gang.pickSomeChildren()
-			if someChildren == nil {
-				return
-			}
-			klog.V(4).Infof("gang basic check pass, delivery an activate for gang: %s, pod: %s", gangId, someChildren.Name)
-			if gangCache.workloadAuditor != nil {
-				gangCache.workloadAuditor.RecordGangGroup(gang.GangGroupId, someChildren, workloadauditor.RecordTypeGangMinMemberSatisfied, gangId)
-			}
-			extendedHandle.Scheduler().GetSchedulingQueue().Activate(logr.Discard(), map[string]*v1.Pod{util.GetId(someChildren.Namespace, someChildren.Name): someChildren})
-		}
-	}
-	gangGroup := gang.getGangGroup()
-	gangGroupId := util.GetGangGroupId(gangGroup)
-	gangGroupInfo, _ := gangCache.getGangGroupInfo(gangGroupId, gangGroup, true)
-	gang.SetGangGroupInfo(gangGroupInfo)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (gangCache *GangCache) onPodGroupDelete(obj interface{}) {
-	pg, ok := obj.(*v1alpha1.PodGroup)
-	if !ok {
-		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
-		if !ok {
-			klog.Errorf("onPodGroupDelete: couldn't get object from tombstone %+v", obj)
-			return
-		}
-		pg, ok = tombstone.Obj.(*v1alpha1.PodGroup)
-		if !ok {
-			klog.Errorf("onPodGroupDelete: tombstone contained object that is not a PodGroup %+v", tombstone.Obj)
-			return
-		}
-	}
-	gangNamespace := pg.Namespace
-	gangName := pg.Name
+// When PodGroup transitions from a pending phase to a non-pending phase,
+// delete the gang record from the workload auditor.
 
-	gangId := util.GetId(gangNamespace, gangName)
-	gang := gangCache.getGangFromCacheByGangId(gangId, false)
-	if gang == nil {
-		return
-	}
-	gang.removeWaitingGang()
-	gangCache.deleteGangFromCacheByGangId(gangId)
+// only UT will go here
 
-	allGangDeleted := true
-	for _, gangId := range gang.GangGroup {
-		if gangCache.getGangFromCacheByGangId(gangId, false) != nil {
-			allGangDeleted = false
-			break
-		}
-	}
-	if allGangDeleted {
-		gangCache.deleteGangGroupInfo(gang.GangGroupInfo.GangGroupId)
-		if gangCache.workloadAuditor != nil {
-			gangCache.workloadAuditor.DeleteGangGroup(gang.GangGroupInfo.GangGroupId)
-		}
-	}
-
-	klog.Infof("watch podGroup deleted, Name:%v", pg.Name)
-}
+func (gangCache *GangCache) onPodGroupDelete(obj interface{}) { _ = "STUB: not implemented"; return }
 
 func (gangCache *GangCache) getPendingPods(gangGroup []string) []*v1.Pod {
-	var pendingPods []*v1.Pod
-	for _, gangID := range gangGroup {
-		gang := gangCache.getGangFromCacheByGangId(gangID, false)
-		if gang == nil {
-			continue
-		}
-		pendingPods = append(pendingPods, gang.getPendingChildrenFromGang()...)
-	}
-	return pendingPods
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gangCache *GangCache) getPendingPodsNum(gangGroup []string) int {
-	pendingPodsNum := 0
-	for _, gangID := range gangGroup {
-		gang := gangCache.getGangFromCacheByGangId(gangID, false)
-		if gang == nil {
-			continue
-		}
-		pendingPodsNum += gang.getPendingChildrenNum()
-	}
-	return pendingPodsNum
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (gangCache *GangCache) getWaitingPods(gangGroup []string) []*v1.Pod {
-	var waitingPods []*v1.Pod
-	for _, gangID := range gangGroup {
-		gang := gangCache.getGangFromCacheByGangId(gangID, false)
-		if gang == nil {
-			continue
-		}
-		waitingPods = append(waitingPods, gang.getWaitingChildrenFromGang()...)
-	}
-	return waitingPods
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gangCache *GangCache) getWaitingPodsNum(gangGroup []string) int {
-	waitingPodsNum := 0
-	for _, gangID := range gangGroup {
-		gang := gangCache.getGangFromCacheByGangId(gangID, false)
-		if gang == nil {
-			continue
-		}
-		waitingPodsNum += gang.getGangWaitingPods()
-	}
-	return waitingPodsNum
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // isPodGroupPendingPhase returns true if the PodGroup phase indicates
 // it has not yet finished scheduling (empty, Pending, PreScheduling, Scheduling).
 func isPodGroupPendingPhase(phase v1alpha1.PodGroupPhase) bool {
-	return phase == "" || phase == v1alpha1.PodGroupPending || phase == v1alpha1.PodGroupPreScheduling || phase == v1alpha1.PodGroupScheduling
+	_ = "STUB: not implemented"
+	return false
 }
 
 // isResponsibleForPod returns true if the pod's scheduler name matches
 // the profile name of this scheduler instance.
 func (gangCache *GangCache) isResponsibleForPod(pod *v1.Pod) bool {
-	if fwk, ok := gangCache.handle.(framework.Framework); ok {
-		return pod.Spec.SchedulerName == fwk.ProfileName()
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }

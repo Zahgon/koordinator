@@ -17,13 +17,8 @@ limitations under the License.
 package testing
 
 import (
-	"context"
-
-	"k8s.io/apimachinery/pkg/runtime/schema"
-
 	deschedulerconfig "github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config/scheme"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config/v1alpha2"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/runtime"
 )
@@ -32,74 +27,47 @@ var configDecoder = scheme.Codecs.UniversalDecoder()
 
 // NewFramework creates a Framework from the register functions and options.
 func NewFramework(fns []RegisterPluginFunc, profileName string, opts ...runtime.Option) (framework.Handle, error) {
-	registry := runtime.Registry{}
-	profile := &deschedulerconfig.DeschedulerProfile{
-		Name:    profileName,
-		Plugins: &deschedulerconfig.Plugins{},
-	}
-	for _, f := range fns {
-		f(&registry, profile)
-	}
-	return runtime.NewFramework(context.Background(), registry, profile, opts...)
+	_ = "STUB: not implemented"
+	return *new(framework.Handle), nil
 }
 
 type RegisterPluginFunc func(reg *runtime.Registry, profile *deschedulerconfig.DeschedulerProfile)
 
 func RegisterDeschedulePlugin(pluginName string, pluginNewFunc runtime.PluginFactory) RegisterPluginFunc {
-	return RegisterPluginAsExtensions(pluginName, pluginNewFunc, "Deschedule")
+	_ = "STUB: not implemented"
+	return *new(RegisterPluginFunc)
 }
 
 func RegisterBalancePlugin(pluginName string, pluginNewFunc runtime.PluginFactory) RegisterPluginFunc {
-	return RegisterPluginAsExtensions(pluginName, pluginNewFunc, "Balance")
+	_ = "STUB: not implemented"
+	return *new(RegisterPluginFunc)
 }
 
 func RegisterEvictPlugin(pluginName string, pluginNewFunc runtime.PluginFactory) RegisterPluginFunc {
-	return RegisterPluginAsExtensions(pluginName, pluginNewFunc, "Evict")
+	_ = "STUB: not implemented"
+	return *new(RegisterPluginFunc)
 }
 
 func RegisterFilterPlugin(pluginName string, pluginNewFunc runtime.PluginFactory) RegisterPluginFunc {
-	return RegisterPluginAsExtensions(pluginName, pluginNewFunc, "Filter")
+	_ = "STUB: not implemented"
+	return *new(RegisterPluginFunc)
 }
 
 // RegisterPluginAsExtensions returns a function to register a Plugin as given extensionPoints to a given registry.
 func RegisterPluginAsExtensions(pluginName string, pluginNewFunc runtime.PluginFactory, extensions ...string) RegisterPluginFunc {
-	return RegisterPluginAsExtensionsWithWeight(pluginName, 1, pluginNewFunc, extensions...)
+	_ = "STUB: not implemented"
+	return *new(RegisterPluginFunc)
 }
 
 // RegisterPluginAsExtensionsWithWeight returns a function to register a Plugin as given extensionPoints with weight to a given registry.
 func RegisterPluginAsExtensionsWithWeight(pluginName string, weight int32, pluginNewFunc runtime.PluginFactory, extensions ...string) RegisterPluginFunc {
-	return func(reg *runtime.Registry, profile *deschedulerconfig.DeschedulerProfile) {
-		reg.Register(pluginName, pluginNewFunc)
-		for _, extension := range extensions {
-			ps := getPluginSetByExtension(profile.Plugins, extension)
-			if ps == nil {
-				continue
-			}
-			ps.Enabled = append(ps.Enabled, deschedulerconfig.Plugin{Name: pluginName})
-		}
-		// Use defaults from latest config API version.
-		var gvk schema.GroupVersionKind
-		gvk = v1alpha2.SchemeGroupVersion.WithKind(pluginName + "Args")
-		if args, _, err := configDecoder.Decode(nil, &gvk, nil); err == nil {
-			profile.PluginConfig = append(profile.PluginConfig, deschedulerconfig.PluginConfig{
-				Name: pluginName,
-				Args: args,
-			})
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(RegisterPluginFunc)
 }
 
+// Use defaults from latest config API version.
+
 func getPluginSetByExtension(plugins *deschedulerconfig.Plugins, extension string) *deschedulerconfig.PluginSet {
-	switch extension {
-	case "Deschedule":
-		return &plugins.Deschedule
-	case "Balance":
-		return &plugins.Balance
-	case "Evict":
-		return &plugins.Evict
-	case "Filter":
-		return &plugins.Filter
-	default:
-		return nil
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

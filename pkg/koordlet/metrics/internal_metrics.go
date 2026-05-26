@@ -31,9 +31,7 @@ var (
 	InternalRegistry = legacyregistry.DefaultGatherer
 )
 
-func internalMustRegister(metrics ...prometheus.Collector) {
-	legacyregistry.RawMustRegister(metrics...)
-}
+func internalMustRegister(metrics ...prometheus.Collector) { _ = "STUB: not implemented"; return }
 
 func init() {
 	internalMustRegister(CommonCollectors...)

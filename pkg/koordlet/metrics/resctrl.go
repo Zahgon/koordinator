@@ -17,8 +17,6 @@ limitations under the License.
 package metrics
 
 import (
-	"strconv"
-
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -50,25 +48,13 @@ var (
 	}
 )
 
-func ResetResctrlLLCQos() {
-	ResctrlLLC.Reset()
-}
+func ResetResctrlLLCQos() { _ = "STUB: not implemented"; return }
 
-func ResetResctrlMBQos() {
-	ResctrlMB.Reset()
-}
+func ResetResctrlMBQos() { _ = "STUB: not implemented"; return }
 
-func RecordResctrlLLC(cacheId int, qos string, value uint64) {
-	labels := genNodeLabels()
-	labels[ResctrlCacheId] = strconv.Itoa(cacheId)
-	labels[ResctrlQos] = qos
-	ResctrlLLC.With(labels).Set(float64(value))
-}
+func RecordResctrlLLC(cacheId int, qos string, value uint64) { _ = "STUB: not implemented"; return }
 
 func RecordResctrlMB(cacheId int, qos, mbType string, value uint64) {
-	labels := genNodeLabels()
-	labels[ResctrlCacheId] = strconv.Itoa(cacheId)
-	labels[ResctrlQos] = qos
-	labels[ResctrlMbType] = mbType
-	ResctrlMB.With(labels).Set(float64(value))
+	_ = "STUB: not implemented"
+	return
 }

@@ -24,26 +24,10 @@ type Counter struct {
 	ConsecutiveAbnormalities uint32
 }
 
-func (c *Counter) onMark() {
-	c.TotalDetects++
-}
+func (c *Counter) onMark() { _ = "STUB: not implemented"; return }
 
-func (c *Counter) onNormality() {
-	c.TotalNormalities++
-	c.ConsecutiveNormalities++
-	c.ConsecutiveAbnormalities = 0
-}
+func (c *Counter) onNormality() { _ = "STUB: not implemented"; return }
 
-func (c *Counter) onAbnormalities() {
-	c.TotalAbnormalities++
-	c.ConsecutiveAbnormalities++
-	c.ConsecutiveNormalities = 0
-}
+func (c *Counter) onAbnormalities() { _ = "STUB: not implemented"; return }
 
-func (c *Counter) clear() {
-	c.TotalDetects = 0
-	c.TotalNormalities = 0
-	c.TotalAbnormalities = 0
-	c.ConsecutiveNormalities = 0
-	c.ConsecutiveAbnormalities = 0
-}
+func (c *Counter) clear() { _ = "STUB: not implemented"; return }

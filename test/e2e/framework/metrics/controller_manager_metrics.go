@@ -23,18 +23,16 @@ type ControllerManagerMetrics testutil.Metrics
 
 // Equal returns true if all metrics are the same as the arguments.
 func (m *ControllerManagerMetrics) Equal(o ControllerManagerMetrics) bool {
-	return (*testutil.Metrics)(m).Equal(testutil.Metrics(o))
+	_ = "STUB: not implemented"
+	return false
 }
 
 func newControllerManagerMetrics() ControllerManagerMetrics {
-	result := testutil.NewMetrics()
-	return ControllerManagerMetrics(result)
+	_ = "STUB: not implemented"
+	return *new(ControllerManagerMetrics)
 }
 
 func parseControllerManagerMetrics(data string) (ControllerManagerMetrics, error) {
-	result := newControllerManagerMetrics()
-	if err := testutil.ParseMetrics(data, (*testutil.Metrics)(&result)); err != nil {
-		return ControllerManagerMetrics{}, err
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(ControllerManagerMetrics), nil
 }

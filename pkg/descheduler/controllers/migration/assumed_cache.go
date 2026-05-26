@@ -17,13 +17,9 @@ limitations under the License.
 package migration
 
 import (
-	"fmt"
-	"strconv"
 	"sync"
 
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog/v2"
 
 	sev1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
@@ -33,59 +29,18 @@ type assumedCache struct {
 	items map[types.UID]*sev1alpha1.PodMigrationJob
 }
 
-func newAssumedCache() *assumedCache {
-	return &assumedCache{
-		items: map[types.UID]*sev1alpha1.PodMigrationJob{},
-	}
-}
+func newAssumedCache() *assumedCache { _ = "STUB: not implemented"; return nil }
 
-func (c *assumedCache) assume(job *sev1alpha1.PodMigrationJob) {
-	c.lock.Lock()
-	c.items[job.UID] = job
-	c.lock.Unlock()
-}
+func (c *assumedCache) assume(job *sev1alpha1.PodMigrationJob) { _ = "STUB: not implemented"; return }
 
-func (c *assumedCache) delete(job *sev1alpha1.PodMigrationJob) {
-	c.lock.Lock()
-	delete(c.items, job.UID)
-	c.lock.Unlock()
-}
+func (c *assumedCache) delete(job *sev1alpha1.PodMigrationJob) { _ = "STUB: not implemented"; return }
 
 func (c *assumedCache) isNewOrSameObj(job *sev1alpha1.PodMigrationJob) bool {
-	c.lock.Lock()
-	preObj, ok := c.items[job.UID]
-	c.lock.Unlock()
-	if !ok {
-		return true
-	}
-	newVersion, err := getObjVersion(job.Name, job)
-	if err != nil {
-		klog.Errorf("couldn't get object version: %v", err)
-		return false
-	}
-
-	storedVersion, err := getObjVersion(job.Name, preObj)
-	if err != nil {
-		klog.Errorf("couldn't get stored object version: %v", err)
-		return false
-	}
-
-	if newVersion < storedVersion {
-		klog.V(4).Infof("Skip %v because version %v is not newer than %v", job.Name, newVersion, storedVersion)
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func getObjVersion(name string, obj interface{}) (int64, error) {
-	objAccessor, err := meta.Accessor(obj)
-	if err != nil {
-		return -1, err
-	}
-
-	objResourceVersion, err := strconv.ParseInt(objAccessor.GetResourceVersion(), 10, 64)
-	if err != nil {
-		return -1, fmt.Errorf("error parsing ResourceVersion %q for %v %q", objAccessor.GetResourceVersion(), name, err)
-	}
-	return objResourceVersion, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }

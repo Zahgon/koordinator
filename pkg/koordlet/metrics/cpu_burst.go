@@ -38,30 +38,13 @@ var (
 )
 
 func RecordContainerScaledCFSBurstUS(podNS, podName, containerID, containerName string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PodNamespace] = podNS
-	labels[PodName] = podName
-	labels[ContainerID] = containerID
-	labels[ContainerName] = containerName
-	ContainerScaledCFSBurstUS.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RecordContainerScaledCFSQuotaUS(podNS, podName, containerID, containerName string, value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[PodNamespace] = podNS
-	labels[PodName] = podName
-	labels[ContainerID] = containerID
-	labels[ContainerName] = containerName
-	ContainerScaledCFSQuotaUS.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }
 
-func ResetCPUBurstCollector() {
-	ContainerScaledCFSBurstUS.Reset()
-	ContainerScaledCFSQuotaUS.Reset()
-}
+func ResetCPUBurstCollector() { _ = "STUB: not implemented"; return }

@@ -16,14 +16,6 @@ limitations under the License.
 
 package system
 
-import (
-	"fmt"
-	"os"
-	"strings"
-
-	"k8s.io/klog/v2"
-)
-
 const (
 	// SchedFeatureCoreSched is the feature name of the core scheduling in `/sys/kernel/debug/sched_features`.
 	SchedFeatureCoreSched = "CORE_SCHED"
@@ -91,220 +83,61 @@ type FakeCoreSchedExtended struct {
 }
 
 func NewFakeCoreSchedExtended(pidToCookie map[uint32]uint64, pidToPGID map[uint32]uint32, pidToError map[uint32]bool) CoreSchedExtendedInterface {
-	f := &FakeCoreSchedExtended{
-		PIDToCookie:  pidToCookie,
-		PIDToPGID:    pidToPGID,
-		PIDToError:   pidToError,
-		CurPID:       1,
-		NextCookieID: 1,
-	}
-	if f.PIDToCookie == nil {
-		f.PIDToCookie = map[uint32]uint64{}
-	}
-	if f.PIDToPGID == nil {
-		f.PIDToPGID = map[uint32]uint32{}
-	}
-	if f.PIDToTGID == nil {
-		f.PIDToTGID = f.PIDToPGID
-	}
-	if f.PIDToError == nil {
-		f.PIDToError = map[uint32]bool{}
-	}
-	for pid, pgid := range pidToPGID {
-		f.PIDToPGID[pid] = pgid
-	}
-	return f
+	_ = "STUB: not implemented"
+	return *new(CoreSchedExtendedInterface)
 }
 
-func (f *FakeCoreSchedExtended) SetCurPID(pid uint32) {
-	f.CurPID = pid
-}
+func (f *FakeCoreSchedExtended) SetCurPID(pid uint32) { _ = "STUB: not implemented"; return }
 
-func (f *FakeCoreSchedExtended) SetNextCookieID(id uint64) {
-	f.NextCookieID = id
-}
+func (f *FakeCoreSchedExtended) SetNextCookieID(id uint64) { _ = "STUB: not implemented"; return }
 
 func (f *FakeCoreSchedExtended) Get(pidType CoreSchedScopeType, pid uint32) (uint64, error) {
-	if _, ok := f.PIDToError[pid]; ok {
-		return 0, fmt.Errorf("get cookie error")
-	}
-	if pidType != CoreSchedScopeThread {
-		return 0, fmt.Errorf("unsupported pid type %d", pidType)
-	}
-	if v, ok := f.PIDToCookie[pid]; ok {
-		return v, nil
-	}
+	_ = "STUB: not implemented"
 	return 0, nil
 }
 
 func (f *FakeCoreSchedExtended) Create(pidType CoreSchedScopeType, pid uint32) error {
-	if _, ok := f.PIDToError[pid]; ok {
-		return fmt.Errorf("create cookie error")
-	}
-	f.PIDToCookie[pid] = f.NextCookieID
-	if pidType == CoreSchedScopeProcessGroup {
-		for cPID, pgid := range f.PIDToPGID {
-			if pgid == pid {
-				f.PIDToCookie[cPID] = f.NextCookieID
-			}
-		}
-	} else if pidType == CoreSchedScopeThreadGroup {
-		for cPID, tgid := range f.PIDToTGID {
-			if tgid == pid {
-				f.PIDToCookie[cPID] = f.NextCookieID
-			}
-		}
-	}
-	f.NextCookieID++
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeCoreSchedExtended) ShareTo(pidType CoreSchedScopeType, pid uint32) error {
-	if _, ok := f.PIDToError[pid]; ok {
-		return fmt.Errorf("shareTo cookie error")
-	}
-	curCookieID := f.PIDToCookie[f.CurPID]
-	f.PIDToCookie[pid] = curCookieID
-	if pidType == CoreSchedScopeProcessGroup {
-		for cPID, pgid := range f.PIDToPGID {
-			if pgid == pid {
-				f.PIDToCookie[cPID] = curCookieID
-			}
-		}
-	} else if pidType == CoreSchedScopeThreadGroup {
-		for cPID, tgid := range f.PIDToTGID {
-			if tgid == pid {
-				f.PIDToCookie[cPID] = curCookieID
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeCoreSchedExtended) ShareFrom(pidType CoreSchedScopeType, pid uint32) error {
-	if _, ok := f.PIDToError[pid]; ok {
-		return fmt.Errorf("shareFrom cookie error")
-	}
-	if pidType != CoreSchedScopeThread {
-		return fmt.Errorf("unsupported pid type %d", pidType)
-	}
-	f.PIDToCookie[f.CurPID] = f.PIDToCookie[pid]
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeCoreSchedExtended) Clear(pidType CoreSchedScopeType, pids ...uint32) ([]uint32, error) {
-	var failedPIDs []uint32
-	for _, pid := range pids {
-		if _, ok := f.PIDToError[pid]; ok {
-			failedPIDs = append(failedPIDs, pid)
-			continue
-		}
-		f.PIDToCookie[pid] = 0
-		if pidType == CoreSchedScopeProcessGroup {
-			for cPID, pgid := range f.PIDToPGID {
-				if pgid == pid {
-					f.PIDToCookie[cPID] = 0
-				}
-			}
-		} else if pidType == CoreSchedScopeThreadGroup {
-			for cPID, tgid := range f.PIDToTGID {
-				if tgid == pid {
-					f.PIDToCookie[cPID] = 0
-				}
-			}
-		}
-	}
-	if len(failedPIDs) > 0 {
-		return failedPIDs, fmt.Errorf("clear cookie error")
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func (f *FakeCoreSchedExtended) Assign(pidTypeFrom CoreSchedScopeType, pidFrom uint32, pidTypeTo CoreSchedScopeType, pidsTo ...uint32) ([]uint32, error) {
-	var failedPIDs []uint32
-	if pidTypeFrom != CoreSchedScopeThread {
-		return nil, fmt.Errorf("unsupported pid type %d", pidTypeFrom)
-	}
-	if _, ok := f.PIDToError[pidFrom]; ok {
-		return nil, fmt.Errorf("assign cookie for pidFrom error")
-	}
-	cookieID := f.PIDToCookie[pidFrom]
-	for _, pidTo := range pidsTo {
-		if _, ok := f.PIDToError[pidTo]; ok {
-			failedPIDs = append(failedPIDs, pidTo)
-			continue
-		}
-		if pidTypeTo == CoreSchedScopeThreadGroup {
-			f.PIDToCookie[pidTo] = cookieID
-			continue
-		}
-		if pidTypeTo == CoreSchedScopeProcessGroup {
-			for cPID, pgid := range f.PIDToPGID {
-				if pgid != pidTo {
-					continue
-				}
-				if _, ok := f.PIDToError[cPID]; ok {
-					failedPIDs = append(failedPIDs, cPID)
-					continue
-				}
-				f.PIDToCookie[cPID] = cookieID
-			}
-		} else if pidTypeTo == CoreSchedScopeThreadGroup {
-			for cPID, tgid := range f.PIDToTGID {
-				if tgid != pidTo {
-					continue
-				}
-				if _, ok := f.PIDToError[cPID]; ok {
-					failedPIDs = append(failedPIDs, cPID)
-					continue
-				}
-				f.PIDToCookie[cPID] = cookieID
-			}
-		}
-	}
-	if len(failedPIDs) > 0 {
-		return failedPIDs, fmt.Errorf("assign cookie for pidsTo error")
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func IsCoreSchedSysctlSupported() bool {
-	return FileExists(GetProcSysFilePath(KernelSchedCore))
-}
+func IsCoreSchedSysctlSupported() bool { _ = "STUB: not implemented"; return false }
 
 // IsCoreSchedSupported checks if the kernel supports the core scheduling.
 // Currently, it supports both Anolis OS and mainline kernel.
 func IsCoreSchedSupported() (bool, string) {
+	_ = "STUB: not implemented"
 	// Anolis OS supports if:
 	// a) sysctl has sched_core,
 	// b) sched_features has SCHED_CORE/NO_SCHED_CORE
 	// Mainline kernel supports if(only 5.14 and later):
 	// a) CONFIG_SCHED_CORE config option enabled
-
-	if !HostSystemInfo.IsAnolisOS {
-		// For mainline kernel
-		if ProbeCoreSchedIfEnabled() {
-			return true, "prctl supported"
-		} else {
-			return false, "not unsupported by prctl"
-		}
-	}
-
-	if IsCoreSchedSysctlSupported() {
-		return true, "sysctl supported"
-	}
-
-	isSchedFeaturesSuppported, msg := SchedFeatures.IsSupported("")
-	if !isSchedFeaturesSuppported { // sched_features unavailable
-		return false, msg
-	}
-	_, err := IsCoreSchedFeatureEnabled()
-	if err == nil {
-		return true, "sched_features supported"
-	}
-
-	return false, "not supported neither by sysctl nor by sched_features"
+	return false, ""
 }
+
+// For mainline kernel
+
+// sched_features unavailable
 
 // EnableCoreSchedIfSupported checks if the core scheduling feature is enabled in the kernel sched_features.
 // If kernel supported (available in the latest Anolis OS), it tries to enable the core scheduling feature.
@@ -318,101 +151,25 @@ func IsCoreSchedSupported() (bool, string) {
 // For mainline kernel
 // Core scheduling support is enabled via the CONFIG_SCHED_CORE config option. And can not be turn on/off dynamically.
 func EnableCoreSchedIfSupported() (bool, string) {
-	if !HostSystemInfo.IsAnolisOS {
+	_ = "STUB: not implemented"
+	return false,
+
 		// For mainline kernel
-		if ProbeCoreSchedIfEnabled() {
-			return true, ""
-		}
-	}
-	// 1. try sysctl
-	isSysctlSupported, err := GetSchedCore()
-	if err == nil && isSysctlSupported {
-		klog.V(6).Info("Core Sched is already enabled by sysctl")
-		return true, ""
-	}
-	if err == nil { // sysctl supported while value=0
-		klog.V(6).Info("Core Sched is disabled by sysctl, try to enable it")
-		err = SetSchedCore(true)
-		if err == nil {
-			klog.Info("Core Sched is enabled by sysctl successfully")
-			return true, ""
-		}
-		klog.V(4).Infof("failed to enable core sched via sysctl, fallback to sched_features, err: %s", err)
-	} else {
-		klog.V(5).Infof("failed to enable core sched via sysctl since get failed, try sched_features, err: %s", err)
-	}
-
-	// 2. try sched_features (old interface)
-	isSchedFeaturesSuppported, msg := SchedFeatures.IsSupported("")
-	if !isSchedFeaturesSuppported { // sched_features not exist
-		klog.V(6).Infof("failed to enable core sched via sysctl or sched_features, feature unsupported, msg: %s", msg)
-		return false, "core sched not supported"
-	}
-	isSchedFeatureEnabled, err := IsCoreSchedFeatureEnabled()
-	if err == nil && isSchedFeatureEnabled {
-		klog.V(6).Info("Core Sched is already enabled by sched_features")
-		return true, ""
-	}
-	if err == nil {
-		klog.V(6).Info("Core Sched is disabled by sched_features, try to enable it")
-		isSchedFeatureEnabled, msg = SetCoreSchedFeatureEnabled()
-		if isSchedFeatureEnabled {
-			klog.Info("Core Sched is enabled by sched_features successfully")
-			return true, ""
-		}
-		klog.V(4).Infof("failed to enable core sched via sched_features, msg: %s", msg)
-	} else {
-		klog.V(5).Infof("failed to enable core sched via sched_features, err: %s", err)
-	}
-
-	return false, "core sched not supported"
+		""
 }
 
-func IsCoreSchedFeatureEnabled() (bool, error) {
-	featurePath := SchedFeatures.Path("")
-	content, err := os.ReadFile(featurePath)
-	if err != nil {
-		return false, fmt.Errorf("failed to read sched_features, err: %w", err)
-	}
+// 1. try sysctl
 
-	features := strings.Fields(string(content))
-	for _, feature := range features {
-		if feature == SchedFeatureCoreSched {
-			klog.V(6).Infof("Core Sched is enabled by sched_features")
-			return true, nil
-		} else if feature == SchedFeatureNoCoreSched {
-			klog.V(6).Infof("Core Sched is disabled by sched_features")
-			return false, nil
-		}
-	}
+// sysctl supported while value=0
 
-	return false, fmt.Errorf("core sched not found in sched_features")
-}
+// 2. try sched_features (old interface)
+
+// sched_features not exist
+
+func IsCoreSchedFeatureEnabled() (bool, error) { _ = "STUB: not implemented"; return false, nil }
 
 // SetCoreSchedFeatureEnabled checks if the core scheduling feature can be enabled in the kernel sched_features.
-func SetCoreSchedFeatureEnabled() (bool, string) {
-	featurePath := SchedFeatures.Path("")
-	content, err := os.ReadFile(featurePath)
-	if err != nil {
-		klog.V(5).Infof("Core Sched is unsupported by sched_features %s, read err: %s", featurePath, err)
-		return false, fmt.Sprintf("failed to read sched_features")
-	}
-
-	features := strings.Fields(string(content))
-	for _, feature := range features {
-		if feature == SchedFeatureCoreSched {
-			return true, ""
-		}
-	}
-
-	err = os.WriteFile(featurePath, []byte(fmt.Sprintf("%s\n", SchedFeatureCoreSched)), 0666)
-	if err != nil {
-		klog.V(5).Infof("Core Sched is unsupported by sched_features %s, write err: %s", featurePath, err)
-		return false, fmt.Sprintf("failed to write sched_features, err: %s", err)
-	}
-
-	return true, ""
-}
+func SetCoreSchedFeatureEnabled() (bool, string) { _ = "STUB: not implemented"; return false, "" }
 
 const (
 	// VirtualCoreSchedCookieName is the name of a virtual system resource for the core scheduling cookie.

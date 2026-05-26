@@ -18,8 +18,6 @@ package profile
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"k8s.io/client-go/tools/events"
 
@@ -33,9 +31,8 @@ type RecorderFactory func(string) events.EventRecorder
 
 // newProfile builds a DeschedulerProfile for the given configuration.
 func newProfile(ctx context.Context, profile deschedulerconfig.DeschedulerProfile, r frameworkruntime.Registry, recorderFactory RecorderFactory, opts ...frameworkruntime.Option) (framework.Handle, error) {
-	eventRecorder := recorderFactory(profile.Name)
-	opts = append(opts, frameworkruntime.WithEventRecorder(eventRecorder))
-	return frameworkruntime.NewFramework(ctx, r, &profile, opts...)
+	_ = "STUB: not implemented"
+	return *new(framework.Handle), nil
 }
 
 // Map holds frameworks indexed by scheduler name.
@@ -43,20 +40,8 @@ type Map map[string]framework.Handle
 
 // NewMap builds the frameworks given by the configuration, indexed by name.
 func NewMap(ctx context.Context, profiles []deschedulerconfig.DeschedulerProfile, r frameworkruntime.Registry, recorderFactory RecorderFactory, opts ...frameworkruntime.Option) (Map, error) {
-	m := make(Map)
-	v := cfgValidator{m: m}
-
-	for _, profileCfg := range profiles {
-		p, err := newProfile(ctx, profileCfg, r, recorderFactory, opts...)
-		if err != nil {
-			return nil, fmt.Errorf("creating profile for descheduler name %s: %v", profileCfg.Name, err)
-		}
-		if err := v.validator(profileCfg); err != nil {
-			return nil, err
-		}
-		m[profileCfg.Name] = p
-	}
-	return m, nil
+	_ = "STUB: not implemented"
+	return *new(Map), nil
 }
 
 type cfgValidator struct {
@@ -64,15 +49,6 @@ type cfgValidator struct {
 }
 
 func (v *cfgValidator) validator(cfg deschedulerconfig.DeschedulerProfile) error {
-	if len(cfg.Name) == 0 {
-		return errors.New("descheduler name is needed")
-	}
-	if cfg.Plugins == nil {
-		return fmt.Errorf("plugins required for profile with descheduler name %q", cfg.Name)
-	}
-	if v.m[cfg.Name] != nil {
-		return fmt.Errorf("duplicate profile with descheduler name %q", cfg.Name)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }

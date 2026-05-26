@@ -18,13 +18,9 @@ package kubernetes
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/descheduler/pkg/framework/plugins/nodeutilization"
 	"sigs.k8s.io/descheduler/pkg/framework/plugins/podlifetime"
 	"sigs.k8s.io/descheduler/pkg/framework/plugins/removeduplicates"
@@ -36,10 +32,7 @@ import (
 	"sigs.k8s.io/descheduler/pkg/framework/plugins/removepodsviolatingtopologyspreadconstraint"
 	k8sdeschedulerframework "sigs.k8s.io/descheduler/pkg/framework/types"
 
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config/v1alpha2"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins/kubernetes/adaptor"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework/plugins/kubernetes/defaultevictor"
 	frameworkruntime "github.com/koordinator-sh/koordinator/pkg/descheduler/framework/runtime"
 )
 
@@ -132,42 +125,13 @@ var Plugins = []PluginDescriptor{
 }
 
 func SetupK8sDeschedulerPlugins(registry frameworkruntime.Registry) {
-	for i := range Plugins {
-		descriptor := Plugins[i]
-		registry[descriptor.Name] = descriptor.New
-	}
-	registry[defaultevictor.PluginName] = defaultevictor.New
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *PluginDescriptor) New(ctx context.Context, args runtime.Object, handle framework.Handle) (framework.Plugin, error) {
-	t := reflect.ValueOf(d.ArgsPrototype).Elem().Type()
-	defaultArgs := reflect.New(t).Interface().(runtime.Object)
-	d.ArgsDefaulter(defaultArgs)
-	if args == nil {
-		args = defaultArgs
-	} else {
-		unknownObj, ok := args.(*runtime.Unknown)
-		if !ok {
-			return nil, fmt.Errorf("got args of type %T, want *%sArgs", args, d.Name)
-		}
-
-		decoder := scheme.Codecs.UniversalDecoder()
-		var gvk schema.GroupVersionKind
-		gvk = v1alpha2.SchemeGroupVersion.WithKind(d.Name + "Args")
-		obj, _, err := decoder.Decode(unknownObj.Raw, &gvk, defaultArgs)
-		if err != nil {
-			return nil, err
-		}
-		args = obj
-	}
-	if err := d.ArgsValidator(args); err != nil {
-		return nil, err
-	}
-	pl, err := d.Factory(ctx, args, adaptor.NewFrameworkHandleAdaptor(handle))
-	if err != nil {
-		return nil, err
-	}
-	return &PluginAdaptor{descriptor: d, pl: pl}, nil
+	_ = "STUB: not implemented"
+	return *new(framework.Plugin), nil
 }
 
 var _ framework.DeschedulePlugin = &PluginAdaptor{}
@@ -178,40 +142,14 @@ type PluginAdaptor struct {
 	pl         k8sdeschedulerframework.Plugin
 }
 
-func (a *PluginAdaptor) Name() string {
-	return a.descriptor.Name
-}
+func (a *PluginAdaptor) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (a *PluginAdaptor) Deschedule(ctx context.Context, nodes []*corev1.Node) *framework.Status {
-	deschedulePlugin, ok := a.pl.(k8sdeschedulerframework.DeschedulePlugin)
-	if !ok {
-		return &framework.Status{
-			Err: fmt.Errorf("%s does not implement DeschedulePlugin", a.descriptor.Name),
-		}
-	}
-
-	status := deschedulePlugin.Deschedule(ctx, nodes)
-	if status != nil {
-		return &framework.Status{
-			Err: status.Err,
-		}
-	}
-	return &framework.Status{}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (a *PluginAdaptor) Balance(ctx context.Context, nodes []*corev1.Node) *framework.Status {
-	balancePlugin, ok := a.pl.(k8sdeschedulerframework.BalancePlugin)
-	if !ok {
-		return &framework.Status{
-			Err: fmt.Errorf("%s does not implement BalancePlugin", a.descriptor.Name),
-		}
-	}
-
-	status := balancePlugin.Balance(ctx, nodes)
-	if status != nil {
-		return &framework.Status{
-			Err: status.Err,
-		}
-	}
-	return &framework.Status{}
+	_ = "STUB: not implemented"
+	return nil
 }

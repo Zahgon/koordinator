@@ -66,6 +66,6 @@ type CompletedConfig struct {
 
 // Complete fills in any fields not set that are required to have valid data. It's mutating the receiver.
 func (c *Config) Complete() CompletedConfig {
-	cc := completedConfig{c}
-	return CompletedConfig{&cc}
+	_ = "STUB: not implemented"
+	return *new(CompletedConfig)
 }

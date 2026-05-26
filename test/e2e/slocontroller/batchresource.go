@@ -29,7 +29,6 @@ import (
 	k8spodutil "k8s.io/kubernetes/pkg/api/v1/pod"
 
 	"github.com/koordinator-sh/koordinator/apis/configuration"
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	koordinatorclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
 	"github.com/koordinator-sh/koordinator/test/e2e/framework"
@@ -212,77 +211,33 @@ var _ = SIGDescribe("BatchResource", func() {
 })
 
 func isNodeMetricValid(nodeMetric *slov1alpha1.NodeMetric) (bool, string) {
-	if nodeMetric == nil || nodeMetric.Status.NodeMetric == nil || nodeMetric.Status.NodeMetric.NodeUsage.ResourceList == nil {
-		return false, "node metric is incomplete"
-	}
-	_, ok := nodeMetric.Status.NodeMetric.NodeUsage.ResourceList[corev1.ResourceCPU]
-	if !ok {
-		return false, "cpu usage is missing"
-	}
-	_, ok = nodeMetric.Status.NodeMetric.NodeUsage.ResourceList[corev1.ResourceMemory]
-	if !ok {
-		return false, "memory usage is missing"
-	}
-	return true, ""
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func isNodeBatchResourcesValid(node *corev1.Node, nodeMetric *slov1alpha1.NodeMetric) (bool, string) {
+	_ = "STUB: not implemented"
 	// validate the node
-	if node == nil || node.Status.Allocatable == nil {
-		return false, "node is incomplete"
-	}
-	// validate the node batch resources
-	batchMilliCPU, ok := node.Status.Allocatable[apiext.BatchCPU]
-	if !ok {
-		return false, "batch cpu is missing"
-	}
-	// batch cpu can be larger when cpu normalization ratio > 1.0
-	if batchMilliCPU.Value() < 0 {
-		return false, "batch cpu is illegal"
-	}
-	batchMemory, ok := node.Status.Allocatable[apiext.BatchMemory]
-	if !ok {
-		return false, "batch memory is missing"
-	}
-	if batchMemory.Value() < 0 || batchMemory.Value() > node.Status.Allocatable.Memory().Value() {
-		return false, "batch memory is illegal"
-	}
-	// validate the node metric
-	if isValid, msg := isNodeMetricValid(nodeMetric); !isValid {
-		return false, msg
-	}
-	cpuUsage := nodeMetric.Status.NodeMetric.NodeUsage.ResourceList[corev1.ResourceCPU]
-	memoryUsage := nodeMetric.Status.NodeMetric.NodeUsage.ResourceList[corev1.ResourceMemory]
-	// roughly check the batch resource results:
-	// batch.total >= node.total - node.total * cpuReclaimRatio - nodeMetric.usage - node.total * maxDiffRatio
-	estimatedBatchMilliCPULower := node.Status.Allocatable.Cpu().MilliValue()*int64(100-cpuReclaimThresholdPercent-maxNodeBatchCPUDiffPercent)/100 - cpuUsage.MilliValue()
-	if batchMilliCPU.Value() < estimatedBatchMilliCPULower {
-		return false, "batch cpu is too small"
-	}
-	estimatedBatchMemoryLower := node.Status.Allocatable.Memory().Value()*int64(100-memoryReclaimThresholdPercent-maxNodeBatchMemoryDiffPercent)/100 - memoryUsage.Value()
-	if batchMemory.Value() < estimatedBatchMemoryLower {
-		return false, "batch memory is too small"
-	}
-
-	return true, ""
+	return false, ""
 }
+
+// validate the node batch resources
+
+// batch cpu can be larger when cpu normalization ratio > 1.0
+
+// validate the node metric
+
+// roughly check the batch resource results:
+// batch.total >= node.total - node.total * cpuReclaimRatio - nodeMetric.usage - node.total * maxDiffRatio
 
 // restore the slo-controller-config by updating with the initial data
 func rollbackSLOConfigData(f *framework.Framework, sloConfigNamespace, sloConfigName string, rollbackData map[string]string) {
-	configMap, err := f.ClientSet.CoreV1().ConfigMaps(sloConfigNamespace).Get(context.TODO(), sloConfigName, metav1.GetOptions{})
-	framework.ExpectNoError(err)
-	newConfigMap := configMap.DeepCopy()
-	for k, v := range rollbackData {
-		newConfigMap.Data[k] = v
-	}
-	newConfigMap, err = f.ClientSet.CoreV1().ConfigMaps(sloConfigNamespace).Update(context.TODO(), newConfigMap, metav1.UpdateOptions{})
-	framework.ExpectNoError(err)
-	framework.Logf("finish rollback updating slo-controller-config, final data: %v", newConfigMap.Data)
+	_ = "STUB: not implemented"
+	return
 }
 
 // delete slo-controller-config configmap if it does not exist initially
 func rollbackSLOConfigObject(f *framework.Framework, sloConfigNamespace, sloConfigName string) {
-	err := f.ClientSet.CoreV1().ConfigMaps(sloConfigNamespace).Delete(context.TODO(), sloConfigName, metav1.DeleteOptions{})
-	framework.ExpectNoError(err)
-	framework.Logf("finish deleting slo-controller-config")
+	_ = "STUB: not implemented"
+	return
 }

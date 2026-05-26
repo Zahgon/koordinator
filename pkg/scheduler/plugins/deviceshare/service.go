@@ -17,8 +17,6 @@ limitations under the License.
 package deviceshare
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/services"
@@ -26,18 +24,4 @@ import (
 
 var _ services.APIServiceProvider = &Plugin{}
 
-func (p *Plugin) RegisterEndpoints(group *gin.RouterGroup) {
-	group.GET("/nodeDeviceSummaries", func(c *gin.Context) {
-		allNodeDeviceSummary := p.getAllNodeDeviceSummary()
-		c.JSON(http.StatusOK, allNodeDeviceSummary)
-	})
-	group.GET("/nodeDeviceSummaries/:name", func(c *gin.Context) {
-		nodeName := c.Param("name")
-		nodeDeviceSummary, exist := p.getNodeDeviceSummary(nodeName)
-		if !exist {
-			services.ResponseErrorMessage(c, http.StatusNotFound, "cannot find node %s", nodeName)
-			return
-		}
-		c.JSON(http.StatusOK, nodeDeviceSummary)
-	})
-}
+func (p *Plugin) RegisterEndpoints(group *gin.RouterGroup) { _ = "STUB: not implemented"; return }

@@ -16,27 +16,11 @@ limitations under the License.
 
 package system
 
-import (
-	"fmt"
-	"os"
-	"syscall"
-)
+func major(dev uint64) int64 { _ = "STUB: not implemented"; return 0 }
 
-func major(dev uint64) int64 {
-	return int64((dev>>8)&0xff) | int64((dev>>12)&0xfff00)
-}
-
-func minor(dev uint64) int64 {
-	return int64(dev&0xff) | int64((dev>>12)&0xffffff00)
-}
+func minor(dev uint64) int64 { _ = "STUB: not implemented"; return 0 }
 
 func GetDeviceNumbers(devicePath string) ([]int64, error) {
-	fileInfo, err := os.Stat(devicePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to stat device file: %v", err)
-	}
-	deviceNumber := fileInfo.Sys().(*syscall.Stat_t).Rdev
-	major := major(deviceNumber)
-	minor := minor(deviceNumber)
-	return []int64{major, minor}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

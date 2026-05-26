@@ -44,5 +44,6 @@ type nodeMetricLister struct {
 
 // NewNodeMetricLister returns a new NodeMetricLister.
 func NewNodeMetricLister(indexer cache.Indexer) NodeMetricLister {
-	return &nodeMetricLister{listers.New[*slov1alpha1.NodeMetric](indexer, slov1alpha1.Resource("nodemetric"))}
+	_ = "STUB: not implemented"
+	return *new(NodeMetricLister)
 }

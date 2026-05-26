@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	configv1alpha1 "github.com/koordinator-sh/koordinator/apis/config/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,16 +56,6 @@ type clusterColocationProfiles struct {
 
 // newClusterColocationProfiles returns a ClusterColocationProfiles
 func newClusterColocationProfiles(c *ConfigV1alpha1Client) *clusterColocationProfiles {
-	return &clusterColocationProfiles{
-		gentype.NewClientWithList[*configv1alpha1.ClusterColocationProfile, *configv1alpha1.ClusterColocationProfileList](
-			"clustercolocationprofiles",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			"",
-			func() *configv1alpha1.ClusterColocationProfile { return &configv1alpha1.ClusterColocationProfile{} },
-			func() *configv1alpha1.ClusterColocationProfileList {
-				return &configv1alpha1.ClusterColocationProfileList{}
-			},
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

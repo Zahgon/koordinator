@@ -19,14 +19,11 @@ package arbitrator
 import (
 	"context"
 
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	"github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
 
 // arbitrationHandler implement handler.EventHandler
@@ -36,59 +33,30 @@ type arbitrationHandler struct {
 }
 
 func NewHandler(arbitrator Arbitrator, client client.Client) handler.EventHandler {
-	return &arbitrationHandler{
-		arbitrator: arbitrator,
-		client:     client,
-	}
+	_ = "STUB: not implemented"
+	return *new(handler.EventHandler)
 }
 
 // Create call Arbitrator.Create
 func (h *arbitrationHandler) Create(ctx context.Context, evt event.TypedCreateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	if evt.Object == nil {
-		enqueueLog.Error(nil, "CreateEvent received with no metadata", "event", evt)
-		return
-	}
-	job := evt.Object.(*v1alpha1.PodMigrationJob)
-	h.arbitrator.AddPodMigrationJob(job)
+	_ = "STUB: not implemented"
+	return
 }
 
 // Update implements EventHandler.
 func (h *arbitrationHandler) Update(ctx context.Context, evt event.TypedUpdateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	switch {
-	case evt.ObjectNew != nil:
-		q.Add(reconcile.Request{NamespacedName: types.NamespacedName{
-			Name:      evt.ObjectNew.GetName(),
-			Namespace: evt.ObjectNew.GetNamespace(),
-		}})
-		job := evt.ObjectNew.(*v1alpha1.PodMigrationJob)
-		if job.Status.Phase == v1alpha1.PodMigrationJobFailed ||
-			job.Status.Phase == v1alpha1.PodMigrationJobSucceeded ||
-			job.Status.Phase == v1alpha1.PodMigrationJobAborted {
-			h.arbitrator.DeletePodMigrationJob(job)
-		}
-	case evt.ObjectOld != nil:
-		q.Add(reconcile.Request{NamespacedName: types.NamespacedName{
-			Name:      evt.ObjectOld.GetName(),
-			Namespace: evt.ObjectOld.GetNamespace(),
-		}})
-	default:
-		enqueueLog.Error(nil, "UpdateEvent received with no metadata", "event", evt)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Delete implements EventHandler.
 func (h *arbitrationHandler) Delete(ctx context.Context, evt event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	if evt.Object == nil {
-		enqueueLog.Error(nil, "DeleteEvent received with no metadata", "event", evt)
-		return
-	}
-	q.Add(reconcile.Request{NamespacedName: types.NamespacedName{
-		Name:      evt.Object.GetName(),
-		Namespace: evt.Object.GetNamespace(),
-	}})
-	h.arbitrator.DeletePodMigrationJob(evt.Object.(*v1alpha1.PodMigrationJob))
+	_ = "STUB: not implemented"
+	return
 }
 
 // Generic implements EventHandler.
 func (h *arbitrationHandler) Generic(ctx context.Context, evt event.TypedGenericEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+	return
 }

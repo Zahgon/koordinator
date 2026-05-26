@@ -27,10 +27,10 @@ type candidate struct {
 
 // Victims returns s.victims.
 func (s *candidate) Victims() *extenderv1.Victims {
-	return s.victims
+	_ = "STUB: not implemented"
+
+	// Name returns s.name.
+	return nil
 }
 
-// Name returns s.name.
-func (s *candidate) Name() string {
-	return s.name
-}
+func (s *candidate) Name() string { _ = "STUB: not implemented"; return "" }

@@ -18,24 +18,10 @@ limitations under the License.
 package kubectl
 
 import (
-	"bytes"
-	"context"
-	"fmt"
 	"os/exec"
-	"path/filepath"
-	"strings"
-	"time"
 
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	testutils "k8s.io/kubernetes/test/utils"
-
-	e2elog "github.com/koordinator-sh/koordinator/test/e2e/framework/log"
-	e2epod "github.com/koordinator-sh/koordinator/test/e2e/framework/pod"
-
-	"github.com/onsi/ginkgo/v2"
 )
 
 const (
@@ -54,159 +40,63 @@ type TestKubeconfig struct {
 
 // NewTestKubeconfig returns a new Kubeconfig struct instance.
 func NewTestKubeconfig(certdir, host, kubeconfig, kubecontext, kubectlpath, namespace string) *TestKubeconfig {
-	return &TestKubeconfig{
-		CertDir:     certdir,
-		Host:        host,
-		KubeConfig:  kubeconfig,
-		KubeContext: kubecontext,
-		KubectlPath: kubectlpath,
-		Namespace:   namespace,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // KubectlCmd runs the kubectl executable through the wrapper script.
 func (tk *TestKubeconfig) KubectlCmd(args ...string) *exec.Cmd {
-	defaultArgs := []string{}
+	_ = "STUB: not implemented"
+	return nil
 
 	// Reference a --server option so tests can run anywhere.
-	if tk.Host != "" {
-		defaultArgs = append(defaultArgs, "--"+clientcmd.FlagAPIServer+"="+tk.Host)
-	}
-	if tk.KubeConfig != "" {
-		defaultArgs = append(defaultArgs, "--"+clientcmd.RecommendedConfigPathFlag+"="+tk.KubeConfig)
-
-		// Reference the KubeContext
-		if tk.KubeContext != "" {
-			defaultArgs = append(defaultArgs, "--"+clientcmd.FlagContext+"="+tk.KubeContext)
-		}
-
-	} else {
-		if tk.CertDir != "" {
-			defaultArgs = append(defaultArgs,
-				fmt.Sprintf("--certificate-authority=%s", filepath.Join(tk.CertDir, "ca.crt")),
-				fmt.Sprintf("--client-certificate=%s", filepath.Join(tk.CertDir, "kubecfg.crt")),
-				fmt.Sprintf("--client-key=%s", filepath.Join(tk.CertDir, "kubecfg.key")))
-		}
-	}
-	if tk.Namespace != "" {
-		defaultArgs = append(defaultArgs, fmt.Sprintf("--namespace=%s", tk.Namespace))
-	}
-	kubectlArgs := append(defaultArgs, args...)
-
-	// We allow users to specify path to kubectl, so you can test either "kubectl" or "cluster/kubectl.sh"
-	// and so on.
-	cmd := exec.Command(tk.KubectlPath, kubectlArgs...)
-
-	// caller will invoke this and wait on it.
-	return cmd
 }
+
+// Reference the KubeContext
+
+// We allow users to specify path to kubectl, so you can test either "kubectl" or "cluster/kubectl.sh"
+// and so on.
+
+// caller will invoke this and wait on it.
 
 // LogFailedContainers runs `kubectl logs` on a failed containers.
 func LogFailedContainers(c clientset.Interface, ns string, logFunc func(ftm string, args ...interface{})) {
-	podList, err := c.CoreV1().Pods(ns).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		logFunc("Error getting pods in namespace '%s': %v", ns, err)
-		return
-	}
-	logFunc("Running kubectl logs on non-ready containers in %v", ns)
-	for _, pod := range podList.Items {
-		if res, err := testutils.PodRunningReady(&pod); !res || err != nil {
-			kubectlLogPod(c, pod, "", e2elog.Logf)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func kubectlLogPod(c clientset.Interface, pod v1.Pod, containerNameSubstr string, logFunc func(ftm string, args ...interface{})) {
-	for _, container := range pod.Spec.Containers {
-		if strings.Contains(container.Name, containerNameSubstr) {
-			// Contains() matches all strings if substr is empty
-			logs, err := e2epod.GetPodLogs(c, pod.Namespace, pod.Name, container.Name)
-			if err != nil {
-				logs, err = e2epod.GetPreviousPodLogs(c, pod.Namespace, pod.Name, container.Name)
-				if err != nil {
-					logFunc("Failed to get logs of pod %v, container %v, err: %v", pod.Name, container.Name, err)
-				}
-			}
-			logFunc("Logs of %v/%v:%v on node %v", pod.Namespace, pod.Name, container.Name, pod.Spec.NodeName)
-			logFunc("%s : STARTLOG\n%s\nENDLOG for container %v:%v:%v", containerNameSubstr, logs, pod.Namespace, pod.Name, container.Name)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Contains() matches all strings if substr is empty
 
 // WriteFileViaContainer writes a file using kubectl exec echo <contents> > <path> via specified container
 // because of the primitive technique we're using here, we only allow ASCII alphanumeric characters
 func (tk *TestKubeconfig) WriteFileViaContainer(podName, containerName string, path string, contents string) error {
-	ginkgo.By("writing a file in the container")
-	allowedCharacters := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	for _, c := range contents {
-		if !strings.ContainsRune(allowedCharacters, c) {
-			return fmt.Errorf("Unsupported character in string to write: %v", c)
-		}
-	}
-	command := fmt.Sprintf("echo '%s' > '%s'; sync", contents, path)
-	// TODO(mauriciopoppe): remove this statement once we add `sync` to the test image, ref #101172
-	if e2epod.NodeOSDistroIs("windows") {
-		command = fmt.Sprintf("echo '%s' > '%s';", contents, path)
-	}
-	stdout, stderr, err := tk.kubectlExecWithRetry(tk.Namespace, podName, containerName, "--", "/bin/sh", "-c", command)
-	if err != nil {
-		e2elog.Logf("error running kubectl exec to write file: %v\nstdout=%v\nstderr=%v)", err, string(stdout), string(stderr))
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// TODO(mauriciopoppe): remove this statement once we add `sync` to the test image, ref #101172
 
 // ReadFileViaContainer reads a file using kubectl exec cat <path>.
 func (tk *TestKubeconfig) ReadFileViaContainer(podName, containerName string, path string) (string, error) {
-	ginkgo.By("reading a file in the container")
-
-	stdout, stderr, err := tk.kubectlExecWithRetry(tk.Namespace, podName, containerName, "--", "cat", path)
-	if err != nil {
-		e2elog.Logf("error running kubectl exec to read file: %v\nstdout=%v\nstderr=%v)", err, string(stdout), string(stderr))
-	}
-	return string(stdout), err
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (tk *TestKubeconfig) kubectlExecWithRetry(namespace string, podName, containerName string, args ...string) ([]byte, []byte, error) {
-	for numRetries := 0; numRetries < maxKubectlExecRetries; numRetries++ {
-		if numRetries > 0 {
-			e2elog.Logf("Retrying kubectl exec (retry count=%v/%v)", numRetries+1, maxKubectlExecRetries)
-		}
-
-		stdOutBytes, stdErrBytes, err := tk.kubectlExec(namespace, podName, containerName, args...)
-		if err != nil {
-			if strings.Contains(strings.ToLower(string(stdErrBytes)), "i/o timeout") {
-				// Retry on "i/o timeout" errors
-				e2elog.Logf("Warning: kubectl exec encountered i/o timeout.\nerr=%v\nstdout=%v\nstderr=%v)", err, string(stdOutBytes), string(stdErrBytes))
-				continue
-			}
-			if strings.Contains(strings.ToLower(string(stdErrBytes)), "container not found") {
-				// Retry on "container not found" errors
-				e2elog.Logf("Warning: kubectl exec encountered container not found.\nerr=%v\nstdout=%v\nstderr=%v)", err, string(stdOutBytes), string(stdErrBytes))
-				time.Sleep(2 * time.Second)
-				continue
-			}
-		}
-
-		return stdOutBytes, stdErrBytes, err
-	}
-	err := fmt.Errorf("Failed: kubectl exec failed %d times with \"i/o timeout\". Giving up", maxKubectlExecRetries)
-	return nil, nil, err
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
+// Retry on "i/o timeout" errors
+
+// Retry on "container not found" errors
+
 func (tk *TestKubeconfig) kubectlExec(namespace string, podName, containerName string, args ...string) ([]byte, []byte, error) {
-	var stdout, stderr bytes.Buffer
-	cmdArgs := []string{
-		"exec",
-		fmt.Sprintf("--namespace=%v", namespace),
-		podName,
-		fmt.Sprintf("-c=%v", containerName),
-	}
-	cmdArgs = append(cmdArgs, args...)
-
-	cmd := tk.KubectlCmd(cmdArgs...)
-	cmd.Stdout, cmd.Stderr = &stdout, &stderr
-
-	e2elog.Logf("Running '%s %s'", cmd.Path, strings.Join(cmdArgs, " "))
-	err := cmd.Run()
-	return stdout.Bytes(), stderr.Bytes(), err
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }

@@ -17,13 +17,8 @@ limitations under the License.
 package frameworkext
 
 import (
-	"fmt"
-	"sort"
-	"strconv"
-
 	prettytable "github.com/jedib0t/go-pretty/v6/table"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 )
 
@@ -33,58 +28,16 @@ var (
 )
 
 // DebugScoresSetter updates debugTopNScores to specified value
-func DebugScoresSetter(val string) (string, error) {
-	topN, err := strconv.Atoi(val)
-	if err != nil {
-		return "", fmt.Errorf("failed set debugTopNScores %s: %v", val, err)
-	}
-	debugTopNScores = topN
-	return fmt.Sprintf("successfully set debugTopNScores to %s", val), nil
-}
+func DebugScoresSetter(val string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // DebugFiltersSetter updates debugFilterFailure to specified value
-func DebugFiltersSetter(val string) (string, error) {
-	filterFailure, err := strconv.ParseBool(val)
-	if err != nil {
-		return "", fmt.Errorf("failed set debugFilterFailure %s: %v", val, err)
-	}
-	debugFilterFailure = filterFailure
-	return fmt.Sprintf("successfully set debugFilterFailure to %s", val), nil
-}
+func DebugFiltersSetter(val string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func debugScores(topN int, pod *corev1.Pod, allNodePluginScores []fwktype.NodePluginScores, nodeInfos []fwktype.NodeInfo) prettytable.Writer {
-	if len(allNodePluginScores) == 0 {
-		return nil
-	}
-	// Summarize all scores.
-	sort.Slice(allNodePluginScores, func(i, j int) bool {
-		return allNodePluginScores[i].TotalScore > allNodePluginScores[j].TotalScore
-	})
-
-	pluginNames := make([]string, 0, len(allNodePluginScores))
-	pluginScores := allNodePluginScores[0].Scores
-	for _, v := range pluginScores {
-		pluginNames = append(pluginNames, v.Name)
-	}
-
-	w := prettytable.NewWriter()
-	headerRow := prettytable.Row{"#", "Pod", "Node", "Score"}
-	for _, name := range pluginNames {
-		headerRow = append(headerRow, name)
-	}
-	w.AppendHeader(headerRow)
-
-	podRef := klog.KObj(pod)
-	for i, nodeScore := range allNodePluginScores {
-		if i >= topN {
-			break
-		}
-		row := prettytable.Row{strconv.Itoa(i), podRef.String(), nodeScore.Name, nodeScore.TotalScore}
-		for _, pluginScore := range nodeScore.Scores {
-			row = append(row, pluginScore.Score)
-		}
-		w.AppendRow(row)
-	}
-	klog.Infof("Top%d scores for Pod: %v, feasibleNodes: %v, plugins:%v\n%v", topN, podRef, len(nodeInfos), pluginNames, w.RenderMarkdown())
-	return w // return writer for UT
+	_ = "STUB: not implemented"
+	return *new(prettytable.Writer)
 }
+
+// Summarize all scores.
+
+// return writer for UT

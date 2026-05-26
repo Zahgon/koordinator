@@ -38,15 +38,18 @@ type version struct {
 
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
-	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(Interface)
 }
 
 // NodeMetrics returns a NodeMetricInformer.
 func (v *version) NodeMetrics() NodeMetricInformer {
-	return &nodeMetricInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(NodeMetricInformer)
 }
 
 // NodeSLOs returns a NodeSLOInformer.
 func (v *version) NodeSLOs() NodeSLOInformer {
-	return &nodeSLOInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(NodeSLOInformer)
 }

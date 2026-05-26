@@ -23,13 +23,10 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/networktopology"
-	schedulermetrics "github.com/koordinator-sh/koordinator/pkg/scheduler/metrics"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/coscheduling/util"
 )
 
 const (
@@ -56,41 +53,18 @@ type GangSchedulingContextHolder struct {
 }
 
 func (h *GangSchedulingContextHolder) getCurrentGangSchedulingContext() *GangSchedulingContext {
-	h.RLock()
-	defer h.RUnlock()
-	return h.gangSchedulingContext
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (h *GangSchedulingContextHolder) clearGangSchedulingContext(reason string) {
-	h.Lock()
-	defer h.Unlock()
-	if h.gangSchedulingContext != nil {
-		firstPod := h.gangSchedulingContext.firstPod
-		h.gangSchedulingContext.RLock()
-		attemptedSize := h.gangSchedulingContext.alreadyAttemptedPods.Len()
-		h.gangSchedulingContext.RUnlock()
-		if !h.gangSchedulingContext.startTime.IsZero() {
-			schedulermetrics.RecordGangScheduleCycleDuration(
-				reason,
-				schedulermetrics.GangJobSizeBucket(attemptedSize),
-				time.Since(h.gangSchedulingContext.startTime),
-			)
-		}
-		klog.V(4).Infof("gangSchedulingConetxtHolder: clear gang scheduling context, gangGroup: %+v, reason: %s, firstPod: %s/%s/%s, alreadyAttemptedPods: %+v, startTime: %s", h.gangSchedulingContext.gangGroup, reason, firstPod.Namespace, firstPod.Name, firstPod.UID, h.gangSchedulingContext.alreadyAttemptedPods, h.gangSchedulingContext.startTime)
-	}
-	h.gangSchedulingContext = nil
+	_ = "STUB: not implemented"
+	return
 }
 
 func (h *GangSchedulingContextHolder) setGangSchedulingContext(gangSchedulingContext *GangSchedulingContext, reason string) {
-	firstPod := gangSchedulingContext.firstPod
-	if gangSchedulingContext.alreadyAttemptedPods == nil {
-		gangSchedulingContext.alreadyAttemptedPods = sets.New[string](util.GetId(firstPod.Namespace, firstPod.Name))
-		gangSchedulingContext.startTime = time.Now()
-	}
-	h.Lock()
-	defer h.Unlock()
-	klog.V(4).Infof("gangSchedulingConetxtHolder: set gang scheduling context, gangGroup: %+v, reason: %s, firstPod: %s/%s/%s, startTime: %s", gangSchedulingContext.gangGroup, reason, firstPod.Namespace, firstPod.Name, firstPod.UID, gangSchedulingContext.startTime)
-	h.gangSchedulingContext = gangSchedulingContext
+	_ = "STUB: not implemented"
+	return
 }
 
 type GangSchedulingContext struct {

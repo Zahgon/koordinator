@@ -25,4 +25,7 @@ import (
 // NOTE: functions in this file can be overwritten for extension
 
 // fillExtensionMap would fill the Extensions field in PodMetricInfo
-func (r *nodeMetricInformer) fillExtensionMap(info *slov1alpha1.PodMetricInfo, pod *corev1.Pod) {}
+func (r *nodeMetricInformer) fillExtensionMap(info *slov1alpha1.PodMetricInfo, pod *corev1.Pod) {
+	_ = "STUB: not implemented"
+	return
+}

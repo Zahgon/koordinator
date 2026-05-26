@@ -18,11 +18,9 @@ package runtimehooks
 
 import (
 	"flag"
-	"math"
 	"time"
 
 	"k8s.io/apimachinery/pkg/util/runtime"
-	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/component-base/featuregate"
 
 	"github.com/koordinator-sh/koordinator/pkg/features"
@@ -36,7 +34,6 @@ import (
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/runtimehooks/hooks/resctrl"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/runtimehooks/hooks/tc"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/runtimehooks/hooks/terwayqos"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 const (
@@ -152,49 +149,9 @@ type Config struct {
 	RuntimeHookDisableUnsetCPUQuota bool
 }
 
-func NewDefaultConfig() *Config {
-	return &Config{
-		RuntimeHooksNetwork:             "unix",
-		RuntimeHooksAddr:                "/host-var-run-koordlet/koordlet.sock",
-		RuntimeHooksFailurePolicy:       "Ignore",
-		RuntimeHooksPluginFailurePolicy: "Ignore",
-		RuntimeHookConfigFilePath:       system.Conf.RuntimeHooksConfigDir,
-		RuntimeHookHostEndpoint:         "/var/run/koordlet/koordlet.sock",
-		RuntimeHookDisableStages:        []string{},
-		RuntimeHooksNRI:                 true,
-		RuntimeHooksNRIConnectTimeout:   6 * time.Second,
-		RuntimeHooksNRIBackOffDuration:  1 * time.Second,
-		RuntimeHooksNRIBackOffCap:       1<<62 - 1,
-		RuntimeHooksNRIBackOffSteps:     math.MaxInt32,
-		RuntimeHooksNRIBackOffFactor:    2,
-		RuntimeHooksNRISocketPath:       "nri/nri.sock",
-		RuntimeHooksNRIPluginName:       "koordlet_nri",
-		RuntimeHooksNRIPluginIndex:      "00",
-		RuntimeHookReconcileInterval:    10 * time.Second,
-		RuntimeHookDisableUnsetCPUQuota: false,
-	}
-}
+func NewDefaultConfig() *Config { _ = "STUB: not implemented"; return nil }
 
-func (c *Config) InitFlags(fs *flag.FlagSet) {
-	fs.StringVar(&c.RuntimeHooksNetwork, "runtime-hooks-network", c.RuntimeHooksNetwork, "rpc server network type for runtime hooks")
-	fs.StringVar(&c.RuntimeHooksAddr, "runtime-hooks-addr", c.RuntimeHooksAddr, "rpc server address for runtime hooks")
-	fs.StringVar(&c.RuntimeHooksFailurePolicy, "runtime-hooks-failure-policy", c.RuntimeHooksFailurePolicy, "failure policy for runtime hooks")
-	fs.StringVar(&c.RuntimeHooksPluginFailurePolicy, "runtime-hooks-plugin-failure-policy", c.RuntimeHooksPluginFailurePolicy, "stop running other hooks once someone failed")
-	fs.StringVar(&c.RuntimeHookConfigFilePath, "runtime-hooks-config-path", c.RuntimeHookConfigFilePath, "config file path for runtime hooks")
-	fs.StringVar(&c.RuntimeHookHostEndpoint, "runtime-hooks-host-endpoint", c.RuntimeHookHostEndpoint, "host endpoint of runtime proxy")
-	fs.DurationVar(&c.RuntimeHooksNRIConnectTimeout, "runtime-hooks-nri-connect-timeout", c.RuntimeHooksNRIConnectTimeout, "nri server connect time out, it should be a little more than default plugin registration timeout(5 seconds) which is defined in containerd config")
-	fs.DurationVar(&c.RuntimeHooksNRIBackOffDuration, "runtime-hooks-nri-backoff-duration", c.RuntimeHooksNRIBackOffDuration, "nri server backoff duration")
-	fs.DurationVar(&c.RuntimeHooksNRIBackOffCap, "runtime-hooks-nri-backoff-cap", c.RuntimeHooksNRIBackOffCap, "nri server backoff cap")
-	fs.IntVar(&c.RuntimeHooksNRIBackOffSteps, "runtime-hooks-nri-backoff-steps", c.RuntimeHooksNRIBackOffSteps, "nri server backoff steps")
-	fs.Float64Var(&c.RuntimeHooksNRIBackOffFactor, "runtime-hooks-nri-backoff-factor", c.RuntimeHooksNRIBackOffFactor, "nri server reconnect backoff factor")
-	fs.StringVar(&c.RuntimeHooksNRISocketPath, "runtime-hooks-nri-socket-path", c.RuntimeHooksNRISocketPath, "nri server socket path")
-	fs.StringVar(&c.RuntimeHooksNRIPluginName, "runtime-hooks-nri-plugin-name", c.RuntimeHooksNRIPluginName, "nri plugin name of the koordlet runtime hooks")
-	fs.StringVar(&c.RuntimeHooksNRIPluginIndex, "runtime-hooks-nri-plugin-index", c.RuntimeHooksNRIPluginIndex, "nri plugin index of the koordlet runtime hooks")
-	fs.Var(cliflag.NewStringSlice(&c.RuntimeHookDisableStages), "runtime-hooks-disable-stages", "disable stages for runtime hooks")
-	fs.BoolVar(&c.RuntimeHooksNRI, "enable-nri-runtime-hook", c.RuntimeHooksNRI, "enable/disable runtime hooks nri mode")
-	fs.DurationVar(&c.RuntimeHookReconcileInterval, "runtime-hooks-reconcile-interval", c.RuntimeHookReconcileInterval, "reconcile interval for each plugins")
-	fs.BoolVar(&c.RuntimeHookDisableUnsetCPUQuota, "disable-unset-cpu-quota", c.RuntimeHookDisableUnsetCPUQuota, "disable unset cpu quota for runtime hooks")
-}
+func (c *Config) InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
 
 func init() {
 	runtime.Must(features.DefaultMutableKoordletFeatureGate.Add(defaultRuntimeHooksFG))

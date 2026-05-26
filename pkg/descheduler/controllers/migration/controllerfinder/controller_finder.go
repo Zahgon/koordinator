@@ -18,13 +18,10 @@ limitations under the License.
 package controllerfinder
 
 import (
-	"context"
-
 	appsv1alpha1 "github.com/openkruise/kruise-api/apps/v1alpha1"
 	appsv1beta1 "github.com/openkruise/kruise-api/apps/v1beta1"
 	apps "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -108,44 +105,16 @@ var New = func(manager manager.Manager) (Interface, error) {
 }
 
 func (r *ControllerFinder) GetExpectedScaleForPod(pod *corev1.Pod) (int32, error) {
-	if pod == nil {
-		return 0, nil
-	}
-	ref := metav1.GetControllerOf(pod)
-	if ref == nil {
-		return 0, nil
-	}
-	workload, err := r.GetScaleAndSelectorForRef(ref.APIVersion, ref.Kind, pod.Namespace, ref.Name, ref.UID)
-	if err != nil && !errors.IsNotFound(err) {
-		return 0, err
-	}
-	if workload != nil && workload.Metadata.DeletionTimestamp.IsZero() {
-		return workload.Scale, nil
-	}
+	_ = "STUB: not implemented"
 	return 0, nil
 }
 
 func (r *ControllerFinder) GetScaleAndSelectorForRef(apiVersion, kind, ns, name string, uid types.UID) (*ScaleAndSelector, error) {
-	targetRef := ControllerReference{
-		APIVersion: apiVersion,
-		Kind:       kind,
-		Name:       name,
-		UID:        uid,
-	}
-
-	for _, finder := range r.Finders() {
-		scale, err := finder(targetRef, ns)
-		if scale != nil || err != nil {
-			return scale, err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func (r *ControllerFinder) Finders() []PodControllerFinder {
-	return []PodControllerFinder{r.getPodReplicationController, r.getPodDeployment, r.getPodReplicaSet,
-		r.getPodStatefulSet, r.getPodKruiseCloneSet, r.getPodKruiseStatefulSet, r.getScaleController}
-}
+func (r *ControllerFinder) Finders() []PodControllerFinder { _ = "STUB: not implemented"; return nil }
 
 var (
 	ControllerKindRS       = apps.SchemeGroupVersion.WithKind("ReplicaSet")
@@ -160,288 +129,74 @@ var (
 
 // getPodReplicaSet finds a replicaset which has no matching deployments.
 func (r *ControllerFinder) getPodReplicaSet(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKindRS)
-	if !ok {
-		return nil, nil
-	}
-	replicaSet, err := r.getReplicaSet(ref, namespace)
-	if err != nil {
-		return nil, err
-	}
-	if replicaSet == nil {
-		return nil, nil
-	}
-	controllerRef := metav1.GetControllerOf(replicaSet)
-	if controllerRef != nil && controllerRef.Kind == ControllerKindDep.Kind {
-		refSs := ControllerReference{
-			APIVersion: controllerRef.APIVersion,
-			Kind:       controllerRef.Kind,
-			Name:       controllerRef.Name,
-			UID:        controllerRef.UID,
-		}
-		return r.getPodDeployment(refSs, namespace)
-	}
-
-	return &ScaleAndSelector{
-		Scale:    *(replicaSet.Spec.Replicas),
-		Selector: replicaSet.Spec.Selector,
-		ControllerReference: ControllerReference{
-			APIVersion: replicaSet.APIVersion,
-			Kind:       replicaSet.Kind,
-			Name:       replicaSet.Name,
-			UID:        replicaSet.UID,
-		},
-		Metadata: replicaSet.ObjectMeta,
-	}, nil
+	return nil, nil
 }
 
 // getPodReplicaSet finds a replicaset which has no matching deployments.
 func (r *ControllerFinder) getReplicaSet(ref ControllerReference, namespace string) (*apps.ReplicaSet, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKindRS)
-	if !ok {
-		return nil, nil
-	}
-	replicaSet := &apps.ReplicaSet{}
-	err := r.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: ref.Name}, replicaSet)
-	if err != nil {
-		// when error is NotFound, it is ok here.
-		if errors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && replicaSet.UID != ref.UID {
-		return nil, nil
-	}
-	return replicaSet, nil
+	return nil, nil
 }
+
+// when error is NotFound, it is ok here.
 
 // getPodStatefulSet returns the statefulset referenced by the provided controllerRef.
 func (r *ControllerFinder) getPodStatefulSet(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKindSS)
-	if !ok {
-		return nil, nil
-	}
-	statefulSet := &apps.StatefulSet{}
-	err := r.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: ref.Name}, statefulSet)
-	if err != nil {
-		// when error is NotFound, it is ok here.
-		if errors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && statefulSet.UID != ref.UID {
-		return nil, nil
-	}
-
-	return &ScaleAndSelector{
-		Scale:    *(statefulSet.Spec.Replicas),
-		Selector: statefulSet.Spec.Selector,
-		ControllerReference: ControllerReference{
-			APIVersion: statefulSet.APIVersion,
-			Kind:       statefulSet.Kind,
-			Name:       statefulSet.Name,
-			UID:        statefulSet.UID,
-		},
-		Metadata: statefulSet.ObjectMeta,
-	}, nil
+	return nil, nil
 }
+
+// when error is NotFound, it is ok here.
 
 // getPodDeployments finds deployments for any replicasets which are being managed by deployments.
 func (r *ControllerFinder) getPodDeployment(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKindDep)
-	if !ok {
-		return nil, nil
-	}
-	deployment := &apps.Deployment{}
-	err := r.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: ref.Name}, deployment)
-	if err != nil {
-		// when error is NotFound, it is ok here.
-		if errors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && deployment.UID != ref.UID {
-		return nil, nil
-	}
-	return &ScaleAndSelector{
-		Scale:    *(deployment.Spec.Replicas),
-		Selector: deployment.Spec.Selector,
-		ControllerReference: ControllerReference{
-			APIVersion: deployment.APIVersion,
-			Kind:       deployment.Kind,
-			Name:       deployment.Name,
-			UID:        deployment.UID,
-		},
-		Metadata: deployment.ObjectMeta,
-	}, nil
+	return nil, nil
 }
 
+// when error is NotFound, it is ok here.
+
 func (r *ControllerFinder) getPodReplicationController(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKindRC)
-	if !ok {
-		return nil, nil
-	}
-	rc := &corev1.ReplicationController{}
-	err := r.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: ref.Name}, rc)
-	if err != nil {
-		// when error is NotFound, it is ok here.
-		if errors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && rc.UID != ref.UID {
-		return nil, nil
-	}
-	return &ScaleAndSelector{
-		Scale: *(rc.Spec.Replicas),
-		ControllerReference: ControllerReference{
-			APIVersion: rc.APIVersion,
-			Kind:       rc.Kind,
-			Name:       rc.Name,
-			UID:        rc.UID,
-		},
-		Metadata: rc.ObjectMeta,
-	}, nil
+	return nil, nil
 }
+
+// when error is NotFound, it is ok here.
 
 // getPodStatefulSet returns the kruise cloneSet referenced by the provided controllerRef.
 func (r *ControllerFinder) getPodKruiseCloneSet(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKruiseKindCS)
-	if !ok {
-		return nil, nil
-	}
-	cloneSet := &appsv1alpha1.CloneSet{}
-	err := r.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: ref.Name}, cloneSet)
-	if err != nil {
-		// when error is NotFound, it is ok here.
-		if errors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && cloneSet.UID != ref.UID {
-		return nil, nil
-	}
-
-	return &ScaleAndSelector{
-		Scale:    *(cloneSet.Spec.Replicas),
-		Selector: cloneSet.Spec.Selector,
-		ControllerReference: ControllerReference{
-			APIVersion: cloneSet.APIVersion,
-			Kind:       cloneSet.Kind,
-			Name:       cloneSet.Name,
-			UID:        cloneSet.UID,
-		},
-		Metadata: cloneSet.ObjectMeta,
-	}, nil
+	return nil, nil
 }
+
+// when error is NotFound, it is ok here.
 
 // getPodStatefulSet returns the kruise statefulset referenced by the provided controllerRef.
 func (r *ControllerFinder) getPodKruiseStatefulSet(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
+	_ = "STUB: not implemented"
 	// This error is irreversible, so there is no need to return error
-	ok, _ := verifyGroupKind(ref.APIVersion, ref.Kind, ControllerKruiseKindSS)
-	if !ok {
-		return nil, nil
-	}
-	ss := &appsv1beta1.StatefulSet{}
-	err := r.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: ref.Name}, ss)
-	if err != nil {
-		// when error is NotFound, it is ok here.
-		if errors.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && ss.UID != ref.UID {
-		return nil, nil
-	}
-
-	return &ScaleAndSelector{
-		Scale:           *(ss.Spec.Replicas),
-		ReserveOrdinals: ss.Spec.ReserveOrdinals,
-		Selector:        ss.Spec.Selector,
-		ControllerReference: ControllerReference{
-			APIVersion: ss.APIVersion,
-			Kind:       ss.Kind,
-			Name:       ss.Name,
-			UID:        ss.UID,
-		},
-		Metadata: ss.ObjectMeta,
-	}, nil
+	return nil, nil
 }
+
+// when error is NotFound, it is ok here.
 
 func (r *ControllerFinder) getScaleController(ref ControllerReference, namespace string) (*ScaleAndSelector, error) {
-	if isValidGroupVersionKind(ref.APIVersion, ref.Kind) {
-		return nil, nil
-	}
-	gv, err := schema.ParseGroupVersion(ref.APIVersion)
-	if err != nil {
-		return nil, err
-	}
-	gk := schema.GroupKind{
-		Group: gv.Group,
-		Kind:  ref.Kind,
-	}
-
-	mapping, err := r.mapper.RESTMapping(gk, gv.Version)
-	if err != nil {
-		return nil, err
-	}
-	gr := mapping.Resource.GroupResource()
-	scale, err := r.scaleNamespacer.Scales(namespace).Get(context.TODO(), gr, ref.Name, metav1.GetOptions{})
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// TODO, implementsScale
-			return nil, nil
-		}
-		return nil, err
-	}
-	if ref.UID != "" && scale.UID != ref.UID {
-		return nil, nil
-	}
-	selector, err := metav1.ParseToLabelSelector(scale.Status.Selector)
-	if err != nil {
-		return nil, err
-	}
-	return &ScaleAndSelector{
-		Scale: scale.Spec.Replicas,
-		ControllerReference: ControllerReference{
-			APIVersion: ref.APIVersion,
-			Kind:       ref.Kind,
-			Name:       ref.Name,
-			UID:        scale.UID,
-		},
-		Metadata: scale.ObjectMeta,
-		Selector: selector,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// TODO, implementsScale
 
 func verifyGroupKind(apiVersion, kind string, gvk schema.GroupVersionKind) (bool, error) {
-	gv, err := schema.ParseGroupVersion(apiVersion)
-	if err != nil {
-		return false, err
-	}
-	return gv.Group == gvk.Group && kind == gvk.Kind, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func isValidGroupVersionKind(apiVersion, kind string) bool {
-	for _, gvk := range validWorkloadList {
-		valid, err := verifyGroupKind(apiVersion, kind, gvk)
-		if err != nil {
-			return false
-		} else if valid {
-			return true
-		}
-	}
-	return false
-}
+func isValidGroupVersionKind(apiVersion, kind string) bool { _ = "STUB: not implemented"; return false }

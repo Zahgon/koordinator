@@ -20,7 +20,6 @@ package v1alpha1
 
 import (
 	v1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 )
@@ -43,20 +42,20 @@ type podGroupLister struct {
 
 // NewPodGroupLister returns a new PodGroupLister.
 func NewPodGroupLister(indexer cache.Indexer) PodGroupLister {
-	return &podGroupLister{indexer: indexer}
+	_ = "STUB: not implemented"
+	return *new(PodGroupLister)
 }
 
 // List lists all PodGroups in the indexer.
 func (s *podGroupLister) List(selector labels.Selector) (ret []*v1alpha1.PodGroup, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.PodGroup))
-	})
-	return ret, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // PodGroups returns an object that can list and get PodGroups.
 func (s *podGroupLister) PodGroups(namespace string) PodGroupNamespaceLister {
-	return podGroupNamespaceLister{indexer: s.indexer, namespace: namespace}
+	_ = "STUB: not implemented"
+	return *new(PodGroupNamespaceLister)
 }
 
 // PodGroupNamespaceLister helps list and get PodGroups.
@@ -80,20 +79,12 @@ type podGroupNamespaceLister struct {
 
 // List lists all PodGroups in the indexer for a given namespace.
 func (s podGroupNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.PodGroup, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.PodGroup))
-	})
-	return ret, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Get retrieves the PodGroup from the indexer for a given namespace and name.
 func (s podGroupNamespaceLister) Get(name string) (*v1alpha1.PodGroup, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("podgroup"), name)
-	}
-	return obj.(*v1alpha1.PodGroup), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

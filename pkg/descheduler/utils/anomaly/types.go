@@ -16,10 +16,6 @@ limitations under the License.
 
 package anomaly
 
-import (
-	"fmt"
-)
-
 // State is a type that represents a state of Detector.
 type State int
 
@@ -30,16 +26,7 @@ const (
 )
 
 // String implements stringer interface.
-func (s State) String() string {
-	switch s {
-	case StateOK:
-		return "ok"
-	case StateAnomaly:
-		return "anomaly"
-	default:
-		return fmt.Sprintf("unknown state: %d", s)
-	}
-}
+func (s State) String() string { _ = "STUB: not implemented"; return "" }
 
 type Detector interface {
 	Name() string

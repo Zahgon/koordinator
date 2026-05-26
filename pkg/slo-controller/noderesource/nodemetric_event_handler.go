@@ -18,12 +18,8 @@ package noderesource
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -31,7 +27,6 @@ import (
 
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/slo-controller/noderesource/framework"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 var _ handler.TypedEventHandler[client.Object, reconcile.Request] = &EnqueueRequestForNodeMetric{}
@@ -42,46 +37,28 @@ type EnqueueRequestForNodeMetric struct {
 }
 
 func (n *EnqueueRequestForNodeMetric) Create(ctx context.Context, e event.TypedCreateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (n *EnqueueRequestForNodeMetric) Update(ctx context.Context, e event.TypedUpdateEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	newNodeMetric := e.ObjectNew.(*slov1alpha1.NodeMetric)
-	oldNodeMetric := e.ObjectOld.(*slov1alpha1.NodeMetric)
-	if reflect.DeepEqual(oldNodeMetric.Status, newNodeMetric.Status) {
-		return
-	}
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: newNodeMetric.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (n *EnqueueRequestForNodeMetric) Delete(ctx context.Context, e event.TypedDeleteEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	nodeMetric, ok := e.Object.(*slov1alpha1.NodeMetric)
-	if !ok {
-		return
-	}
-	if err := n.cleanSyncContext(nodeMetric); err != nil {
-		klog.ErrorS(err, "failed to clean sync context for NodeMetric", "nodeMetric", nodeMetric.Name)
-	}
-	q.Add(reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name: nodeMetric.Name,
-		},
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (n *EnqueueRequestForNodeMetric) Generic(ctx context.Context, e event.TypedGenericEvent[client.Object], q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (n *EnqueueRequestForNodeMetric) cleanSyncContext(nodeMetric *slov1alpha1.NodeMetric) error {
-	if n.syncContext == nil {
-		return fmt.Errorf("failed to cleanup empty sync context")
-	}
-
-	// nodeMetric's name = node's name
-	n.syncContext.Delete(util.GenerateNodeKey(&nodeMetric.ObjectMeta))
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// nodeMetric's name = node's name

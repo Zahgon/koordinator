@@ -18,116 +18,30 @@ limitations under the License.
 package controllerfinder
 
 import (
-	"context"
-
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog/v2"
-	kubecontroller "k8s.io/kubernetes/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/fieldindex"
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	utilclient "github.com/koordinator-sh/koordinator/pkg/util/client"
 )
 
 // GetPodsForRef return target workload's podList and spec.replicas.
 func (r *ControllerFinder) GetPodsForRef(ownerReference *metav1.OwnerReference, ns string, labelSelector *metav1.LabelSelector, active bool) ([]*corev1.Pod, int32, error) {
-	workloadUIDs := make([]types.UID, 0)
-	var workloadReplicas int32
-
-	obj, err := r.GetScaleAndSelectorForRef(ownerReference.APIVersion, ownerReference.Kind, ns, ownerReference.Name, ownerReference.UID)
-	if err != nil {
-		return nil, -1, err
-	} else if obj == nil {
-		return nil, 0, nil
-	}
-	workloadReplicas = obj.Scale
-	if ownerReference.Kind == ControllerKindRS.Kind && obj.Kind == ControllerKindDep.Kind {
-		rss, err := r.getReplicaSetsForDeployment(obj.APIVersion, obj.Kind, ns, obj.Name)
-		if err != nil {
-			return nil, -1, err
-		}
-		for _, rs := range rss {
-			workloadUIDs = append(workloadUIDs, rs.UID)
-		}
-	}
-	if len(workloadUIDs) == 0 {
-		workloadUIDs = append(workloadUIDs, obj.UID)
-	}
-
-	// List all Pods owned by workload UID.
-	matchedPods, err := r.ListPodsByWorkloads(workloadUIDs, ns, labelSelector, active)
-	if err != nil {
-		return nil, -1, err
-	}
-	return matchedPods, workloadReplicas, nil
+	_ = "STUB: not implemented"
+	return nil, 0, nil
 }
+
+// List all Pods owned by workload UID.
 
 func (r *ControllerFinder) ListPodsByWorkloads(workloadUIDs []types.UID, ns string, labelSelector *metav1.LabelSelector, active bool) ([]*corev1.Pod, error) {
-	var selector labels.Selector
-	if labelSelector != nil {
-		var err error
-		selector, err = util.GetFastLabelSelector(labelSelector)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	matchedPods := make([]*corev1.Pod, 0)
-	for _, uid := range workloadUIDs {
-		podList := &corev1.PodList{}
-		listOption := &client.ListOptions{
-			Namespace:     ns,
-			FieldSelector: fields.SelectorFromSet(fields.Set{fieldindex.IndexPodByOwnerRefUID: string(uid)}),
-		}
-		if selector != nil {
-			listOption.LabelSelector = selector
-		}
-		if err := r.List(context.TODO(), podList, listOption, utilclient.DisableDeepCopy); err != nil {
-			return nil, err
-		}
-		for i := range podList.Items {
-			pod := &podList.Items[i]
-			// filter not active Pod if active is true.
-			if active && !kubecontroller.IsPodActive(pod) {
-				continue
-			}
-			matchedPods = append(matchedPods, pod)
-		}
-	}
-
-	return matchedPods, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// filter not active Pod if active is true.
 
 func (r *ControllerFinder) getReplicaSetsForDeployment(apiVersion, kind, ns, name string) ([]appsv1.ReplicaSet, error) {
-	scaleNSelector, err := r.GetScaleAndSelectorForRef(apiVersion, kind, ns, name, "")
-	if err != nil || scaleNSelector == nil {
-		return nil, err
-	}
-	// List ReplicaSets owned by this Deployment
-	rsList := &appsv1.ReplicaSetList{}
-	selector, err := metav1.LabelSelectorAsSelector(scaleNSelector.Selector)
-	if err != nil {
-		klog.Errorf("Deployment (%s/%s) get labelSelector failed: %s", ns, name, err.Error())
-		return nil, nil
-	}
-	err = r.List(context.TODO(), rsList, &client.ListOptions{Namespace: ns, LabelSelector: selector})
-	if err != nil {
-		return nil, err
-	}
-	rss := make([]appsv1.ReplicaSet, 0)
-	for i := range rsList.Items {
-		rs := rsList.Items[i]
-		if ref := metav1.GetControllerOf(&rs); ref != nil {
-			if ref.UID == scaleNSelector.UID {
-				rss = append(rss, rs)
-			}
-		}
-	}
-	return rss, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// List ReplicaSets owned by this Deployment

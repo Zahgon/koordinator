@@ -5,10 +5,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/metrics"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/coscheduling/util"
 )
 
 const (
@@ -61,134 +57,53 @@ type GangGroupInfo struct {
 }
 
 func NewGangGroupInfo(gangGroupId string, gangGroup []string) *GangGroupInfo {
-	gangGroupInfo := &GangGroupInfo{
-		Initialized:    false,
-		GangGroupId:    gangGroupId,
-		GangGroup:      gangGroup,
-		WaitingGangIDs: sets.Set[string]{},
-	}
-	return gangGroupInfo
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (gg *GangGroupInfo) SetInitialized() {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
+func (gg *GangGroupInfo) SetInitialized() { _ = "STUB: not implemented"; return }
 
-	gg.Initialized = true
-}
-
-func (gg *GangGroupInfo) IsInitialized() bool {
-	gg.lock.RLock()
-	defer gg.lock.RUnlock()
-
-	return gg.Initialized
-}
+func (gg *GangGroupInfo) IsInitialized() bool { _ = "STUB: not implemented"; return false }
 
 func (gg *GangGroupInfo) isGangOnceResourceSatisfied() bool {
-	gg.lock.RLock()
-	defer gg.lock.RUnlock()
-
-	return gg.OnceResourceSatisfied
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (gg *GangGroupInfo) setResourceSatisfied() {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
+func (gg *GangGroupInfo) setResourceSatisfied() { _ = "STUB: not implemented"; return }
 
-	if !gg.OnceResourceSatisfied {
-		gg.OnceResourceSatisfied = true
-		klog.Infof("Gang ResourceSatisfied, gangName: %v", gg.GangGroupId)
-	}
-}
+func (gg *GangGroupInfo) AddWaitingGang() { _ = "STUB: not implemented"; return }
 
-func (gg *GangGroupInfo) AddWaitingGang() {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-	isWaitingBefore := len(gg.WaitingGangIDs) > 0
-	gg.WaitingGangIDs.Insert(gg.GangGroup...)
-	if !isWaitingBefore && len(gg.WaitingGangIDs) > 0 {
-		metrics.WaitingGangGroupNumber.WithLabelValues().Inc()
-	}
-}
+func (gg *GangGroupInfo) RemoveWaitingGang(gangID string) { _ = "STUB: not implemented"; return }
 
-func (gg *GangGroupInfo) RemoveWaitingGang(gangID string) {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-	isWaitingBefore := len(gg.WaitingGangIDs) > 0
-	gg.WaitingGangIDs.Delete(gangID)
-	if len(gg.WaitingGangIDs) == 0 {
-		if isWaitingBefore {
-			metrics.WaitingGangGroupNumber.WithLabelValues().Dec()
-		}
-		if len(gg.BindingMemberPods) > 0 {
-			gg.BindingMemberPods = nil
-			klog.V(4).InfoS("GangGroupInfo: clear binding member count", "gangGroupId", gg.GangGroupId)
-		}
-	}
-}
-
-func (gg *GangGroupInfo) ClearWaitingGang() {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-	isWaitingBefore := len(gg.WaitingGangIDs) > 0
-	gg.WaitingGangIDs.Clear()
-	if isWaitingBefore && len(gg.WaitingGangIDs) == 0 {
-		metrics.WaitingGangGroupNumber.WithLabelValues().Dec()
-	}
-	if len(gg.BindingMemberPods) > 0 {
-		gg.BindingMemberPods = nil
-		klog.V(4).InfoS("GangGroupInfo: clear binding member count", "gangGroupId", gg.GangGroupId)
-	}
-}
+func (gg *GangGroupInfo) ClearWaitingGang() { _ = "STUB: not implemented"; return }
 
 func (gg *GangGroupInfo) RecordIfNoRepresentatives(pod *corev1.Pod) string {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-
-	podKey := util.GetId(pod.Namespace, pod.Name)
-	if gg.RepresentativePodKey != "" && gg.RepresentativePodKey != podKey {
-		return gg.RepresentativePodKey
-	}
-	if gg.RepresentativePodKey == "" {
-		gg.RepresentativePodKey = podKey
-		klog.V(4).Infof("gangGroupInfo: RecordIfNoRepresentatives, pod: %v, gangGroup: %v", podKey, gg.GangGroupId)
-	}
-	return gg.RepresentativePodKey
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (gg *GangGroupInfo) DeleteIfRepresentative(pod *corev1.Pod, reason string) {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-	podKey := util.GetId(pod.Namespace, pod.Name)
-	if gg.RepresentativePodKey == podKey {
-		gg.RepresentativePodKey = ""
-		klog.Infof("gangGroupInfo: DeleteIfRepresentative, pod: %v, gangGroup: %v, reason: %s", podKey, gg.GangGroupId, reason)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (gg *GangGroupInfo) IsRepresentative(pod *corev1.Pod) bool {
-	gg.lock.RLock()
-	defer gg.lock.RUnlock()
-	podKey := util.GetId(pod.Namespace, pod.Name)
-	return gg.RepresentativePodKey == podKey
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (gg *GangGroupInfo) ClearCurrentRepresentative(reason string) {
-	klog.Infof("gangGroupInfo: ClearCurrentRepresentative, pod: %v, gangGroup: %v, reason: %s", gg.RepresentativePodKey, gg.GangGroupId, reason)
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-	gg.RepresentativePodKey = ""
+	_ = "STUB: not implemented"
+	return
 }
 
 func (gg *GangGroupInfo) SetBindingMembers(pods sets.Set[string]) {
-	gg.lock.Lock()
-	defer gg.lock.Unlock()
-	gg.BindingMemberPods = pods
-	klog.V(4).InfoS("GangGroupInfo: set binding member count", "gangGroupId", gg.GangGroupId, "count", pods.Len())
+	_ = "STUB: not implemented"
+	return
 }
 
 func (gg *GangGroupInfo) GetBindingMembers() sets.Set[string] {
-	gg.lock.RLock()
-	defer gg.lock.RUnlock()
-	return gg.BindingMemberPods
+	_ = "STUB: not implemented"
+	return nil
 }

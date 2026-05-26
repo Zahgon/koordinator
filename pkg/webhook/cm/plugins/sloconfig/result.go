@@ -17,8 +17,6 @@ limitations under the License.
 package sloconfig
 
 import (
-	"fmt"
-
 	"github.com/koordinator-sh/koordinator/pkg/webhook/util/err"
 )
 
@@ -36,22 +34,11 @@ type ExsitNodeConflictMessage struct {
 }
 
 func buildJsonError(Reason err.Reason, message interface{}) *err.JsonFormatError {
-	if message == nil {
-		return &err.JsonFormatError{Reason: Reason, Message: fmt.Errorf("UNKNOWN Error")}
-	}
-	if jsonErr, ok := message.(*err.JsonFormatError); ok {
-		jsonErr.Reason = Reason
-		return jsonErr
-	}
-	return &err.JsonFormatError{Reason: Reason, Message: message}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildParamInvalidError(message error) *err.JsonFormatError {
-	if message == nil {
-		message = fmt.Errorf("UNKNOWN Error")
-	}
-	if jsonErr, ok := message.(*err.JsonFormatError); ok {
-		return jsonErr
-	}
-	return &err.JsonFormatError{Reason: ReasonParamInvalid, Message: message.Error()}
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -17,9 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"strings"
-
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -63,10 +60,8 @@ var (
 
 // TranslateResourceNameByPriorityClass translates defaultResourceName to extend resourceName by PriorityClass
 func TranslateResourceNameByPriorityClass(priorityClass PriorityClass, defaultResourceName corev1.ResourceName) corev1.ResourceName {
-	if priorityClass == PriorityProd || priorityClass == PriorityNone {
-		return defaultResourceName
-	}
-	return ResourceNameMap[priorityClass][defaultResourceName]
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceName)
 }
 
 type ExtendedResourceSpec struct {
@@ -80,33 +75,12 @@ type ExtendedResourceContainerSpec struct {
 
 // GetExtendedResourceSpec parses ExtendedResourceSpec from annotations
 func GetExtendedResourceSpec(annotations map[string]string) (*ExtendedResourceSpec, error) {
-	spec := &ExtendedResourceSpec{}
-	if annotations == nil {
-		return spec, nil
-	}
-	data, ok := annotations[AnnotationExtendedResourceSpec]
-	if !ok {
-		return spec, nil
-	}
-	err := json.Unmarshal([]byte(data), spec)
-	if err != nil {
-		return nil, err
-	}
-	return spec, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetExtendedResourceSpec(pod *corev1.Pod, spec *ExtendedResourceSpec) error {
-	if pod == nil {
-		return nil
-	}
-	if pod.Annotations == nil {
-		pod.Annotations = map[string]string{}
-	}
-	data, err := json.Marshal(spec)
-	if err != nil {
-		return err
-	}
-	pod.Annotations[AnnotationExtendedResourceSpec] = string(data)
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -115,21 +89,6 @@ func SetExtendedResourceSpec(pod *corev1.Pod, spec *ExtendedResourceSpec) error 
 // means replace resourceA with resourceB, replace resourceC with resourceD, erase resourceE
 func GetPodReplaceResourcesConfig(pod *corev1.Pod) (eraseNames []corev1.ResourceName,
 	replaceMappings map[corev1.ResourceName]corev1.ResourceName) {
-	if v, ok := pod.Annotations[AnnotationPodReplaceResources]; ok && v != "" {
-		mappings := strings.Split(v, ",")
-		replaceMappings = make(map[corev1.ResourceName]corev1.ResourceName)
-		for _, mapping := range mappings {
-			parts := strings.Split(mapping, ":")
-			if len(parts) != 2 {
-				continue
-			}
-			from, to := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
-			if to == "" {
-				eraseNames = append(eraseNames, corev1.ResourceName(from))
-			} else {
-				replaceMappings[corev1.ResourceName(from)] = corev1.ResourceName(to)
-			}
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }

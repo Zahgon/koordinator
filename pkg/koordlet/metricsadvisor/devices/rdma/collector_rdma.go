@@ -18,9 +18,7 @@ package rdma
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
 )
@@ -34,44 +32,36 @@ type rdmaCollector struct {
 }
 
 func New(opt *framework.Options) framework.DeviceCollector {
-	return &rdmaCollector{
-		enabled: features.DefaultKoordletFeatureGate.Enabled(features.RDMADevices),
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.DeviceCollector)
 }
 
-func (g *rdmaCollector) Shutdown() {
-}
+func (g *rdmaCollector) Shutdown() { _ = "STUB: not implemented"; return }
 
-func (g *rdmaCollector) Enabled() bool {
-	return g.enabled
-}
+func (g *rdmaCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (g *rdmaCollector) Setup(fra *framework.Context) {
-}
+func (g *rdmaCollector) Setup(fra *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (g *rdmaCollector) Run(stopCh <-chan struct{}) {
-}
+func (g *rdmaCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (g *rdmaCollector) Started() bool {
-	return true
-}
+func (g *rdmaCollector) Started() bool { _ = "STUB: not implemented"; return false }
 
 func (g *rdmaCollector) Infos() metriccache.Devices {
-	netDevices, err := GetNetDevice()
-	if err != nil {
-		klog.Errorf("failed to get net device: %v", err)
-	}
-	return netDevices
+	_ = "STUB: not implemented"
+	return *new(metriccache.Devices)
 }
 
 func (g *rdmaCollector) GetNodeMetric() ([]metriccache.MetricSample, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func (g *rdmaCollector) GetPodMetric(uid, podParentDir string, cs []corev1.ContainerStatus) ([]metriccache.MetricSample, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func (g *rdmaCollector) GetContainerMetric(containerID, podParentDir string, c *corev1.ContainerStatus) ([]metriccache.MetricSample, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }

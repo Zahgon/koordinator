@@ -17,14 +17,11 @@ limitations under the License.
 package loadaware
 
 import (
-	"sort"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
@@ -33,17 +30,13 @@ import (
 )
 
 func isNodeMetricExpired(nodeMetric *slov1alpha1.NodeMetric, nodeMetricExpirationSeconds int64) bool {
-	return nodeMetric == nil ||
-		nodeMetric.Status.UpdateTime == nil ||
-		nodeMetricExpirationSeconds > 0 &&
-			time.Since(nodeMetric.Status.UpdateTime.Time) >= time.Duration(nodeMetricExpirationSeconds)*time.Second
+	_ = "STUB: not implemented"
+	return false
 }
 
 func getNodeMetricReportInterval(nodeMetric *slov1alpha1.NodeMetric) time.Duration {
-	if nodeMetric.Spec.CollectPolicy == nil || nodeMetric.Spec.CollectPolicy.ReportIntervalSeconds == nil {
-		return DefaultNodeMetricReportInterval
-	}
-	return time.Duration(*nodeMetric.Spec.CollectPolicy.ReportIntervalSeconds) * time.Second
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 type usageThresholdsFilterProfile struct {
@@ -59,21 +52,8 @@ type aggregatedUsageFilterProfile struct {
 }
 
 func NewUsageThresholdsFilterProfile(args *config.LoadAwareSchedulingArgs, vectorizer ResourceVectorizer) *usageThresholdsFilterProfile {
-	p := &usageThresholdsFilterProfile{}
-	if len(args.UsageThresholds) > 0 {
-		p.UsageThresholds = vectorizer.ToFactorVec(args.UsageThresholds)
-	}
-	if len(args.ProdUsageThresholds) > 0 {
-		p.ProdUsageThresholds = vectorizer.ToFactorVec(args.ProdUsageThresholds)
-	}
-	if aggArgs := args.Aggregated; aggArgs != nil && len(aggArgs.UsageThresholds) > 0 && aggArgs.UsageAggregationType != "" {
-		p.AggregatedUsage = &aggregatedUsageFilterProfile{
-			UsageThresholds:         vectorizer.ToFactorVec(args.Aggregated.UsageThresholds),
-			UsageAggregationType:    args.Aggregated.UsageAggregationType,
-			UsageAggregatedDuration: args.Aggregated.UsageAggregatedDuration,
-		}
-	}
-	return p
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NOTICE: unknown resource name in custom usage thresholds for vectorizer will be skipped in calculation.
@@ -81,70 +61,23 @@ func NewUsageThresholdsFilterProfile(args *config.LoadAwareSchedulingArgs, vecto
 // Currently, we add all supported resources (cpu, memory) collected by koordlet with hard code
 // that can be used in load aware plugin for compatibility.
 func (tfp *usageThresholdsFilterProfile) generateUsageThresholdsFilterProfile(node *corev1.Node, vectorizer ResourceVectorizer) *usageThresholdsFilterProfile {
-	c, err := extension.GetCustomUsageThresholds(node)
-	if err != nil {
-		klog.V(5).ErrorS(err, "failed to GetCustomUsageThresholds from", "node", node.Name)
-		return tfp
-	}
-	if c == nil {
-		return tfp
-	}
-	if aggArgs := c.AggregatedUsage; aggArgs != nil && !(len(aggArgs.UsageThresholds) > 0 && aggArgs.UsageAggregationType != "") {
-		c.AggregatedUsage = nil
-	}
-	if len(c.UsageThresholds) == 0 && len(c.ProdUsageThresholds) == 0 && c.AggregatedUsage == nil {
-		return tfp
-	}
-	p := &usageThresholdsFilterProfile{}
-	if len(c.UsageThresholds) == 0 {
-		p.UsageThresholds = tfp.UsageThresholds
-	} else {
-		p.UsageThresholds = vectorizer.ToFactorVec(c.UsageThresholds)
-	}
-	if len(c.ProdUsageThresholds) == 0 {
-		p.ProdUsageThresholds = tfp.ProdUsageThresholds
-	} else {
-		p.ProdUsageThresholds = vectorizer.ToFactorVec(c.ProdUsageThresholds)
-	}
-	if c.AggregatedUsage == nil {
-		p.AggregatedUsage = tfp.AggregatedUsage
-	} else {
-		p.AggregatedUsage = &aggregatedUsageFilterProfile{
-			UsageThresholds:      vectorizer.ToFactorVec(c.AggregatedUsage.UsageThresholds),
-			UsageAggregationType: c.AggregatedUsage.UsageAggregationType,
-		}
-		if d := c.AggregatedUsage.UsageAggregatedDuration; d != nil {
-			p.AggregatedUsage.UsageAggregatedDuration = *d
-		}
-	}
-	return p
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getResourceValue(resourceName corev1.ResourceName, quantity resource.Quantity) int64 {
-	if resourceName == corev1.ResourceCPU {
-		return quantity.MilliValue()
-	}
-	return quantity.Value()
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func getResourceQuantity(resourceName corev1.ResourceName, value int64) resource.Quantity {
-	switch {
-	case resourceName == corev1.ResourceCPU:
-		return *resource.NewMilliQuantity(value, resource.DecimalSI)
-	case resourceName == corev1.ResourceMemory && value%1024 == 0:
-		return *resource.NewQuantity(value, resource.BinarySI)
-	default:
-		return *resource.NewQuantity(value, resource.DecimalSI)
-	}
+	_ = "STUB: not implemented"
+	return *new(resource.Quantity)
 }
 
 // isDaemonSetPod returns true if the pod is a IsDaemonSetPod.
 func isDaemonSetPod(ownerRefList []metav1.OwnerReference) bool {
-	for _, ownerRef := range ownerRefList {
-		if ownerRef.Kind == "DaemonSet" {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -152,122 +85,62 @@ type ResourceVectorizer []corev1.ResourceName
 type ResourceVector []int64
 
 func NewResourceVectorizer(names ...corev1.ResourceName) ResourceVectorizer {
-	sort.Slice(names, func(i, j int) bool {
-		return names[i] < names[j]
-	})
-	return ResourceVectorizer(names)
+	_ = "STUB: not implemented"
+	return *new(ResourceVectorizer)
 }
 
 // cpu and memory are added by default for custom usage thresholds compatibility.
 func NewResourceVectorizerFromArgs(args *config.LoadAwareSchedulingArgs) ResourceVectorizer {
-	resourceNames := sets.New(corev1.ResourceCPU, corev1.ResourceMemory)
-	resourceNames = resourceNames.Union(sets.KeySet(args.UsageThresholds))
-	resourceNames = resourceNames.Union(sets.KeySet(args.ProdUsageThresholds))
-	if aggArgs := args.Aggregated; aggArgs != nil {
-		resourceNames = resourceNames.Union(sets.KeySet(aggArgs.UsageThresholds))
-	}
-	resourceNames = resourceNames.Union(sets.KeySet(args.ResourceWeights))
-	resourceNames = resourceNames.Union(sets.KeySet(args.EstimatedScalingFactors))
-	resourceNames.Insert(args.SupportedResources...)
-	return NewResourceVectorizer(resourceNames.UnsortedList()...)
+	_ = "STUB: not implemented"
+	return *new(ResourceVectorizer)
 }
 
 // NOTICE: unknown resource name will be ignored in vectorization
 func (rv ResourceVectorizer) ToVec(list corev1.ResourceList) ResourceVector {
-	vec := make(ResourceVector, len(rv))
-	for i, name := range rv {
-		if q, ok := list[name]; ok {
-			vec[i] = getResourceValue(name, q)
-		}
-	}
-	return vec
+	_ = "STUB: not implemented"
+	return *new(ResourceVector)
 }
 
 // NOTICE: unknown resource name will be ignored in vectorization
 func (rv ResourceVectorizer) ToFactorVec(list map[corev1.ResourceName]int64) ResourceVector {
-	vec := make(ResourceVector, len(rv))
-	for i, name := range rv {
-		vec[i] = list[name]
-	}
-	return vec
+	_ = "STUB: not implemented"
+	return *new(ResourceVector)
 }
 
 func (rv ResourceVectorizer) ToList(vec ResourceVector) corev1.ResourceList {
-	list := make(corev1.ResourceList, len(rv))
-	for i, name := range rv {
-		list[name] = getResourceQuantity(name, vec[i])
-	}
-	return list
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList)
 }
 
 func (rv ResourceVectorizer) ToFactorList(vec ResourceVector) map[corev1.ResourceName]int64 {
-	list := make(map[corev1.ResourceName]int64, len(rv))
-	for i, name := range rv {
-		list[name] = vec[i]
-	}
-	return list
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (rv ResourceVectorizer) EmptyVec() ResourceVector {
-	return make(ResourceVector, len(rv))
+	_ = "STUB: not implemented"
+	return *new(ResourceVector)
 }
 
-func (v ResourceVector) Empty() bool {
-	for i := range v {
-		if v[i] != 0 {
-			return false
-		}
-	}
-	return true
-}
+func (v ResourceVector) Empty() bool { _ = "STUB: not implemented"; return false }
 
-func (v ResourceVector) Add(y ResourceVector) {
-	for i := range v {
-		v[i] += y[i]
-	}
-}
+func (v ResourceVector) Add(y ResourceVector) { _ = "STUB: not implemented"; return }
 
 // v = v + max(0, x - y)
 func (v ResourceVector) AddDelta(x, y ResourceVector) (changed bool) {
-	for i, value := range x {
-		if y != nil {
-			value -= y[i]
-		}
-		if value > 0 {
-			v[i] += value
-			changed = true
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (v ResourceVector) Sub(y ResourceVector) {
-	for i := range v {
-		v[i] -= y[i]
-	}
-}
+func (v ResourceVector) Sub(y ResourceVector) { _ = "STUB: not implemented"; return }
 
 // v = v - max(0, x - y)
 func (v ResourceVector) SubDelta(x, y ResourceVector) (changed bool) {
-	for i, value := range x {
-		if y != nil {
-			value -= y[i]
-		}
-		if value > 0 {
-			v[i] -= value
-			changed = true
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (v ResourceVector) Clone() fwktype.StateData {
-	if v == nil {
-		return nil
-	}
-	copy := make(ResourceVector, len(v))
-	for i := range v {
-		copy[i] = v[i]
-	}
-	return copy
+	_ = "STUB: not implemented"
+	return *new(fwktype.StateData)
 }

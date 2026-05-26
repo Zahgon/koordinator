@@ -36,39 +36,21 @@ type errorHandlerDispatcher struct {
 	defaultHandler     scheduler.FailureHandlerFn
 }
 
-func newErrorHandlerDispatcher() *errorHandlerDispatcher {
-	return &errorHandlerDispatcher{}
-}
+func newErrorHandlerDispatcher() *errorHandlerDispatcher { _ = "STUB: not implemented"; return nil }
 
 func (d *errorHandlerDispatcher) setDefaultHandler(handler scheduler.FailureHandlerFn) {
-	d.defaultHandler = handler
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *errorHandlerDispatcher) RegisterErrorHandlerFilters(preFilter PreErrorHandlerFilter, postFilter PostErrorHandlerFilter) {
-	if preFilter != nil {
-		d.preHandlerFilters = append(d.preHandlerFilters, preFilter)
-	}
-	if postFilter != nil {
-		d.postHandlerFilters = append(d.postHandlerFilters, postFilter)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *errorHandlerDispatcher) Error(ctx context.Context, fwk framework.Framework, podInfo *framework.QueuedPodInfo, status *fwktype.Status, nominatingInfo *fwktype.NominatingInfo, start time.Time) {
-	defer func() {
-		for _, handlerFilter := range d.postHandlerFilters {
-			if handlerFilter(ctx, fwk, podInfo, status, nominatingInfo, start) {
-				return
-			}
-		}
-	}()
-
-	// FIXME here, we replace nominatingInfo to avoid modifying clearNominatedNode
-	nominatingInfo = TakeoverNominatingInfo(ctx, fwk, podInfo, status, nominatingInfo, start)
-
-	for _, handlerFilter := range d.preHandlerFilters {
-		if handlerFilter(ctx, fwk, podInfo, status, nominatingInfo, start) {
-			return
-		}
-	}
-	d.defaultHandler(ctx, fwk, podInfo, status, nominatingInfo, start)
+	_ = "STUB: not implemented"
+	return
 }
+
+// FIXME here, we replace nominatingInfo to avoid modifying clearNominatedNode

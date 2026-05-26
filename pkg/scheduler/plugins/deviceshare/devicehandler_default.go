@@ -17,16 +17,11 @@ limitations under the License.
 package deviceshare
 
 import (
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/labels"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 func init() {
@@ -42,52 +37,6 @@ type DefaultDeviceHandler struct {
 }
 
 func (h *DefaultDeviceHandler) CalcDesiredRequestsAndCount(node *corev1.Node, pod *corev1.Pod, podRequests corev1.ResourceList, nodeDevice *nodeDevice, hint *apiext.DeviceHint, state *preFilterState) (corev1.ResourceList, int, *fwktype.Status) {
-	totalDevices := nodeDevice.deviceTotal[h.deviceType]
-	if len(totalDevices) == 0 {
-		return nil, 0, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, fmt.Sprintf("Insufficient %s devices", h.deviceType))
-	}
-
-	requests := podRequests
-	desiredCount := int64(1)
-
-	quantity := podRequests[h.resourceName]
-	multiDevices := quantity.Value() > 100 && quantity.Value()%100 == 0
-	if multiDevices {
-		desiredCount = quantity.Value() / 100
-		requests = corev1.ResourceList{
-			h.resourceName: *resource.NewQuantity(quantity.Value()/desiredCount, resource.DecimalSI),
-		}
-	} else if hint != nil {
-		switch hint.AllocateStrategy {
-		case apiext.ApplyForAllDeviceAllocateStrategy:
-			desiredCount = int64(len(totalDevices))
-			if hint.Selector != nil {
-				selector, err := util.GetFastLabelSelector(hint.Selector)
-				if err != nil {
-					return nil, 0, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, fmt.Sprintf("invalid Selector of DeviceHint, deviceType: %s, err: %s", h.deviceType, err.Error()))
-				}
-
-				matched := 0
-				for _, v := range nodeDevice.deviceInfos[h.deviceType] {
-					if selector.Matches(labels.Set(v.Labels)) {
-						matched++
-					}
-				}
-				desiredCount = int64(matched)
-			}
-			if desiredCount == 0 {
-				return nil, 0, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, fmt.Sprintf("Insufficient %s devices", h.deviceType))
-			}
-		case apiext.RequestsAsCountAllocateStrategy:
-			desiredCount = quantity.Value()
-			desiredQuantity := 1
-			if hint.ExclusivePolicy == apiext.DeviceLevelDeviceExclusivePolicy {
-				desiredQuantity = 100
-			}
-			requests = corev1.ResourceList{
-				h.resourceName: *resource.NewQuantity(int64(desiredQuantity), resource.DecimalSI),
-			}
-		}
-	}
-	return requests, int(desiredCount), nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), 0, nil
 }

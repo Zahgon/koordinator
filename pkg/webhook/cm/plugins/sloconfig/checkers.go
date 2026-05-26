@@ -17,63 +17,22 @@ limitations under the License.
 package sloconfig
 
 import (
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 )
 
 type checkers []ConfigChecker
 
 func CreateCheckersChanged(oldConfig *corev1.ConfigMap, config *corev1.ConfigMap) checkers {
-	checkersAll := CreateCheckersAll(oldConfig, config, false)
-	var cfgChangedCheckers checkers
-	for _, checker := range checkersAll {
-		if !checker.IsCfgNotEmptyAndChanged() {
-			continue
-		}
-		cfgChangedCheckers = append(cfgChangedCheckers, checker)
-	}
-
-	return cfgChangedCheckers
+	_ = "STUB: not implemented"
+	return *new(checkers)
 }
 
 func CreateCheckersAll(oldConfig *corev1.ConfigMap, config *corev1.ConfigMap, needUnmarshal bool) checkers {
-	return checkers{
-		NewColocationConfigChecker(oldConfig, config, needUnmarshal),
-		NewResourceThresholdChecker(oldConfig, config, needUnmarshal),
-		NewResourceQOSChecker(oldConfig, config, needUnmarshal),
-		NewSystemConfigChecker(oldConfig, config, needUnmarshal),
-		NewCPUBurstChecker(oldConfig, config, needUnmarshal),
-	}
+	_ = "STUB: not implemented"
+	return *new(checkers)
 }
 
-func (c checkers) CheckConfigContents() error {
-	for _, checker := range c {
-		if checker.InitStatus() != InitSuccess {
-			return fmt.Errorf("%s", checker.InitStatus())
-		}
-		err := checker.ConfigParamValid()
-		if err != nil {
-			return err
-		}
-		err = checker.ProfileParamValid()
-		if err != nil {
-			return err
-		}
-		err = checker.NodeSelectorOverlap()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+func (c checkers) CheckConfigContents() error { _ = "STUB: not implemented"; return nil }
 
 // NeedCheckForNodes  if exist checker have multi nodeConfig, then should check for nodes
-func (c checkers) NeedCheckForNodes() bool {
-	for _, checkers := range c {
-		if checkers.HasMultiNodeConfigs() {
-			return true
-		}
-	}
-	return false
-}
+func (c checkers) NeedCheckForNodes() bool { _ = "STUB: not implemented"; return false }

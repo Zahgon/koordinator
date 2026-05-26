@@ -17,8 +17,6 @@ limitations under the License.
 package nodeslo
 
 import (
-	"fmt"
-
 	"github.com/koordinator-sh/koordinator/apis/configuration"
 )
 
@@ -26,24 +24,11 @@ var (
 	defaultExtensionCfg = configuration.ExtensionCfgMap{}
 )
 
-func getDefaultExtensionCfg() *configuration.ExtensionCfgMap {
-	return defaultExtensionCfg.DeepCopy()
-}
+func getDefaultExtensionCfg() *configuration.ExtensionCfgMap { _ = "STUB: not implemented"; return nil }
 
 func RegisterDefaultExtension(key string, ext interface{}) error {
-	if defaultExtensionCfg.Object == nil {
-		defaultExtensionCfg.Object = map[string]configuration.ExtensionCfg{}
-	}
-	if _, exist := defaultExtensionCfg.Object[key]; exist {
-		return fmt.Errorf("extension %v of defaultExtensionStrategy already exist", key)
-	}
-	defaultExtensionCfg.Object[key] = configuration.ExtensionCfg{ClusterStrategy: ext}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func UnregisterDefaultExtension(key string) {
-	delete(defaultExtensionCfg.Object, key)
-	if len(defaultExtensionCfg.Object) == 0 {
-		defaultExtensionCfg.Object = nil
-	}
-}
+func UnregisterDefaultExtension(key string) { _ = "STUB: not implemented"; return }

@@ -16,10 +16,6 @@ limitations under the License.
 
 package extension
 
-import (
-	"encoding/json"
-)
-
 const (
 	// AnnotationResctrl describes the resctrl config of pod
 	AnnotationResctrl = NodeDomainPrefix + "/resctrl"
@@ -56,14 +52,6 @@ type SchemataPerCacheConfig struct {
 }
 
 func GetResctrlInfo(annotations map[string]string) (*ResctrlConfig, error) {
-	res := &ResctrlConfig{}
-	data, ok := annotations[AnnotationResctrl]
-	if !ok {
-		return res, nil
-	}
-	err := json.Unmarshal([]byte(data), &res)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

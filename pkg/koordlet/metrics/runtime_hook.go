@@ -53,31 +53,15 @@ var (
 )
 
 func RecordRuntimeHookInvokedDurationMilliSeconds(hookName, stage string, err error, seconds float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[RuntimeHookName] = hookName
-	labels[RuntimeHookStage] = stage
-	labels[StatusKey] = StatusSucceed
-	if err != nil {
-		labels[StatusKey] = StatusFailed
-	}
-	// convert seconds to milliseconds
-	runtimeHookInvokedDurationMilliSeconds.With(labels).Observe(seconds * 1000)
+	_ = "STUB: not implemented"
+	return
 }
 
+// convert seconds to milliseconds
+
 func RecordRuntimeHookReconcilerInvokedDurationMilliSeconds(level, resourceType string, err error, seconds float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[RuntimeHookReconcilerLevel] = level
-	labels[RuntimeHookReconcilerResourceType] = resourceType
-	labels[StatusKey] = StatusSucceed
-	if err != nil {
-		labels[StatusKey] = StatusFailed
-	}
-	// convert seconds to milliseconds
-	runtimeHookReconcilerInvokedDurationMilliSeconds.With(labels).Observe(seconds * 1000)
+	_ = "STUB: not implemented"
+	return
 }
+
+// convert seconds to milliseconds

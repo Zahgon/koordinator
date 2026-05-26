@@ -18,31 +18,20 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"net"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"google.golang.org/grpc"
 	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 var (
 	GrpcDial = grpc.DialContext // for test
 )
 
-func GetContainerdEndpoint() string {
-	return filepath.Join(system.Conf.VarRunRootDir, "containerd/containerd.sock")
-}
+func GetContainerdEndpoint() string { _ = "STUB: not implemented"; return "" }
 
-func GetContainerdEndpoint2() string {
-	return filepath.Join(system.Conf.VarRunRootDir, "containerd.sock")
-}
+func GetContainerdEndpoint2() string { _ = "STUB: not implemented"; return "" }
 
 type ContainerdRuntimeHandler struct {
 	runtimeServiceClient runtimeapi.RuntimeServiceClient
@@ -51,113 +40,41 @@ type ContainerdRuntimeHandler struct {
 }
 
 func NewContainerdRuntimeHandler(endpoint string) (ContainerRuntimeHandler, error) {
-	ep := strings.TrimPrefix(endpoint, "unix://")
-	if _, err := os.Stat(ep); err != nil {
-		return nil, err
-	}
-
-	client, err := getRuntimeClient(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ContainerdRuntimeHandler{
-		runtimeServiceClient: client,
-		timeout:              defaultConnectionTimeout,
-		endpoint:             endpoint,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ContainerRuntimeHandler), nil
 }
 
 func (c *ContainerdRuntimeHandler) StopContainer(con context.Context, containerID string, timeout int64) error {
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-	t := c.timeout + time.Duration(timeout)
-	ctx, cancel := context.WithTimeout(context.Background(), t)
-	defer cancel()
-
-	request := &runtimeapi.StopContainerRequest{
-		ContainerId: containerID,
-		Timeout:     timeout,
-	}
-	_, err := c.runtimeServiceClient.StopContainer(ctx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *ContainerdRuntimeHandler) UpdateContainerResources(containerID string, opts UpdateOptions) error {
-	if containerID == "" {
-		return fmt.Errorf("containerID cannot be empty")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
-	defer cancel()
-	request := &runtimeapi.UpdateContainerResourcesRequest{
-		ContainerId: containerID,
-		Linux: &runtimeapi.LinuxContainerResources{
-			CpuPeriod:          opts.CPUPeriod,
-			CpuQuota:           opts.CPUQuota,
-			CpuShares:          opts.CPUShares,
-			CpusetCpus:         opts.CpusetCpus,
-			CpusetMems:         opts.CpusetMems,
-			MemoryLimitInBytes: opts.MemoryLimitInBytes,
-			OomScoreAdj:        opts.OomScoreAdj,
-		},
-	}
-	_, err := c.runtimeServiceClient.UpdateContainerResources(ctx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getRuntimeClient(endpoint string) (runtimeapi.RuntimeServiceClient, error) {
-	conn, err := getClientConnection(endpoint)
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect: %v", err)
-	}
-	runtimeClient := runtimeapi.NewRuntimeServiceClient(conn)
-	return runtimeClient, nil
+	_ = "STUB: not implemented"
+	return *new(runtimeapi.RuntimeServiceClient), nil
 }
 
 func getClientConnection(endpoint string) (*grpc.ClientConn, error) {
-	addr, dialer, err := getAddressAndDialer(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), defaultConnectionTimeout)
-	defer cancel()
-
-	conn, err := GrpcDial(ctx, addr, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(dialer))
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect, make sure you are running as root and the runtime has been started: %v", err)
-	}
-
-	return conn, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func getAddressAndDialer(endpoint string) (string, func(context context.Context, addr string) (net.Conn, error), error) {
-	protocol, addr, err := parseEndpoint(endpoint)
-	if err != nil {
-		return "", nil, err
-	}
-	if protocol != unixProtocol {
-		return "", nil, fmt.Errorf("only support unix socket endpoint")
-	}
-	return addr, dial, nil
+	_ = "STUB: not implemented"
+	return "", nil, nil
 }
 
 func parseEndpoint(endpoint string) (string, string, error) {
-	u, err := url.Parse(endpoint)
-	if err != nil {
-		return "", "", err
-	}
-
-	switch u.Scheme {
-	case unixProtocol:
-		return unixProtocol, u.Path, nil
-	default:
-		return u.Scheme, "", fmt.Errorf("protocol %q is not supported", u.Scheme)
-	}
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
 
 func dial(context context.Context, addr string) (net.Conn, error) {
-	var d net.Dialer
-	return d.DialContext(context, unixProtocol, addr)
+	_ = "STUB: not implemented"
+	return *new(net.Conn), nil
 }

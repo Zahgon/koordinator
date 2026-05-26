@@ -19,37 +19,22 @@ limitations under the License.
 
 package system
 
-import (
-	"fmt"
-	"strconv"
-	"strings"
-)
-
 // GetCacheInfo parses the output of `lscpu -e=CACHE` into l1l2 and l3 infos
 // e.g.
 // - input: "1:1:1:0"
 // - output: "1", 0, nil
 func GetCacheInfo(str string) (string, int32, error) {
+	_ = "STUB: not implemented"
 	// e.g.
 	// $ `lscpu -e=CPU,NODE,SOCKET,CORE,CACHE,ONLINE`
 	// CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE
-	//  0    0      0    0 0:0:0:0          yes
-	//  1    0      0    0 0:0:0:0          yes
-	//  2    0      0    1 1:1:1:0          yes
-	//  3    0      0    1 1:1:1:0          yes
-	infos := strings.Split(strings.TrimSpace(str), ":")
-	// assert l1, l2 are private cache, so they have the same id with the core
-	// L3 cache maybe not available, when the host is qemu-kvm. detail: https://bugzilla.redhat.com/show_bug.cgi?id=1434537
-	if len(infos) < 3 {
-		return "", 0, fmt.Errorf("invalid cache info %s", str)
-	}
-	l1l2 := infos[0]
-	if len(infos) == 3 {
-		return l1l2, 0, nil
-	}
-	l3, err := strconv.ParseInt(infos[3], 10, 32)
-	if err != nil {
-		return "", 0, err
-	}
-	return l1l2, int32(l3), nil
+	//
+	//	0    0      0    0 0:0:0:0          yes
+	//	1    0      0    0 0:0:0:0          yes
+	//	2    0      0    1 1:1:1:0          yes
+	//	3    0      0    1 1:1:1:0          yes
+	return "", 0, nil
 }
+
+// assert l1, l2 are private cache, so they have the same id with the core
+// L3 cache maybe not available, when the host is qemu-kvm. detail: https://bugzilla.redhat.com/show_bug.cgi?id=1434537

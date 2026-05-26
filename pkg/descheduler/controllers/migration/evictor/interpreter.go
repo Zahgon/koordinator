@@ -19,17 +19,14 @@ package evictor
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/events"
 	"k8s.io/client-go/util/flowcontrol"
-	"k8s.io/klog/v2"
 
 	sev1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/metrics"
 )
 
 const (
@@ -51,9 +48,7 @@ type Interface interface {
 
 var registry = map[string]FactoryFn{}
 
-func RegisterEvictor(name string, factoryFn FactoryFn) {
-	registry[name] = factoryFn
-}
+func RegisterEvictor(name string, factoryFn FactoryFn) { _ = "STUB: not implemented"; return }
 
 type Interpreter interface {
 	Interface
@@ -67,77 +62,18 @@ type interpreterImpl struct {
 }
 
 func NewInterpreter(handle framework.Handle, defaultEvictionPolicy string, evictQPS float32, evictBurst int) (Interpreter, error) {
-	rateLimiter := flowcontrol.NewTokenBucketRateLimiter(evictQPS, evictBurst)
-
-	evictors := map[string]Interface{}
-	for k, v := range registry {
-		evictor, err := v(handle.ClientSet())
-		if err != nil {
-			return nil, err
-		}
-		evictors[k] = evictor
-	}
-	defaultEvictor := evictors[defaultEvictionPolicy]
-	if defaultEvictor == nil {
-		return nil, fmt.Errorf("unsupported evicition policy")
-	}
-	return &interpreterImpl{
-		evictors:       evictors,
-		defaultEvictor: defaultEvictor,
-		rateLimiter:    rateLimiter,
-		eventRecorder:  handle.EventRecorder(),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Interpreter), nil
 }
 
 func (p *interpreterImpl) Evict(ctx context.Context, job *sev1alpha1.PodMigrationJob, pod *corev1.Pod) error {
-	if p.rateLimiter != nil {
-		if !p.rateLimiter.TryAccept() {
-			return ErrTooManyEvictions
-		}
-	}
-	evictionPolicy := getCustomEvictionPolicy(pod.Labels)
-	if evictionPolicy == "" {
-		evictionPolicy = getCustomEvictionPolicy(job.Labels)
-	}
-
-	var evictor Interface
-	if evictionPolicy != "" {
-		evictor = p.evictors[evictionPolicy]
-	}
-	if evictor == nil {
-		evictor = p.defaultEvictor
-	}
-
-	trigger, reason := GetEvictionTriggerAndReason(job.Annotations)
-	err := evictor.Evict(ctx, job, pod)
-	if err != nil {
-		metrics.PodsEvicted.With(map[string]string{"result": "error", "strategy": trigger, "namespace": pod.Namespace, "node": pod.Spec.NodeName}).Inc()
-		return err
-	}
-
-	metrics.PodsEvicted.With(map[string]string{"result": "success", "strategy": trigger, "namespace": pod.Namespace, "node": pod.Spec.NodeName}).Inc()
-
-	klog.V(1).InfoS("Evicted pod", "pod", klog.KObj(pod), "reason", reason, "trigger", trigger, "node", pod.Spec.NodeName)
-	p.eventRecorder.Eventf(pod, nil, corev1.EventTypeNormal, "Descheduled", "Migrating", "Pod evicted from node %q by the reason %q", pod.Spec.NodeName, reason)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func getCustomEvictionPolicy(labels map[string]string) string {
-	value, ok := labels[LabelEvictPolicy]
-	if ok && value != "" {
-		return value
-	}
-	return ""
-}
+func getCustomEvictionPolicy(labels map[string]string) string { _ = "STUB: not implemented"; return "" }
 
 func GetEvictionTriggerAndReason(annotations map[string]string) (string, string) {
-	reason := annotations[AnnotationEvictReason]
-	trigger := annotations[AnnotationEvictTrigger]
-	if len(reason) == 0 {
-		reason = trigger
-		if len(reason) == 0 {
-			reason = "NotSet"
-		}
-	}
-	return trigger, reason
+	_ = "STUB: not implemented"
+	return "", ""
 }

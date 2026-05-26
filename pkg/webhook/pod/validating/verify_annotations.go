@@ -19,7 +19,6 @@ package validating
 import (
 	"context"
 
-	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -28,33 +27,8 @@ import (
 )
 
 func (h *PodValidatingHandler) clusterReservationValidatingPod(ctx context.Context, req admission.Request) (bool, string, error) {
-	newPod := &corev1.Pod{}
-	var allErrs field.ErrorList
-	switch req.Operation {
-	case admissionv1.Create:
-		if err := h.Decoder.DecodeRaw(req.Object, newPod); err != nil {
-			return false, "", err
-		}
-	case admissionv1.Update:
-		oldPod := &corev1.Pod{}
-		if err := h.Decoder.DecodeRaw(req.OldObject, oldPod); err != nil {
-			return false, "", err
-		}
-		if err := h.Decoder.DecodeRaw(req.Object, newPod); err != nil {
-			return false, "", err
-		}
-
-	}
-
-	allErrs = append(allErrs, forbidSpecialAnnotations(newPod)...)
-	err := allErrs.ToAggregate()
-	allowed := true
-	reason := ""
-	if err != nil {
-		allowed = false
-		reason = err.Error()
-	}
-	return allowed, reason, err
+	_ = "STUB: not implemented"
+	return false, "", nil
 }
 
 var forbidAnnotations = []string{
@@ -62,15 +36,6 @@ var forbidAnnotations = []string{
 }
 
 func forbidSpecialAnnotations(pod *corev1.Pod) field.ErrorList {
-	if pod.Annotations == nil {
-		return nil
-	}
-	errorList := field.ErrorList{}
-
-	for _, annotation := range forbidAnnotations {
-		if _, ok := pod.Annotations[annotation]; ok {
-			errorList = append(errorList, field.Forbidden(field.NewPath("annotations", annotation), "cannot set in annotations"))
-		}
-	}
-	return errorList
+	_ = "STUB: not implemented"
+	return *new(field.ErrorList)
 }

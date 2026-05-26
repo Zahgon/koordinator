@@ -23,11 +23,9 @@ import (
 
 	v1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
 )
 
 // FakeElasticQuotas implements ElasticQuotaInterface
@@ -42,89 +40,48 @@ var elasticquotasKind = schema.GroupVersionKind{Group: "scheduling.sigs.k8s.io",
 
 // Get takes name of the elasticQuota, and returns the corresponding elasticQuota object, and an error if there is any.
 func (c *FakeElasticQuotas) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.ElasticQuota, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(elasticquotasResource, c.ns, name), &v1alpha1.ElasticQuota{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.ElasticQuota), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // List takes label and field selectors, and returns the list of ElasticQuotas that match those selectors.
 func (c *FakeElasticQuotas) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.ElasticQuotaList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(elasticquotasResource, elasticquotasKind, c.ns, opts), &v1alpha1.ElasticQuotaList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.ElasticQuotaList{ListMeta: obj.(*v1alpha1.ElasticQuotaList).ListMeta}
-	for _, item := range obj.(*v1alpha1.ElasticQuotaList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Watch returns a watch.Interface that watches the requested elasticQuotas.
 func (c *FakeElasticQuotas) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(elasticquotasResource, c.ns, opts))
-
+	_ = "STUB: not implemented"
+	return *new(watch.Interface), nil
 }
 
 // Create takes the representation of a elasticQuota and creates it.  Returns the server's representation of the elasticQuota, and an error, if there is any.
 func (c *FakeElasticQuotas) Create(ctx context.Context, elasticQuota *v1alpha1.ElasticQuota, opts v1.CreateOptions) (result *v1alpha1.ElasticQuota, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(elasticquotasResource, c.ns, elasticQuota), &v1alpha1.ElasticQuota{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.ElasticQuota), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Update takes the representation of a elasticQuota and updates it. Returns the server's representation of the elasticQuota, and an error, if there is any.
 func (c *FakeElasticQuotas) Update(ctx context.Context, elasticQuota *v1alpha1.ElasticQuota, opts v1.UpdateOptions) (result *v1alpha1.ElasticQuota, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(elasticquotasResource, c.ns, elasticQuota), &v1alpha1.ElasticQuota{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.ElasticQuota), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Delete takes name of the elasticQuota and deletes it. Returns an error if one occurs.
 func (c *FakeElasticQuotas) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(elasticquotasResource, c.ns, name), &v1alpha1.ElasticQuota{})
-
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DeleteCollection deletes a collection of objects.
 func (c *FakeElasticQuotas) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(elasticquotasResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.ElasticQuotaList{})
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Patch applies the patch and returns the patched elasticQuota.
 func (c *FakeElasticQuotas) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.ElasticQuota, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(elasticquotasResource, c.ns, name, pt, data, subresources...), &v1alpha1.ElasticQuota{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.ElasticQuota), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }

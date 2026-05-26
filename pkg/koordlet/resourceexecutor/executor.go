@@ -17,14 +17,8 @@ limitations under the License.
 package resourceexecutor
 
 import (
-	"fmt"
 	"sync"
-	"time"
 
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/metrics"
-	sysutil "github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 	"github.com/koordinator-sh/koordinator/pkg/util/cache"
 )
 
@@ -58,231 +52,61 @@ var singleton = &ResourceUpdateExecutorImpl{
 }
 
 func NewResourceUpdateExecutor() ResourceUpdateExecutor {
-	return singleton
+	_ = "STUB: not implemented"
+
+	// Update updates the resources with the given cacheable attribute with the cacheable attribute directly.
+	return *new(ResourceUpdateExecutor)
 }
 
-// Update updates the resources with the given cacheable attribute with the cacheable attribute directly.
 func (e *ResourceUpdateExecutorImpl) Update(cacheable bool, resource ResourceUpdater) (bool, error) {
-	if cacheable {
-		if !e.gcStarted {
-			klog.V(5).Info("failed to cacheable update resources, err: cache GC is not started")
-			return false, fmt.Errorf("cache GC is not started")
-		}
-		return e.updateByCache(resource)
-	}
-	return true, e.update(resource)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // UpdateBatch updates a batch of resources with the given cacheable attribute.
 // TODO: merge and resolve conflicts of batch updates from multiple callers.
 func (e *ResourceUpdateExecutorImpl) UpdateBatch(cacheable bool, updaters ...ResourceUpdater) {
-	failures := 0
-	if cacheable {
-		if !e.gcStarted {
-			klog.Error("failed to cacheable update resources, err: cache GC is not started")
-			return
-		}
-
-		for _, updater := range updaters {
-			isUpdated, err := e.updateByCache(updater)
-			if err != nil {
-				failures++
-				klog.V(4).Infof("failed to cacheable update resource %s to %v, isUpdated %v, err: %v",
-					updater.Key(), updater.Value(), isUpdated, err)
-				continue
-			}
-
-			klog.V(5).Infof("successfully cacheable update resource %s to %v, isUpdated %v",
-				updater.Key(), updater.Value(), isUpdated)
-		}
-	} else {
-		for _, updater := range updaters {
-			err := e.update(updater)
-			if err != nil {
-				failures++
-				klog.V(4).Infof("failed to update resource %s to %v, err: %v", updater.Key(), updater.Value(), err)
-				continue
-			}
-
-			klog.V(5).Infof("successfully update resource %s to %v", updater.Key(), updater.Value())
-		}
-	}
-	klog.V(6).Infof("finished batch updating resources, isCacheable %v, total %v, failures %v",
-		cacheable, len(updaters), failures)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (e *ResourceUpdateExecutorImpl) LeveledUpdateBatch(updaters [][]ResourceUpdater) {
-	e.LeveledUpdateLock.Lock()
-	defer e.LeveledUpdateLock.Unlock()
-	if !e.gcStarted {
-		klog.Error("failed to cacheable level update resources, err: cache GC is not started")
-		return
-	}
-
-	var err error
-	skipMerge := map[string]bool{}
-	for i := 0; i < len(updaters); i++ {
-		for _, updater := range updaters[i] {
-			if !e.needUpdate(updater) {
-				continue
-			}
-
-			mergedUpdater, err := updater.MergeUpdate()
-			if err != nil && e.isUpdateErrIgnored(err) {
-				klog.V(5).Infof("failed to merge update resource %s to %v, ignored err: %v",
-					updater.Key(), updater.Value(), err)
-				continue
-			}
-			if err != nil {
-				klog.V(4).Infof("failed to merge update resource %s to %v, err: %v",
-					updater.Key(), updater.Value(), err)
-				continue
-			}
-			klog.V(5).Infof("successfully merge update resource %s to %v", updater.Key(), updater.Value())
-
-			if mergedUpdater == nil {
-				skipMerge[updater.Key()] = true
-			} else {
-				updater = mergedUpdater
-			}
-
-			updater.UpdateLastUpdateTimestamp(time.Now())
-			err = e.ResourceCache.SetDefault(updater.Key(), updater)
-			if err != nil {
-				klog.V(4).Infof("failed to SetDefault in resourceCache for resource %s, err: %v",
-					updater.Key(), err)
-			}
-		}
-	}
-
-	for i := len(updaters) - 1; i >= 0; i-- {
-		for _, updater := range updaters[i] {
-			if !e.needUpdate(updater) {
-				continue
-			}
-
-			// skip update twice for resources specified no merge
-			if skipMerge[updater.Key()] {
-				klog.V(6).Infof("skip update resource %s since it should skip the merge", updater.Key())
-				continue
-			}
-			err = updater.update()
-			if err != nil && e.isUpdateErrIgnored(err) {
-				klog.V(5).Infof("failed to update resource %s to %v, ignored err: %v", updater.Key(), updater.Value(), err)
-				continue
-			}
-			if err != nil {
-				klog.V(4).Infof("failed update resource %s, err: %v", updater.Key(), err)
-				continue
-			}
-			klog.V(6).Infof("successfully update resource %s to %v", updater.Key(), updater.Value())
-
-			updater.UpdateLastUpdateTimestamp(time.Now())
-			err = e.ResourceCache.SetDefault(updater.Key(), updater)
-			if err != nil {
-				klog.V(4).Infof("failed to SetDefault in resourceCache for resource %s, err: %v",
-					updater.Key(), err)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// skip update twice for resources specified no merge
 
 // Run runs the ResourceUpdateExecutor.
-func (e *ResourceUpdateExecutorImpl) Run(stopCh <-chan struct{}) {
-	e.onceRun.Do(func() {
-		e.run(stopCh)
-	})
-}
+func (e *ResourceUpdateExecutorImpl) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (e *ResourceUpdateExecutorImpl) run(stopCh <-chan struct{}) {
-	_ = e.ResourceCache.Run(stopCh)
-	klog.V(4).Info("starting ResourceUpdateExecutor successfully")
-	e.gcStarted = true
-}
+func (e *ResourceUpdateExecutorImpl) run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
 func (e *ResourceUpdateExecutorImpl) needUpdate(updater ResourceUpdater) bool {
-	preResource, _ := e.ResourceCache.Get(updater.Key())
-	if preResource == nil {
-		klog.V(5).Infof("check for resource %s: pre is nil, need update", updater.Key())
-		return true
-	}
-	preResourceUpdater := preResource.(ResourceUpdater)
-	if updater.Value() != preResourceUpdater.Value() {
-		klog.V(5).Infof("check for resource %s: current %v, pre %v, need update",
-			updater.Key(), updater.Value(), preResourceUpdater.Value())
-		return true
-	}
-	if time.Since(preResourceUpdater.GetLastUpdateTimestamp()) > time.Duration(e.Config.ResourceForceUpdateSeconds)*time.Second {
-		klog.V(5).Infof("check for resource %s: last update time(%v) is earlier than (%v)s ago, need update",
-			preResourceUpdater.Key(), preResourceUpdater.GetLastUpdateTimestamp(), e.Config.ResourceForceUpdateSeconds)
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (e *ResourceUpdateExecutorImpl) update(updater ResourceUpdater) error {
-	start := time.Now()
-	err := updater.update()
-	if err != nil && !e.isUpdateErrIgnored(err) {
-		metrics.RecordResourceUpdateDuration(updater.Name(), metrics.ResourceUpdateStatusFailed, metrics.SinceInSeconds(start))
-		klog.V(5).Infof("failed to update resource %s to %v, err: %v", updater.Key(), updater.Value(), err)
-		return err
-	} else if err != nil {
-		// error can be ignored
-		klog.V(5).Infof("failed to update resource %s to %v, ignored err: %v", updater.Key(), updater.Value(), err)
-	} else {
-		metrics.RecordResourceUpdateDuration(updater.Name(), metrics.ResourceUpdateStatusSuccess, metrics.SinceInSeconds(start))
-		klog.V(6).Infof("successfully update resource %s to %v", updater.Key(), updater.Value())
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// error can be ignored
+
 func (e *ResourceUpdateExecutorImpl) updateByCache(updater ResourceUpdater) (bool, error) {
-	if e.needUpdate(updater) {
-		start := time.Now()
-		err := updater.update()
-		if err != nil && e.isUpdateErrIgnored(err) {
-			klog.V(5).Infof("failed to cacheable update resource %s to %v, ignored err: %v", updater.Key(), updater.Value(), err)
-			return false, nil
-		}
-		if err != nil {
-			metrics.RecordResourceUpdateDuration(updater.Name(), metrics.ResourceUpdateStatusFailed, metrics.SinceInSeconds(start))
-			klog.V(5).Infof("failed to cacheable update resource %s to %v, err: %v", updater.Key(), updater.Value(), err)
-			return false, err
-		}
-		metrics.RecordResourceUpdateDuration(updater.Name(), metrics.ResourceUpdateStatusSuccess, metrics.SinceInSeconds(start))
-		updater.UpdateLastUpdateTimestamp(time.Now())
-		err = e.ResourceCache.SetDefault(updater.Key(), updater)
-		if err != nil {
-			klog.V(5).Infof("failed to SetDefault in resourceCache for resource %s, err: %v", updater.Key(), err)
-			return true, err
-		}
-		klog.V(6).Infof("successfully cacheable update resource %s to %v", updater.Key(), updater.Value())
-		return true, nil
-	}
+	_ = "STUB: not implemented"
 	return false, nil
 }
 
 func (e *ResourceUpdateExecutorImpl) isUpdateErrIgnored(err error) bool {
-	if err == nil {
-		return true
-	}
-	if sysutil.IsResourceUnsupportedErr(err) {
-		klog.V(6).Infof("update resource failed, ignored unsupported err: %v", err)
-		return true
-	}
-	if IsCgroupDirErr(err) {
-		klog.V(6).Infof("update resource failed, ignored cgroup not exist err: %v", err)
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // NewTestResourceExecutor returns a new ResourceUpdateExecutorImpl for testing usage.
 // NOTE: Please DO NOT use it except unittests.
 func NewTestResourceExecutor() ResourceUpdateExecutor {
-	return &ResourceUpdateExecutorImpl{
-		ResourceCache: cache.NewCacheDefault(),
-		Config:        NewDefaultConfig(),
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdateExecutor)
 }

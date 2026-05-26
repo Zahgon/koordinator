@@ -18,9 +18,6 @@ package util
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/kubernetes/pkg/apis/core/v1/helper/qos"
-
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 )
 
 // NOTE: functions in this file can be overwritten for extension
@@ -29,25 +26,16 @@ import (
 // throttles.
 // https://github.com/koordinator-sh/koordinator/issues/489
 func IsPodCfsQuotaNeedUnset(annotations map[string]string) (bool, error) {
-	cpusetVal, err := GetCPUSetFromPod(annotations)
-	if err != nil {
-		return false, err
-	}
-	return cpusetVal != "", nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // IsPodCPUBurstable checks if cpu burst is allowed for the pod.
-func IsPodCPUBurstable(pod *corev1.Pod) bool {
-	qosClass := apiext.GetPodQoSClassRaw(pod)
-	return qosClass != apiext.QoSLSR && qosClass != apiext.QoSLSE && qosClass != apiext.QoSBE
-}
+func IsPodCPUBurstable(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
 // GetKubeQosClass gets the Kubernetes QOSClass for the pod.
 // DEPRECATED: use extension.GetKubeQosClass instead.
 func GetKubeQosClass(pod *corev1.Pod) corev1.PodQOSClass {
-	qosClass := pod.Status.QOSClass
-	if len(qosClass) <= 0 {
-		qosClass = qos.GetPodQOS(pod)
-	}
-	return qosClass
+	_ = "STUB: not implemented"
+	return *new(corev1.PodQOSClass)
 }

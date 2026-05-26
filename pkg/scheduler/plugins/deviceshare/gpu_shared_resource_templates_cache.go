@@ -17,12 +17,9 @@ limitations under the License.
 package deviceshare
 
 import (
-	"fmt"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	"sigs.k8s.io/yaml"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 )
@@ -34,49 +31,27 @@ type gpuSharedResourceTemplatesCache struct {
 }
 
 func newGPUSharedResourceTemplatesCache() *gpuSharedResourceTemplatesCache {
+	_ = "STUB: not implemented"
 	// no need to make infos map because it would be directly initialized from configmap data
-	return &gpuSharedResourceTemplatesCache{}
+	return nil
 }
 
 func (c *gpuSharedResourceTemplatesCache) findMatchedTemplates(resources corev1.ResourceList, strict bool) map[string]apiext.GPUSharedResourceTemplates {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	result := make(map[string]apiext.GPUSharedResourceTemplates)
-	for key, templates := range c.gpuSharedResourceTemplatesInfos {
-		matched := make(apiext.GPUSharedResourceTemplates)
-		for name, template := range templates {
-			templateToMatch := template
-			if !strict {
-				templateToMatch = quotav1.Mask(template, quotav1.ResourceNames(resources))
-			}
-			if quotav1.Equals(templateToMatch, resources) {
-				matched[name] = template.DeepCopy()
-			}
-		}
-		if len(matched) > 0 {
-			result[key] = matched
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *gpuSharedResourceTemplatesCache) setTemplatesInfos(infos map[string]apiext.GPUSharedResourceTemplates) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	c.gpuSharedResourceTemplatesInfos = infos
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *gpuSharedResourceTemplatesCache) setTemplatesInfosFromConfigMap(cm *corev1.ConfigMap) error {
-	var infos map[string]apiext.GPUSharedResourceTemplates
-	if err := yaml.Unmarshal([]byte(cm.Data["data.yaml"]), &infos); err != nil {
-		return err
-	}
-	c.setTemplatesInfos(infos)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func buildGPUSharedResourceTemplatesKey(vendor, model string) string {
-	return fmt.Sprintf("%s-%s", vendor, model)
+	_ = "STUB: not implemented"
+	return ""
 }

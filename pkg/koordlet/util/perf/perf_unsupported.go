@@ -24,41 +24,40 @@ import "os"
 type PerfCollector struct{}
 
 func NewPerfCollector(cgroupFile *os.File, cpus []int) (*PerfCollector, error) {
-	return &PerfCollector{}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetContainerCyclesAndInstructions(collector *PerfCollector) (float64, float64, error) {
+	_ = "STUB: not implemented"
 	return 0, 0, nil
 }
 
 func GetAndStartPerfCollectorOnContainer(cgroupFile *os.File, cpus []int) (*PerfCollector, error) {
-	return &PerfCollector{}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *PerfCollector) stopAndClose() (err error) {
-	return nil
-}
+func (c *PerfCollector) stopAndClose() (err error) { _ = "STUB: not implemented"; return nil }
 
-func (c *PerfCollector) closeOnSingleCPU(cpu int) error { return nil }
+func (c *PerfCollector) closeOnSingleCPU(cpu int) error { _ = "STUB: not implemented"; return nil }
 
-func (c *PerfCollector) stopOnSingleCPU(cpu int) error {
-	return nil
-}
+func (c *PerfCollector) stopOnSingleCPU(cpu int) error { _ = "STUB: not implemented"; return nil }
 
 type HardwareProfile struct{}
 
 func (c *PerfCollector) hwProfileOnSingleCPU(cpu int) (HardwareProfile, error) {
-	return HardwareProfile{}, nil
+	_ = "STUB: not implemented"
+	return *new(HardwareProfile), nil
 }
 
 type collectResult struct{}
 
 func (c *PerfCollector) collect() (result collectResult, err error) {
-	return collectResult{}, err
+	_ = "STUB: not implemented"
+	return *new(collectResult), nil
 }
 
-func (c *PerfCollector) CleanUp() error {
-	return nil
-}
+func (c *PerfCollector) CleanUp() error { _ = "STUB: not implemented"; return nil }
 
 type Collector interface{}

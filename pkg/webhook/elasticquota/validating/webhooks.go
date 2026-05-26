@@ -17,7 +17,6 @@ limitations under the License.
 package validating
 
 import (
-	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -41,18 +40,11 @@ type quotaValidateBuilder struct {
 }
 
 func (b *quotaValidateBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *quotaValidateBuilder) Build() admission.Handler {
-	h := &ElasticQuotaValidatingHandler{
-		Client:  b.mgr.GetClient(),
-		Decoder: admission.NewDecoder(b.mgr.GetScheme()),
-	}
-	err := h.InjectCache(b.mgr.GetCache())
-	if err != nil {
-		klog.Fatalf("failed to inject cache for quotaValidateBuilder: %v", err)
-	}
-	return h
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

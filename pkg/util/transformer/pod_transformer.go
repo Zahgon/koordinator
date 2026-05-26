@@ -18,14 +18,9 @@ package transformer
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	koordfeatures "github.com/koordinator-sh/koordinator/pkg/features"
-	utilfeature "github.com/koordinator-sh/koordinator/pkg/util/feature"
 )
 
 var podTransformers = []func(pod *corev1.Pod){
@@ -40,198 +35,45 @@ var podTransformerFactories = []func() func(pod *corev1.Pod){
 	TransformSchedulerName,
 }
 
-func InstallPodTransformer(informer cache.SharedIndexInformer) {
-	transformHandler := TransformPodFactory()
-	if err := informer.SetTransform(transformHandler); err != nil {
-		klog.Fatalf("Failed to SetTransform with pod, err: %v", err)
-	}
-}
+func InstallPodTransformer(informer cache.SharedIndexInformer) { _ = "STUB: not implemented"; return }
 
 func TransformPodFactory() cache.TransformFunc {
-	var podTransformerFns []func(pod *corev1.Pod)
-	for _, fn := range podTransformers {
-		podTransformerFns = append(podTransformerFns, fn)
-	}
-	for _, factoryFn := range podTransformerFactories {
-		fn := factoryFn()
-		if fn == nil {
-			continue
-		}
-		podTransformerFns = append(podTransformerFns, fn)
-	}
-
-	return func(obj interface{}) (interface{}, error) {
-		var pod *corev1.Pod
-		switch t := obj.(type) {
-		case *corev1.Pod:
-			pod = t
-		case cache.DeletedFinalStateUnknown:
-			pod, _ = t.Obj.(*corev1.Pod)
-		}
-		if pod == nil {
-			return obj, nil
-		}
-
-		for _, fn := range podTransformerFns {
-			fn(pod)
-		}
-
-		if unknown, ok := obj.(cache.DeletedFinalStateUnknown); ok {
-			unknown.Obj = pod
-			return unknown, nil
-		}
-		return pod, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(cache.TransformFunc)
 }
 
-func TransformKoordPriorityClassFunc() func(pod *corev1.Pod) {
-	if !k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.PriorityTransformer) &&
-		!utilfeature.DefaultFeatureGate.Enabled(koordfeatures.PriorityTransformer) {
-		return nil
-	}
-
-	return func(pod *corev1.Pod) {
-		koordPriorityValue := apiext.GetPodPriorityValueWithDefault(pod)
-		pod.Spec.Priority = koordPriorityValue
-	}
-}
+func TransformKoordPriorityClassFunc() func(pod *corev1.Pod) { _ = "STUB: not implemented"; return nil }
 
 func TransformKoordPreemptionPolicyFunc() func(pod *corev1.Pod) {
-	if !k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.PreemptionPolicyTransformer) &&
-		!utilfeature.DefaultFeatureGate.Enabled(koordfeatures.PreemptionPolicyTransformer) {
-		return nil
-	}
-
-	return func(pod *corev1.Pod) {
-		preemptionPolicy := apiext.GetPodKoordPreemptionPolicyWithDefault(pod)
-		if preemptionPolicy == nil {
-			return
-		}
-		pod.Spec.PreemptionPolicy = preemptionPolicy
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func TransformDeprecatedBatchResources(pod *corev1.Pod) {
-	transformDeprecatedResources(pod, apiext.DeprecatedBatchResourcesMapper)
-}
+func TransformDeprecatedBatchResources(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
-func TransformDeprecatedDeviceResources(pod *corev1.Pod) {
-	transformDeprecatedResources(pod, apiext.DeprecatedDeviceResourcesMapper)
-	allocations, err := apiext.GetDeviceAllocations(pod.Annotations)
-	if err != nil {
-		klog.ErrorS(err, "Failed to get device allocations from pod", "pod", klog.KObj(pod))
-		return
-	}
-	if len(allocations) != 0 {
-		if transformDeviceAllocations(allocations) {
-			if err := apiext.SetDeviceAllocations(pod, allocations); err != nil {
-				klog.ErrorS(err, "Failed to write back transformed allocations to pod", "pod", klog.KObj(pod))
-			}
-		}
-	}
-}
+func TransformDeprecatedDeviceResources(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
 func transformDeviceAllocations(deviceAllocations apiext.DeviceAllocations) bool {
-	transformed := false
-	for _, allocations := range deviceAllocations {
-		for _, v := range allocations {
-			if replaceAndEraseWithResourcesMapper(v.Resources, apiext.DeprecatedDeviceResourcesMapper) {
-				transformed = true
-			}
-		}
-	}
-	return transformed
+	_ = "STUB: not implemented"
+	return false
 }
 
 func transformDeprecatedResources(pod *corev1.Pod, resourceNames map[corev1.ResourceName]corev1.ResourceName) {
-	for _, containers := range [][]corev1.Container{pod.Spec.InitContainers, pod.Spec.Containers} {
-		for i := range containers {
-			container := &containers[i]
-			for from, to := range resourceNames {
-				replaceAndEraseResource(container.Resources.Requests, from, to)
-				replaceAndEraseResource(container.Resources.Limits, from, to)
-			}
-		}
-	}
-
-	if pod.Spec.Overhead != nil {
-		for from, to := range resourceNames {
-			replaceAndEraseResource(pod.Spec.Overhead, from, to)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func replaceAndEraseResource(resourceList corev1.ResourceList, from, to corev1.ResourceName) bool {
-	if to == "" {
-		return false
-	}
-	if _, ok := resourceList[to]; ok {
-		return false
-	}
-	quantity, ok := resourceList[from]
-	if ok {
-		if from == corev1.ResourceCPU {
-			quantity = *resource.NewQuantity(quantity.MilliValue(), resource.DecimalSI)
-		}
-		resourceList[to] = quantity
-		delete(resourceList, from)
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func replaceAndEraseWithResourcesMapper(resList corev1.ResourceList, mapper map[corev1.ResourceName]corev1.ResourceName) bool {
-	transformed := false
-	for from, to := range mapper {
-		if replaceAndEraseResource(resList, from, to) {
-			transformed = true
-		}
-	}
-	return transformed
+	_ = "STUB: not implemented"
+	return false
 }
 
-func TransformSchedulerName() func(pod *corev1.Pod) {
-	return func(pod *corev1.Pod) {
-		schedulerName := apiext.GetSchedulerName(pod)
-		if schedulerName != pod.Spec.SchedulerName {
-			if pod.Annotations == nil {
-				pod.Annotations = make(map[string]string)
-			}
-			pod.Annotations[apiext.AnnotationOriginalSchedulerName] = pod.Spec.SchedulerName
-		}
-		pod.Spec.SchedulerName = schedulerName
-	}
-}
+func TransformSchedulerName() func(pod *corev1.Pod) { _ = "STUB: not implemented"; return nil }
 
 // TransformReplaceResources transforms pod resources according to the replace-resources annotation.
-func TransformReplaceResources(pod *corev1.Pod) {
-	if !k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.ReplaceResourcesTransformer) &&
-		!utilfeature.DefaultFeatureGate.Enabled(koordfeatures.ReplaceResourcesTransformer) {
-		return
-	}
-	eraseResNames, replaceMappings := apiext.GetPodReplaceResourcesConfig(pod)
-	if len(eraseResNames) == 0 && len(replaceMappings) == 0 {
-		return
-	}
-	for _, containers := range [][]corev1.Container{pod.Spec.InitContainers, pod.Spec.Containers} {
-		for i := range containers {
-			container := &containers[i]
-			for _, resName := range eraseResNames {
-				delete(container.Resources.Requests, resName)
-				delete(container.Resources.Limits, resName)
-			}
-			for k, v := range replaceMappings {
-				replaceAndEraseResource(container.Resources.Requests, k, v)
-				replaceAndEraseResource(container.Resources.Limits, k, v)
-			}
-		}
-	}
-	if pod.Spec.Overhead != nil {
-		for _, resName := range eraseResNames {
-			delete(pod.Spec.Overhead, resName)
-		}
-		for k, v := range replaceMappings {
-			replaceAndEraseResource(pod.Spec.Overhead, k, v)
-		}
-	}
-}
+func TransformReplaceResources(pod *corev1.Pod) { _ = "STUB: not implemented"; return }

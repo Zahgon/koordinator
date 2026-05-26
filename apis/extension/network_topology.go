@@ -17,10 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"sort"
-	"strconv"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -58,50 +54,17 @@ const (
 )
 
 func GetNetworkTopologySpec(obj metav1.Object) (*NetworkTopologySpec, error) {
-	spec := obj.GetAnnotations()[AnnotationGangNetworkTopologySpec]
-	if spec == "" {
-		return nil, nil
-	}
-	var networkTopologySpec NetworkTopologySpec
-	if err := json.Unmarshal([]byte(spec), &networkTopologySpec); err != nil {
-		return nil, err
-	}
-	return &networkTopologySpec, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetPodNetworkTopologyIndex(pod *corev1.Pod) (int, error) {
-	if pod == nil {
-		return -1, nil
-	}
-	indexStr, ok := pod.Annotations[AnnotationGangPodNetworkTopologyIndex]
-	if !ok {
-		return -1, nil
-	}
-	index, err := strconv.Atoi(indexStr)
-	if err != nil {
-		return -1, err
-	}
-	return index, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // SortPodsByIndex sort pods by index than by name,
 // pods without valid index would be ordered after pods with index.
-func SortPodsByIndex(pods []*corev1.Pod) {
-	sort.Slice(pods, func(a, b int) bool {
-		podA, podB := pods[a], pods[b]
-		indexA, _ := GetPodNetworkTopologyIndex(podA)
-		indexB, _ := GetPodNetworkTopologyIndex(podB)
-		if indexA >= 0 && indexB >= 0 {
-			if indexA != indexB {
-				return indexA < indexB
-			}
-		} else if indexA >= 0 || indexB >= 0 {
-			return indexA >= 0
-		}
-		return podA.Name < podB.Name
-	})
-}
+func SortPodsByIndex(pods []*corev1.Pod) { _ = "STUB: not implemented"; return }
 
-func GetPodNetworkTopologySelector(obj metav1.Object) string {
-	return obj.GetAnnotations()[AnnotationPodNetworkTopologySelector]
-}
+func GetPodNetworkTopologySelector(obj metav1.Object) string { _ = "STUB: not implemented"; return "" }

@@ -17,17 +17,12 @@ limitations under the License.
 package core
 
 import (
-	"fmt"
 	"sync"
-	"time"
 
 	v1 "k8s.io/api/core/v1"
-	apierror "k8s.io/apimachinery/pkg/util/errors"
-	"k8s.io/klog/v2"
 
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/metrics"
 )
 
 // QuotaUpdateState provides a shared state storage for hookPlugins during quota updates
@@ -91,50 +86,19 @@ type HookPluginFactory func(qiProvider *QuotaInfoReader, key, args string) (Quot
 var hookPluginFactories = map[string]HookPluginFactory{}
 
 func RegisterHookPluginFactory(factoryKey string, hookPluginFactory HookPluginFactory) {
-	hookPluginFactories[factoryKey] = hookPluginFactory
+	_ = "STUB: not implemented"
+	return
 }
 
 func GetHookPluginFactory(factoryKey string) (HookPluginFactory, error) {
-	hookPluginFactory := hookPluginFactories[factoryKey]
-	if hookPluginFactory == nil {
-		return nil, fmt.Errorf("custom limiter factory %s not found", factoryKey)
-	}
-	return hookPluginFactory, nil
+	_ = "STUB: not implemented"
+	return *new(HookPluginFactory), nil
 }
 
 func initHookPlugins(qiProvider *QuotaInfoReader, args *config.ElasticQuotaArgs) (
 	plugins []QuotaHookPlugin, err error) {
-	var errs []error
-	for i, pluginConf := range args.HookPlugins {
-		if pluginConf.Key == "" {
-			errs = append(errs, fmt.Errorf("failed to initialize index-%d hook plugin: key is empty", i))
-			continue
-		}
-		if pluginConf.FactoryKey == "" {
-			errs = append(errs, fmt.Errorf("failed to initialize hook plugin %s: factory key is empty",
-				pluginConf.Key))
-			continue
-		}
-		factory, err := GetHookPluginFactory(pluginConf.FactoryKey)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to initialize hook plugin %s: factory %s not found",
-				pluginConf.Key, pluginConf.FactoryKey))
-			continue
-		}
-		plugin, err := factory(qiProvider, pluginConf.Key, pluginConf.FactoryArgs)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to initialize hook-plugin %s by factory %s, err=%v",
-				pluginConf.Key, pluginConf.FactoryKey, err))
-			continue
-		}
-		plugins = append(plugins, plugin)
-	}
-	if len(errs) > 0 {
-		return nil, apierror.NewAggregate(errs)
-	}
-
-	klog.Infof("initialized %d hook plugins", len(plugins))
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // MetricsWrapper is a wrapper for QuotaHookPlugin that records metrics
@@ -144,190 +108,122 @@ type MetricsWrapper struct {
 
 // NewMetricsWrapper creates a new MetricsWrapper for a QuotaHookPlugin
 func NewMetricsWrapper(plugin QuotaHookPlugin) QuotaHookPlugin {
-	return &MetricsWrapper{plugin: plugin}
+	_ = "STUB: not implemented"
+	return *new(QuotaHookPlugin)
 }
 
 // WrapWithMetrics wraps hook plugins with metrics
 func WrapWithMetrics(plugins []QuotaHookPlugin) []QuotaHookPlugin {
-	if len(plugins) == 0 {
-		return plugins
-	}
-
-	wrappedPlugins := make([]QuotaHookPlugin, len(plugins))
-	for i, plugin := range plugins {
-		wrappedPlugins[i] = NewMetricsWrapper(plugin)
-	}
-	return wrappedPlugins
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (w *MetricsWrapper) GetKey() string {
-	return w.plugin.GetKey()
-}
+func (w *MetricsWrapper) GetKey() string { _ = "STUB: not implemented"; return "" }
 
 func (w *MetricsWrapper) IsQuotaUpdated(oldQuotaInfo, newQuotaInfo *QuotaInfo, newQuota *v1alpha1.ElasticQuota) bool {
-	start := time.Now()
-	result := w.plugin.IsQuotaUpdated(oldQuotaInfo, newQuotaInfo, newQuota)
-	metrics.RecordElasticQuotaHookPluginLatency(w.GetKey(), "is_quota_updated", time.Since(start))
-	return result
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (w *MetricsWrapper) PreQuotaUpdate(oldQuotaInfo, newQuotaInfo *QuotaInfo, quota *v1alpha1.ElasticQuota, state *QuotaUpdateState) {
-	start := time.Now()
-	w.plugin.PreQuotaUpdate(oldQuotaInfo, newQuotaInfo, quota, state)
-	metrics.RecordElasticQuotaHookPluginLatency(w.GetKey(), "pre_quota_update", time.Since(start))
+	_ = "STUB: not implemented"
+	return
 }
 
 func (w *MetricsWrapper) PostQuotaUpdate(oldQuotaInfo, newQuotaInfo *QuotaInfo, quota *v1alpha1.ElasticQuota, state *QuotaUpdateState) {
-	start := time.Now()
-	w.plugin.PostQuotaUpdate(oldQuotaInfo, newQuotaInfo, quota, state)
-	metrics.RecordElasticQuotaHookPluginLatency(w.GetKey(), "post_quota_update", time.Since(start))
+	_ = "STUB: not implemented"
+	return
 }
 
 func (w *MetricsWrapper) OnPodUpdated(quotaName string, oldPod, newPod *v1.Pod) {
-	start := time.Now()
-	w.plugin.OnPodUpdated(quotaName, oldPod, newPod)
-	metrics.RecordElasticQuotaHookPluginLatency(w.GetKey(), "on_pod_update", time.Since(start))
+	_ = "STUB: not implemented"
+	return
 }
 
 func (w *MetricsWrapper) UpdateQuotaStatus(oldQuota, newQuota *v1alpha1.ElasticQuota) *v1alpha1.ElasticQuota {
-	start := time.Now()
-	result := w.plugin.UpdateQuotaStatus(oldQuota, newQuota)
-	metrics.RecordElasticQuotaHookPluginLatency(w.GetKey(), "update_quota_status", time.Since(start))
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (w *MetricsWrapper) CheckPod(quotaName string, pod *v1.Pod) error {
-	start := time.Now()
-	err := w.plugin.CheckPod(quotaName, pod)
-	metrics.RecordElasticQuotaHookPluginLatency(w.GetKey(), "check_pod", time.Since(start))
-
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (w *MetricsWrapper) GetPlugin() QuotaHookPlugin {
-	return w.plugin
+	_ = "STUB: not implemented"
+
+	// The following methods in GroupQuotaManager handle interactions with hook plugins
+	return *new(QuotaHookPlugin)
 }
 
-// The following methods in GroupQuotaManager handle interactions with hook plugins
-
 func (gqm *GroupQuotaManager) InitHookPlugins(pluginArgs *config.ElasticQuotaArgs) error {
-	hookPlugins, err := initHookPlugins(gqm.GetQuotaInfoReader(), pluginArgs)
-	if err != nil {
-		return fmt.Errorf("failed to init hook plugins for tree %s, err=%v", gqm.GetTreeID(), err)
-	}
-	gqm.SetHookPlugins(hookPlugins)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (gqm *GroupQuotaManager) GetHookPlugins() []QuotaHookPlugin {
-	return gqm.hookPlugins
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gqm *GroupQuotaManager) SetHookPlugins(hookPlugins []QuotaHookPlugin) {
+	_ = "STUB: not implemented"
 	// Wrap plugins with metrics
-	gqm.hookPlugins = WrapWithMetrics(hookPlugins)
+	return
 }
 
 func (gqm *GroupQuotaManager) GetQuotaInfoReader() *QuotaInfoReader {
-	return &QuotaInfoReader{
-		GetQuotaInfo:             gqm.GetQuotaInfoByName,
-		GetChildQuotaInfos:       gqm.GetChildGroupQuotaInfos,
-		GetQuotaInfoNoLock:       gqm.getQuotaInfoByNameNoLock,
-		GetChildQuotaInfosNoLock: gqm.getChildGroupQuotaInfosNoLock,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gqm *GroupQuotaManager) GetChildGroupQuotaInfos(quotaName string) map[string]*QuotaInfo {
-	gqm.hierarchyUpdateLock.RLock()
-	defer gqm.hierarchyUpdateLock.RUnlock()
-
-	return gqm.getChildGroupQuotaInfosNoLock(quotaName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (gqm *GroupQuotaManager) getChildGroupQuotaInfosNoLock(quotaName string) map[string]*QuotaInfo {
-	quotaTopoNode := gqm.quotaTopoNodeMap[quotaName]
-	if quotaTopoNode == nil || len(quotaTopoNode.getChildGroupQuotaInfos()) == 0 {
-		return nil
-	}
-	childQuotaInfos := make(map[string]*QuotaInfo)
-	for childName := range quotaTopoNode.getChildGroupQuotaInfos() {
-		if quotaInfo, ok := gqm.quotaInfoMap[childName]; ok {
-			childQuotaInfos[childName] = quotaInfo
-		}
-	}
-	return childQuotaInfos
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // runPreQuotaUpdateHooks executes all pre-update hooks for quota changes
 func (gqm *GroupQuotaManager) runPreQuotaUpdateHooks(oldQuotaInfo, newQuotaInfo *QuotaInfo,
 	quota *v1alpha1.ElasticQuota) *QuotaUpdateState {
-	if len(gqm.hookPlugins) == 0 {
-		return nil
-	}
-	state := &QuotaUpdateState{}
-	for _, hook := range gqm.hookPlugins {
-		hook.PreQuotaUpdate(oldQuotaInfo, newQuotaInfo, quota, state)
-	}
-	return state
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // runPostQuotaUpdateHooks executes all post-update hooks for quota changes
 // state could be nil if quota is newly added
 func (gqm *GroupQuotaManager) runPostQuotaUpdateHooks(oldQuotaInfo, newQuotaInfo *QuotaInfo,
 	quota *v1alpha1.ElasticQuota, state *QuotaUpdateState) {
-	if len(gqm.hookPlugins) == 0 {
-		return
-	}
-	for _, hook := range gqm.hookPlugins {
-		hook.PostQuotaUpdate(oldQuotaInfo, newQuotaInfo, quota, state)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // runPodUpdateHooks executes all hooks after pod used resource changed
 func (gqm *GroupQuotaManager) runPodUpdateHooks(quotaName string, oldPod, newPod *v1.Pod) {
-	for _, hook := range gqm.hookPlugins {
-		hook.OnPodUpdated(quotaName, oldPod, newPod)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (gqm *GroupQuotaManager) isQuotaUpdatedNoLock(oldQuotaInfo, newQuotaInfo *QuotaInfo,
 	newQuota *v1alpha1.ElasticQuota) bool {
-	for _, hook := range gqm.hookPlugins {
-		if hook.IsQuotaUpdated(oldQuotaInfo, newQuotaInfo, newQuota) {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // IsQuotaUpdated checks if the quota has been updated from the hook plugins' perspective.
 func (gqm *GroupQuotaManager) IsQuotaUpdated(oldQuotaInfo, newQuotaInfo *QuotaInfo,
 	newQuota *v1alpha1.ElasticQuota) bool {
-	gqm.hierarchyUpdateLock.RLock()
-	defer gqm.hierarchyUpdateLock.RUnlock()
-	return gqm.isQuotaUpdatedNoLock(oldQuotaInfo, newQuotaInfo, newQuota)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // ResetQuotasForHookPlugins resets quotas with pre-update and post-update hooks
 func (gqm *GroupQuotaManager) ResetQuotasForHookPlugins(quotas map[string]*v1alpha1.ElasticQuota) {
-	if len(gqm.hookPlugins) == 0 {
-		return
-	}
-	startTime := time.Now()
-	defer func() {
-		klog.Infof("reset hook plugins for tree %s, took %v", gqm.GetTreeID(), time.Since(startTime))
-	}()
-
-	gqm.hierarchyUpdateLock.Lock()
-	defer gqm.hierarchyUpdateLock.Unlock()
-
-	for quotaName, quotaInfo := range gqm.quotaInfoMap {
-		quota := quotas[quotaInfo.Name]
-		if quota == nil {
-			klog.Warningf("skip resetting inconsistent quota %s for hook plugins", quotaName)
-			continue
-		}
-		hookState := gqm.runPreQuotaUpdateHooks(nil, quotaInfo, quota)
-		gqm.runPostQuotaUpdateHooks(nil, quotaInfo, quota, hookState)
-	}
+	_ = "STUB: not implemented"
+	return
 }

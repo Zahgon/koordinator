@@ -17,8 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"fmt"
-
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
@@ -30,16 +28,6 @@ const (
 )
 
 func GetNodeTotalBandwidth(annotations map[string]string) (*resource.Quantity, error) {
-	var (
-		val string
-		ok  bool
-	)
-	if val, ok = annotations[AnnotationNodeBandwidth]; !ok {
-		return nil, nil
-	}
-	if quantity, err := resource.ParseQuantity(val); err != nil {
-		return nil, fmt.Errorf("failed to parse node bandwidth %v", err)
-	} else {
-		return &quantity, nil
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -21,8 +21,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/component-base/metrics"
-	"k8s.io/component-base/metrics/legacyregistry"
-	schedulermetrics "k8s.io/kubernetes/pkg/scheduler/metrics"
 )
 
 const (
@@ -69,135 +67,12 @@ var (
 
 // InitMetrics creates and registers all workload auditor metrics with the given label names.
 // Must be called once after flag parsing (typically from NewWorkloadAuditor).
-func InitMetrics(labelNames []string) {
-	initOnce.Do(func() {
-		configuredLabelNames = sets.New[string](labelNames...)
-		RepeatedPreemptionTotal = metrics.NewCounterVec(
-			&metrics.CounterOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_repeated_preemptions_total",
-				Help:           "Total occurrences of a workload being preempted more than once",
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
+func InitMetrics(labelNames []string) { _ = "STUB: not implemented"; return }
 
-		PreemptionInvalidationsTotal = metrics.NewCounterVec(
-			&metrics.CounterOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_preemption_invalidations_total",
-				Help:           "Total occurrences of a preemption result being invalidated",
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
+// 0.1s … ~52428s (~14.5h)
 
-		VictimRescheduleDurationSeconds = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_victim_reschedule_duration_seconds",
-				Help:           "Time from victimAllDeleted to the next scheduling result, in seconds",
-				Buckets:        metrics.ExponentialBuckets(0.1, 2, 15),
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
-
-		PreemptionVictimDeletingRetries = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_preemption_victim_deleting_retries",
-				Help:           "Count of preemptVictimDeleting events per preemption cycle",
-				Buckets:        metrics.LinearBuckets(0, 1, 20),
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
-
-		PreemptionToVictimDeletedSeconds = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_preemption_to_victim_deleted_seconds",
-				Help:           "Time from preemptNominated to victimAllDeleted (normal cycle completion), in seconds",
-				Buckets:        metrics.ExponentialBuckets(0.1, 2, 15),
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
-
-		PreemptionCycleInterruptedSeconds = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_preemption_cycle_interrupted_seconds",
-				Help:           "Time from preemptNominated to cycle interruption (next preemption, scheduled, failure, or deletion), in seconds. May be affected by scheduling backlog.",
-				Buckets:        metrics.ExponentialBuckets(0.1, 2, 15),
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
-
-		SchedulingEventsBeforeOutcome = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_scheduling_events_before_outcome",
-				Help:           "Distribution of per-event-type counts before workload completion",
-				Buckets:        metrics.LinearBuckets(0, 1, 30),
-				StabilityLevel: metrics.ALPHA,
-			},
-			append(labelNames, "event_type", "outcome"),
-		)
-
-		SchedulingEventIntervalSeconds = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_scheduling_event_interval_seconds",
-				Help:           "Time between consecutive scheduling events within a dequeue-attempt round, in seconds",
-				Buckets:        metrics.ExponentialBuckets(0.1, 2, 20), // 0.1s … ~52428s (~14.5h)
-				StabilityLevel: metrics.ALPHA,
-			},
-			labelNames,
-		)
-
-		RecordMethodDurationSeconds = metrics.NewHistogramVec(
-			&metrics.HistogramOpts{
-				Subsystem:      schedulermetrics.SchedulerSubsystem,
-				Name:           "workload_auditor_record_method_duration_seconds",
-				Help:           "Latency of WorkloadAuditor record methods (RecordAttemptPod, RecordDiagnosis)",
-				Buckets:        metrics.ExponentialBuckets(0.000001, 4, 10), // 1µs … ~0.26s
-				StabilityLevel: metrics.ALPHA,
-			},
-			[]string{"method"},
-		)
-
-		for _, m := range []metrics.Registerable{
-			RepeatedPreemptionTotal,
-			PreemptionInvalidationsTotal,
-			VictimRescheduleDurationSeconds,
-			PreemptionVictimDeletingRetries,
-			PreemptionToVictimDeletedSeconds,
-			PreemptionCycleInterruptedSeconds,
-			SchedulingEventsBeforeOutcome,
-			SchedulingEventIntervalSeconds,
-			RecordMethodDurationSeconds,
-		} {
-			legacyregistry.MustRegister(m)
-		}
-	})
-}
+// 1µs … ~0.26s
 
 // DeleteMetricsByLabel deletes all metric time series where labelName equals labelValue.
 // This is a no-op if labelName is not among the configured metric labels or metrics are not initialized.
-func DeleteMetricsByLabel(labelName, labelValue string) {
-	if !configuredLabelNames.Has(labelName) {
-		return
-	}
-	labels := map[string]string{labelName: labelValue}
-	RepeatedPreemptionTotal.DeletePartialMatch(labels)
-	PreemptionInvalidationsTotal.DeletePartialMatch(labels)
-	VictimRescheduleDurationSeconds.DeletePartialMatch(labels)
-	PreemptionVictimDeletingRetries.DeletePartialMatch(labels)
-	PreemptionToVictimDeletedSeconds.DeletePartialMatch(labels)
-	PreemptionCycleInterruptedSeconds.DeletePartialMatch(labels)
-	SchedulingEventsBeforeOutcome.DeletePartialMatch(labels)
-	SchedulingEventIntervalSeconds.DeletePartialMatch(labels)
-}
+func DeleteMetricsByLabel(labelName, labelValue string) { _ = "STUB: not implemented"; return }

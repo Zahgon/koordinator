@@ -17,12 +17,9 @@ limitations under the License.
 package metriccache
 
 import (
-	"math"
 	"time"
 
 	promstorage "github.com/prometheus/prometheus/storage"
-
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 // MetricResult contains s set of series, it can also produce final result like aggregation value
@@ -43,7 +40,8 @@ var DefaultAggregateResultFactory AggregateResultFactory = &aggregateResultFacto
 type aggregateResultFactory struct{}
 
 func (f *aggregateResultFactory) New(meta MetricMeta) AggregateResult {
-	return newAggregateResult(meta)
+	_ = "STUB: not implemented"
+	return *new(AggregateResult)
 }
 
 // AggregateResult inherits MetricResult, which can also generate value according to the give AggregationType
@@ -57,10 +55,8 @@ type AggregateResult interface {
 var _ AggregateResult = &aggregateResult{}
 
 func newAggregateResult(meta MetricMeta) AggregateResult {
-	return &aggregateResult{
-		metricKind:       meta.GetKind(),
-		metricProperties: meta.GetProperties(),
-	}
+	_ = "STUB: not implemented"
+	return *new(AggregateResult)
 }
 
 // aggregateResult implements AggregateResult
@@ -94,58 +90,27 @@ type AggregateParam struct {
 type AggregationFunc func(interface{}, AggregateParam) (float64, error)
 
 func (r *aggregateResult) AddSeries(series promstorage.Series) error {
-	r.metricProperties = series.Labels().Map()
-	delete(r.metricProperties, r.metricKind)
-
-	tsStart := int64(math.MaxInt64)
-	tsEnd := int64(0)
-
-	if r.points == nil {
-		r.points = make([]*Point, 0)
-	}
-	it := series.Iterator()
-	for it.Next() {
-		if err := it.Err(); err != nil {
-			return err
-		}
-		t, v := it.At()
-		r.points = append(r.points, &Point{
-			Timestamp: time.UnixMilli(t),
-			Value:     v,
-		})
-		tsStart = util.MinInt64(tsStart, t)
-		tsEnd = util.MaxInt64(tsEnd, t)
-	}
-	r.metricStart = time.UnixMilli(tsStart)
-	r.metricsEnd = time.UnixMilli(tsEnd)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (r *aggregateResult) GetKind() string {
-	return r.metricKind
-}
+func (r *aggregateResult) GetKind() string { _ = "STUB: not implemented"; return "" }
 
-func (r *aggregateResult) GetProperties() map[string]string {
-	return r.metricProperties
-}
+func (r *aggregateResult) GetProperties() map[string]string { _ = "STUB: not implemented"; return nil }
 
 // Count return the size of metric series
-func (r *aggregateResult) Count() int {
-	return len(r.points)
-}
+func (r *aggregateResult) Count() int { _ = "STUB: not implemented"; return 0 }
 
 // Value returns the result by AggregationType
 func (r *aggregateResult) Value(t AggregationType) (float64, error) {
-	aggregateFunc := getAggregateFunc(t)
-	return aggregateFunc(r.points, pointsDefaultAggregateParam)
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 // TimeRangeDuration returns the time duration of metric series
 func (r *aggregateResult) TimeRangeDuration() time.Duration {
-	if r != nil {
-		return r.metricsEnd.Sub(r.metricStart)
-	}
-	return time.Duration(0)
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 var pointsDefaultAggregateParam = AggregateParam{
@@ -154,22 +119,6 @@ var pointsDefaultAggregateParam = AggregateParam{
 }
 
 func getAggregateFunc(aggregationType AggregationType) AggregationFunc {
-	switch aggregationType {
-	case AggregationTypeAVG:
-		return fieldAvgOfMetricList
-	case AggregationTypeP99:
-		return percentileFuncOfMetricList(0.99)
-	case AggregationTypeP95:
-		return percentileFuncOfMetricList(0.95)
-	case AggregationTypeP90:
-		return percentileFuncOfMetricList(0.9)
-	case AggregationTypeP50:
-		return percentileFuncOfMetricList(0.5)
-	case AggregationTypeLast:
-		return fieldLastOfMetricList
-	case AggregationTypeCount:
-		return fieldCountOfMetricList
-	default:
-		return fieldAvgOfMetricList
-	}
+	_ = "STUB: not implemented"
+	return *new(AggregationFunc)
 }

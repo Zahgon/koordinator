@@ -18,9 +18,6 @@ package reservation
 
 import (
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-
-	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
 
 // ReservationToPodEventHandler can be used to handle reservation events with a pod event handler, which converts
@@ -43,74 +40,22 @@ type ReservationToPodEventHandler struct {
 var _ cache.ResourceEventHandler = &ReservationToPodEventHandler{}
 
 func NewReservationToPodEventHandler(handler cache.ResourceEventHandler, filters ...func(obj interface{}) bool) cache.ResourceEventHandler {
-	return cache.FilteringResourceEventHandler{
-		FilterFunc: func(obj interface{}) bool {
-			for _, fn := range filters {
-				if !fn(obj) {
-					return false
-				}
-			}
-			return true
-		},
-		Handler: &ReservationToPodEventHandler{
-			handler: handler,
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(cache.ResourceEventHandler)
 }
 
 func (r ReservationToPodEventHandler) OnAdd(obj interface{}, isInInitialList bool) {
-	reservation, ok := obj.(*schedulingv1alpha1.Reservation)
-	if !ok {
-		return
-	}
-	pod := NewReservePod(reservation)
-	r.handler.OnAdd(pod, isInInitialList)
+	_ = "STUB: not implemented"
+	return
 }
 
 // OnUpdate calls UpdateFunc if it's not nil.
 func (r ReservationToPodEventHandler) OnUpdate(oldObj, newObj interface{}) {
-	oldR, oldOK := oldObj.(*schedulingv1alpha1.Reservation)
-	newR, newOK := newObj.(*schedulingv1alpha1.Reservation)
-	if !oldOK || !newOK {
-		return
-	}
-
-	oldPod := NewReservePod(oldR)
-	newPod := NewReservePod(newR)
-	r.handler.OnUpdate(oldPod, newPod)
+	_ = "STUB: not implemented"
+	return
 }
 
 // OnDelete calls DeleteFunc if it's not nil.
-func (r ReservationToPodEventHandler) OnDelete(obj interface{}) {
-	var reservation *schedulingv1alpha1.Reservation
-	switch t := obj.(type) {
-	case *schedulingv1alpha1.Reservation:
-		reservation = t
-	case cache.DeletedFinalStateUnknown:
-		var ok bool
-		reservation, ok = t.Obj.(*schedulingv1alpha1.Reservation)
-		if !ok {
-			return
-		}
-	default:
-		return
-	}
+func (r ReservationToPodEventHandler) OnDelete(obj interface{}) { _ = "STUB: not implemented"; return }
 
-	pod := NewReservePod(reservation)
-	r.handler.OnDelete(pod)
-}
-
-func IsObjValidActiveReservation(obj interface{}) bool {
-	reservation, _ := obj.(*schedulingv1alpha1.Reservation)
-	err := ValidateReservation(reservation)
-	if err != nil {
-		klog.ErrorS(err, "failed to validate reservation obj", "reservation", klog.KObj(reservation))
-		return false
-	}
-	if !IsReservationActive(reservation) {
-		klog.V(6).InfoS("ignore reservation obj since it is not active",
-			"reservation", klog.KObj(reservation), "phase", reservation.Status.Phase)
-		return false
-	}
-	return true
-}
+func IsObjValidActiveReservation(obj interface{}) bool { _ = "STUB: not implemented"; return false }

@@ -20,8 +20,6 @@ limitations under the License.
 package tc
 
 import (
-	"k8s.io/klog/v2"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/runtimehooks/hooks"
 )
 
@@ -32,15 +30,8 @@ const (
 
 type tcPlugin struct{}
 
-func Object() *tcPlugin {
-	return nil
-}
+func Object() *tcPlugin { _ = "STUB: not implemented"; return nil }
 
-func (n *tcPlugin) Reconcile() {
-	klog.V(5).Info("net qos plugin start to reconcile in !linux os")
-	return
-}
+func (n *tcPlugin) Reconcile() { _ = "STUB: not implemented"; return }
 
-func (n *tcPlugin) Register(op hooks.Options) {
-	klog.V(5).Infof("register hook %v", name)
-}
+func (n *tcPlugin) Register(op hooks.Options) { _ = "STUB: not implemented"; return }

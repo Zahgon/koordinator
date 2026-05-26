@@ -17,17 +17,12 @@ limitations under the License.
 package sysresource
 
 import (
-	"fmt"
 	"time"
 
 	"go.uber.org/atomic"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metricsadvisor/framework"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 const (
@@ -47,130 +42,31 @@ type systemResourceCollector struct {
 }
 
 func New(opt *framework.Options) framework.Collector {
-	return &systemResourceCollector{
-		collectInterval:  opt.Config.CollectResUsedInterval,
-		outdatedInterval: opt.Config.CollectSysMetricOutdatedInterval,
-		started:          atomic.NewBool(false),
-		appendableDB:     opt.MetricCache,
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.Collector)
 }
 
-func (s *systemResourceCollector) Enabled() bool {
-	return true
-}
+func (s *systemResourceCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (s *systemResourceCollector) Setup(c *framework.Context) {
-	s.sharedState = c.State
-}
+func (s *systemResourceCollector) Setup(c *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (s *systemResourceCollector) Run(stopCh <-chan struct{}) {
-	dependencyStarted := func() bool {
-		if cpu, memory := s.sharedState.GetNodeUsage(); cpu == nil || memory == nil {
-			return false
-		}
-		if cpu, memory := s.sharedState.GetPodsUsageByCollector(); len(cpu) == 0 || len(memory) == 0 {
-			return false
-		}
-		return true
-	}
-	if !cache.WaitForCacheSync(stopCh, dependencyStarted) {
-		klog.Fatal("time out waiting for other collector started")
-	}
-	go wait.Until(s.collectSysResUsed, s.collectInterval, stopCh)
-}
+func (s *systemResourceCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (s *systemResourceCollector) Started() bool {
-	return s.started.Load()
-}
+func (s *systemResourceCollector) Started() bool { _ = "STUB: not implemented"; return false }
 
-func (s *systemResourceCollector) collectSysResUsed() {
-	klog.V(6).Info("collectSysResUsed start")
+func (s *systemResourceCollector) collectSysResUsed() { _ = "STUB: not implemented"; return }
 
-	// get node resource usage
-	validTime := timeNow().Add(-s.outdatedInterval)
-	nodeCPU, nodeMemory := s.sharedState.GetNodeUsage()
-	if nodeCPU == nil || nodeMemory == nil {
-		klog.Warningf("node resource cpu %v or memory %v is empty during collect system usage", nodeCPU, nodeMemory)
-		return
-	}
-	if nodeCPU.Timestamp.Before(validTime) || nodeMemory.Timestamp.Before(validTime) {
-		klog.Warningf("node resource metric is timeout, valid time %v, metric time is %v and %v",
-			validTime.String(), nodeCPU.Timestamp.String(), nodeMemory.Timestamp.String())
-		return
-	}
+// get node resource usage
 
-	// get all pod resource usage
-	podsCPUUsage, podsMemoryUsage, err := s.getAllPodsResourceUsage()
-	if err != nil {
-		klog.Warningf("get all pods resource usage failed, error %v", err)
-		return
-	}
+// get all pod resource usage
 
-	// get all host application resource usage
-	hostAppCPU, hostAppMemory := s.sharedState.GetHostAppUsage()
-	if hostAppCPU == nil || hostAppMemory == nil {
-		klog.Warningf("host application resource cpu %v or memory %v is empty during collect system usage",
-			hostAppCPU, hostAppMemory)
-		return
-	}
-	if hostAppCPU.Timestamp.Before(validTime) || hostAppMemory.Timestamp.Before(validTime) {
-		klog.Warningf("host application metric is timeout, valid time %v, metric time is %v and %v",
-			validTime.String(), hostAppCPU.Timestamp.String(), hostAppMemory.Timestamp.String())
-		return
-	}
+// get all host application resource usage
 
-	// calculate system resource usage
-	collectTime := timeNow()
-	systemCPUUsage := util.MaxFloat64(nodeCPU.Value-podsCPUUsage-hostAppCPU.Value, 0)
-	systemMemoryUsage := util.MaxFloat64(nodeMemory.Value-podsMemoryUsage-hostAppMemory.Value, 0)
-	systemCPUMetric, err := metriccache.SystemCPUUsageMetric.GenerateSample(nil, collectTime, systemCPUUsage)
-	if err != nil {
-		klog.Warningf("generate system cpu metric failed, err %v", err)
-		return
-	}
-	systemMemoryMetric, err := metriccache.SystemMemoryUsageMetric.GenerateSample(nil, collectTime, systemMemoryUsage)
-	if err != nil {
-		klog.Warningf("generate system memory metric failed, err %v", err)
-		return
-	}
+// calculate system resource usage
 
-	// commit metric sample
-	appender := s.appendableDB.Appender()
-	if err := appender.Append([]metriccache.MetricSample{systemCPUMetric, systemMemoryMetric}); err != nil {
-		klog.ErrorS(err, "append system metrics error")
-		return
-	}
-	if err := appender.Commit(); err != nil {
-		klog.ErrorS(err, "commit system metrics error")
-		return
-	}
-
-	klog.V(4).Infof("collect system resource usage finished, cpu %v, memory %v", systemCPUUsage, systemMemoryUsage)
-	s.started.Store(true)
-}
+// commit metric sample
 
 func (s *systemResourceCollector) getAllPodsResourceUsage() (cpuCore float64, memory float64, err error) {
-	validTime := timeNow().Add(-s.outdatedInterval)
-	podCPUByCollector, podMemoryByCollector := s.sharedState.GetPodsUsageByCollector()
-	if len(podCPUByCollector) == 0 || len(podMemoryByCollector) == 0 {
-		err = fmt.Errorf("pod resource cpu %v or memory %v is empty during collect system usage", podCPUByCollector, podMemoryByCollector)
-		return
-	}
-	for collector, podCPU := range podCPUByCollector {
-		if podCPU.Timestamp.Before(validTime) {
-			err = fmt.Errorf("pod collector %v cpu resource metric is timeout, valid time %v, metric time is %v",
-				collector, validTime.String(), podCPU.Timestamp.String())
-			return
-		}
-		cpuCore += podCPU.Value
-	}
-	for collector, podMemory := range podMemoryByCollector {
-		if podMemory.Timestamp.Before(validTime) {
-			err = fmt.Errorf("pod collector %v memory resource metric is timeout, valid time %v, metric time is %v",
-				collector, validTime.String(), podMemory.Timestamp.String())
-			return
-		}
-		memory += podMemory.Value
-	}
-	return
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }

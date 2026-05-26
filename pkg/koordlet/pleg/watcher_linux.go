@@ -26,13 +26,7 @@ import (
 )
 
 // NewWatcher creates and returns a new inotify instance using inotify_init(2)
-func NewWatcher() (Watcher, error) {
-	watcher, err := inotify.NewWatcher()
-	if err != nil {
-		return nil, err
-	}
-	return &inotifyWatcher{watcher: watcher}, nil
-}
+func NewWatcher() (Watcher, error) { _ = "STUB: not implemented"; return *new(Watcher), nil }
 
 type inotifyWatcher struct {
 	// FIXME the underlying mutex in inotify.watcher has a bug, so add a mutex here
@@ -44,43 +38,19 @@ type inotifyWatcher struct {
 // Close closes an inotify watcher instance
 // It sends a message to the reader goroutine to quit and removes all watches
 // associated with the inotify instance
-func (w *inotifyWatcher) Close() error {
-	w.Lock()
-	defer w.Unlock()
-	return w.watcher.Close()
-}
+func (w *inotifyWatcher) Close() error { _ = "STUB: not implemented"; return nil }
 
 // AddWatch adds path to the watched file set.
-func (w *inotifyWatcher) AddWatch(path string) error {
-	w.Lock()
-	defer w.Unlock()
-	return w.watcher.AddWatch(path, inotify.InCreate|inotify.InDelete)
-}
+func (w *inotifyWatcher) AddWatch(path string) error { _ = "STUB: not implemented"; return nil }
 
 // RemoveWatch removes path from the watched file set.
-func (w *inotifyWatcher) RemoveWatch(path string) error {
-	w.Lock()
-	defer w.Unlock()
-	return w.watcher.RemoveWatch(path)
-}
+func (w *inotifyWatcher) RemoveWatch(path string) error { _ = "STUB: not implemented"; return nil }
 
 // Event returns the undlying event channel
-func (w *inotifyWatcher) Event() chan *inotify.Event {
-	return w.watcher.Event
-}
+func (w *inotifyWatcher) Event() chan *inotify.Event { _ = "STUB: not implemented"; return nil }
 
 // Event returns the undlying error channel
-func (w *inotifyWatcher) Error() chan error {
-	return w.watcher.Error
-}
+func (w *inotifyWatcher) Error() chan error { _ = "STUB: not implemented"; return nil }
 
 // TypeOf tell the type of event
-func TypeOf(event *inotify.Event) EventType {
-	if event.Mask&inotify.InCreate != 0 && event.Mask&inotify.InIsdir != 0 {
-		return DirCreated
-	}
-	if event.Mask&inotify.InDelete != 0 && event.Mask&inotify.InIsdir != 0 {
-		return DirRemoved
-	}
-	return UnknownType
-}
+func TypeOf(event *inotify.Event) EventType { _ = "STUB: not implemented"; return *new(EventType) }

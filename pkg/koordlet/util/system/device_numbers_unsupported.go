@@ -20,6 +20,7 @@ limitations under the License.
 package system
 
 func GetDeviceNumbers(devicePath string) ([]int64, error) {
+	_ = "STUB: not implemented"
 	// TODO implement it
-	return []int64{0, 0}, nil
+	return nil, nil
 }

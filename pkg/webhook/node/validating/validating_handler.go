@@ -18,19 +18,12 @@ package validating
 
 import (
 	"context"
-	"net/http"
-	"time"
 
-	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	"github.com/koordinator-sh/koordinator/pkg/webhook/metrics"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/node/plugins"
-	nodesloconfig "github.com/koordinator-sh/koordinator/pkg/webhook/node/plugins/sloconfig"
 )
 
 // +kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
@@ -43,98 +36,43 @@ type NodeValidatingHandler struct {
 }
 
 func NewNodeValidatingHandler(c client.Client, d admission.Decoder) *NodeValidatingHandler {
-	handler := &NodeValidatingHandler{
-		Client:  c,
-		Decoder: d,
-	}
-	return handler
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ admission.Handler = &NodeValidatingHandler{}
 
 func ShouldIgnoreIfNotNode(req admission.Request) bool {
+	_ = "STUB: not implemented"
 	// Ignore all calls to sub resources or resources other than nodes.
-	if len(req.AdmissionRequest.SubResource) != 0 ||
-		req.AdmissionRequest.Resource.Resource != "nodes" {
-		return true
-	}
 	return false
 }
 
 // Handle handles admission requests.
 func (h *NodeValidatingHandler) Handle(ctx context.Context, req admission.Request) (resp admission.Response) {
-	klog.V(3).Infof("enter validating handler,type:%v,name:%v,user:%s", req.Kind, req.Name, req.UserInfo.Username)
-	if ShouldIgnoreIfNotNode(req) {
-		return admission.ValidationResponse(true, "")
-	}
-
-	obj, oldObj := newDecodeObj()
-	var err error
-	if req.Operation != admissionv1.Delete {
-		err = h.Decoder.Decode(req, obj)
-		if err != nil {
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-	} else {
-		if len(req.OldObject.Raw) != 0 {
-			if err = h.Decoder.DecodeRaw(req.OldObject, obj); err != nil {
-				return admission.Errored(http.StatusBadRequest, err)
-			}
-		}
-	}
-
-	if req.Operation == admissionv1.Update {
-		err = h.Decoder.DecodeRaw(req.OldObject, oldObj)
-		if err != nil {
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-	}
-
-	defer func() {
-		if !resp.Allowed {
-			klog.Warningf("Webhook finish validating info %s, allowed: %v, result: %v",
-				obj.Name, resp.Allowed, util.DumpJSON(resp.Result))
-		}
-	}()
-
-	pls := h.getPlugins()
-
-	for _, plugin := range pls {
-		start := time.Now()
-		if err = plugin.Validate(ctx, req, obj, oldObj); err != nil {
-			metrics.RecordWebhookDurationMilliseconds(metrics.ValidatingWebhook,
-				metrics.Node, string(req.Operation), err, plugin.Name(), time.Since(start).Seconds())
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-		metrics.RecordWebhookDurationMilliseconds(metrics.ValidatingWebhook,
-			metrics.Node, string(req.Operation), nil, plugin.Name(), time.Since(start).Seconds())
-	}
-
-	return admission.ValidationResponse(true, "")
+	_ = "STUB: not implemented"
+	return *new(admission.Response)
 }
 
 func (h *NodeValidatingHandler) getPlugins() []plugins.NodePlugin {
-	return []plugins.NodePlugin{nodesloconfig.NewPlugin(h.Decoder, h.Client)}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // var _ inject.Client = &NodeValidatingHandler{}
 
 // InjectClient injects the client into the ValidatingHandler
 func (h *NodeValidatingHandler) InjectClient(c client.Client) error {
-	h.Client = c
+	_ = "STUB: not implemented"
 	return nil
-}
 
-// var _ admission.DecoderInjector = &NodeValidatingHandler{}
+	// var _ admission.DecoderInjector = &NodeValidatingHandler{}
+}
 
 // InjectDecoder injects the decoder into the ValidatingHandler
 func (h *NodeValidatingHandler) InjectDecoder(d admission.Decoder) error {
-	h.Decoder = d
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func newDecodeObj() (obj, oldObj *corev1.Node) {
-	obj = &corev1.Node{}
-	oldObj = &corev1.Node{}
-	return obj, oldObj
-}
+func newDecodeObj() (obj, oldObj *corev1.Node) { _ = "STUB: not implemented"; return nil, nil }

@@ -84,20 +84,18 @@ type SchedulerAdapter struct {
 }
 
 func (s *SchedulerAdapter) GetCache() SchedulerCache {
-	return &cacheAdapter{scheduler: s.Scheduler}
+	_ = "STUB: not implemented"
+	return *new(SchedulerCache)
 }
 
 func (s *SchedulerAdapter) GetSchedulingQueue() SchedulingQueue {
-	return &queueAdapter{s.Scheduler}
+	_ = "STUB: not implemented"
+	return *new(SchedulingQueue)
 }
 
 func (s *SchedulerAdapter) MoveAllToActiveOrBackoffQueue(logger klog.Logger, event fwktype.ClusterEvent, oldObj, newObj interface{}, preCheck PreEnqueueCheck) {
-	s.Scheduler.SchedulingQueue.MoveAllToActiveOrBackoffQueue(logger, event, oldObj, newObj, func(pod *corev1.Pod) bool {
-		if preCheck != nil {
-			return preCheck(pod)
-		}
-		return false
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 var _ SchedulerCache = &cacheAdapter{}
@@ -107,44 +105,43 @@ type cacheAdapter struct {
 }
 
 func (c *cacheAdapter) AddPod(logger klog.Logger, pod *corev1.Pod) error {
-	return c.scheduler.Cache.AddPod(logger, pod)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *cacheAdapter) UpdatePod(logger klog.Logger, oldPod, newPod *corev1.Pod) error {
-	return c.scheduler.Cache.UpdatePod(logger, oldPod, newPod)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *cacheAdapter) RemovePod(logger klog.Logger, pod *corev1.Pod) error {
-	return c.scheduler.Cache.RemovePod(logger, pod)
-
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *cacheAdapter) AssumePod(logger klog.Logger, pod *corev1.Pod) error {
-	return c.scheduler.Cache.AssumePod(logger, pod)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *cacheAdapter) IsAssumedPod(pod *corev1.Pod) (bool, error) {
-	return c.scheduler.Cache.IsAssumedPod(pod)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (c *cacheAdapter) GetPod(pod *corev1.Pod) (*corev1.Pod, error) {
-	return c.scheduler.Cache.GetPod(pod)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *cacheAdapter) ForgetPod(logger klog.Logger, pod *corev1.Pod) error {
-	return c.scheduler.Cache.ForgetPod(logger, pod)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *cacheAdapter) InvalidNodeInfo(logger klog.Logger, nodeName string) error {
-	val := podPool.Get()
-	defer podPool.Put(val)
-	pod := val.(*corev1.Pod)
-	pod.Spec.NodeName = nodeName
-	err := c.scheduler.Cache.AddPod(logger, pod)
-	if err != nil {
-		return err
-	}
-	return c.scheduler.Cache.RemovePod(logger, pod)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ SchedulingQueue = &queueAdapter{}
@@ -153,50 +150,43 @@ type queueAdapter struct {
 	scheduler *scheduler.Scheduler
 }
 
-func (q *queueAdapter) Add(logger klog.Logger, pod *corev1.Pod) {
-	q.scheduler.SchedulingQueue.Add(logger, pod)
-}
+func (q *queueAdapter) Add(logger klog.Logger, pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
 func (q *queueAdapter) Update(logger klog.Logger, oldPod, newPod *corev1.Pod) {
-	q.scheduler.SchedulingQueue.Update(logger, oldPod, newPod)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (q *queueAdapter) Delete(pod *corev1.Pod) {
-	q.scheduler.SchedulingQueue.Delete(pod)
-}
+func (q *queueAdapter) Delete(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
 func (q *queueAdapter) AddUnschedulableIfNotPresent(logger klog.Logger, pInfo *framework.QueuedPodInfo, podSchedulingCycle int64) error {
-	return q.scheduler.SchedulingQueue.AddUnschedulableIfNotPresent(logger, pInfo, podSchedulingCycle)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (q *queueAdapter) SchedulingCycle() int64 {
-	return q.scheduler.SchedulingQueue.SchedulingCycle()
-}
+func (q *queueAdapter) SchedulingCycle() int64 { _ = "STUB: not implemented"; return 0 }
 
 func (q *queueAdapter) AssignedPodAdded(logger klog.Logger, pod *corev1.Pod) {
-	q.scheduler.SchedulingQueue.AssignedPodAdded(logger, pod)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (q *queueAdapter) AssignedPodUpdated(logger klog.Logger, oldPod, newPod *corev1.Pod, event fwktype.ClusterEvent) {
-	q.scheduler.SchedulingQueue.AssignedPodUpdated(logger, oldPod, newPod, event)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (q *queueAdapter) MoveAllToActiveOrBackoffQueue(logger klog.Logger, event fwktype.ClusterEvent, oldObj, newObj interface{}, preCheck PreEnqueueCheck) {
-	q.scheduler.SchedulingQueue.MoveAllToActiveOrBackoffQueue(logger, event, oldObj, newObj, func(pod *corev1.Pod) bool {
-		if preCheck != nil {
-			return preCheck(pod)
-		}
-		return false
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func (q *queueAdapter) Activate(logger klog.Logger, pods map[string]*corev1.Pod) {
-	q.scheduler.SchedulingQueue.Activate(logger, pods)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (q *queueAdapter) Done(pod types.UID) {
-	q.scheduler.SchedulingQueue.Done(pod)
-}
+func (q *queueAdapter) Done(pod types.UID) { _ = "STUB: not implemented"; return }
 
 var _ Scheduler = &FakeScheduler{}
 var _ SchedulingQueue = &FakeQueue{}
@@ -209,19 +199,7 @@ type FakeScheduler struct {
 	NodeInfos  map[string]*framework.NodeInfo
 }
 
-func NewFakeScheduler() *FakeScheduler {
-	return &FakeScheduler{
-		Pods:       map[string]*corev1.Pod{},
-		AssumedPod: map[string]*corev1.Pod{},
-		Queue: &FakeQueue{
-			Pods:                map[string]*corev1.Pod{},
-			UnschedulablePods:   map[string]*corev1.Pod{},
-			AssignedPods:        map[string]*corev1.Pod{},
-			AssignedUpdatedPods: map[string]*corev1.Pod{},
-		},
-		NodeInfos: map[string]*framework.NodeInfo{},
-	}
-}
+func NewFakeScheduler() *FakeScheduler { _ = "STUB: not implemented"; return nil }
 
 type FakeQueue struct {
 	Pods                map[string]*corev1.Pod
@@ -231,114 +209,89 @@ type FakeQueue struct {
 }
 
 func (f *FakeScheduler) GetCache() SchedulerCache {
-	return f
+	_ = "STUB: not implemented"
+	return *new(SchedulerCache)
 }
 
 func (f *FakeScheduler) GetSchedulingQueue() SchedulingQueue {
-	return f.Queue
+	_ = "STUB: not implemented"
+	return *new(SchedulingQueue)
 }
 
 func (f *FakeScheduler) AddPod(logger klog.Logger, pod *corev1.Pod) error {
-	key, _ := framework.GetPodKey(pod)
-	f.Pods[key] = pod
-	delete(f.AssumedPod, key)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeScheduler) UpdatePod(logger klog.Logger, oldPod, newPod *corev1.Pod) error {
-	key, _ := framework.GetPodKey(newPod)
-	f.Pods[key] = newPod
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeScheduler) RemovePod(logger klog.Logger, pod *corev1.Pod) error {
-	key, _ := framework.GetPodKey(pod)
-	delete(f.Pods, key)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeScheduler) AssumePod(logger klog.Logger, pod *corev1.Pod) error {
-	key, _ := framework.GetPodKey(pod)
-	f.AssumedPod[key] = pod
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeScheduler) IsAssumedPod(pod *corev1.Pod) (bool, error) {
-	key, _ := framework.GetPodKey(pod)
-	_, ok := f.AssumedPod[key]
-	return ok, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (f *FakeScheduler) GetPod(pod *corev1.Pod) (*corev1.Pod, error) {
-	key, _ := framework.GetPodKey(pod)
-	p := f.Pods[key]
-	return p, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (f *FakeScheduler) ForgetPod(logger klog.Logger, pod *corev1.Pod) error {
-	key, _ := framework.GetPodKey(pod)
-	delete(f.AssumedPod, key)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *FakeScheduler) InvalidNodeInfo(logger klog.Logger, nodeName string) error {
-	val := podPool.Get()
-	defer podPool.Put(val)
-	pod := val.(*corev1.Pod)
-	pod.Spec.NodeName = nodeName
-
-	f.lock.Lock()
-	defer f.lock.Unlock()
-	nodeInfo := f.NodeInfos[nodeName]
-	if nodeInfo == nil {
-		nodeInfo = framework.NewNodeInfo()
-		f.NodeInfos[nodeName] = nodeInfo
-	}
-	nodeInfo.AddPod(pod)
-	return nodeInfo.RemovePod(logger, pod)
-}
-
-func (f *FakeQueue) Add(logger klog.Logger, pod *corev1.Pod) {
-	key, _ := framework.GetPodKey(pod)
-	f.Pods[key] = pod
-}
-
-func (f *FakeQueue) Update(logger klog.Logger, oldPod, newPod *corev1.Pod) {
-	key, _ := framework.GetPodKey(newPod)
-	f.Pods[key] = newPod
-}
-
-func (f *FakeQueue) Delete(pod *corev1.Pod) {
-	key, _ := framework.GetPodKey(pod)
-	delete(f.Pods, key)
-	delete(f.UnschedulablePods, key)
-}
-
-func (f *FakeQueue) AddUnschedulableIfNotPresent(logger klog.Logger, pod *framework.QueuedPodInfo, podSchedulingCycle int64) error {
-	key, _ := framework.GetPodKey(pod.Pod)
-	f.UnschedulablePods[key] = pod.Pod
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (f *FakeQueue) SchedulingCycle() int64 {
-	return 0
+func (f *FakeQueue) Add(logger klog.Logger, pod *corev1.Pod) { _ = "STUB: not implemented"; return }
+
+func (f *FakeQueue) Update(logger klog.Logger, oldPod, newPod *corev1.Pod) {
+	_ = "STUB: not implemented"
+	return
 }
 
+func (f *FakeQueue) Delete(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
+
+func (f *FakeQueue) AddUnschedulableIfNotPresent(logger klog.Logger, pod *framework.QueuedPodInfo, podSchedulingCycle int64) error {
+	_ = "STUB: not implemented"
+	return nil
+}
+
+func (f *FakeQueue) SchedulingCycle() int64 { _ = "STUB: not implemented"; return 0 }
+
 func (f *FakeQueue) AssignedPodAdded(logger klog.Logger, pod *corev1.Pod) {
-	key, _ := framework.GetPodKey(pod)
-	f.AssignedPods[key] = pod
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *FakeQueue) AssignedPodUpdated(logger klog.Logger, oldPod, newPod *corev1.Pod, event fwktype.ClusterEvent) {
-	key, _ := framework.GetPodKey(newPod)
-	f.AssignedUpdatedPods[key] = newPod
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *FakeQueue) MoveAllToActiveOrBackoffQueue(logger klog.Logger, event fwktype.ClusterEvent, oldObj, newObj interface{}, preCheck PreEnqueueCheck) {
-
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *FakeQueue) Activate(logger klog.Logger, pods map[string]*corev1.Pod) {
+	_ = "STUB: not implemented"
+	return
 }
 
-func (f *FakeQueue) Done(pod types.UID) {}
+func (f *FakeQueue) Done(pod types.UID) { _ = "STUB: not implemented"; return }

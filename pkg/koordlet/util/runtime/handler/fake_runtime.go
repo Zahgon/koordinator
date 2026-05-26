@@ -30,17 +30,21 @@ type FakeRuntimeHandler struct {
 }
 
 func NewFakeRuntimeHandler() ContainerRuntimeHandler {
-	return &FakeRuntimeHandler{fakeRuntimeService: testing.NewFakeRuntimeService(), PodMetas: make(map[string]*statesinformer.PodMeta)}
+	_ = "STUB: not implemented"
+	return *new(ContainerRuntimeHandler)
 }
 
 func (f *FakeRuntimeHandler) StopContainer(ctx context.Context, containerID string, timeout int64) error {
-	return f.fakeRuntimeService.StopContainer(ctx, containerID, timeout)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *FakeRuntimeHandler) SetFakeContainers(containers []*testing.FakeContainer) {
-	f.fakeRuntimeService.SetFakeContainers(containers)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *FakeRuntimeHandler) UpdateContainerResources(containerID string, opts UpdateOptions) error {
+	_ = "STUB: not implemented"
 	return nil
 }

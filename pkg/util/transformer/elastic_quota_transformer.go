@@ -17,23 +17,13 @@ limitations under the License.
 package transformer
 
 import (
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/generated/informers/externalversions"
 )
 
 func SetupElasticQuotaTransformers(factory externalversions.SharedInformerFactory) {
-	resource := v1alpha1.SchemeGroupVersion.WithResource("elasticquotas")
-	informer, err := factory.ForResource(resource)
-	if err != nil {
-		klog.Fatalf("Failed to create informer for resource %v, err: %v", resource.String(), err)
-	}
-	if err = informer.Informer().SetTransform(TransformElasticQuota); err != nil {
-		klog.Fatalf("Failed to SetTransform in informer, resource: %v, err: %v", resource, err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 var elasticQuotaTransformers = []func(elasticQuota *v1alpha1.ElasticQuota){
@@ -41,28 +31,11 @@ var elasticQuotaTransformers = []func(elasticQuota *v1alpha1.ElasticQuota){
 }
 
 func TransformElasticQuota(obj interface{}) (interface{}, error) {
-	var eq *v1alpha1.ElasticQuota
-	switch t := obj.(type) {
-	case *v1alpha1.ElasticQuota:
-		eq = t
-	case cache.DeletedFinalStateUnknown:
-		eq, _ = t.Obj.(*v1alpha1.ElasticQuota)
-	}
-	if eq == nil {
-		return obj, nil
-	}
-	for _, fn := range elasticQuotaTransformers {
-		fn(eq)
-	}
-
-	if unknown, ok := obj.(cache.DeletedFinalStateUnknown); ok {
-		unknown.Obj = eq
-		return unknown, nil
-	}
-	return eq, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func TransformElasticQuotaWithDeprecatedBatchResources(eq *v1alpha1.ElasticQuota) {
-	replaceAndEraseWithResourcesMapper(eq.Spec.Max, apiext.DeprecatedBatchResourcesMapper)
-	replaceAndEraseWithResourcesMapper(eq.Spec.Min, apiext.DeprecatedBatchResourcesMapper)
+	_ = "STUB: not implemented"
+	return
 }

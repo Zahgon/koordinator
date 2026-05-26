@@ -23,18 +23,16 @@ type ClusterAutoscalerMetrics testutil.Metrics
 
 // Equal returns true if all metrics are the same as the arguments.
 func (m *ClusterAutoscalerMetrics) Equal(o ClusterAutoscalerMetrics) bool {
-	return (*testutil.Metrics)(m).Equal(testutil.Metrics(o))
+	_ = "STUB: not implemented"
+	return false
 }
 
 func newClusterAutoscalerMetrics() ClusterAutoscalerMetrics {
-	result := testutil.NewMetrics()
-	return ClusterAutoscalerMetrics(result)
+	_ = "STUB: not implemented"
+	return *new(ClusterAutoscalerMetrics)
 }
 
 func parseClusterAutoscalerMetrics(data string) (ClusterAutoscalerMetrics, error) {
-	result := newClusterAutoscalerMetrics()
-	if err := testutil.ParseMetrics(data, (*testutil.Metrics)(&result)); err != nil {
-		return ClusterAutoscalerMetrics{}, err
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(ClusterAutoscalerMetrics), nil
 }

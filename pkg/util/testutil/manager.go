@@ -18,7 +18,6 @@ package testutil
 
 import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/cache/informertest"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -26,6 +25,4 @@ type FakeManager struct {
 	manager.Manager
 }
 
-func (mgr *FakeManager) GetCache() cache.Cache {
-	return &informertest.FakeInformers{}
-}
+func (mgr *FakeManager) GetCache() cache.Cache { _ = "STUB: not implemented"; return *new(cache.Cache) }

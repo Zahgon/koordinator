@@ -18,11 +18,7 @@ limitations under the License.
 package framework
 
 import (
-	"reflect"
-	"runtime"
 	"sync"
-
-	e2elog "github.com/koordinator-sh/koordinator/test/e2e/framework/log"
 )
 
 // CleanupActionHandle is an integer pointer type for handling cleanup action
@@ -40,42 +36,17 @@ var cleanupHookList = []cleanupFuncHandle{}
 // test to hook into SynchronizedAfterSuite().
 // The hooks are called in last-in-first-out order.
 func AddCleanupAction(fn func()) CleanupActionHandle {
-	p := CleanupActionHandle(new(int))
-	cleanupActionsLock.Lock()
-	defer cleanupActionsLock.Unlock()
-	c := cleanupFuncHandle{actionHandle: p, actionHook: fn}
-	cleanupHookList = append([]cleanupFuncHandle{c}, cleanupHookList...)
-	return p
+	_ = "STUB: not implemented"
+	return *new(CleanupActionHandle)
 }
 
 // RemoveCleanupAction removes a function that was installed by
 // AddCleanupAction.
-func RemoveCleanupAction(p CleanupActionHandle) {
-	cleanupActionsLock.Lock()
-	defer cleanupActionsLock.Unlock()
-	for i, item := range cleanupHookList {
-		if item.actionHandle == p {
-			cleanupHookList = append(cleanupHookList[:i], cleanupHookList[i+1:]...)
-			break
-		}
-	}
-}
+func RemoveCleanupAction(p CleanupActionHandle) { _ = "STUB: not implemented"; return }
 
 // RunCleanupActions runs all functions installed by AddCleanupAction.  It does
 // not remove them (see RemoveCleanupAction) but it does run unlocked, so they
 // may remove themselves.
-func RunCleanupActions() {
-	list := []func(){}
-	func() {
-		cleanupActionsLock.Lock()
-		defer cleanupActionsLock.Unlock()
-		for _, p := range cleanupHookList {
-			list = append(list, p.actionHook)
-		}
-	}()
-	// Run unlocked.
-	for _, fn := range list {
-		e2elog.Logf("Running Cleanup Action: %v", runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name())
-		fn()
-	}
-}
+func RunCleanupActions() { _ = "STUB: not implemented"; return }
+
+// Run unlocked.

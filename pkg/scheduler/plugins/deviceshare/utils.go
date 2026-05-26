@@ -17,23 +17,14 @@ limitations under the License.
 package deviceshare
 
 import (
-	"errors"
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	resourceapi "k8s.io/component-helpers/resource"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	reservationutil "github.com/koordinator-sh/koordinator/pkg/util/reservation"
 )
 
 const (
@@ -223,327 +214,82 @@ var ResourceCombinationsMapper = map[uint]func(podRequest corev1.ResourceList) c
 	},
 }
 
-func ValidatePercentageResource(q resource.Quantity) bool {
-	if q.Value() > 100 && q.Value()%100 != 0 {
-		return false
-	}
-	return true
-}
+func ValidatePercentageResource(q resource.Quantity) bool { _ = "STUB: not implemented"; return false }
 
-func ValidateMultiple(a, b resource.Quantity) bool {
-	if a.Value()%b.Value() != 0 {
-		return false
-	}
+func ValidateMultiple(a, b resource.Quantity) bool { _ = "STUB: not implemented"; return false }
 
-	return true
-}
-
-func ValidateLessThan100Times(a, b resource.Quantity) bool {
-	if a.Value()/b.Value() > 100 {
-		return false
-	}
-
-	return true
-}
+func ValidateLessThan100Times(a, b resource.Quantity) bool { _ = "STUB: not implemented"; return false }
 
 func ValidDeviceResourceCombinationsGPUShared(podRequest corev1.ResourceList) bool {
-	gpuSharedQuantity, gpuSharedExist := podRequest[apiext.ResourceGPUShared]
-	gpuCoreQuantity, gpuCoreExist := podRequest[apiext.ResourceGPUCore]
-	gpuMemoryRatioQuantity, gpuMemoryRatioExist := podRequest[apiext.ResourceGPUMemoryRatio]
-
-	if !gpuSharedExist {
-		return false
-	}
-
-	if gpuCoreExist && (!ValidateMultiple(gpuCoreQuantity, gpuSharedQuantity) || !ValidateLessThan100Times(gpuCoreQuantity, gpuSharedQuantity)) {
-		return false
-	}
-	if gpuMemoryRatioExist && (!ValidateMultiple(gpuMemoryRatioQuantity, gpuSharedQuantity) || !ValidateLessThan100Times(gpuMemoryRatioQuantity, gpuSharedQuantity)) {
-		return false
-	}
-
-	return true
-}
-
-func ValidDeviceResourceCombinationsHuaweiNPUShared(podRequest corev1.ResourceList) bool {
-	gpuSharedQuantity, gpuSharedExist := podRequest[apiext.ResourceGPUShared]
-	npuDVPPQuantity, npuDVPPExist := podRequest[apiext.ResourceHuaweiNPUDVPP]
-
-	if !gpuSharedExist {
-		return false
-	}
-
-	// multiple npu share is not supported on device side
-	if gpuSharedQuantity.Value() > 1 {
-		return false
-	}
-
-	if npuDVPPExist && npuDVPPQuantity.Value() > 100 {
-		return false
-	}
-
-	return true
-}
-
-func ValidDeviceResourceCombinationsGPUPercentage(podRequest corev1.ResourceList) bool {
-	gpuCoreQuantity, gpuCoreExist := podRequest[apiext.ResourceGPUCore]
-	gpuMemoryRatioQuantity, gpuMemoryRatioExist := podRequest[apiext.ResourceGPUMemoryRatio]
-	if gpuCoreExist && !ValidatePercentageResource(gpuCoreQuantity) {
-		return false
-	}
-	if gpuMemoryRatioExist && !ValidatePercentageResource(gpuMemoryRatioQuantity) {
-		return false
-	}
-
-	return true
-}
-
-func ValidDeviceResourceCombinationsDefaultTrue(podRequest corev1.ResourceList) bool {
-	return true
-}
-
-func ValidateDeviceRequest(podRequest corev1.ResourceList) (uint, error) {
-	var combination uint
-
-	if podRequest == nil || len(podRequest) == 0 {
-		return combination, fmt.Errorf("pod request should not be empty")
-	}
-
-	for resourceName, quantity := range podRequest {
-		flag := DeviceResourceFlags[resourceName]
-		combination |= flag
-
-		validator := DeviceResourceValidators[resourceName]
-		if validator != nil && !validator(quantity) {
-			return combination, fmt.Errorf("invalid resource unit %v: %v", resourceName, quantity.String())
-		}
-	}
-
-	if valid := ValidDeviceResourceCombinations[combination]; valid == nil || !valid(podRequest) {
-		return combination, fmt.Errorf("invalid resource device requests: %v", quotav1.ResourceNames(podRequest))
-	}
-
-	return combination, nil
-}
-
-func ConvertDeviceRequest(podRequest corev1.ResourceList, combination uint) corev1.ResourceList {
-	if podRequest == nil || len(podRequest) == 0 {
-		klog.Warningf("pod request should not be empty")
-		return nil
-	}
-	mapper := ResourceCombinationsMapper[combination]
-	if mapper != nil {
-		return mapper(podRequest)
-	}
-	return nil
-}
-
-func hasVirtualFunctions(nodeDevice *nodeDevice, deviceType schedulingv1alpha1.DeviceType) bool {
-	// TODO 这里可以异步掉，虽然计算量也不多
-	deviceInfos := nodeDevice.deviceInfos[deviceType]
-	for _, v := range deviceInfos {
-		if len(v.VFGroups) > 0 {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func mustAllocateVF(hint *apiext.DeviceHint) bool {
-	return hint != nil && hint.VFSelector != nil
+func ValidDeviceResourceCombinationsHuaweiNPUShared(podRequest corev1.ResourceList) bool {
+	_ = "STUB: not implemented"
+	return false
 }
 
+// multiple npu share is not supported on device side
+
+func ValidDeviceResourceCombinationsGPUPercentage(podRequest corev1.ResourceList) bool {
+	_ = "STUB: not implemented"
+	return false
+}
+
+func ValidDeviceResourceCombinationsDefaultTrue(podRequest corev1.ResourceList) bool {
+	_ = "STUB: not implemented"
+	return false
+}
+
+func ValidateDeviceRequest(podRequest corev1.ResourceList) (uint, error) {
+	_ = "STUB: not implemented"
+	return 0, nil
+}
+
+func ConvertDeviceRequest(podRequest corev1.ResourceList, combination uint) corev1.ResourceList {
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList)
+}
+
+func hasVirtualFunctions(nodeDevice *nodeDevice, deviceType schedulingv1alpha1.DeviceType) bool {
+	_ = "STUB: not implemented"
+	// TODO 这里可以异步掉，虽然计算量也不多
+	return false
+}
+
+func mustAllocateVF(hint *apiext.DeviceHint) bool { _ = "STUB: not implemented"; return false }
+
 func preparePod(pod *corev1.Pod, gpuSharedResourceTemplatesCache *gpuSharedResourceTemplatesCache, templateMatchedResources []corev1.ResourceName) (state *preFilterState, status *fwktype.Status) {
-	state = &preFilterState{
-		skip:               true,
-		preemptibleDevices: map[string]map[schedulingv1alpha1.DeviceType]deviceResources{},
-		preemptibleInRRs:   map[string]map[types.UID]map[schedulingv1alpha1.DeviceType]deviceResources{},
-	}
-
-	requests, err := GetPodDeviceRequests(pod)
-	if err != nil {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-	}
-
-	recordedDeviceAllocations, err := apiext.GetDeviceAllocations(pod.Annotations)
-	if err != nil {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-	}
-	state.designatedAllocation = recordedDeviceAllocations
-	state.designatedVF = constructDesignatedVF(state.designatedAllocation)
-
-	state.podRequests = requests
-	state.skip = len(requests) == 0
-	if !state.skip {
-		err = parsePodDeviceShareExtensions(pod, requests, state)
-		if err != nil {
-			return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-		}
-		if state.jointAllocate != nil && len(state.jointAllocate.DeviceTypes) >= 1 {
-			state.primaryDeviceType = state.jointAllocate.DeviceTypes[0]
-		}
-		state.gpuRequirements, err = parseGPURequirements(pod, requests, state.hints[schedulingv1alpha1.GPU], gpuSharedResourceTemplatesCache, templateMatchedResources)
-		if err != nil {
-			return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-		}
-		state.podFitsSecondaryDeviceWellPlanned = state.gpuRequirements != nil && !state.gpuRequirements.gpuShared
-		reservationAffinity, err := reservationutil.GetRequiredReservationAffinity(pod)
-		if err != nil {
-			return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, err.Error())
-		}
-		state.isReservationRequired = reservationAffinity != nil || apiext.IsPreAllocationRequired(pod.Labels)
-	}
-
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func constructDesignatedVF(designatedAllocation apiext.DeviceAllocations) map[schedulingv1alpha1.DeviceType]map[int32]sets.Set[string] {
-	if designatedAllocation == nil {
-		return nil
-	}
-	designatedVF := make(map[schedulingv1alpha1.DeviceType]map[int32]sets.Set[string])
-	for deviceType, allocations := range designatedAllocation {
-		vfOfType := make(map[int32]sets.Set[string])
-		for _, allocation := range allocations {
-			if allocation.Extension != nil && len(allocation.Extension.VirtualFunctions) != 0 {
-				minor := allocation.Minor
-				vfOfMinor := sets.New[string]()
-				for _, function := range allocation.Extension.VirtualFunctions {
-					vfOfMinor.Insert(function.BusID)
-				}
-				vfOfType[minor] = vfOfMinor
-			}
-		}
-		if len(vfOfType) != 0 {
-			designatedVF[deviceType] = vfOfType
-		}
-	}
-	return designatedVF
-}
-
-func GetPodDeviceRequests(pod *corev1.Pod) (map[schedulingv1alpha1.DeviceType]corev1.ResourceList, error) {
-	podRequests := resourceapi.PodRequests(pod, resourceapi.PodResourcesOptions{})
-	podRequests = quotav1.RemoveZeros(podRequests)
-
-	var requests map[schedulingv1alpha1.DeviceType]corev1.ResourceList
-	for deviceType, supportedResourceNames := range DeviceResourceNames {
-		deviceRequest := quotav1.Mask(podRequests, supportedResourceNames)
-		if quotav1.IsZero(deviceRequest) {
-			continue
-		}
-		combination, err := ValidateDeviceRequest(deviceRequest)
-		if err != nil {
-			return nil, err
-		}
-		if requests == nil {
-			requests = map[schedulingv1alpha1.DeviceType]corev1.ResourceList{}
-		}
-		requests[deviceType] = ConvertDeviceRequest(deviceRequest, combination)
-	}
-	return requests, nil
-}
-
-func parsePodDeviceShareExtensions(pod *corev1.Pod, podRequests map[schedulingv1alpha1.DeviceType]corev1.ResourceList, state *preFilterState) error {
-	hints, err := apiext.GetDeviceAllocateHints(pod.Annotations)
-	if err != nil {
-		return fmt.Errorf("invalid DeviceAllocateHint annotation, err: %s", err.Error())
-	}
-
-	hintSelectors, err := newHintSelectors(hints)
-	if err != nil {
-		return err
-	}
-
-	jointAllocate, err := apiext.GetDeviceJointAllocate(pod.Annotations)
-	if err != nil {
-		return fmt.Errorf("invalid DeviceJointAllocate annotation, err: %s", err.Error())
-	}
-
-	if jointAllocate != nil {
-		var deviceTypes []schedulingv1alpha1.DeviceType
-		for _, deviceType := range jointAllocate.DeviceTypes {
-			if h := hints[deviceType]; h != nil && h.AllocateStrategy == apiext.ApplyForAllDeviceAllocateStrategy {
-				continue
-			}
-			requests := podRequests[deviceType]
-			if !quotav1.IsZero(requests) {
-				deviceTypes = append(deviceTypes, deviceType)
-			}
-		}
-		jointAllocate.DeviceTypes = deviceTypes
-	}
-
-	state.hints = hints
-	state.hintSelectors = hintSelectors
-	for _, selectors := range hintSelectors {
-		// selectors is type of [2]labels.Selector, so we don't need to worry it is nil or len != 2
-		if selectors[0] != nil {
-			state.hasSelectors = true
-			break
-		}
-	}
-	state.jointAllocate = jointAllocate
+	_ = "STUB: not implemented"
 	return nil
 }
 
+func GetPodDeviceRequests(pod *corev1.Pod) (map[schedulingv1alpha1.DeviceType]corev1.ResourceList, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func parsePodDeviceShareExtensions(pod *corev1.Pod, podRequests map[schedulingv1alpha1.DeviceType]corev1.ResourceList, state *preFilterState) error {
+	_ = "STUB: not implemented"
+	return nil
+}
+
+// selectors is type of [2]labels.Selector, so we don't need to worry it is nil or len != 2
+
 func newHintSelectors(hints apiext.DeviceAllocateHints) (map[schedulingv1alpha1.DeviceType][2]labels.Selector, error) {
-	var hintSelectors map[schedulingv1alpha1.DeviceType][2]labels.Selector
-	for deviceType, v := range hints {
-		var selector labels.Selector
-		var vfSelector labels.Selector
-		if v.Selector != nil {
-			var err error
-			selector, err = util.GetFastLabelSelector(v.Selector)
-			if err != nil {
-				return nil, fmt.Errorf("invalid Selector of DeviceHint, deviceType: %s, err: %s", deviceType, err.Error())
-			}
-		}
-		if v.VFSelector != nil {
-			var err error
-			vfSelector, err = util.GetFastLabelSelector(v.VFSelector)
-			if err != nil {
-				return nil, fmt.Errorf("invalid VFSelector of DeviceHint, deviceType: %s, err: %s", deviceType, err.Error())
-			}
-		}
-		if hintSelectors == nil {
-			hintSelectors = map[schedulingv1alpha1.DeviceType][2]labels.Selector{}
-		}
-		hintSelectors[deviceType] = [2]labels.Selector{selector, vfSelector}
-	}
-	return hintSelectors, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func parseGPURequirements(pod *corev1.Pod, podRequests map[schedulingv1alpha1.DeviceType]corev1.ResourceList, gpuHints *apiext.DeviceHint, gpuSharedResourceTemplatesCache *gpuSharedResourceTemplatesCache, templateMatchedResources []corev1.ResourceName) (*GPURequirements, error) {
-	gpuRequests := podRequests[schedulingv1alpha1.GPU]
-	if quotav1.IsZero(gpuRequests) {
-		return nil, nil
-	}
-	gpuPartitionSpec, err := apiext.GetGPUPartitionSpec(pod.Annotations)
-	if err != nil {
-		return nil, fmt.Errorf("invalid GPUPartitionSpec annotation, err: %s", err.Error())
-	}
-	requestsPerGPU, numberOfGPUs, isShared := calcDesiredRequestsAndCountForGPU(gpuRequests)
-	gpuRequirements := &GPURequirements{
-		numberOfGPUs:   numberOfGPUs,
-		requestsPerGPU: requestsPerGPU,
-		gpuShared:      isShared,
-	}
-	if gpuPartitionSpec != nil {
-		gpuRequirements.honorGPUPartition = true
-		gpuRequirements.restrictedGPUPartition = gpuPartitionSpec.AllocatePolicy == apiext.GPUPartitionAllocatePolicyRestricted
-		gpuRequirements.rindBusBandwidth = gpuPartitionSpec.RingBusBandwidth
-	}
-	if gpuHints != nil {
-		gpuRequirements.requiredTopologyScope = gpuHints.RequiredTopologyScope
-		gpuRequirements.requiredTopologyScopeLevel = apiext.DeviceTopologyScopeLevel[gpuRequirements.requiredTopologyScope]
-	}
-	if isShared && len(quotav1.Intersection(quotav1.ResourceNames(requestsPerGPU), templateMatchedResources)) > 0 {
-		gpuRequirements.enforceGPUSharedResourceTemplate = true
-		// TODO(zqzten): use non-strict finding for volcano style usage of huawei npu
-		gpuRequirements.candidateGPUSharedResourceTemplates = gpuSharedResourceTemplatesCache.findMatchedTemplates(requestsPerGPU, true)
-		if len(gpuRequirements.candidateGPUSharedResourceTemplates) == 0 {
-			return nil, errors.New(ErrNoMatchedGPUSharedResourceTemplate)
-		}
-	}
-	return gpuRequirements, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// TODO(zqzten): use non-strict finding for volcano style usage of huawei npu

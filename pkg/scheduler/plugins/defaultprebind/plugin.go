@@ -18,19 +18,16 @@ package defaultprebind
 
 import (
 	"context"
-	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	koordinatorclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 const (
@@ -50,91 +47,39 @@ type koordClientSetHandle interface {
 }
 
 func New(_ context.Context, args runtime.Object, handle fwktype.Handle) (fwktype.Plugin, error) {
-	koordClientSetHandle, _ := handle.(koordClientSetHandle)
-	if koordClientSetHandle == nil {
-		return nil, fmt.Errorf("fwktype.Handle cannot provide koordinator clientset")
-	}
-	return &Plugin{
-		clientSet:      handle.ClientSet(),
-		koordClientSet: koordClientSetHandle.KoordinatorClientSet(),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fwktype.Plugin), nil
 }
 
-func (pl *Plugin) Name() string {
-	return Name
-}
+func (pl *Plugin) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (pl *Plugin) PreBindPreFlight(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (pl *Plugin) PreBind(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (pl *Plugin) ApplyPatch(ctx context.Context, cycleState fwktype.CycleState, originalObj, modifiedObj metav1.Object) *fwktype.Status {
-	if originalPod, ok := originalObj.(*corev1.Pod); ok {
-		return pl.applyPodPatch(ctx, originalPod, modifiedObj.(*corev1.Pod))
-	}
-
-	if originalReservation, ok := originalObj.(*schedulingv1alpha1.Reservation); ok {
-		return pl.applyReservationPatch(ctx, originalReservation, modifiedObj.(*schedulingv1alpha1.Reservation))
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (pl *Plugin) applyPodPatch(ctx context.Context, originalPod, modifiedPod *corev1.Pod) *fwktype.Status {
-	var patchedPod *corev1.Pod
-	err := util.RetryOnConflictOrTooManyRequestsOrConnectionClose(func() error {
-		got, err := util.PatchPodSafe(ctx, pl.clientSet, originalPod, modifiedPod)
-		if err != nil {
-			klog.ErrorS(err, "Failed to patch Pod", "pod", klog.KObj(originalPod), "uid", originalPod.UID)
-			return err
-		}
-		patchedPod = got
-		return nil
-	})
-
-	if err != nil {
-		klog.ErrorS(err, "Failed to apply patch for Pod", "pod", klog.KObj(originalPod), "uid", originalPod.UID)
-		return fwktype.AsStatus(err)
-	}
-	// NOTE: Patch might succeed for a deleting object without updating the data when the apiserver receive a Delete earlier.
-	// In this case, we should clean up the reserved resources to avoid cache leak.
-	if patchedPod.DeletionTimestamp != nil {
-		err = fmt.Errorf("pod is being deleted")
-		klog.ErrorS(err, "Failed to apply patch for Pod", "pod", klog.KObj(originalPod), "uid", originalPod.UID, "deletionTimestamp", patchedPod.DeletionTimestamp)
-		return fwktype.AsStatus(err)
-	}
-
-	klog.V(4).InfoS("Successfully apply patch for Pod", "pod", klog.KObj(originalPod))
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// NOTE: Patch might succeed for a deleting object without updating the data when the apiserver receive a Delete earlier.
+// In this case, we should clean up the reserved resources to avoid cache leak.
 
 func (pl *Plugin) applyReservationPatch(ctx context.Context, originalReservation, modifiedReservation *schedulingv1alpha1.Reservation) *fwktype.Status {
-	var patchedReservation *schedulingv1alpha1.Reservation
-	err := util.RetryOnConflictOrTooManyRequestsOrConnectionClose(func() error {
-		got, err := util.PatchReservationSafe(ctx, pl.koordClientSet, originalReservation, modifiedReservation)
-		if err != nil {
-			klog.ErrorS(err, "Failed to patch Reservation", "reservation", klog.KObj(originalReservation), "uid", originalReservation.UID)
-			return err
-		}
-		patchedReservation = got
-		return nil
-	})
-	if err != nil {
-		klog.ErrorS(err, "Failed to apply patch for Reservation", "reservation", klog.KObj(originalReservation), "uid", originalReservation.UID)
-		return fwktype.AsStatus(err)
-	}
-	// NOTE: Patch might succeed for a deleting object without updating the data when the apiserver receive a Delete earlier.
-	// In this case, we should clean up the reserved resources to avoid cache leak.
-	if patchedReservation.DeletionTimestamp != nil {
-		err = fmt.Errorf("pod is being deleted")
-		klog.ErrorS(err, "Failed to apply patch for Reservation", "reservation", klog.KObj(originalReservation), "uid", originalReservation.UID, "deletionTimestamp", patchedReservation.DeletionTimestamp)
-		return fwktype.AsStatus(err)
-	}
-
-	klog.V(4).InfoS("Successfully apply patch for Reservation", "reservation", klog.KObj(originalReservation), "uid", originalReservation.UID)
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// NOTE: Patch might succeed for a deleting object without updating the data when the apiserver receive a Delete earlier.
+// In this case, we should clean up the reserved resources to avoid cache leak.

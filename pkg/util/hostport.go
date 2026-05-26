@@ -22,83 +22,26 @@ import (
 )
 
 func RequestedHostPorts(pod *corev1.Pod) framework.HostPortInfo {
-	requestedPorts := framework.HostPortInfo{}
-	for i := range pod.Spec.Containers {
-		container := &pod.Spec.Containers[i]
-		for _, podPort := range container.Ports {
-			requestedPorts.Add(podPort.HostIP, string(podPort.Protocol), podPort.HostPort)
-		}
-	}
-	for i := range pod.Spec.InitContainers {
-		container := &pod.Spec.InitContainers[i]
-		for _, podPort := range container.Ports {
-			requestedPorts.Add(podPort.HostIP, string(podPort.Protocol), podPort.HostPort)
-		}
-	}
-	if len(requestedPorts) == 0 {
-		return nil
-	}
-	return requestedPorts
+	_ = "STUB: not implemented"
+	return *new(framework.HostPortInfo)
 }
 
 func ResetHostPorts(pod *corev1.Pod, ports framework.HostPortInfo) {
-	var targetContainer *corev1.Container
-	for i := range pod.Spec.Containers {
-		container := &pod.Spec.Containers[i]
-		if len(container.Ports) > 0 {
-			container.Ports = nil
-			targetContainer = container
-		}
-	}
-
-	if len(ports) > 0 && targetContainer != nil {
-		for ip, protocolPortMap := range ports {
-			for ports := range protocolPortMap {
-				targetContainer.Ports = append(targetContainer.Ports, corev1.ContainerPort{
-					HostPort: ports.Port,
-					Protocol: corev1.Protocol(ports.Protocol),
-					HostIP:   ip,
-				})
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func CloneHostPorts(ports framework.HostPortInfo) framework.HostPortInfo {
-	if len(ports) == 0 {
-		return nil
-	}
-	r := make(framework.HostPortInfo, len(ports))
-	for ip, protocolPorts := range ports {
-		for v := range protocolPorts {
-			r.Add(ip, v.Protocol, v.Port)
-		}
-	}
-	return r
+	_ = "STUB: not implemented"
+	return *new(framework.HostPortInfo)
 }
 
 func AppendHostPorts(ports framework.HostPortInfo, r framework.HostPortInfo) framework.HostPortInfo {
-	if len(r) == 0 {
-		return ports
-	}
-	if ports == nil {
-		ports = framework.HostPortInfo{}
-	}
-	for ip, protocolPorts := range r {
-		for v := range protocolPorts {
-			ports.Add(ip, v.Protocol, v.Port)
-		}
-	}
-	return ports
+	_ = "STUB: not implemented"
+	return *new(framework.HostPortInfo)
 }
 
 func RemoveHostPorts(ports framework.HostPortInfo, r framework.HostPortInfo) {
-	if len(r) == 0 || len(ports) == 0 {
-		return
-	}
-	for ip, protocolPorts := range r {
-		for v := range protocolPorts {
-			ports.Remove(ip, v.Protocol, v.Port)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }

@@ -29,13 +29,11 @@ const (
 )
 
 func ShouldSkipUpdateResource(profile *configv1alpha1.ClusterColocationProfile) bool {
-	if profile == nil || profile.Annotations == nil {
-		return false
-	}
-	_, ok := profile.Annotations[AnnotationSkipUpdateResource]
-	return ok
+	_ = "STUB: not implemented"
+	return false
 }
 
 func ShouldReconcileProfile(profile *configv1alpha1.ClusterColocationProfile) bool {
-	return profile != nil && profile.Labels != nil && profile.Labels[LabelControllerManaged] == "true"
+	_ = "STUB: not implemented"
+	return false
 }

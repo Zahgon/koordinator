@@ -19,18 +19,9 @@ package options
 import (
 	"context"
 
-	"github.com/gin-gonic/gin"
-	nrtclientset "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/clientset/versioned"
-	nrtinformers "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/informers/externalversions"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/rest"
 	scheduleroptions "k8s.io/kubernetes/cmd/kube-scheduler/app/options"
 
 	schedulerappconfig "github.com/koordinator-sh/koordinator/cmd/koord-scheduler/app/config"
-	koordinatorclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
-	koordinatorinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
-	frameworkexthelper "github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/helper"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/services"
 )
 
 // Options has all the params needed to run a Scheduler
@@ -40,70 +31,21 @@ type Options struct {
 }
 
 // NewOptions returns default scheduler app options.
-func NewOptions() *Options {
-	options := &Options{
-		Options: scheduleroptions.NewOptions(),
-		CombinedInsecureServing: &CombinedInsecureServingOptions{
-			Healthz: &DeprecatedInsecureServingOptions{
-				BindNetwork: "tcp",
-			},
-		},
-	}
-	options.CombinedInsecureServing.AddFlags(options.Flags.FlagSet("insecure serving"))
-	return options
-}
+func NewOptions() *Options { _ = "STUB: not implemented"; return nil }
 
-func (o *Options) Validate() []error {
-	errs := o.Options.Validate()
-	errs = append(errs, o.CombinedInsecureServing.Validate()...)
-	return errs
-}
+func (o *Options) Validate() []error { _ = "STUB: not implemented"; return nil }
 
 // Config return a scheduler config object
 func (o *Options) Config(ctx context.Context) (*schedulerappconfig.Config, error) {
-	config, err := o.Options.Config(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// NOTE(joseph): When the K8s Scheduler Framework starts, the thread that constructs NodeInfo
-	// and the scheduling thread are not synchronized. In this way, when the Pod on a Node is not
-	// filled in the NodeInfo, the Node is scheduled for a new Pod. This behavior is not expected.
-	// The K8s community itself has also noticed this issue https://github.com/kubernetes/kubernetes/issues/116717,
-	// but it was only fixed in the K8s v1.28 version https://github.com/kubernetes/kubernetes/pull /116729.
-	// So we need to fix it ourselves.
-	config.InformerFactory = frameworkexthelper.NewForceSyncSharedInformerFactory(config.InformerFactory)
-
-	config.KubeConfig.ContentType = runtime.ContentTypeProtobuf
-	config.KubeConfig.AcceptContentTypes = runtime.ContentTypeProtobuf + "," + runtime.ContentTypeJSON
-
-	// use json for CRD clients
-	kubeConfig := rest.CopyConfig(config.KubeConfig)
-	kubeConfig.ContentType = runtime.ContentTypeJSON
-	kubeConfig.AcceptContentTypes = runtime.ContentTypeJSON
-	koordinatorClient, err := koordinatorclientset.NewForConfig(kubeConfig)
-	if err != nil {
-		return nil, err
-	}
-	koordinatorSharedInformerFactory := koordinatorinformers.NewSharedInformerFactoryWithOptions(koordinatorClient, 0)
-
-	nrtClient, err := nrtclientset.NewForConfig(kubeConfig)
-	if err != nil {
-		return nil, err
-	}
-	nodeResTopologyInformerFactory := nrtinformers.NewSharedInformerFactoryWithOptions(nrtClient, 0)
-
-	appConfig := &schedulerappconfig.Config{
-		Config:                              config,
-		ServicesEngine:                      services.NewEngine(gin.New()),
-		KoordinatorClient:                   koordinatorClient,
-		KoordinatorSharedInformerFactory:    koordinatorSharedInformerFactory,
-		NodeResourceTopologyInformerFactory: nodeResTopologyInformerFactory,
-	}
-
-	if err := o.CombinedInsecureServing.ApplyTo(appConfig); err != nil {
-		return nil, err
-	}
-
-	return appConfig, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// NOTE(joseph): When the K8s Scheduler Framework starts, the thread that constructs NodeInfo
+// and the scheduling thread are not synchronized. In this way, when the Pod on a Node is not
+// filled in the NodeInfo, the Node is scheduled for a new Pod. This behavior is not expected.
+// The K8s community itself has also noticed this issue https://github.com/kubernetes/kubernetes/issues/116717,
+// but it was only fixed in the K8s v1.28 version https://github.com/kubernetes/kubernetes/pull /116729.
+// So we need to fix it ourselves.
+
+// use json for CRD clients

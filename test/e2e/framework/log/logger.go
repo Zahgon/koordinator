@@ -19,37 +19,19 @@ limitations under the License.
 // Do not make further changes here!
 package log
 
-import (
-	"fmt"
-	"time"
+func nowStamp() string { _ = "STUB: not implemented"; return "" }
 
-	"github.com/onsi/ginkgo/v2"
-
-	e2eginkgowrapper "github.com/koordinator-sh/koordinator/test/e2e/framework/ginkgowrapper"
-)
-
-func nowStamp() string {
-	return time.Now().Format(time.StampMilli)
-}
-
-func log(level string, format string, args ...interface{}) {
-	fmt.Fprintf(ginkgo.GinkgoWriter, nowStamp()+": "+level+": "+format+"\n", args...)
-}
+func log(level string, format string, args ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Logf logs the info.
-func Logf(format string, args ...interface{}) {
-	log("INFO", format, args...)
-}
+func Logf(format string, args ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Failf logs the fail info.
-func Failf(format string, args ...interface{}) {
-	FailfWithOffset(1, format, args...)
-}
+func Failf(format string, args ...interface{}) { _ = "STUB: not implemented"; return }
 
 // FailfWithOffset calls "Fail" and logs the error at "offset" levels above its caller
 // (for example, for call chain f -> g -> FailfWithOffset(1, ...) error would be logged for "f").
 func FailfWithOffset(offset int, format string, args ...interface{}) {
-	msg := fmt.Sprintf(format, args...)
-	log("FAIL", msg)
-	e2eginkgowrapper.Fail(nowStamp()+": "+msg, 1+offset)
+	_ = "STUB: not implemented"
+	return
 }

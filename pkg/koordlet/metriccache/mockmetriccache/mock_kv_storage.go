@@ -27,8 +27,6 @@
 package mock_metriccache
 
 import (
-	reflect "reflect"
-
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -46,39 +44,34 @@ type MockKVStorageMockRecorder struct {
 
 // NewMockKVStorage creates a new mock instance.
 func NewMockKVStorage(ctrl *gomock.Controller) *MockKVStorage {
-	mock := &MockKVStorage{ctrl: ctrl}
-	mock.recorder = &MockKVStorageMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockKVStorage) EXPECT() *MockKVStorageMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Get mocks base method.
+	return nil
 }
 
-// Get mocks base method.
 func (m *MockKVStorage) Get(key any) (any, bool) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(any)
-	ret1, _ := ret[1].(bool)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 // Get indicates an expected call of Get.
 func (mr *MockKVStorageMockRecorder) Get(key any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockKVStorage)(nil).Get), key)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Set mocks base method.
-func (m *MockKVStorage) Set(key, value any) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Set", key, value)
-}
+func (m *MockKVStorage) Set(key, value any) { _ = "STUB: not implemented"; return }
 
 // Set indicates an expected call of Set.
 func (mr *MockKVStorageMockRecorder) Set(key, value any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockKVStorage)(nil).Set), key, value)
+	_ = "STUB: not implemented"
+	return nil
 }

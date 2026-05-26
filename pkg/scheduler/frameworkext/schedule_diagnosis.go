@@ -17,21 +17,15 @@ limitations under the License.
 package frameworkext
 
 import (
-	"fmt"
-	"strconv"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
-	"k8s.io/kubernetes/pkg/scheduler/framework"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/workloadauditor"
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	"github.com/koordinator-sh/koordinator/pkg/util/reservation"
 )
 
 var (
@@ -44,60 +38,29 @@ var (
 var customDiagnosisProcessor map[string]func(diagnosis *Diagnosis)
 
 func RegisterCustomDiagnosisProcessor(name string, processor func(diagnosis *Diagnosis)) {
-	if customDiagnosisProcessor == nil {
-		customDiagnosisProcessor = make(map[string]func(diagnosis *Diagnosis))
-	}
-	customDiagnosisProcessor[name] = processor
+	_ = "STUB: not implemented"
+	return
 }
 
 // DumpDiagnosisSetter set dumpDiagnosis
-func DumpDiagnosisSetter(val string) (string, error) {
-	toDumpDiagnosis, err := strconv.ParseBool(val)
-	if err != nil {
-		return "", fmt.Errorf("failed set debugFilterFailure %s: %v", val, err)
-	}
-	dumpDiagnosis = toDumpDiagnosis
-	return fmt.Sprintf("successfully set debugFilterFailure to %s", val), nil
-}
+func DumpDiagnosisSetter(val string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 func DumpDiagnosisBlockingSetter(val string) (string, error) {
-	toLogDiagnosisBlocking, err := strconv.ParseBool(val)
-	if err != nil {
-		return "", fmt.Errorf("failed set debugFilterFailure %s: %v", val, err)
-	}
-	dumpDiagnosisBlocking = toLogDiagnosisBlocking
-	return fmt.Sprintf("successfully set debugFilterFailure to %s", val), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func DumpDiagnosis(diagnosis *Diagnosis) string {
-	if diagnosis == nil {
-		return ""
-	}
-	if dumpDiagnosis == false {
-		return ""
-	}
+func DumpDiagnosis(diagnosis *Diagnosis) string { _ = "STUB: not implemented"; return "" }
 
-	// Handle blocking mode
-	if dumpDiagnosisBlocking {
-		// For blocking mode, we still process synchronously
-		dumpMessage := diagnosisQueue.processDiagnosis(diagnosis)
-		return dumpMessage
-	}
+// Handle blocking mode
 
-	diagnosisQueue.StartWorker()
-	// For non-blocking mode, enqueue for asynchronous processing
-	diagnosisQueue.Enqueue(diagnosis)
-	return ""
-}
+// For blocking mode, we still process synchronously
 
-func GetDiagnosis(state fwktype.CycleState) *Diagnosis {
-	diagnosis, _ := state.Read(diagnosisStateKey)
-	if diagnosis == nil {
-		// just for test
-		return &Diagnosis{}
-	}
-	return diagnosis.(*Diagnosis)
-}
+// For non-blocking mode, enqueue for asynchronous processing
+
+func GetDiagnosis(state fwktype.CycleState) *Diagnosis { _ = "STUB: not implemented"; return nil }
+
+// just for test
 
 var nowFunc = metav1.Now
 
@@ -105,29 +68,19 @@ const (
 	diagnosisStateKey = extension.SchedulingDomainPrefix + "/diagnosis"
 )
 
-func InitDiagnosis(state fwktype.CycleState, pod *corev1.Pod) {
-	questionKey := framework.GetNamespacedName(pod.Namespace, pod.Name)
-	if reservation.IsReservePod(pod) {
-		questionKey = reservation.GetReservationNameFromReservePod(pod)
-	}
-	state.Write(diagnosisStateKey, &Diagnosis{
-		Timestamp:      nowFunc(),
-		QuestionedKey:  questionKey,
-		TargetPod:      pod,
-		NominatedNode:  pod.Status.NominatedNodeName,
-		IsRootCausePod: true,
-	})
-}
+func InitDiagnosis(state fwktype.CycleState, pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
 var (
 	_ fwktype.StateData = &Diagnosis{}
 )
 
 func (d *Diagnosis) Clone() fwktype.StateData {
-	return d
+	_ = "STUB: not implemented"
+
+	// Diagnosis Help diagnose the journey of the Pod in SchedulePod and PostFilter.
+	return *new(fwktype.StateData)
 }
 
-// Diagnosis Help diagnose the journey of the Pod in SchedulePod and PostFilter.
 type Diagnosis struct {
 	Timestamp            metav1.Time `json:"timestamp"`
 	QuestionedKey        string      `json:"questionedKey,omitempty"`
@@ -154,21 +107,12 @@ type Diagnosis struct {
 // SetSuggestion atomically sets the Suggestion field. It returns true if the suggestion
 // was successfully set, or false if it was already set by a prior caller.
 func (d *Diagnosis) SetSuggestion(suggestion *ScheduleSuggestion) bool {
-	d.suggestionMu.Lock()
-	defer d.suggestionMu.Unlock()
-	if d.Suggestion != nil {
-		return false
-	}
-	d.Suggestion = suggestion
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 // GetSuggestion returns the current Suggestion under a read lock.
-func (d *Diagnosis) GetSuggestion() *ScheduleSuggestion {
-	d.suggestionMu.RLock()
-	defer d.suggestionMu.RUnlock()
-	return d.Suggestion
-}
+func (d *Diagnosis) GetSuggestion() *ScheduleSuggestion { _ = "STUB: not implemented"; return nil }
 
 type ScheduleDiagnosis struct {
 	SchedulingMode SchedulingMode `json:"-"`
@@ -227,96 +171,24 @@ type DiagnosisQueue struct {
 var diagnosisQueue = &DiagnosisQueue{}
 
 // StartWorker starts the worker goroutines for processing diagnosis logs
-func (dq *DiagnosisQueue) StartWorker() {
-	dq.once.Do(func() {
-		diagnosisQueue.queue = make(chan *Diagnosis, diagnosisQueueSize)
-		for i := 0; i < diagnosisWorkerCount; i++ {
-			go dq.worker()
-		}
-	})
-}
+func (dq *DiagnosisQueue) StartWorker() { _ = "STUB: not implemented"; return }
 
 // worker processes diagnosis logs from the queue
-func (dq *DiagnosisQueue) worker() {
-	for diagnosis := range dq.queue {
-		dq.processDiagnosis(diagnosis)
-	}
-}
+func (dq *DiagnosisQueue) worker() { _ = "STUB: not implemented"; return }
 
 // processDiagnosis handles the actual logging of diagnosis information
 func (dq *DiagnosisQueue) processDiagnosis(diagnosis *Diagnosis) string {
+	_ = "STUB: not implemented"
 	// Process NodeFailedDetails if empty
-	if diagnosis.ScheduleDiagnosis != nil {
-		if len(diagnosis.ScheduleDiagnosis.NodeFailedDetails) == 0 {
-			diagnosis.ScheduleDiagnosis.NodeFailedDetails = convertStatusMapToFailedDetail(diagnosis.ScheduleDiagnosis.NodeToStatusMap)
-		}
-
-		if diagnosis.ScheduleDiagnosis.SchedulingMode == PodSchedulingMode {
-			if len(diagnosis.ScheduleDiagnosis.AlreadyWaitForBoundPods) > 0 {
-				diagnosis.ScheduleDiagnosis.NodeOfferSlot = make(map[string]int, len(diagnosis.ScheduleDiagnosis.AlreadyWaitForBoundPods))
-				for _, pod := range diagnosis.ScheduleDiagnosis.AlreadyWaitForBoundPods {
-					diagnosis.ScheduleDiagnosis.NodeOfferSlot[pod.Spec.NodeName] = diagnosis.ScheduleDiagnosis.NodeOfferSlot[pod.Spec.NodeName] + 1
-				}
-			}
-		}
-	}
-
-	if diagnosis.PreemptionDiagnosis != nil && diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis != nil {
-		if len(diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.NodeFailedDetails) == 0 {
-			diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.NodeFailedDetails = convertStatusMapToFailedDetail(diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.NodeToStatusMap)
-		}
-		if diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.SchedulingMode == PodSchedulingMode {
-			if len(diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.AlreadyWaitForBoundPods) > 0 {
-				diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.NodeOfferSlot = make(map[string]int, len(diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.AlreadyWaitForBoundPods))
-				for _, pod := range diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.AlreadyWaitForBoundPods {
-					diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.NodeOfferSlot[pod.Spec.NodeName] = diagnosis.PreemptionDiagnosis.DryRunFilterDiagnosis.NodeOfferSlot[pod.Spec.NodeName] + 1
-				}
-			}
-		}
-	}
-	dumpMessage := util.DumpJSON(diagnosis)
-	klog.Infof("dump diagnosis for %s, targetPod: %s/%s/%s: $%s", diagnosis.QuestionedKey, diagnosis.TargetPod.Namespace, diagnosis.TargetPod.Name, diagnosis.TargetPod.UID, dumpMessage)
-	for _, f := range customDiagnosisProcessor {
-		if f != nil {
-			f(diagnosis)
-			klog.Infof("custom diagnosis processor for %s, targetPod: %s/%s/%s", diagnosis.QuestionedKey, diagnosis.TargetPod.Namespace, diagnosis.TargetPod.Name, diagnosis.TargetPod.UID)
-		}
-	}
-	return dumpMessage
+	return ""
 }
 
 func convertStatusMapToFailedDetail(statusMap map[string]*fwktype.Status) v1alpha1.NodeFailedDetails {
-	if len(statusMap) == 0 {
-		return nil
-	}
-	statusToNodeFailedDetails := map[v1alpha1.NodeFailedStatus]*v1alpha1.NodeFailedDetail{}
-	for s, status := range statusMap {
-		failedStatus := v1alpha1.NodeFailedStatus{
-			Reason:           status.Message(),
-			FailedPlugin:     status.Plugin(),
-			PreemptMightHelp: status.Code() != fwktype.UnschedulableAndUnresolvable,
-		}
-		failedDetail, ok := statusToNodeFailedDetails[failedStatus]
-		if !ok {
-			failedDetail = &v1alpha1.NodeFailedDetail{NodeFailedStatus: failedStatus}
-			statusToNodeFailedDetails[failedStatus] = failedDetail
-		}
-		failedDetail.FailedNodes = append(failedDetail.FailedNodes, s)
-	}
-	var failedDetails v1alpha1.NodeFailedDetails
-	for _, detail := range statusToNodeFailedDetails {
-		failedDetails = append(failedDetails, detail)
-	}
-	extension.SortNodeFailedDetails(failedDetails)
-	return failedDetails
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.NodeFailedDetails)
 }
 
 // Enqueue adds a diagnosis to the queue for asynchronous processing
-func (dq *DiagnosisQueue) Enqueue(diagnosis *Diagnosis) {
-	select {
-	case dq.queue <- diagnosis:
-	default:
-		// If the queue is full, drop the diagnosis to prevent blocking
-		klog.Warningf("Diagnosis queue is full, dropping diagnosis for %s", diagnosis.QuestionedKey)
-	}
-}
+func (dq *DiagnosisQueue) Enqueue(diagnosis *Diagnosis) { _ = "STUB: not implemented"; return }
+
+// If the queue is full, drop the diagnosis to prevent blocking

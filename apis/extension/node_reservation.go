@@ -17,11 +17,7 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"math"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -60,34 +56,11 @@ const (
 )
 
 func GetNodeReservation(annotations map[string]string) (*NodeReservation, error) {
-	if s := annotations[AnnotationNodeReservation]; s != "" {
-		reservation := &NodeReservation{}
-		if err := json.Unmarshal([]byte(s), &reservation); err != nil {
-			return nil, err
-		}
-		return reservation, nil
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func GetReservedCPUs(annotations map[string]string) (reservedCPUs string, numReservedCPUs int) {
-	reservation, err := GetNodeReservation(annotations)
-	if err != nil {
-		klog.ErrorS(err, "failed to GetNodeReservation")
-		return
-	}
-	if reservation == nil {
-		return
-	}
-
-	quantity := reservation.Resources[corev1.ResourceCPU]
-	if quantity.MilliValue() > 0 {
-		numReservedCPUs = int(math.Ceil(float64(quantity.MilliValue()) / 1000))
-	}
-
-	if reservation.ReservedCPUs != "" {
-		numReservedCPUs = 0
-	}
-	reservedCPUs = reservation.ReservedCPUs
-	return
+	_ = "STUB: not implemented"
+	return "", 0
 }

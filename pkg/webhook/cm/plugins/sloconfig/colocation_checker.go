@@ -17,11 +17,7 @@ limitations under the License.
 package sloconfig
 
 import (
-	"encoding/json"
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 
 	configuration "github.com/koordinator-sh/koordinator/apis/configuration"
 )
@@ -34,48 +30,15 @@ type ColocationConfigChecker struct {
 }
 
 func NewColocationConfigChecker(oldConfig, newConfig *corev1.ConfigMap, needUnmarshal bool) *ColocationConfigChecker {
-	checker := &ColocationConfigChecker{CommonChecker: CommonChecker{OldConfigMap: oldConfig, NewConfigMap: newConfig, configKey: configuration.ColocationConfigKey, initStatus: NotInit}}
-	if !checker.IsCfgNotEmptyAndChanged() && !needUnmarshal {
-		return checker
-	}
-	if err := checker.initConfig(); err != nil {
-		checker.initStatus = err.Error()
-	} else {
-		checker.initStatus = InitSuccess
-	}
-	return checker
-}
-
-func (c *ColocationConfigChecker) ConfigParamValid() error {
-	return c.CheckByValidator(c.cfg)
-}
-
-func (c *ColocationConfigChecker) initConfig() error {
-	cfg := &configuration.ColocationCfg{}
-	configStr := c.NewConfigMap.Data[configuration.ColocationConfigKey]
-	err := json.Unmarshal([]byte(configStr), &cfg)
-	if err != nil {
-		message := fmt.Sprintf("Failed to parse colocation config in configmap %s/%s, err: %s",
-			c.NewConfigMap.Namespace, c.NewConfigMap.Name, err)
-		klog.Error(message)
-		return buildJsonError(ReasonParseFail, message)
-	}
-	c.cfg = cfg
-
-	c.NodeConfigProfileChecker, err = CreateNodeConfigProfileChecker(configuration.ColocationConfigKey, c.getConfigProfiles)
-	if err != nil {
-		klog.Error(fmt.Sprintf("Failed to parse colocation config in configmap %s/%s, err: %s",
-			c.NewConfigMap.Namespace, c.NewConfigMap.Name, err))
-		return err
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+func (c *ColocationConfigChecker) ConfigParamValid() error { _ = "STUB: not implemented"; return nil }
+
+func (c *ColocationConfigChecker) initConfig() error { _ = "STUB: not implemented"; return nil }
+
 func (c *ColocationConfigChecker) getConfigProfiles() []configuration.NodeCfgProfile {
-	var profiles []configuration.NodeCfgProfile
-	for _, nodeCfg := range c.cfg.NodeConfigs {
-		profiles = append(profiles, nodeCfg.NodeCfgProfile)
-	}
-	return profiles
+	_ = "STUB: not implemented"
+	return nil
 }

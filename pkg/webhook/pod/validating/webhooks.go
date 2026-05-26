@@ -21,7 +21,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/koordinator-sh/koordinator/pkg/webhook/quotaevaluate"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/util/framework"
 )
 
@@ -41,18 +40,11 @@ type podValidateBuilder struct {
 }
 
 func (b *podValidateBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *podValidateBuilder) Build() admission.Handler {
-	h := &PodValidatingHandler{
-		Client:  b.mgr.GetClient(),
-		Decoder: admission.NewDecoder(b.mgr.GetScheme()),
-	}
-	quotaAccessor := quotaevaluate.NewQuotaAccessor(h.Client)
-	h.QuotaEvaluator = quotaevaluate.NewQuotaEvaluator(quotaAccessor, 16, make(chan struct{}))
-	h.PodEnhancedValidator = NewPodEnhancedValidator(b.mgr.GetClient())
-
-	return h
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

@@ -17,14 +17,9 @@ limitations under the License.
 package rule
 
 import (
-	"reflect"
-	"runtime"
 	"sync"
 
-	"k8s.io/klog/v2"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 func init() {
@@ -48,62 +43,18 @@ var globalHookRules map[string]*Rule
 var globalRWMutex sync.RWMutex
 
 func Register(name, description string, injectOpts ...InjectOption) *Rule {
-	r, exist := find(name)
-	if exist {
-		klog.Fatalf("rule %s is conflict since name is already registered", r.name)
-	}
-	r.description = description
-	for _, opt := range injectOpts {
-		opt.Apply(r)
-	}
-	klog.V(5).Infof("new rule %v has registered", name)
-	return r
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *Rule) runUpdateCallbacks(target *statesinformer.CallbackTarget) {
-	klog.V(6).Infof("run update callbacks for rules, target %s", target.String())
-	for _, callbackFn := range r.callbacks {
-		if err := callbackFn(target); err != nil {
-			cbName := runtime.FuncForPC(reflect.ValueOf(callbackFn).Pointer()).Name()
-			klog.Warningf("executing %s callback function %s failed, error %v", r.name, cbName, err.Error())
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func find(name string) (*Rule, bool) {
-	globalRWMutex.Lock()
-	defer globalRWMutex.Unlock()
-	if r, exist := globalHookRules[name]; exist {
-		return r, true
-	}
-	newRule := &Rule{name: name, systemSupported: true}
-	globalHookRules[name] = newRule
-	return newRule, false
-}
+func find(name string) (*Rule, bool) { _ = "STUB: not implemented"; return nil, false }
 
 func UpdateRules(ruleType statesinformer.RegisterType, ruleObj interface{}, targets *statesinformer.CallbackTarget) {
-	klog.V(4).Infof("applying %v rules with new %v, detail: %v",
-		len(globalHookRules), ruleType.String(), util.DumpJSON(ruleObj))
-	for _, r := range globalHookRules {
-		if ruleType != r.parseRuleType {
-			continue
-		}
-		if !r.systemSupported {
-			klog.V(4).Infof("system unsupported for rule %s, do nothing during UpdateRules", r.name)
-			continue
-		}
-		if r.parseRuleFn == nil {
-			continue
-		}
-		updated, err := r.parseRuleFn(ruleObj)
-		if err != nil {
-			klog.Warningf("parse rule %s from nodeSLO failed, error: %v", r.name, err)
-			continue
-		}
-		if updated {
-			klog.V(3).Infof("rule %s is updated, run update callback for all %v pods and %v host applications",
-				r.name, len(targets.Pods), len(targets.HostApplications))
-			r.runUpdateCallbacks(targets)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }

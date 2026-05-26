@@ -43,12 +43,14 @@ type recommendationLister struct {
 
 // NewRecommendationLister returns a new RecommendationLister.
 func NewRecommendationLister(indexer cache.Indexer) RecommendationLister {
-	return &recommendationLister{listers.New[*analysisv1alpha1.Recommendation](indexer, analysisv1alpha1.Resource("recommendation"))}
+	_ = "STUB: not implemented"
+	return *new(RecommendationLister)
 }
 
 // Recommendations returns an object that can list and get Recommendations.
 func (s *recommendationLister) Recommendations(namespace string) RecommendationNamespaceLister {
-	return recommendationNamespaceLister{listers.NewNamespaced[*analysisv1alpha1.Recommendation](s.ResourceIndexer, namespace)}
+	_ = "STUB: not implemented"
+	return *new(RecommendationNamespaceLister)
 }
 
 // RecommendationNamespaceLister helps list and get Recommendations.

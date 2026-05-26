@@ -83,83 +83,23 @@ var (
 	}
 )
 
-func RecordKoordletStartTime(nodeName string, value float64) {
-	labels := map[string]string{}
-	// KoordletStartTime is usually recorded before the node Registering
-	labels[NodeKey] = nodeName
-	KoordletStartTime.With(labels).Set(value)
-}
+func RecordKoordletStartTime(nodeName string, value float64) { _ = "STUB: not implemented"; return }
 
-func RecordCollectNodeCPUInfoStatus(err error) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[StatusKey] = StatusSucceed
-	if err != nil {
-		labels[StatusKey] = StatusFailed
-	}
-	CollectNodeCPUInfoStatus.With(labels).Inc()
-}
+// KoordletStartTime is usually recorded before the node Registering
 
-func RecordCollectNodeNUMAInfoStatus(err error) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[StatusKey] = StatusSucceed
-	if err != nil {
-		labels[StatusKey] = StatusFailed
-	}
-	CollectNodeNUMAInfoStatus.With(labels).Inc()
-}
+func RecordCollectNodeCPUInfoStatus(err error) { _ = "STUB: not implemented"; return }
 
-func RecordCollectNodeLocalStorageInfoStatus(err error) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[StatusKey] = StatusSucceed
-	if err != nil {
-		labels[StatusKey] = StatusFailed
-	}
-	CollectNodeLocalStorageInfoStatus.With(labels).Inc()
-}
+func RecordCollectNodeNUMAInfoStatus(err error) { _ = "STUB: not implemented"; return }
 
-func RecordPodEviction(namespace, podName, reasonType string) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[EvictionReasonKey] = reasonType
-	PodEviction.With(labels).Inc()
+func RecordCollectNodeLocalStorageInfoStatus(err error) { _ = "STUB: not implemented"; return }
 
-	detailLabels := labelsClone(labels)
-	detailLabels[PodNamespace] = namespace
-	detailLabels[PodName] = podName
-	PodEvictionDetail.WithInc(detailLabels)
-}
+func RecordPodEviction(namespace, podName, reasonType string) { _ = "STUB: not implemented"; return }
 
-func RecordNodeUsedCPU(value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	NodeUsedCPU.With(labels).Set(value)
-}
+func RecordNodeUsedCPU(value float64) { _ = "STUB: not implemented"; return }
 
-func RecordNodeUsedMemory(value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	NodeUsedMemory.With(labels).Set(value)
-}
+func RecordNodeUsedMemory(value float64) { _ = "STUB: not implemented"; return }
 
 func labelsClone(labels prometheus.Labels) prometheus.Labels {
-	copyLabels := prometheus.Labels{}
-	for key, value := range labels {
-		copyLabels[key] = value
-	}
-	return copyLabels
+	_ = "STUB: not implemented"
+	return *new(prometheus.Labels)
 }

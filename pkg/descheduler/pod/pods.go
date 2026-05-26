@@ -18,14 +18,9 @@ limitations under the License.
 package pod
 
 import (
-	"sort"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
-	qoshelper "k8s.io/kubernetes/pkg/apis/core/v1/helper/qos"
 
 	"github.com/koordinator-sh/koordinator/pkg/descheduler/framework"
 )
@@ -39,14 +34,8 @@ type GetPodsAssignedToNodeFunc = framework.GetPodsAssignedToNodeFunc
 
 // WrapFilterFuncs wraps a set of FilterFunc in one.
 func WrapFilterFuncs(filters ...FilterFunc) FilterFunc {
-	return func(pod *corev1.Pod) bool {
-		for _, filter := range filters {
-			if filter != nil && !filter(pod) {
-				return false
-			}
-		}
-		return true
-	}
+	_ = "STUB: not implemented"
+	return *new(FilterFunc)
 }
 
 type Options struct {
@@ -58,62 +47,37 @@ type Options struct {
 
 // NewOptions returns an empty Options.
 func NewOptions() *Options {
-	return &Options{}
+	_ = "STUB: not implemented"
+
+	// WithFilter sets a pod filter.
+	// The filter function should return true if the pod should be returned from ListPodsOnANode
+	return nil
 }
 
-// WithFilter sets a pod filter.
-// The filter function should return true if the pod should be returned from ListPodsOnANode
-func (o *Options) WithFilter(filter FilterFunc) *Options {
-	o.filter = filter
-	return o
-}
+func (o *Options) WithFilter(filter FilterFunc) *Options { _ = "STUB: not implemented"; return nil }
 
 // WithNamespaces sets included namespaces
 func (o *Options) WithNamespaces(namespaces sets.String) *Options {
-	o.includedNamespaces = namespaces
-	return o
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithoutNamespaces sets excluded namespaces
 func (o *Options) WithoutNamespaces(namespaces sets.String) *Options {
-	o.excludedNamespaces = namespaces
-	return o
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithLabelSelector sets a pod label selector
 func (o *Options) WithLabelSelector(labelSelector *metav1.LabelSelector) *Options {
-	o.labelSelector = labelSelector
-	return o
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // BuildFilterFunc builds a final FilterFunc based on Options.
 func (o *Options) BuildFilterFunc() (FilterFunc, error) {
-	var s labels.Selector
-	var err error
-	if o.labelSelector != nil {
-		s, err = metav1.LabelSelectorAsSelector(o.labelSelector)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return func(pod *corev1.Pod) bool {
-		if len(o.includedNamespaces) > 0 && !o.includedNamespaces.Has(pod.Namespace) {
-			klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod), "checks", "includedNamespaces")
-			return false
-		}
-		if len(o.excludedNamespaces) > 0 && o.excludedNamespaces.Has(pod.Namespace) {
-			klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod), "checks", "excludedNamespaces")
-			return false
-		}
-		if s != nil && !s.Matches(labels.Set(pod.GetLabels())) {
-			klog.V(4).InfoS("Pod fails the following checks", "pod", klog.KObj(pod), "checks", "labelSelector")
-			return false
-		}
-		if o.filter != nil && !o.filter(pod) {
-			return false
-		}
-		return true
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(FilterFunc), nil
 }
 
 // ListPodsOnANode lists all pods on a node.
@@ -125,11 +89,9 @@ func ListPodsOnANode(
 	getPodsAssignedToNode GetPodsAssignedToNodeFunc,
 	filter FilterFunc,
 ) ([]*corev1.Pod, error) {
+	_ = "STUB: not implemented"
 	// Succeeded and failed pods are not considered because they don't occupy any resource.
-	f := func(pod *corev1.Pod) bool {
-		return pod.Status.Phase != corev1.PodSucceeded && pod.Status.Phase != corev1.PodFailed
-	}
-	return ListAllPodsOnANode(nodeName, getPodsAssignedToNode, WrapFilterFuncs(f, filter))
+	return nil, nil
 }
 
 // ListAllPodsOnANode lists all the pods on a node no matter what the phase of the pod is.
@@ -138,58 +100,23 @@ func ListAllPodsOnANode(
 	getPodsAssignedToNode GetPodsAssignedToNodeFunc,
 	filter FilterFunc,
 ) ([]*corev1.Pod, error) {
-	pods, err := getPodsAssignedToNode(nodeName, filter)
-	if err != nil {
-		return []*corev1.Pod{}, err
-	}
-
-	return pods, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // OwnerRef returns the ownerRefList for the pod.
-func OwnerRef(pod *corev1.Pod) []metav1.OwnerReference {
-	return pod.ObjectMeta.GetOwnerReferences()
-}
+func OwnerRef(pod *corev1.Pod) []metav1.OwnerReference { _ = "STUB: not implemented"; return nil }
 
-func IsBestEffortPod(pod *corev1.Pod) bool {
-	return qoshelper.GetPodQOS(pod) == corev1.PodQOSBestEffort
-}
+func IsBestEffortPod(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
-func IsBurstablePod(pod *corev1.Pod) bool {
-	return qoshelper.GetPodQOS(pod) == corev1.PodQOSBurstable
-}
+func IsBurstablePod(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
-func IsGuaranteedPod(pod *corev1.Pod) bool {
-	return qoshelper.GetPodQOS(pod) == corev1.PodQOSGuaranteed
-}
+func IsGuaranteedPod(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
 // SortPodsBasedOnPriorityLowToHigh sorts pods based on their priorities from low to high.
 // If pods have same priorities, they will be sorted by QoS in the following order:
 // BestEffort, Burstable, Guaranteed
-func SortPodsBasedOnPriorityLowToHigh(pods []*corev1.Pod) {
-	sort.Slice(pods, func(i, j int) bool {
-		if pods[i].Spec.Priority == nil && pods[j].Spec.Priority != nil {
-			return true
-		}
-		if pods[j].Spec.Priority == nil && pods[i].Spec.Priority != nil {
-			return false
-		}
-		if (pods[j].Spec.Priority == nil && pods[i].Spec.Priority == nil) || (*pods[i].Spec.Priority == *pods[j].Spec.Priority) {
-			if IsBestEffortPod(pods[i]) {
-				return true
-			}
-			if IsBurstablePod(pods[i]) && IsGuaranteedPod(pods[j]) {
-				return true
-			}
-			return false
-		}
-		return *pods[i].Spec.Priority < *pods[j].Spec.Priority
-	})
-}
+func SortPodsBasedOnPriorityLowToHigh(pods []*corev1.Pod) { _ = "STUB: not implemented"; return }
 
 // SortPodsBasedOnAge sorts Pods from oldest to most recent in place
-func SortPodsBasedOnAge(pods []*corev1.Pod) {
-	sort.Slice(pods, func(i, j int) bool {
-		return pods[i].CreationTimestamp.Before(&pods[j].CreationTimestamp)
-	})
-}
+func SortPodsBasedOnAge(pods []*corev1.Pod) { _ = "STUB: not implemented"; return }

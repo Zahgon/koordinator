@@ -17,8 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -49,60 +47,29 @@ const (
 	ReservationPodOperatingMode PodOperatingMode = "Reservation"
 )
 
-func IsReservationOperatingMode(pod *corev1.Pod) bool {
-	return pod.Labels[LabelPodOperatingMode] == string(ReservationPodOperatingMode)
-}
+func IsReservationOperatingMode(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
 func SetReservationOwners(obj metav1.Object, owners []schedulingv1alpha1.ReservationOwner) error {
-	data, err := json.Marshal(owners)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationReservationOwners] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetReservationOwners(annotations map[string]string) ([]schedulingv1alpha1.ReservationOwner, error) {
-	var owners []schedulingv1alpha1.ReservationOwner
-	if s := annotations[AnnotationReservationOwners]; s != "" {
-		err := json.Unmarshal([]byte(s), &owners)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return owners, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetReservationCurrentOwner(annotations map[string]string) (*corev1.ObjectReference, error) {
-	var owner corev1.ObjectReference
-	s := annotations[AnnotationReservationCurrentOwner]
-	if s == "" {
-		return nil, nil
-	}
-	err := json.Unmarshal([]byte(s), &owner)
-	if err != nil {
-		return nil, err
-	}
-	return &owner, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetReservationCurrentOwner(annotations map[string]string, owner *corev1.ObjectReference) error {
-	if owner == nil {
-		return nil
-	}
-	data, err := json.Marshal(owner)
-	if err != nil {
-		return err
-	}
-	annotations[AnnotationReservationCurrentOwner] = string(data)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func RemoveReservationCurrentOwner(annotations map[string]string) {
-	delete(annotations, AnnotationReservationCurrentOwner)
+	_ = "STUB: not implemented"
+	return
 }

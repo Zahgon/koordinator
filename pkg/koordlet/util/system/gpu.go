@@ -17,11 +17,7 @@ limitations under the License.
 package system
 
 import (
-	"os"
 	"regexp"
-	"strings"
-
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -29,21 +25,4 @@ var (
 	pciAddressRegex = regexp.MustCompile(`^((1?[0-9a-f]{0,4}):)?([0-9a-f]{2}):([0-9a-f]{2})\.([0-9a-f]{1})$`)
 )
 
-func GetGPUDevicePCIBusIDs() []string {
-	var pciBusIDs []string
-	entries, err := os.ReadDir(NVIDIADriverDir)
-	if err != nil {
-		klog.Errorf("GetGPUDevicePCIBusIDs: read nvidia driver dir %s error, %v", NVIDIADriverDir, err)
-		return pciBusIDs
-	}
-
-	for _, entry := range entries {
-		fileName := strings.ToLower(entry.Name())
-		matches := pciAddressRegex.FindStringSubmatch(fileName)
-		if len(matches) == 6 {
-			pciBusIDs = append(pciBusIDs, matches[0])
-		}
-	}
-
-	return pciBusIDs
-}
+func GetGPUDevicePCIBusIDs() []string { _ = "STUB: not implemented"; return nil }

@@ -17,24 +17,16 @@ limitations under the License.
 package config
 
 import (
-	"context"
-	"encoding/json"
-	"reflect"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/koordinator-sh/koordinator/apis/configuration"
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	"github.com/koordinator-sh/koordinator/pkg/util/sloconfig"
 )
 
 const (
@@ -66,146 +58,67 @@ type ColocationHandlerForConfigMapEvent struct {
 }
 
 func NewColocationHandlerForConfigMapEvent(client client.Client, initCfg configuration.ColocationCfg, recorder record.EventRecorder) *ColocationHandlerForConfigMapEvent {
-	colocationHandler := &ColocationHandlerForConfigMapEvent{cfgCache: colocationCfgCache{colocationCfg: initCfg}, Client: client, recorder: recorder}
-	colocationHandler.SyncCacheIfChanged = colocationHandler.syncColocationCfgIfChanged
-	colocationHandler.EnqueueRequest = colocationHandler.triggerAllNodeEnqueue
-	return colocationHandler
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // syncColocationCfgIfChanged is a locked version of syncConfig
 func (p *ColocationHandlerForConfigMapEvent) syncColocationCfgIfChanged(configMap *corev1.ConfigMap) bool {
+	_ = "STUB: not implemented"
 	// get co-location config from the configmap
 	// if the configmap does not exist, use the default
-	p.cfgCache.lock.Lock()
-	defer p.cfgCache.lock.Unlock()
-	return p.syncConfig(configMap)
+	return false
 }
 
 // syncConfig syncs valid colocation config from the configmap request
 func (p *ColocationHandlerForConfigMapEvent) syncConfig(configMap *corev1.ConfigMap) bool {
+	_ = "STUB: not implemented"
 	// get co-location config from the configmap
 	// if the configmap does not exist, use the default
-	if configMap == nil {
-		klog.Errorf("configmap is deleted!,use default config")
-		return p.updateCacheIfChanged(sloconfig.NewDefaultColocationCfg(), true)
-	}
-
-	newCfg := &configuration.ColocationCfg{}
-	configStr := configMap.Data[configuration.ColocationConfigKey]
-	if configStr == "" {
-		klog.Warningf("colocation config is empty!,use default config")
-		return p.updateCacheIfChanged(sloconfig.NewDefaultColocationCfg(), false)
-	}
-
-	err := json.Unmarshal([]byte(configStr), &newCfg)
-	if err != nil {
-		//if controller restart ,cache will unavailable, else use old cfg
-		klog.Errorf("syncConfig failed since parse colocation error, use old Cfg ,configmap %s/%s, err: %s",
-			sloconfig.ConfigNameSpace, sloconfig.SLOCtrlConfigMap, err)
-		p.recorder.Eventf(configMap, corev1.EventTypeWarning, ReasonColocationConfigUnmarshalFailed, "failed to unmarshal colocation config, err: %s", err)
-		p.cfgCache.errorStatus = true
-		return false
-	}
-
-	defaultCfg := sloconfig.NewDefaultColocationCfg()
-	// merge default cluster strategy
-	mergedClusterCfg := defaultCfg.ColocationStrategy.DeepCopy()
-	mergedInterface, _ := util.MergeCfg(mergedClusterCfg, &newCfg.ColocationStrategy)
-	newCfg.ColocationStrategy = *(mergedInterface.(*configuration.ColocationStrategy))
-
-	if !sloconfig.IsColocationStrategyValid(&newCfg.ColocationStrategy) {
-		//if controller restart ,cache will unavailable, else use old cfg
-		klog.Errorf("syncConfig failed since the cluster config is invalid, %+v", newCfg.ColocationStrategy)
-		p.cfgCache.errorStatus = true
-		return false
-	}
-
-	for index, nodeStrategy := range newCfg.NodeConfigs {
-		// merge with clusterStrategy
-		clusterStrategyCopy := newCfg.ColocationStrategy.DeepCopy()
-		mergedNodeStrategyInterface, _ := util.MergeCfg(clusterStrategyCopy, &nodeStrategy.ColocationStrategy)
-		newNodeStrategy := *mergedNodeStrategyInterface.(*configuration.ColocationStrategy)
-		if !sloconfig.IsColocationStrategyValid(&newNodeStrategy) {
-			klog.Errorf("syncConfig failed since node config if invalid, use clusterCfg, nodeCfg:%+v", nodeStrategy)
-			newCfg.NodeConfigs[index].ColocationStrategy = *newCfg.ColocationStrategy.DeepCopy()
-		} else {
-			newCfg.NodeConfigs[index].ColocationStrategy = newNodeStrategy
-		}
-	}
-
-	changed := p.updateCacheIfChanged(newCfg, false)
-	return changed
+	return false
 }
 
+//if controller restart ,cache will unavailable, else use old cfg
+
+// merge default cluster strategy
+
+//if controller restart ,cache will unavailable, else use old cfg
+
+// merge with clusterStrategy
+
 func (p *ColocationHandlerForConfigMapEvent) updateCacheIfChanged(newCfg *configuration.ColocationCfg, errorStatus bool) bool {
-	changed := !reflect.DeepEqual(&p.cfgCache.colocationCfg, newCfg)
-	if changed {
-		oldInfoFmt, _ := json.MarshalIndent(p.cfgCache.colocationCfg, "", "\t")
-		newInfoFmt, _ := json.MarshalIndent(newCfg, "", "\t")
-		klog.V(3).Infof("ColocationCfg changed success! oldCfg:%s\n,newCfg:%s", string(oldInfoFmt), string(newInfoFmt))
-		p.cfgCache.colocationCfg = *newCfg
-	}
-	p.cfgCache.available = true
-	p.cfgCache.errorStatus = errorStatus
-	return changed
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *ColocationHandlerForConfigMapEvent) triggerAllNodeEnqueue(q workqueue.TypedRateLimitingInterface[reconcile.Request]) {
-	nodeList := &corev1.NodeList{}
-	if err := p.Client.List(context.TODO(), nodeList); err != nil {
-		return
-	}
-	for _, node := range nodeList.Items {
-		q.Add(reconcile.Request{
-			NamespacedName: types.NamespacedName{
-				Name: node.Name,
-			},
-		})
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ColocationHandlerForConfigMapEvent) GetCfgCopy() *configuration.ColocationCfg {
-	p.cfgCache.lock.RLock()
-	defer p.cfgCache.lock.RUnlock()
-	return p.cfgCache.colocationCfg.DeepCopy()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *ColocationHandlerForConfigMapEvent) IsErrorStatus() bool {
-	p.cfgCache.lock.RLock()
-	defer p.cfgCache.lock.RUnlock()
-	return p.cfgCache.errorStatus
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *ColocationHandlerForConfigMapEvent) IsCfgAvailable() bool {
-	p.cfgCache.lock.RLock()
-	defer p.cfgCache.lock.RUnlock()
-	// if config is available, just return
-	if p.cfgCache.available {
-		return true
-	}
-	// if config is not available, try to get the configmap from informer cache;
-	// set available if configmap is found or get not found error
-	configMap, err := GetConfigMapForCache(p.Client)
-	if err != nil {
-		klog.Errorf("failed to get configmap %s/%s, colocation cache is unavailable, err: %s",
-			sloconfig.ConfigNameSpace, sloconfig.SLOCtrlConfigMap, err)
-		return false
-	}
-	p.syncConfig(configMap)
-	klog.V(5).Infof("sync colocation cache from configmap %s/%s, available %v", sloconfig.ConfigNameSpace, sloconfig.SLOCtrlConfigMap, p.cfgCache.available)
-	return p.cfgCache.available
+	_ = "STUB: not implemented"
+	return false
 }
 
+// if config is available, just return
+
+// if config is not available, try to get the configmap from informer cache;
+// set available if configmap is found or get not found error
+
 func GetConfigMapForCache(client client.Client) (*corev1.ConfigMap, error) {
+	_ = "STUB: not implemented"
 	// try to get the configmap from informer cache;
 	// if not found, set configmap to nil and ignore error
-	configMap := &corev1.ConfigMap{}
-	err := client.Get(context.TODO(), types.NamespacedName{Namespace: sloconfig.ConfigNameSpace, Name: sloconfig.SLOCtrlConfigMap}, configMap)
-	if err != nil {
-		if !errors.IsNotFound(err) {
-			return nil, err
-		}
-		configMap = nil
-	}
-	return configMap, nil
+	return nil, nil
 }

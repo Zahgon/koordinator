@@ -37,11 +37,8 @@ type AggregateInfo struct {
 }
 
 func (a *AggregateInfo) TimeRangeDuration() time.Duration {
-	if a == nil || a.MetricStart == nil || a.MetricEnd == nil {
-		return time.Duration(0)
-	}
-	return a.MetricEnd.Sub(*a.MetricStart)
-
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 type QueryResult struct {
@@ -50,7 +47,9 @@ type QueryResult struct {
 }
 
 func (q *QueryParam) FillDefaultValue() {
+	_ = "STUB: not implemented"
 	// todo, set start time as unix-zero if nil, set end as now if nil
+	return
 }
 
 type MetricCache interface {
@@ -66,20 +65,8 @@ type metricCache struct {
 }
 
 func NewMetricCache(cfg *Config) (MetricCache, error) {
-	tsdb, err := NewTSDBStorage(cfg)
-	if err != nil {
-		return nil, err
-	}
-	kvdb := NewMemoryStorage()
-	return &metricCache{
-		config:      cfg,
-		TSDBStorage: tsdb,
-		KVStorage:   kvdb,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(MetricCache), nil
 }
 
-func (m *metricCache) Run(stopCh <-chan struct{}) error {
-	<-stopCh
-	m.Close()
-	return nil
-}
+func (m *metricCache) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }

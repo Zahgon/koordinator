@@ -36,10 +36,12 @@ type version struct {
 
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
-	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(Interface)
 }
 
 // ClusterColocationProfiles returns a ClusterColocationProfileInformer.
 func (v *version) ClusterColocationProfiles() ClusterColocationProfileInformer {
-	return &clusterColocationProfileInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	_ = "STUB: not implemented"
+	return *new(ClusterColocationProfileInformer)
 }

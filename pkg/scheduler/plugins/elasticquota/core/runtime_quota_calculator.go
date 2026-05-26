@@ -17,15 +17,10 @@ limitations under the License.
 package core
 
 import (
-	"math/bits"
-	"sort"
 	"sync"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 // quotaNode stores the corresponding quotaInfo's information in a specific resource dimension.
@@ -40,15 +35,8 @@ type quotaNode struct {
 }
 
 func NewQuotaNode(quotaName string, sharedWeight, request, min, guarantee int64, allowLentResource bool) *quotaNode {
-	return &quotaNode{
-		quotaName:         quotaName,
-		request:           request,
-		sharedWeight:      sharedWeight,
-		min:               min,
-		runtimeQuota:      0,
-		guarantee:         guarantee,
-		allowLentResource: allowLentResource,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // quotaTree abstract the struct to calculate each resource dimension's runtime Quota independently
@@ -56,129 +44,62 @@ type quotaTree struct {
 	quotaNodes map[string]*quotaNode
 }
 
-func NewQuotaTree() *quotaTree {
-	return &quotaTree{
-		quotaNodes: make(map[string]*quotaNode),
-	}
-}
+func NewQuotaTree() *quotaTree { _ = "STUB: not implemented"; return nil }
 
 func (qt *quotaTree) insert(groupName string, sharedWeight, request, min, guarantee int64, allowLentResource bool) {
-	if _, exist := qt.quotaNodes[groupName]; !exist {
-		qt.quotaNodes[groupName] = NewQuotaNode(groupName, sharedWeight, request, min, guarantee, allowLentResource)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (qt *quotaTree) updateMin(groupName string, min int64) {
-	if nodeValue, exist := qt.quotaNodes[groupName]; exist {
-		if nodeValue.min != min {
-			qt.quotaNodes[groupName].min = min
-		}
-	}
-}
+func (qt *quotaTree) updateMin(groupName string, min int64) { _ = "STUB: not implemented"; return }
 
 func (qt *quotaTree) updateSharedWeight(groupName string, sharedWeight int64) {
-	if nodeValue, exist := qt.quotaNodes[groupName]; exist {
-		if nodeValue.sharedWeight != sharedWeight {
-			qt.quotaNodes[groupName].sharedWeight = sharedWeight
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (qt *quotaTree) updateRequest(groupName string, request int64) {
-	if nodeValue, exist := qt.quotaNodes[groupName]; exist {
-		if nodeValue.request != request {
-			qt.quotaNodes[groupName].request = request
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (qt *quotaTree) updateGuaranteed(groupName string, guarantee int64) {
-	if nodeValue, exist := qt.quotaNodes[groupName]; exist {
-		if nodeValue.guarantee != guarantee {
-			qt.quotaNodes[groupName].guarantee = guarantee
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (qt *quotaTree) erase(groupName string) {
-	if _, exist := qt.quotaNodes[groupName]; exist {
-		delete(qt.quotaNodes, groupName)
-	}
-}
+func (qt *quotaTree) erase(groupName string) { _ = "STUB: not implemented"; return }
 
 func (qt *quotaTree) find(groupName string) (bool, *quotaNode) {
-	if nodeValue, exist := qt.quotaNodes[groupName]; exist {
-		return exist, nodeValue
-	}
-
+	_ = "STUB: not implemented"
 	return false, nil
 }
 
 // redistribution distribute the parentQuotaGroup's (or totalResource of the cluster (except the
 // DefaultQuotaGroup/SystemQuotaGroup) resource to the childQuotaGroup's according to the PR's rule
-func (qt *quotaTree) redistribution(totalResource int64) {
-	toPartitionResource := totalResource
-	totalSharedWeight := int64(0)
-	needAdjustQuotaNodes := make([]*quotaNode, 0)
-	for _, node := range qt.quotaNodes {
-		min := node.min
-		// if guarantee greater than min, min is guarantee.
-		if node.guarantee > min {
-			min = node.guarantee
-		}
-		if node.request > min {
-			// if a node's request > autoScaleMin, the node needs adjustQuota
-			// the node's runtime is autoScaleMin
-			needAdjustQuotaNodes = append(needAdjustQuotaNodes, node)
-			totalSharedWeight += node.sharedWeight
-			node.runtimeQuota = min
-		} else {
-			if node.allowLentResource {
-				node.runtimeQuota = node.request
-			} else {
-				// if node is not allowLentResource, even if the request is smaller
-				// than autoScaleMin, runtimeQuota is request.
-				node.runtimeQuota = min
-			}
-		}
-		toPartitionResource -= node.runtimeQuota
-	}
+func (qt *quotaTree) redistribution(totalResource int64) { _ = "STUB: not implemented"; return }
 
-	if toPartitionResource > 0 {
-		qt.iterationForRedistribution(toPartitionResource, totalSharedWeight, needAdjustQuotaNodes)
-	}
-}
+// if guarantee greater than min, min is guarantee.
+
+// if a node's request > autoScaleMin, the node needs adjustQuota
+// the node's runtime is autoScaleMin
+
+// if node is not allowLentResource, even if the request is smaller
+// than autoScaleMin, runtimeQuota is request.
 
 func (qt *quotaTree) iterationForRedistribution(totalRes, totalSharedWeight int64, nodes []*quotaNode) {
-	if totalSharedWeight <= 0 || totalRes <= 0 || len(nodes) == 0 {
-		// if totalSharedWeight is not larger than 0, no need to iterate anymore.
-		return
-	}
-
-	// Use the largest remainder (Hamilton) method so that the integer residual left
-	// by per-node rounding is redistributed deterministically, guaranteeing that the
-	// sum of deltas equals totalRes (no resources lost or double-allocated due to
-	// fractional rounding).
-	deltas := computeHamiltonDeltas(totalRes, totalSharedWeight, nodes)
-
-	needAdjustQuotaNodes := make([]*quotaNode, 0)
-	toPartitionResource, needAdjustTotalSharedWeight := int64(0), int64(0)
-	for i, node := range nodes {
-		node.runtimeQuota += deltas[i]
-		if node.runtimeQuota < node.request {
-			// if node's runtime is still less than request, the node still need to iterate.
-			needAdjustQuotaNodes = append(needAdjustQuotaNodes, node)
-			needAdjustTotalSharedWeight += node.sharedWeight
-		} else {
-			toPartitionResource += node.runtimeQuota - node.request
-			node.runtimeQuota = node.request
-		}
-	}
-
-	if toPartitionResource > 0 && len(needAdjustQuotaNodes) > 0 {
-		qt.iterationForRedistribution(toPartitionResource, needAdjustTotalSharedWeight, needAdjustQuotaNodes)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// if totalSharedWeight is not larger than 0, no need to iterate anymore.
+
+// Use the largest remainder (Hamilton) method so that the integer residual left
+// by per-node rounding is redistributed deterministically, guaranteeing that the
+// sum of deltas equals totalRes (no resources lost or double-allocated due to
+// fractional rounding).
+
+// if node's runtime is still less than request, the node still need to iterate.
 
 // computeHamiltonDeltas splits totalRes into per-node integer deltas proportional
 // to node.sharedWeight using the largest-remainder method:
@@ -192,56 +113,8 @@ func (qt *quotaTree) iterationForRedistribution(totalRes, totalSharedWeight int6
 // for large operands (e.g. memory in bytes where w*T can exceed 2^53),
 // guaranteeing Σ(deltas) == totalRes exactly.
 func computeHamiltonDeltas(totalRes, totalSharedWeight int64, nodes []*quotaNode) []int64 {
-	deltas := make([]int64, len(nodes))
-	if totalSharedWeight <= 0 || totalRes <= 0 || len(nodes) == 0 {
-		return deltas
-	}
-
-	type remainderEntry struct {
-		index     int
-		remainder uint64
-		name      string
-	}
-	remainders := make([]remainderEntry, 0, len(nodes))
-
-	uT := uint64(totalRes)
-	uW := uint64(totalSharedWeight)
-
-	distributed := int64(0)
-	for i, node := range nodes {
-		if node.sharedWeight <= 0 {
-			continue
-		}
-		hi, lo := bits.Mul64(uint64(node.sharedWeight), uT)
-		q, r := bits.Div64(hi, lo, uW)
-		base := int64(q)
-
-		deltas[i] = base
-		distributed += base
-		remainders = append(remainders, remainderEntry{
-			index:     i,
-			remainder: r,
-			name:      node.quotaName,
-		})
-	}
-
-	residual := totalRes - distributed
-	if residual <= 0 || len(remainders) == 0 {
-		return deltas
-	}
-
-	sort.SliceStable(remainders, func(a, b int) bool {
-		if remainders[a].remainder != remainders[b].remainder {
-			return remainders[a].remainder > remainders[b].remainder
-		}
-		return remainders[a].name < remainders[b].name
-	})
-
-	for i := 0; i < len(remainders) && residual > 0; i++ {
-		deltas[remainders[i].index]++
-		residual--
-	}
-	return deltas
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type quotaResMapType map[string]v1.ResourceList
@@ -261,354 +134,129 @@ type RuntimeQuotaCalculator struct {
 }
 
 func NewRuntimeQuotaCalculator(treeName string) *RuntimeQuotaCalculator {
-	return &RuntimeQuotaCalculator{
-		globalRuntimeVersion: 1,
-		resourceKeys:         make(map[v1.ResourceName]struct{}),
-		groupReqLimit:        make(quotaResMapType),
-		groupGuaranteed:      make(quotaResMapType),
-		quotaTree:            make(quotaTreeMapType),
-		totalResource:        v1.ResourceList{},
-		treeName:             treeName,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (qtw *RuntimeQuotaCalculator) updateResourceKeys(resourceKeys map[v1.ResourceName]struct{}) {
-	newResourceKey := make(map[v1.ResourceName]struct{})
-	for resKey := range resourceKeys {
-		newResourceKey[resKey] = struct{}{}
-	}
-
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	qtw.resourceKeys = newResourceKey
-	qtw.updateQuotaTreeDimensionByResourceKeysNoLock()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (qtw *RuntimeQuotaCalculator) updateQuotaTreeDimensionByResourceKeysNoLock() {
+	_ = "STUB: not implemented"
 	//lock outside
-	for resKey := range qtw.quotaTree {
-		if _, exist := qtw.resourceKeys[resKey]; !exist {
-			delete(qtw.quotaTree, resKey)
-		}
-	}
-
-	for resKey := range qtw.resourceKeys {
-		if _, exist := qtw.quotaTree[resKey]; !exist {
-			qtw.quotaTree[resKey] = NewQuotaTree()
-		}
-	}
+	return
 }
 
 // updateOneGroupMaxQuota updates a childGroup's maxQuota, the limitedReq of the quotaGroup may change, so
 // should update reqLimit in the process, then increase globalRuntimeVersion
 // need use newMaxQuota to adjust dimension.
 func (qtw *RuntimeQuotaCalculator) updateOneGroupMaxQuota(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	for resKey := range quotaInfo.CalculateInfo.Max {
-		qtw.resourceKeys[resKey] = struct{}{}
-		if _, exist := qtw.quotaTree[resKey]; !exist {
-			qtw.quotaTree[resKey] = NewQuotaTree()
-		}
-	}
-
-	localReqLimit := qtw.getGroupRequestLimitNoLock(quotaInfo.Name)
-	newRequestLimit := quotaInfo.getLimitRequestNoLock()
-	for resKey := range qtw.resourceKeys {
-		// update/insert quotaNode
-		reqLimitPerKey := *newRequestLimit.Name(resKey, resource.DecimalSI)
-
-		if exist, _ := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			qtw.quotaTree[resKey].updateRequest(quotaInfo.Name, getQuantityValue(reqLimitPerKey, resKey))
-		} else {
-			sharedWeightPerKey := *quotaInfo.CalculateInfo.SharedWeight.Name(resKey, resource.DecimalSI)
-			autoScaleMinQuotaPerKey := *quotaInfo.CalculateInfo.AutoScaleMin.Name(resKey, resource.DecimalSI)
-			guaranteePerKey := *quotaInfo.CalculateInfo.Guaranteed.Name(resKey, resource.DecimalSI)
-			qtw.quotaTree[resKey].insert(quotaInfo.Name, getQuantityValue(sharedWeightPerKey, resKey), getQuantityValue(reqLimitPerKey, resKey),
-				getQuantityValue(autoScaleMinQuotaPerKey, resKey), getQuantityValue(guaranteePerKey, resKey), quotaInfo.AllowLentResource)
-		}
-
-		// update reqLimitPerKey
-		localReqLimit[resKey] = reqLimitPerKey
-	}
-
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("UpdateOneGroupMaxQuota finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// update/insert quotaNode
+
+// update reqLimitPerKey
 
 // updateOneGroupMinQuota the autoScaleMin change, then increase globalRuntimeVersion
 func (qtw *RuntimeQuotaCalculator) updateOneGroupMinQuota(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	reqLimit := quotaInfo.getLimitRequestNoLock()
-	minQuota := quotaInfo.CalculateInfo.AutoScaleMin.DeepCopy()
-	for resKey := range qtw.resourceKeys {
-		// update/insert quotaNode
-		newMinQuotaPerKey := *minQuota.Name(resKey, resource.DecimalSI)
-		if exist, _ := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			qtw.quotaTree[resKey].updateMin(quotaInfo.Name, getQuantityValue(newMinQuotaPerKey, resKey))
-		} else {
-			sharedWeightPerKey := *quotaInfo.CalculateInfo.SharedWeight.Name(resKey, resource.DecimalSI)
-			reqLimitPerKey := *reqLimit.Name(resKey, resource.DecimalSI)
-			guaranteePerKey := *quotaInfo.CalculateInfo.Guaranteed.Name(resKey, resource.DecimalSI)
-			qtw.quotaTree[resKey].insert(quotaInfo.Name, getQuantityValue(sharedWeightPerKey, resKey), getQuantityValue(reqLimitPerKey, resKey),
-				getQuantityValue(newMinQuotaPerKey, resKey), getQuantityValue(guaranteePerKey, resKey), quotaInfo.AllowLentResource)
-		}
-	}
-
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("UpdateOneGroupMinQuota finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// update/insert quotaNode
 
 // updateOneGroupSharedWeight, the ability to share the "lent to" resource change, then increase globalRuntimeVersion
 func (qtw *RuntimeQuotaCalculator) updateOneGroupSharedWeight(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	reqLimit := quotaInfo.getLimitRequestNoLock()
-	sharedWeight := quotaInfo.CalculateInfo.SharedWeight.DeepCopy()
-	for resKey := range qtw.resourceKeys {
-		// update/insert quotaNode
-		newSharedWeightPerKey := *sharedWeight.Name(resKey, resource.DecimalSI)
-		if exist, _ := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			qtw.quotaTree[resKey].updateSharedWeight(quotaInfo.Name, getQuantityValue(newSharedWeightPerKey, resKey))
-		} else {
-			reqLimitPerKey := *reqLimit.Name(resKey, resource.DecimalSI)
-			minQuotaPerKey := *quotaInfo.CalculateInfo.AutoScaleMin.Name(resKey, resource.DecimalSI)
-			guaranteePerKey := *quotaInfo.CalculateInfo.Guaranteed.Name(resKey, resource.DecimalSI)
-			qtw.quotaTree[resKey].insert(quotaInfo.Name, getQuantityValue(newSharedWeightPerKey, resKey), getQuantityValue(reqLimitPerKey, resKey),
-				getQuantityValue(minQuotaPerKey, resKey), getQuantityValue(guaranteePerKey, resKey), quotaInfo.AllowLentResource)
-		}
-	}
-
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("UpdateOneGroupSharedWeight finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// update/insert quotaNode
 
 // needUpdateOneGroupRequest if oldReqLimit is the same as newReqLimit, no need to adjustQuota.
 // the request of one group may change frequently, but the cost of adjustQuota is high, so here
 // need to judge whether you need to update QuotaNode's request or not.
 func (qtw *RuntimeQuotaCalculator) needUpdateOneGroupRequest(quotaInfo *QuotaInfo) bool {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	reqLimit := qtw.getGroupRequestLimitNoLock(quotaInfo.Name)
-	newLimitedReq := quotaInfo.getLimitRequestNoLock()
-	for resKey := range qtw.resourceKeys {
-		oldReqLimitPerKey := reqLimit.Name(resKey, resource.DecimalSI)
-		newReqLimitPerKey := *newLimitedReq.Name(resKey, resource.DecimalSI)
-		if !oldReqLimitPerKey.Equal(newReqLimitPerKey) {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // updateOneGroupRequest the request of one group change, need increase globalRuntimeVersion
 func (qtw *RuntimeQuotaCalculator) updateOneGroupRequest(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	reqLimit := qtw.getGroupRequestLimitNoLock(quotaInfo.Name)
-	newReqLimit := quotaInfo.getLimitRequestNoLock()
-	for resKey := range qtw.resourceKeys {
-		// update/insert quotaNode
-		reqLimitPerKey := *newReqLimit.Name(resKey, resource.DecimalSI)
-
-		if exist, _ := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			qtw.quotaTree[resKey].updateRequest(quotaInfo.Name, getQuantityValue(reqLimitPerKey, resKey))
-		} else {
-			sharedWeightPerKey := *quotaInfo.CalculateInfo.SharedWeight.Name(resKey, resource.DecimalSI)
-			minQuotaPerKey := *quotaInfo.CalculateInfo.AutoScaleMin.Name(resKey, resource.DecimalSI)
-			guaranteePerKey := *quotaInfo.CalculateInfo.Guaranteed.Name(resKey, resource.DecimalSI)
-			qtw.quotaTree[resKey].insert(quotaInfo.Name, getQuantityValue(sharedWeightPerKey, resKey), getQuantityValue(reqLimitPerKey, resKey),
-				getQuantityValue(minQuotaPerKey, resKey), getQuantityValue(guaranteePerKey, resKey), quotaInfo.AllowLentResource)
-		}
-
-		// update reqLimitPerKey
-		reqLimit[resKey] = reqLimitPerKey
-	}
-
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("UpdateOneGroupRequest finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (qtw *RuntimeQuotaCalculator) needUpdateOneGroupGuaranteed(quotaInfo *QuotaInfo) bool {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
+// update/insert quotaNode
 
-	guarantee := qtw.getGroupGuaranteedNoLock(quotaInfo.Name)
-	newGuaranteed := quotaInfo.CalculateInfo.Guaranteed
-	for resKey := range qtw.resourceKeys {
-		oldGuaranteedPerKey := guarantee.Name(resKey, resource.DecimalSI)
-		newGuaranteedPerKey := *newGuaranteed.Name(resKey, resource.DecimalSI)
-		if !oldGuaranteedPerKey.Equal(newGuaranteedPerKey) {
-			return true
-		}
-	}
+// update reqLimitPerKey
+
+func (qtw *RuntimeQuotaCalculator) needUpdateOneGroupGuaranteed(quotaInfo *QuotaInfo) bool {
+	_ = "STUB: not implemented"
 	return false
 }
 
 // updateOneGroupGuaranteed the guarantee of one group change, need increase globalRuntimeVersion
 func (qtw *RuntimeQuotaCalculator) updateOneGroupGuaranteed(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	reqLimit := quotaInfo.getLimitRequestNoLock()
-	localGuaranteed := qtw.getGroupGuaranteedNoLock(quotaInfo.Name)
-	newGuaranteed := quotaInfo.CalculateInfo.Guaranteed
-	for resKey := range qtw.resourceKeys {
-		// update/insert quotaNode
-		guaranteePerKey := *newGuaranteed.Name(resKey, resource.DecimalSI)
-
-		if exist, _ := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			qtw.quotaTree[resKey].updateGuaranteed(quotaInfo.Name, getQuantityValue(guaranteePerKey, resKey))
-		} else {
-			reqLimitPerKey := *reqLimit.Name(resKey, resource.DecimalSI)
-			sharedWeightPerKey := *quotaInfo.CalculateInfo.SharedWeight.Name(resKey, resource.DecimalSI)
-			minQuotaPerKey := *quotaInfo.CalculateInfo.AutoScaleMin.Name(resKey, resource.DecimalSI)
-			qtw.quotaTree[resKey].insert(quotaInfo.Name, getQuantityValue(sharedWeightPerKey, resKey), getQuantityValue(reqLimitPerKey, resKey),
-				getQuantityValue(minQuotaPerKey, resKey), getQuantityValue(guaranteePerKey, resKey), quotaInfo.AllowLentResource)
-		}
-
-		// update guaranteePerKey
-		localGuaranteed[resKey] = guaranteePerKey
-	}
-
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("UpdateOneGroupGuaranteed finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
+// update/insert quotaNode
+
+// update guaranteePerKey
+
 func (qtw *RuntimeQuotaCalculator) getGroupGuaranteedNoLock(quotaName string) v1.ResourceList {
-	res, exist := qtw.groupGuaranteed[quotaName]
-	if !exist {
-		res = v1.ResourceList{}
-		qtw.groupGuaranteed[quotaName] = res
-	}
-	return res
+	_ = "STUB: not implemented"
+	return *new(v1.ResourceList)
 }
 
 // setClusterTotalResource increase/decrease the totalResource of the RuntimeQuotaCalculator, the resource that can be "lent to" will
 // change, then increase globalRuntimeVersion
 func (qtw *RuntimeQuotaCalculator) setClusterTotalResource(full v1.ResourceList) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	oldTotalRes := qtw.totalResource.DeepCopy()
-	qtw.totalResource = full.DeepCopy()
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		klog.Infof("setClusterTotalResource, treeName: %v, oldTotalResource: %v, newTotalResource: %v, reqLimit: %v, refreshedVersion: %v",
-			qtw.treeName, util.DumpJSON(oldTotalRes), util.DumpJSON(qtw.totalResource), util.DumpJSON(qtw.groupReqLimit), qtw.globalRuntimeVersion)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // updateOneGroupRuntimeQuota update the quotaInfo's runtimeQuota as the quotaNode's runtime.
 func (qtw *RuntimeQuotaCalculator) updateOneGroupRuntimeQuota(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	if quotaInfo.RuntimeVersion == qtw.globalRuntimeVersion {
-		return
-	}
-
-	qtw.calculateRuntimeNoLock()
-
-	for resKey := range qtw.resourceKeys {
-		if exist, quotaNode := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			quotaInfo.CalculateInfo.Runtime[resKey] = createQuantity(quotaNode.runtimeQuota, resKey)
-		}
-	}
-	quotaInfo.RuntimeVersion = qtw.globalRuntimeVersion
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("UpdateOneGroupRuntimeQuota finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (qtw *RuntimeQuotaCalculator) getGroupRequestLimitNoLock(quotaName string) v1.ResourceList {
-	res, exist := qtw.groupReqLimit[quotaName]
-	if !exist {
-		res = v1.ResourceList{}
-		qtw.groupReqLimit[quotaName] = res
-	}
-	return res
+	_ = "STUB: not implemented"
+	return *new(v1.ResourceList)
 }
 
-func (qtw *RuntimeQuotaCalculator) getVersion() int64 {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-	return qtw.globalRuntimeVersion
-}
+func (qtw *RuntimeQuotaCalculator) getVersion() int64 { _ = "STUB: not implemented"; return 0 }
 
 func (qtw *RuntimeQuotaCalculator) calculateRuntimeNoLock() {
-	//lock outside
-	for resKey := range qtw.resourceKeys {
-		totalResourcePerKey := *qtw.totalResource.Name(resKey, resource.DecimalSI)
-		qtw.quotaTree[resKey].redistribution(getQuantityValue(totalResourcePerKey, resKey))
-	}
+	_ = "STUB: not implemented"
+	// lock outside
+	return
 }
 
 func (qtw *RuntimeQuotaCalculator) logQuotaInfoNoLock(verb string, quotaInfo *QuotaInfo) {
-	klog.Infof("[%v] quotaName: %v, quotaParentName: %v, IsParent: %v, CalculateInfo: %v, treeName: %v, totalResource: %v, reqLimit: %v, refreshedVersion: %v",
-		verb, quotaInfo.Name, quotaInfo.ParentName, quotaInfo.IsParent, util.DumpJSON(quotaInfo.CalculateInfo),
-		qtw.treeName, util.DumpJSON(qtw.totalResource), util.DumpJSON(qtw.groupReqLimit), qtw.globalRuntimeVersion)
+	_ = "STUB: not implemented"
+	return
 }
 
 func getQuantityValue(res resource.Quantity, resName v1.ResourceName) int64 {
-	if resName == v1.ResourceCPU {
-		return res.MilliValue()
-	}
-	return res.Value()
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func createQuantity(value int64, resName v1.ResourceName) resource.Quantity {
-	var q resource.Quantity
-	switch resName {
-	case v1.ResourceCPU:
-		q = *resource.NewMilliQuantity(value, resource.DecimalSI)
-	case v1.ResourceMemory:
-		q = *resource.NewQuantity(value, resource.BinarySI)
-	default:
-		q = *resource.NewQuantity(value, resource.DecimalSI)
-	}
-	return q
+	_ = "STUB: not implemented"
+	return *new(resource.Quantity)
 }
 
 func (qtw *RuntimeQuotaCalculator) deleteOneGroup(quotaInfo *QuotaInfo) {
-	qtw.lock.Lock()
-	defer qtw.lock.Unlock()
-
-	for resKey := range qtw.resourceKeys {
-		if exist, _ := qtw.quotaTree[resKey].find(quotaInfo.Name); exist {
-			qtw.quotaTree[resKey].erase(quotaInfo.Name)
-		}
-	}
-	delete(qtw.groupReqLimit, quotaInfo.Name)
-	delete(qtw.groupGuaranteed, quotaInfo.Name)
-
-	qtw.globalRuntimeVersion++
-
-	if klog.V(5).Enabled() {
-		qtw.logQuotaInfoNoLock("deleteOneGroup finish", quotaInfo)
-	}
+	_ = "STUB: not implemented"
+	return
 }

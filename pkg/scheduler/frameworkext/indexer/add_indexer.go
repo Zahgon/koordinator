@@ -26,13 +26,6 @@ var addIndexerFuncList = []addIndexerFunc{}
 
 // AddIndexers add indexers to koordinator informer
 func AddIndexers(koordinatorSharedInformerFactory koordinatorinformers.SharedInformerFactory) error {
-	if koordinatorSharedInformerFactory == nil {
-		return nil
-	}
-	for _, f := range addIndexerFuncList {
-		if err := f(koordinatorSharedInformerFactory); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

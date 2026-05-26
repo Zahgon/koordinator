@@ -18,12 +18,7 @@ package options
 
 import (
 	"flag"
-	"fmt"
-	"strings"
 
-	"github.com/spf13/pflag"
-	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -33,55 +28,13 @@ type Options struct {
 	ControllerInitFlags map[string]func(*flag.FlagSet)
 }
 
-func NewOptions() *Options {
-	return &Options{
-		ControllerInitFlags: controllerInitFlags,
-		ControllerAddFuncs:  controllerAddFuncs,
-		Controllers:         sets.StringKeySet(controllerAddFuncs).List(),
-	}
-}
+func NewOptions() *Options { _ = "STUB: not implemented"; return nil }
 
-func (o *Options) InitFlags(fs *flag.FlagSet) {
-	pflag.StringSliceVar(&o.Controllers, "controllers", o.Controllers, fmt.Sprintf("A list of controllers to enable. "+
-		"'-controllers=*' enables all controllers. "+
-		"'-controllers=noderesource' means only the 'noderesource' controller is enabled. "+
-		"'-controllers=*,-noderesource' means all controllers except the 'noderesource' controller are enabled.\n"+
-		"All controllers: %s", strings.Join(o.Controllers, ", ")))
-	for _, initFlagsFn := range o.ControllerInitFlags {
-		initFlagsFn(fs)
-	}
-}
+func (o *Options) InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
 
-func (o *Options) ApplyTo(m manager.Manager) error {
-	for controllerName, addFn := range o.ControllerAddFuncs {
-		if !isControllerEnabled(controllerName, o.Controllers) {
-			klog.Warningf("controller %q is disabled", controllerName)
-			continue
-		}
-
-		if err := addFn(m); err != nil {
-			klog.Errorf("Unable to create controller %s, err: %v", controllerName, err)
-			return err
-		} else {
-			klog.V(4).Infof("controller %q added", controllerName)
-		}
-	}
-
-	return nil
-}
+func (o *Options) ApplyTo(m manager.Manager) error { _ = "STUB: not implemented"; return nil }
 
 func isControllerEnabled(controllerName string, controllers []string) bool {
-	hasStar := false
-	for _, c := range controllers {
-		if c == controllerName {
-			return true
-		}
-		if c == "-"+controllerName {
-			return false
-		}
-		if c == "*" {
-			hasStar = true
-		}
-	}
-	return hasStar
+	_ = "STUB: not implemented"
+	return false
 }

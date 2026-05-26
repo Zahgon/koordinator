@@ -25,9 +25,11 @@ type PerfGroupCollector struct {
 }
 
 func GetAndStartPerfGroupCollectorOnContainer(cgroupFile *os.File, cpus []int, events []string) (*PerfGroupCollector, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func GetContainerCyclesAndInstructionsGroup(collector *PerfGroupCollector) (float64, float64, error) {
+	_ = "STUB: not implemented"
 	return 0, 0, nil
 }

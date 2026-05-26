@@ -17,16 +17,6 @@ limitations under the License.
 
 package cpuset
 
-import (
-	"bytes"
-	"fmt"
-	"sort"
-	"strconv"
-	"strings"
-
-	"k8s.io/klog/v2"
-)
-
 const (
 	maxAvailableCPUCount = 4096
 )
@@ -39,31 +29,15 @@ type CPUSetBuilder struct {
 }
 
 // NewCPUSetBuilder returns a mutable CPUSet builder.
-func NewCPUSetBuilder() *CPUSetBuilder {
-	return &CPUSetBuilder{
-		result: CPUSet{
-			elems: map[int]struct{}{},
-		},
-	}
-}
+func NewCPUSetBuilder() *CPUSetBuilder { _ = "STUB: not implemented"; return nil }
 
 // Add adds the supplied elements to the result.
 // Calling Add after calling Result has no effect.
-func (b *CPUSetBuilder) Add(elems ...int) {
-	if b.done {
-		return
-	}
-	for _, elem := range elems {
-		b.result.elems[elem] = struct{}{}
-	}
-}
+func (b *CPUSetBuilder) Add(elems ...int) { _ = "STUB: not implemented"; return }
 
 // Result returns the result CPUSet containing all elements that were
 // previously added to this builder. Subsequent calls to Add have no effect.
-func (b *CPUSetBuilder) Result() CPUSet {
-	b.done = true
-	return b.result
-}
+func (b *CPUSetBuilder) Result() CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // CPUSet is a thread-safe, immutable set-like data structure for CPU IDs.
 type CPUSet struct {
@@ -71,305 +45,116 @@ type CPUSet struct {
 }
 
 // NewCPUSet returns a new CPUSet containing the supplied elements.
-func NewCPUSet(cpus ...int) CPUSet {
-	b := NewCPUSetBuilder()
-	for _, c := range cpus {
-		b.Add(c)
-	}
-	return b.Result()
-}
+func NewCPUSet(cpus ...int) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // Clone returns a copy of this CPUSet.
-func (s CPUSet) Clone() CPUSet {
-	b := NewCPUSetBuilder()
-	for elem := range s.elems {
-		b.Add(elem)
-	}
-	return b.Result()
-}
+func (s CPUSet) Clone() CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // Size returns the number of elements in this CPUSet.
-func (s CPUSet) Size() int {
-	return len(s.elems)
-}
+func (s CPUSet) Size() int { _ = "STUB: not implemented"; return 0 }
 
 // IsEmpty returns true if there are zero elements in this CPUSet.
-func (s CPUSet) IsEmpty() bool {
-	return s.Size() == 0
-}
+func (s CPUSet) IsEmpty() bool { _ = "STUB: not implemented"; return false }
 
 // Contains returns true if the supplied element is present in this CPUSet.
-func (s CPUSet) Contains(cpu int) bool {
-	_, found := s.elems[cpu]
-	return found
-}
+func (s CPUSet) Contains(cpu int) bool { _ = "STUB: not implemented"; return false }
 
 // Equals returns true if the supplied CPUSet contains exactly the same elements
 // as this CPUSet (s IsSubsetOf s2 and s2 IsSubsetOf s).
-func (s CPUSet) Equals(s2 CPUSet) bool {
-	if len(s.elems) != len(s2.elems) {
-		return false
-	}
-	for k := range s.elems {
-		if _, ok := s2.elems[k]; !ok {
-			return false
-		}
-	}
-	return true
-}
+func (s CPUSet) Equals(s2 CPUSet) bool { _ = "STUB: not implemented"; return false }
 
 // Filter returns a new CPUSet that contains the elements from this
 // CPUSet that match the supplied predicate, without mutating the source CPUSet.
 func (s CPUSet) Filter(predicate func(int) bool) CPUSet {
-	b := NewCPUSetBuilder()
-	for cpu := range s.elems {
-		if predicate(cpu) {
-			b.Add(cpu)
-		}
-	}
-	return b.Result()
+	_ = "STUB: not implemented"
+	return *new(CPUSet)
 }
 
 // FilterNot returns a new CPUSet that contains the elements from this
 // CPUSet that do not match the supplied predicate, without mutating the source CPUSet.
 func (s CPUSet) FilterNot(predicate func(int) bool) CPUSet {
-	b := NewCPUSetBuilder()
-	for cpu := range s.elems {
-		if !predicate(cpu) {
-			b.Add(cpu)
-		}
-	}
-	return b.Result()
+	_ = "STUB: not implemented"
+	return *new(CPUSet)
 }
 
 // IsSubsetOf returns true if the supplied CPUSet contains all the elements
-func (s CPUSet) IsSubsetOf(s2 CPUSet) bool {
-	result := true
-	for cpu := range s.elems {
-		if !s2.Contains(cpu) {
-			result = false
-			break
-		}
-	}
-	return result
-}
+func (s CPUSet) IsSubsetOf(s2 CPUSet) bool { _ = "STUB: not implemented"; return false }
 
 // Union returns a new CPUSet that contains the elements from this CPUSet
 // and the elements from the supplied CPUSet, without mutating either source CPUSet.
-func (s CPUSet) Union(s2 CPUSet) CPUSet {
-	b := NewCPUSetBuilder()
-	for cpu := range s.elems {
-		b.Add(cpu)
-	}
-	for cpu := range s2.elems {
-		b.Add(cpu)
-	}
-	return b.Result()
-}
+func (s CPUSet) Union(s2 CPUSet) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // UnionSlice returns a new CPUSet that contains the elements from this CPUSet
 // and the elements from the supplied CPUSet, without mutating either source CPUSet.
-func (s CPUSet) UnionSlice(s2 ...int) CPUSet {
-	b := NewCPUSetBuilder()
-	for cpu := range s.elems {
-		b.Add(cpu)
-	}
-	for _, cpu := range s2 {
-		b.Add(cpu)
-	}
-	return b.Result()
-}
+func (s CPUSet) UnionSlice(s2 ...int) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // UnionAll returns a new CPUSet that contains the elements from this
 // CPUSet and the elements from the supplied sets, without mutating either source CPUSet.
-func (s CPUSet) UnionAll(s2 []CPUSet) CPUSet {
-	b := NewCPUSetBuilder()
-	for cpu := range s.elems {
-		b.Add(cpu)
-	}
-	for _, cs := range s2 {
-		for cpu := range cs.elems {
-			b.Add(cpu)
-		}
-	}
-	return b.Result()
-}
+func (s CPUSet) UnionAll(s2 []CPUSet) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // Intersection returns a new CPUSet that contains the elements
 // that are present in both this CPUSet and the supplied CPUSet, without mutating either source CPUSet.
-func (s CPUSet) Intersection(s2 CPUSet) CPUSet {
-	return s.Filter(func(cpu int) bool { return s2.Contains(cpu) })
-}
+func (s CPUSet) Intersection(s2 CPUSet) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // Difference returns a new CPUSet that contains the elements that
 // are present in this CPUSet and not the supplied CPUSet, without mutating either source CPUSet.
-func (s CPUSet) Difference(s2 CPUSet) CPUSet {
-	return s.FilterNot(func(cpu int) bool { return s2.Contains(cpu) })
-}
+func (s CPUSet) Difference(s2 CPUSet) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // ToSlice returns a slice of integers that contains all elements from this CPUSet.
-func (s CPUSet) ToSlice() []int {
-	if len(s.elems) == 0 {
-		return nil
-	}
-	result := make([]int, 0, len(s.elems))
-	for cpu := range s.elems {
-		result = append(result, cpu)
-	}
-	sort.Ints(result)
-	return result
-}
+func (s CPUSet) ToSlice() []int { _ = "STUB: not implemented"; return nil }
 
 // ToSliceNoSort returns a slice of integers that contains all elements from this CPUSet.
-func (s CPUSet) ToSliceNoSort() []int {
-	if len(s.elems) == 0 {
-		return nil
-	}
-	result := make([]int, 0, len(s.elems))
-	for cpu := range s.elems {
-		result = append(result, cpu)
-	}
-	return result
-}
+func (s CPUSet) ToSliceNoSort() []int { _ = "STUB: not implemented"; return nil }
 
 // ToInt32Slice returns a slice of int32 values that contains all elements from this CPUSet.
-func (s CPUSet) ToInt32Slice() []int32 {
-	if len(s.elems) == 0 {
-		return nil
-	}
-	result := make([]int32, 0, len(s.elems))
-	for cpu := range s.elems {
-		result = append(result, int32(cpu)) // assert cpu id is in int32 range
-	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i] < result[j]
-	})
-	return result
-}
+func (s CPUSet) ToInt32Slice() []int32 { _ = "STUB: not implemented"; return nil }
 
-func (s CPUSet) MarshalText() ([]byte, error) {
-	return []byte(s.String()), nil
-}
+// assert cpu id is in int32 range
 
-func (s *CPUSet) UnmarshalText(data []byte) error {
-	r, err := Parse(string(data))
-	if err != nil {
-		return err
-	}
-	s.elems = r.elems
-	return nil
-}
+func (s CPUSet) MarshalText() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
+
+func (s *CPUSet) UnmarshalText(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 // String returns a new string representation of the elements in this CPUSet
 // in canonical linux CPU list format.
 //
 // See: http://man7.org/linux/man-pages/man7/cpuset.7.html#FORMATS
-func (s CPUSet) String() string {
-	if s.IsEmpty() {
-		return ""
-	}
+func (s CPUSet) String() string { _ = "STUB: not implemented"; return "" }
 
-	elems := s.ToSlice()
+// if this element is adjacent to the high end of the last range
 
-	type rng struct {
-		start int
-		end   int
-	}
+// then extend the last range to include this element
 
-	ranges := []rng{{elems[0], elems[0]}}
+// otherwise, start a new range beginning with this element
 
-	for i := 1; i < len(elems); i++ {
-		lastRange := &ranges[len(ranges)-1]
-		// if this element is adjacent to the high end of the last range
-		if elems[i] == lastRange.end+1 {
-			// then extend the last range to include this element
-			lastRange.end = elems[i]
-			continue
-		}
-		// otherwise, start a new range beginning with this element
-		ranges = append(ranges, rng{elems[i], elems[i]})
-	}
-
-	// construct string from ranges
-	var result bytes.Buffer
-	for i, r := range ranges {
-		if r.start == r.end {
-			result.WriteString(strconv.Itoa(r.start))
-		} else {
-			result.WriteString(fmt.Sprintf("%d-%d", r.start, r.end))
-		}
-		if i != len(ranges)-1 {
-			result.WriteString(",")
-		}
-	}
-	return result.String()
-}
+// construct string from ranges
 
 // MustParse CPUSet constructs a new CPUSet from a Linux CPU list formatted
 // string. Unlike Parse, it does not return an error but rather panics if the
 // input cannot be used to construct a CPUSet.
-func MustParse(s string) CPUSet {
-	res, err := Parse(s)
-	if err != nil {
-		klog.Fatalf("unable to parse [%s] as CPUSet: %v", s, err)
-	}
-	return res
-}
+func MustParse(s string) CPUSet { _ = "STUB: not implemented"; return *new(CPUSet) }
 
 // Parse CPUSet constructs a new CPUSet from a Linux CPU list formatted string.
 //
 // See: http://man7.org/linux/man-pages/man7/cpuset.7.html#FORMATS
 func Parse(s string) (CPUSet, error) {
-	b := NewCPUSetBuilder()
+	_ = "STUB: not implemented"
+	return *
 
 	// Handle empty string.
-	if s == "" {
-		return b.Result(), nil
-	}
-
-	// Split CPU list string:
-	// "0-5,34,46-48 => ["0-5", "34", "46-48"]
-	ranges := strings.Split(s, ",")
-
-	for _, r := range ranges {
-		boundaries := strings.Split(r, "-")
-		if len(boundaries) == 1 {
-			// Handle ranges that consist of only one element like "34".
-			elem, err := strconv.ParseInt(boundaries[0], 10, 32) // assert cpu id is in range of int32
-			if err != nil {
-				return NewCPUSet(), err
-			}
-			b.Add(int(elem))
-		} else if len(boundaries) == 2 {
-			// Handle multi-element ranges like "0-5".
-			start, err := strconv.ParseInt(boundaries[0], 10, 32) // assert cpu id is in range of int32
-			if err != nil {
-				return NewCPUSet(), err
-			}
-			end, err := strconv.ParseInt(boundaries[1], 10, 32)
-			if err != nil {
-				return NewCPUSet(), err
-			}
-			if end > maxAvailableCPUCount {
-				return NewCPUSet(), fmt.Errorf("end %d exceed the maximum available CPU count: %d", end, maxAvailableCPUCount)
-			}
-			// Add all elements to the result.
-			// e.g. "0-5", "46-48" => [0, 1, 2, 3, 4, 5, 46, 47, 48].
-			for e := start; e <= end; e++ {
-				b.Add(int(e))
-			}
-		} else {
-			return NewCPUSet(), fmt.Errorf("invalid format: %s", r)
-		}
-	}
-	return b.Result(), nil
+	new(CPUSet), nil
 }
 
-func IsEqualStrCpus(a, b string) bool {
-	cpus1, err1 := Parse(a)
-	cpus2, err2 := Parse(b)
-	if err1 != nil || err2 != nil {
-		return false
-	}
-	return cpus1.Equals(cpus2)
-}
+// Split CPU list string:
+// "0-5,34,46-48 => ["0-5", "34", "46-48"]
+
+// Handle ranges that consist of only one element like "34".
+// assert cpu id is in range of int32
+
+// Handle multi-element ranges like "0-5".
+// assert cpu id is in range of int32
+
+// Add all elements to the result.
+// e.g. "0-5", "46-48" => [0, 1, 2, 3, 4, 5, 46, 47, 48].
+
+func IsEqualStrCpus(a, b string) bool { _ = "STUB: not implemented"; return false }

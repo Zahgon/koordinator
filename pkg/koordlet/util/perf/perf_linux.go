@@ -22,13 +22,9 @@ package perf
 // todo: add readme
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/hodgesds/perf-utils"
-	"go.uber.org/multierr"
-	"golang.org/x/sys/unix"
-	"k8s.io/klog/v2"
 )
 
 type PerfCollector struct {
@@ -39,55 +35,21 @@ type PerfCollector struct {
 }
 
 func NewPerfCollector(cgroupFile *os.File, cpus []int) (*PerfCollector, error) {
-	collector := &PerfCollector{
-		cgroupFile:        cgroupFile,
-		cpus:              cpus,
-		cpuHwProfilersMap: map[int]*perf.HardwareProfiler{},
-	}
-	for _, cpu := range cpus {
-		cpiProfiler, err := perf.NewHardwareProfiler(int(cgroupFile.Fd()), cpu, perf.CpuCyclesProfiler|perf.CpuInstrProfiler, unix.PERF_FLAG_PID_CGROUP)
-		if err != nil && !cpiProfiler.HasProfilers() {
-			return nil, err
-		}
-
-		// todo: NewSoftwareProfiler, etc.
-
-		collector.cpuHwProfilersMap[cpu] = &cpiProfiler
-	}
-	return collector, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// todo: NewSoftwareProfiler, etc.
+
 func GetAndStartPerfCollectorOnContainer(cgroupFile *os.File, cpus []int) (*PerfCollector, error) {
-	collector, err := NewPerfCollector(cgroupFile, cpus)
-	if err != nil {
-		return nil, err
-	}
-	for _, cpu := range collector.cpus {
-		go func(cpu int) {
-			if newErr := (*collector.cpuHwProfilersMap[cpu]).Start(); newErr != nil {
-				err = multierr.Append(err, newErr)
-			}
-		}(cpu)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return collector, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // todo: call collect() to get all metrics at the same time instead of put it inside GetContainerCyclesAndInstructions
 func GetContainerCyclesAndInstructions(collector *PerfCollector) (float64, float64, error) {
-	defer func() {
-		stopErr := collector.stopAndClose()
-		if stopErr != nil {
-			klog.Errorf("stopAndClose perf err %v", stopErr)
-		}
-	}()
-	result, err := collector.collect()
-	if err != nil {
-		return 0, 0, err
-	}
-	return result.cycles, result.instructions, nil
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }
 
 type collectResult struct {
@@ -98,74 +60,27 @@ type collectResult struct {
 }
 
 func (c *PerfCollector) collect() (result collectResult, err error) {
-	for _, cpu := range c.cpus {
-		// todo: c.swProfile, etc.
-		profile, err := c.hwProfileOnSingleCPU(cpu)
-		if err != nil {
-			return result, err
-		}
-		// skip not counted cases
-		if profile.CPUCycles != nil {
-			scalingRatio := 1.0
-			if *profile.TimeRunning != 0 && *profile.TimeEnabled != 0 {
-				scalingRatio = float64(*profile.TimeRunning) / float64(*profile.TimeEnabled)
-			}
-			result.cycles += float64(*profile.CPUCycles) / scalingRatio
-		}
-		if profile.Instructions != nil {
-			scalingRatio := 1.0
-			if *profile.TimeRunning != 0 && *profile.TimeEnabled != 0 {
-				scalingRatio = float64(*profile.TimeRunning) / float64(*profile.TimeEnabled)
-			}
-			result.instructions += float64(*profile.Instructions) / scalingRatio
-		}
-	}
-	return result, err
+	_ = "STUB: not implemented"
+	return *new(collectResult), nil
 }
+
+// todo: c.swProfile, etc.
+
+// skip not counted cases
 
 func (c *PerfCollector) hwProfileOnSingleCPU(cpu int) (*perf.HardwareProfile, error) {
-	profile := &perf.HardwareProfile{}
-	if err := (*c.cpuHwProfilersMap[cpu]).Profile(profile); err != nil {
-		return nil, fmt.Errorf("profile err : %v", err)
-	}
-	return profile, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *PerfCollector) stopAndClose() (err error) {
-	for _, cpu := range c.cpus {
-		// todo: c.swProfile, etc.
-		newErr := c.stopOnSingleCPU(cpu)
-		if newErr != nil {
-			err = multierr.Append(err, newErr)
-		}
-		newErr = c.closeOnSingleCPU(cpu)
-		if newErr != nil {
-			err = multierr.Append(err, newErr)
-		}
-	}
-	return err
-}
+func (c *PerfCollector) stopAndClose() (err error) { _ = "STUB: not implemented"; return nil }
 
-func (c *PerfCollector) stopOnSingleCPU(cpu int) error {
-	if err := (*c.cpuHwProfilersMap[cpu]).Stop(); err != nil {
-		return fmt.Errorf("stop container %v, cpu: %v fd err : %v", int(c.cgroupFile.Fd()), cpu, err)
-	}
-	return nil
-}
+// todo: c.swProfile, etc.
 
-func (c *PerfCollector) closeOnSingleCPU(cpu int) error {
-	if err := (*c.cpuHwProfilersMap[cpu]).Close(); err != nil {
-		return fmt.Errorf("close container %v, cpu: %v fd err : %v", int(c.cgroupFile.Fd()), cpu, err)
-	}
-	return nil
-}
+func (c *PerfCollector) stopOnSingleCPU(cpu int) error { _ = "STUB: not implemented"; return nil }
 
-func (c *PerfCollector) CleanUp() error {
-	err := c.cgroupFile.Close()
-	if err != nil {
-		return fmt.Errorf("close cgroupFile %v, err : %v", c.cgroupFile.Name(), err)
-	}
-	return nil
-}
+func (c *PerfCollector) closeOnSingleCPU(cpu int) error { _ = "STUB: not implemented"; return nil }
+
+func (c *PerfCollector) CleanUp() error { _ = "STUB: not implemented"; return nil }
 
 type Collector interface{}

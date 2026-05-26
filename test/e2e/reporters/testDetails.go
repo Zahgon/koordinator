@@ -17,15 +17,10 @@ limitations under the License.
 package reporters
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 
 	"github.com/onsi/ginkgo/v2/config"
 	"github.com/onsi/ginkgo/v2/types"
-	"k8s.io/klog/v2"
 )
 
 // DetailsReporter is a ginkgo reporter which dumps information regarding the tests which is difficult to get
@@ -38,63 +33,55 @@ type DetailsReporter struct {
 // NewDetailsReporterWithWriter returns a reporter which will write the SpecSummary objects as tests
 // complete to the given writer.
 func NewDetailsReporterWithWriter(w io.Writer) *DetailsReporter {
-	return &DetailsReporter{
-		Writer: w,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewDetailsReporterFile returns a reporter which will create the file given and dump the specs
 // to it as they complete.
 func NewDetailsReporterFile(filename string) *DetailsReporter {
-	absPath, err := filepath.Abs(filename)
-	if err != nil {
-		klog.Errorf("%#v\n", err)
-		panic(err)
-	}
-	f, err := os.Create(absPath)
-	if err != nil {
-		klog.Errorf("%#v\n", err)
-		panic(err)
-	}
-	return NewDetailsReporterWithWriter(f)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SpecSuiteWillBegin is implemented as a noop to satisfy the reporter interface for ginkgo.
 func (reporter *DetailsReporter) SpecSuiteWillBegin(cfg config.GinkgoConfigType, summary *types.SuiteSummary) {
+	_ = "STUB: not implemented"
+
+	// SpecSuiteDidEnd is implemented as a noop to satisfy the reporter interface for ginkgo.
+	return
 }
 
-// SpecSuiteDidEnd is implemented as a noop to satisfy the reporter interface for ginkgo.
-func (reporter *DetailsReporter) SpecSuiteDidEnd(summary *types.SuiteSummary) {}
+func (reporter *DetailsReporter) SpecSuiteDidEnd(summary *types.SuiteSummary) {
+	_ = "STUB: not implemented"
 
-// SpecDidComplete is invoked by Ginkgo each time a spec is completed (including skipped specs).
+	// SpecDidComplete is invoked by Ginkgo each time a spec is completed (including skipped specs).
+	return
+}
+
 func (reporter *DetailsReporter) SpecDidComplete(specSummary *types.SpecSummary) {
-	b, err := json.Marshal(specSummary)
-	if err != nil {
-		klog.Errorf("Error in detail reporter: %v", err)
-		return
-	}
-	_, err = reporter.Writer.Write(b)
-	if err != nil {
-		klog.Errorf("Error saving test details in detail reporter: %v", err)
-		return
-	}
-	// Printing newline between records for easier viewing in various tools.
-	_, err = fmt.Fprintln(reporter.Writer, "")
-	if err != nil {
-		klog.Errorf("Error saving test details in detail reporter: %v", err)
-		return
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Printing newline between records for easier viewing in various tools.
 
 // SpecWillRun is implemented as a noop to satisfy the reporter interface for ginkgo.
-func (reporter *DetailsReporter) SpecWillRun(specSummary *types.SpecSummary) {}
+func (reporter *DetailsReporter) SpecWillRun(specSummary *types.SpecSummary) {
+	_ = "STUB: not implemented"
 
-// BeforeSuiteDidRun is implemented as a noop to satisfy the reporter interface for ginkgo.
-func (reporter *DetailsReporter) BeforeSuiteDidRun(setupSummary *types.SetupSummary) {}
+	// BeforeSuiteDidRun is implemented as a noop to satisfy the reporter interface for ginkgo.
+	return
+}
 
-// AfterSuiteDidRun is implemented as a noop to satisfy the reporter interface for ginkgo.
+func (reporter *DetailsReporter) BeforeSuiteDidRun(setupSummary *types.SetupSummary) {
+	_ = "STUB: not implemented"
+
+	// AfterSuiteDidRun is implemented as a noop to satisfy the reporter interface for ginkgo.
+	return
+}
+
 func (reporter *DetailsReporter) AfterSuiteDidRun(setupSummary *types.SetupSummary) {
-	if c, ok := reporter.Writer.(io.Closer); ok {
-		c.Close()
-	}
+	_ = "STUB: not implemented"
+	return
 }

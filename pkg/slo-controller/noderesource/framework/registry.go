@@ -17,10 +17,7 @@ limitations under the License.
 package framework
 
 import (
-	"fmt"
 	"sync"
-
-	"k8s.io/klog/v2"
 )
 
 type PluginConfig struct {
@@ -35,55 +32,14 @@ type PluginRegistry struct {
 }
 
 func NewRegistry(registryName string, plugins ...Plugin) *PluginRegistry {
-	registry := &PluginRegistry{
-		name:      registryName,
-		pluginSet: map[string]struct{}{},
-	}
-
-	registry.MustRegister(plugins...)
-	return registry
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (r *PluginRegistry) Size() int {
-	r.RLock()
-	defer r.RUnlock()
-	return len(r.plugins)
-}
+func (r *PluginRegistry) Size() int { _ = "STUB: not implemented"; return 0 }
 
-func (r *PluginRegistry) MustRegister(plugins ...Plugin) {
-	r.Lock()
-	defer r.Unlock()
-	for _, p := range plugins {
-		if _, exist := r.pluginSet[p.Name()]; exist {
-			klog.ErrorS(fmt.Errorf("plugin already exist"), "failed to register existing plugin",
-				"registry", r.name, "plugin", p.Name())
-			continue
-		}
-		r.plugins = append(r.plugins, p)
-		r.pluginSet[p.Name()] = struct{}{}
-	}
-}
+func (r *PluginRegistry) MustRegister(plugins ...Plugin) { _ = "STUB: not implemented"; return }
 
-func (r *PluginRegistry) Unregister(name string) {
-	r.Lock()
-	defer r.Unlock()
-	_, exist := r.pluginSet[name]
-	if !exist {
-		return
-	}
-	delete(r.pluginSet, name)
-	for i := range r.plugins {
-		if r.plugins[i].Name() == name {
-			r.plugins = append(r.plugins[:i], r.plugins[i+1:]...)
-			return
-		}
-	}
-}
+func (r *PluginRegistry) Unregister(name string) { _ = "STUB: not implemented"; return }
 
-func (r *PluginRegistry) GetAll() []Plugin {
-	r.RLock()
-	defer r.RUnlock()
-	plugins := make([]Plugin, len(r.plugins))
-	copy(plugins, r.plugins)
-	return plugins
-}
+func (r *PluginRegistry) GetAll() []Plugin { _ = "STUB: not implemented"; return nil }

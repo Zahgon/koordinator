@@ -22,8 +22,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	schedconfigv1 "k8s.io/kube-scheduler/config/v1"
 	"k8s.io/utils/ptr"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
@@ -98,192 +96,22 @@ var (
 
 // SetDefaults_LoadAwareSchedulingArgs sets the default parameters for LoadAwareScheduling plugin.
 func SetDefaults_LoadAwareSchedulingArgs(obj *LoadAwareSchedulingArgs) {
-	if obj.FilterExpiredNodeMetrics == nil {
-		obj.FilterExpiredNodeMetrics = ptr.To[bool](true)
-	}
-	if obj.EnableScheduleWhenNodeMetricsExpired == nil {
-		obj.EnableScheduleWhenNodeMetricsExpired = ptr.To[bool](false)
-	}
-	if obj.NodeMetricExpirationSeconds == nil {
-		obj.NodeMetricExpirationSeconds = ptr.To[int64](defaultNodeMetricExpirationSeconds)
-	}
-	if len(obj.ResourceWeights) == 0 && obj.DominantResourceWeight == 0 {
-		obj.ResourceWeights = defaultResourceWeights
-	}
-	if len(obj.UsageThresholds) == 0 {
-		obj.UsageThresholds = defaultUsageThresholds
-	}
-	if obj.EstimatedScalingFactors == nil {
-		obj.EstimatedScalingFactors = defaultEstimatedScalingFactors
-	} else {
-		for k, v := range defaultEstimatedScalingFactors {
-			if _, ok := obj.EstimatedScalingFactors[k]; !ok {
-				obj.EstimatedScalingFactors[k] = v
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // SetDefaults_NodeNUMAResourceArgs sets the default parameters for NodeNUMANodeResource plugin.
-func SetDefaults_NodeNUMAResourceArgs(obj *NodeNUMAResourceArgs) {
-	if obj.DefaultCPUBindPolicy == nil {
-		policy := defaultPreferredCPUBindPolicy
-		obj.DefaultCPUBindPolicy = &policy
-	}
-	if obj.ScoringStrategy == nil {
-		obj.ScoringStrategy = &ScoringStrategy{
-			Type: LeastAllocated,
-			Resources: []schedconfigv1.ResourceSpec{
-				{
-					Name:   string(corev1.ResourceCPU),
-					Weight: 1,
-				},
-				{
-					Name:   string(corev1.ResourceMemory),
-					Weight: 1,
-				},
-			},
-		}
-	}
-	if obj.NUMAScoringStrategy == nil {
-		obj.NUMAScoringStrategy = &ScoringStrategy{
-			Type: LeastAllocated,
-			Resources: []schedconfigv1.ResourceSpec{
-				{
-					Name:   string(corev1.ResourceCPU),
-					Weight: 1,
-				},
-				{
-					Name:   string(corev1.ResourceMemory),
-					Weight: 1,
-				},
-			},
-		}
-	}
-}
+func SetDefaults_NodeNUMAResourceArgs(obj *NodeNUMAResourceArgs) { _ = "STUB: not implemented"; return }
 
-func SetDefaults_ReservationArgs(obj *ReservationArgs) {
-	if obj.EnablePreemption == nil {
-		obj.EnablePreemption = defaultEnablePreemption
-	}
-	if obj.MinCandidateNodesPercentage == nil {
-		obj.MinCandidateNodesPercentage = defaultMinCandidateNodesPercentage
-	}
-	if obj.MinCandidateNodesAbsolute == nil {
-		obj.MinCandidateNodesAbsolute = defaultMinCandidateNodesAbsolute
-	}
-	if obj.ControllerWorkers == nil {
-		obj.ControllerWorkers = defaultReservationControllerWorkers
-	}
-	if obj.GCDurationSeconds == 0 {
-		obj.GCDurationSeconds = *defaultGCDurationSeconds
-	}
-	if obj.GCIntervalSeconds == 0 {
-		obj.GCIntervalSeconds = *defaultGCIntervalSeconds
-	}
-	if obj.ResyncIntervalSeconds == 0 {
-		obj.ResyncIntervalSeconds = *defaultResyncIntervalSeconds
-	}
-}
+func SetDefaults_ReservationArgs(obj *ReservationArgs) { _ = "STUB: not implemented"; return }
 
-func SetDefaults_ElasticQuotaArgs(obj *ElasticQuotaArgs) {
-	if obj.DelayEvictTime == nil {
-		obj.DelayEvictTime = &metav1.Duration{
-			Duration: defaultDelayEvictTime,
-		}
-	}
-	if obj.RevokePodInterval == nil {
-		obj.RevokePodInterval = &metav1.Duration{
-			Duration: defaultRevokePodInterval,
-		}
-	}
-	if len(obj.DefaultQuotaGroupMax) == 0 {
-		obj.DefaultQuotaGroupMax = defaultDefaultQuotaGroupMax
-	}
-	if len(obj.SystemQuotaGroupMax) == 0 {
-		obj.SystemQuotaGroupMax = defaultSystemQuotaGroupMax
-	}
-	if len(obj.QuotaGroupNamespace) == 0 {
-		obj.QuotaGroupNamespace = defaultQuotaGroupNamespace
-	}
-	if obj.MonitorAllQuotas == nil {
-		obj.MonitorAllQuotas = defaultMonitorAllQuotas
-	}
-	if obj.EnableCheckParentQuota == nil {
-		obj.EnableCheckParentQuota = defaultEnableCheckParentQuota
-	}
-	if obj.EnableRuntimeQuota == nil {
-		obj.EnableRuntimeQuota = defaultEnableRuntimeQuota
-	}
-	if obj.EnableMinQuotaScale == nil {
-		obj.EnableMinQuotaScale = defaultEnableMinQuotaScale
-	}
-	if obj.DisableDefaultQuotaPreemption == nil {
-		obj.DisableDefaultQuotaPreemption = defaultDisableDefaultQuotaPreemption
-	}
-	if obj.EnableQueueHint == nil {
-		obj.EnableQueueHint = defaultEnableQueueHint
-	}
-	if obj.QuotaSnapshotUpdateInterval == nil {
-		obj.QuotaSnapshotUpdateInterval = &metav1.Duration{
-			Duration: defaultQuotaSnapshotUpdateInterval,
-		}
-	}
-}
+func SetDefaults_ElasticQuotaArgs(obj *ElasticQuotaArgs) { _ = "STUB: not implemented"; return }
 
-func SetDefaults_CoschedulingArgs(obj *CoschedulingArgs) {
-	if obj.DefaultTimeout == nil {
-		obj.DefaultTimeout = &metav1.Duration{
-			Duration: defaultTimeout,
-		}
-	}
-	if obj.ControllerWorkers == nil {
-		obj.ControllerWorkers = ptr.To[int64](int64(defaultControllerWorkers))
-	}
-	if obj.EnablePreemption == nil {
-		obj.EnablePreemption = defaultEnablePreemption
-	}
-	if obj.AwareNetworkTopology == nil {
-		obj.AwareNetworkTopology = defaultAwareNetworkTopology
-	}
-	if obj.DefaultMatchPolicy == nil {
-		obj.DefaultMatchPolicy = defaultGangMatchPolicy
-	}
-}
+func SetDefaults_CoschedulingArgs(obj *CoschedulingArgs) { _ = "STUB: not implemented"; return }
 
-func SetDefaults_DeviceShareArgs(obj *DeviceShareArgs) {
-	if obj.ScoringStrategy == nil {
-		obj.ScoringStrategy = &ScoringStrategy{
-			// By default, LeastAllocate is used to ensure high availability of applications
-			Type: LeastAllocated,
-			Resources: []schedconfigv1.ResourceSpec{
-				{
-					Name:   string(extension.ResourceGPUMemoryRatio),
-					Weight: 1,
-				},
-				{
-					Name:   string(extension.ResourceGPUMemory),
-					Weight: 1,
-				},
-				{
-					Name:   string(extension.ResourceRDMA),
-					Weight: 1,
-				},
-				{
-					Name:   string(extension.ResourceFPGA),
-					Weight: 1,
-				},
-			},
-		}
-	}
-	if obj.GPUSharedResourceTemplatesConfig == nil {
-		obj.GPUSharedResourceTemplatesConfig = defaultGPUSharedResourceTemplatesConfig
-	}
-}
+func SetDefaults_DeviceShareArgs(obj *DeviceShareArgs) { _ = "STUB: not implemented"; return }
+
+// By default, LeastAllocate is used to ensure high availability of applications
 
 // SetDefaults_SchedulingHintArgs sets the default parameters for SchedulingHint plugin.
-func SetDefaults_SchedulingHintArgs(obj *SchedulingHintArgs) {
-	if obj.MaxHintNodes == nil {
-		obj.MaxHintNodes = defaultMaxHintNodes
-	}
-}
+func SetDefaults_SchedulingHintArgs(obj *SchedulingHintArgs) { _ = "STUB: not implemented"; return }

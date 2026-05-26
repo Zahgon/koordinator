@@ -17,44 +17,13 @@ limitations under the License.
 package deviceshare
 
 import (
-	"context"
-
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-
-	frameworkexthelper "github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/helper"
 )
 
 func registerGPUSharedResourceTemplatesConfigMapEventHandler(gpuSharedResourceTemplatesCache *gpuSharedResourceTemplatesCache,
 	configMapNamespace, configMapName string, sharedInformerFactory informers.SharedInformerFactory) {
-	configMapInformer := sharedInformerFactory.Core().V1().ConfigMaps().Informer()
-	eventHandler := cache.FilteringResourceEventHandler{
-		FilterFunc: func(obj interface{}) bool {
-			switch cm := obj.(type) {
-			case *corev1.ConfigMap:
-				return cm.Namespace == configMapNamespace && cm.Name == configMapName
-			default:
-				return false
-			}
-		},
-		Handler: cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				if err := gpuSharedResourceTemplatesCache.setTemplatesInfosFromConfigMap(obj.(*corev1.ConfigMap)); err != nil {
-					klog.Error(err)
-				}
-			},
-			UpdateFunc: func(old, new interface{}) {
-				if err := gpuSharedResourceTemplatesCache.setTemplatesInfosFromConfigMap(new.(*corev1.ConfigMap)); err != nil {
-					klog.Error(err)
-				}
-			},
-			DeleteFunc: func(obj interface{}) {
-				gpuSharedResourceTemplatesCache.setTemplatesInfos(nil)
-			},
-		},
-	}
-	// make sure ConfigMaps are loaded before scheduler starts working
-	frameworkexthelper.ForceSyncFromInformer(context.TODO().Done(), sharedInformerFactory, configMapInformer, eventHandler)
+	_ = "STUB: not implemented"
+	return
 }
+
+// make sure ConfigMaps are loaded before scheduler starts working

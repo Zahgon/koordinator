@@ -17,12 +17,9 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/ptr"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
@@ -60,18 +57,11 @@ type ReservationAllocated struct {
 	UID  types.UID `json:"uid,omitempty"`
 }
 
-func (r *ReservationAllocated) GetName() string {
-	if r == nil {
-		return ""
-	}
-	return r.Name
-}
+func (r *ReservationAllocated) GetName() string { _ = "STUB: not implemented"; return "" }
 
 func (r *ReservationAllocated) GetUID() types.UID {
-	if r == nil {
-		return ""
-	}
-	return r.UID
+	_ = "STUB: not implemented"
+	return *new(types.UID)
 }
 
 // ReservationAffinity represents the constraints of Pod selection Reservation
@@ -108,115 +98,49 @@ type ReservationRestrictedOptions struct {
 	Resources []corev1.ResourceName `json:"resources,omitempty"`
 }
 
-func IsReservationIgnored(pod *corev1.Pod) bool {
-	return pod != nil && pod.Labels != nil && pod.Labels[LabelReservationIgnored] == "true"
-}
+func IsReservationIgnored(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
 func IsPreAllocationRequired(labels map[string]string) bool {
-	return labels != nil && labels[LabelPreAllocationRequired] == "true"
+	_ = "STUB: not implemented"
+	return false
 }
 
 func GetReservationAllocated(pod *corev1.Pod) (*ReservationAllocated, error) {
-	if pod.Annotations == nil {
-		return nil, nil
-	}
-	data, ok := pod.Annotations[AnnotationReservationAllocated]
-	if !ok {
-		return nil, nil
-	}
-	reservationAllocated := &ReservationAllocated{}
-	err := json.Unmarshal([]byte(data), reservationAllocated)
-	if err != nil {
-		return nil, err
-	}
-	return reservationAllocated, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func SetReservationAllocated(pod *corev1.Pod, r metav1.Object) {
-	if pod.Annotations == nil {
-		pod.Annotations = map[string]string{}
-	}
-	reservationAllocated := &ReservationAllocated{
-		Name: r.GetName(),
-		UID:  r.GetUID(),
-	}
-	data, _ := json.Marshal(reservationAllocated) // assert no error
-	pod.Annotations[AnnotationReservationAllocated] = string(data)
-}
+func SetReservationAllocated(pod *corev1.Pod, r metav1.Object) { _ = "STUB: not implemented"; return }
+
+// assert no error
 
 func RemoveReservationAllocated(pod *corev1.Pod, r metav1.Object) (bool, error) {
-	if pod.Annotations == nil {
-		return false, nil
-	}
-	data, ok := pod.Annotations[AnnotationReservationAllocated]
-	if !ok {
-		return false, nil
-	}
-	reservationAllocated := &ReservationAllocated{}
-	err := json.Unmarshal([]byte(data), reservationAllocated)
-	if err != nil {
-		return false, err
-	}
-	if reservationAllocated.UID != r.GetUID() {
-		return false, nil
-	}
-	delete(pod.Annotations, AnnotationReservationAllocated)
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func IsReservationAllocateOnce(r *schedulingv1alpha1.Reservation) bool {
-	return ptr.Deref[bool](r.Spec.AllocateOnce, true)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func GetReservationAffinity(annotations map[string]string) (*ReservationAffinity, error) {
-	s, ok := annotations[AnnotationReservationAffinity]
-	if !ok {
-		return nil, nil
-	}
-	var affinity ReservationAffinity
-	if s != "" {
-		if err := json.Unmarshal([]byte(s), &affinity); err != nil {
-			return nil, err
-		}
-	}
-	return &affinity, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetReservationAffinity(obj metav1.Object, affinity *ReservationAffinity) error {
-	data, err := json.Marshal(affinity)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationReservationAffinity] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetReservationRestrictedOptions(annotations map[string]string) (*ReservationRestrictedOptions, error) {
-	var options ReservationRestrictedOptions
-	if s, ok := annotations[AnnotationReservationRestrictedOptions]; ok && s != "" {
-		if err := json.Unmarshal([]byte(s), &options); err != nil {
-			return nil, err
-		}
-	}
-	return &options, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetReservationRestrictedOptions(obj metav1.Object, options *ReservationRestrictedOptions) error {
-	data, err := json.Marshal(options)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationReservationRestrictedOptions] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -229,47 +153,16 @@ type ExactMatchReservationSpec struct {
 }
 
 func SetExactMatchReservationSpec(obj metav1.Object, spec *ExactMatchReservationSpec) error {
-	data, err := json.Marshal(spec)
-	if err != nil {
-		return err
-	}
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[AnnotationExactMatchReservationSpec] = string(data)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetExactMatchReservationSpec(annotations map[string]string) (*ExactMatchReservationSpec, error) {
-	if s := annotations[AnnotationExactMatchReservationSpec]; s != "" {
-		var exactMatchReservationSpec ExactMatchReservationSpec
-		if err := json.Unmarshal([]byte(s), &exactMatchReservationSpec); err != nil {
-			return nil, err
-		}
-		return &exactMatchReservationSpec, nil
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func ExactMatchReservation(podRequests, reservationAllocatable corev1.ResourceList, spec *ExactMatchReservationSpec) bool {
-	if spec == nil || len(spec.ResourceNames) == 0 {
-		return true
-	}
-	for _, resourceName := range spec.ResourceNames {
-		allocatable, existsInReservation := reservationAllocatable[resourceName]
-		request, existsInPod := podRequests[resourceName]
-		if !existsInReservation || !existsInPod {
-			if !existsInReservation && !existsInPod {
-				return true
-			}
-			return false
-		}
-
-		if allocatable.Cmp(request) != 0 {
-			return false
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }

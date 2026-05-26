@@ -18,15 +18,4 @@ package extension
 
 import corev1 "k8s.io/api/core/v1"
 
-func PodEvictEnabled(pod *corev1.Pod) bool {
-	if pod == nil {
-		return false
-	}
-	if pod.Labels == nil {
-		return false
-	}
-	if enable, ok := pod.Labels[LabelPodEvictEnabled]; !ok || enable != "true" {
-		return false
-	}
-	return true
-}
+func PodEvictEnabled(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }

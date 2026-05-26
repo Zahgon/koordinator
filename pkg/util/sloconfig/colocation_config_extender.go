@@ -17,8 +17,6 @@ limitations under the License.
 package sloconfig
 
 import (
-	"fmt"
-
 	"github.com/koordinator-sh/koordinator/apis/configuration"
 )
 
@@ -27,24 +25,11 @@ var (
 )
 
 func RegisterDefaultColocationExtension(key string, extension interface{}) error {
-	if defaultColocationStrategyExtender.Extensions == nil {
-		defaultColocationStrategyExtender.Extensions = map[string]interface{}{}
-	}
-	if _, exist := defaultColocationStrategyExtender.Extensions[key]; exist {
-		return fmt.Errorf("extension %v of defaultColocationStrategyExtender already exist", key)
-	}
-	defaultColocationStrategyExtender.Extensions[key] = extension
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func UnregisterDefaultColocationExtension(key string) {
-	delete(defaultColocationStrategyExtender.Extensions, key)
-	if len(defaultColocationStrategyExtender.Extensions) == 0 {
-		defaultColocationStrategyExtender.Extensions = nil
-	}
-}
+func UnregisterDefaultColocationExtension(key string) { _ = "STUB: not implemented"; return }
 
 // solving internal ut conflicts
-func ClearDefaultColocationExtension() {
-	defaultColocationStrategyExtender.Extensions = nil
-}
+func ClearDefaultColocationExtension() { _ = "STUB: not implemented"; return }

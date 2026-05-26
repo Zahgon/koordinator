@@ -17,14 +17,8 @@ limitations under the License.
 package hooks
 
 import (
-	"fmt"
-	"sort"
-	"time"
-
 	"k8s.io/client-go/tools/record"
-	"k8s.io/klog/v2"
 
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/metrics"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/runtimehooks/protocol"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
@@ -51,59 +45,21 @@ type HookFn func(protocol.HooksProtocol) error
 var globalStageHooks map[rmconfig.RuntimeHookType][]*Hook
 
 func Register(stage rmconfig.RuntimeHookType, name, description string, hookFn HookFn) *Hook {
-	h, err := generateNewHook(stage, name)
-	if err != nil {
-		klog.Fatalf("hook %s register failed, reason: %v", name, err)
-	}
-	klog.V(1).Infof("hook %s with description %v is registered", name, description)
-	h.description = description
-	h.fn = hookFn
-	return h
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func generateNewHook(stage rmconfig.RuntimeHookType, name string) (*Hook, error) {
-	stageHooks, stageExist := globalStageHooks[stage]
-	if !stageExist {
-		return nil, fmt.Errorf("stage %s is invalid", stage)
-	}
-
-	for _, hook := range stageHooks {
-		if hook.name == name {
-			return hook, fmt.Errorf("hook %s with stage %s is conflict since already registered", name, stage)
-		}
-	}
-	newHook := &Hook{name: name, stage: stage}
-	globalStageHooks[stage] = append(globalStageHooks[stage], newHook)
-	// sort hooks by name for a stable order
-	sort.Slice(globalStageHooks[stage], func(i, j int) bool {
-		return globalStageHooks[stage][i].name < globalStageHooks[stage][j].name
-	})
-	return newHook, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func getHooksByStage(stage rmconfig.RuntimeHookType) []*Hook {
-	if hooks, exist := globalStageHooks[stage]; exist {
-		return hooks
-	} else {
-		return []*Hook{}
-	}
-}
+// sort hooks by name for a stable order
+
+func getHooksByStage(stage rmconfig.RuntimeHookType) []*Hook { _ = "STUB: not implemented"; return nil }
 
 func RunHooks(failPolicy rmconfig.FailurePolicyType, stage rmconfig.RuntimeHookType, protocol protocol.HooksProtocol) error {
-	hooks := getHooksByStage(stage)
-	klog.V(5).Infof("start run %v hooks at %s", len(hooks), stage)
-	for _, hook := range hooks {
-		start := time.Now()
-		klog.V(5).Infof("call hook %v with description %v", hook.name, hook.description)
-		err := hook.fn(protocol)
-		metrics.RecordRuntimeHookInvokedDurationMilliSeconds(hook.name, string(stage), err, metrics.SinceInSeconds(start))
-		if err != nil {
-			klog.Errorf("failed to run hook %s in stage %s, reason: %v", hook.name, stage, err)
-			if failPolicy == rmconfig.PolicyFail {
-				return err
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -121,14 +77,6 @@ func init() {
 }
 
 func GetStages(disable map[string]struct{}) []rmconfig.RuntimeHookType {
-	var stages []rmconfig.RuntimeHookType
-	for stage, hooks := range globalStageHooks {
-		if _, ok := disable[string(stage)]; ok {
-			continue
-		}
-		if len(hooks) > 0 {
-			stages = append(stages, stage)
-		}
-	}
-	return stages
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -19,31 +19,25 @@ package frameworkext
 import (
 	"context"
 	"fmt"
-	"time"
 
 	nrtinformers "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/informers/externalversions"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
 	listerscorev1 "k8s.io/client-go/listers/core/v1"
 	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 	schedconfig "k8s.io/kubernetes/pkg/scheduler/apis/config"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 	"k8s.io/kubernetes/pkg/scheduler/metrics"
-	utiltrace "k8s.io/utils/trace"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	koordinatorclientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
 	koordinatorinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
 	listerschedulingv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/listers/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/networktopology"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/schedulingphase"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/topologymanager"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/workloadauditor"
-	reservationutil "github.com/koordinator-sh/koordinator/pkg/util/reservation"
 )
 
 var (
@@ -104,744 +98,237 @@ type frameworkExtenderImpl struct {
 }
 
 func NewFrameworkExtender(f *FrameworkExtenderFactory, fw framework.Framework) FrameworkExtender {
-	schedulerFn := func() Scheduler {
-		return f.Scheduler()
-	}
-
-	frameworkExtender := &frameworkExtenderImpl{
-		Framework:                           fw,
-		errorHandlerDispatcher:              f.errorHandlerDispatcher,
-		schedulerFn:                         schedulerFn,
-		monitor:                             f.monitor,
-		koordinatorClientSet:                f.KoordinatorClientSet(),
-		koordinatorSharedInformerFactory:    f.koordinatorSharedInformerFactory,
-		nodeResourceTopologyInformerFactory: f.nodeResourceTopologyInformerFactory,
-		reservationCache:                    f.reservationCache,
-		reservationNominator:                f.reservationNominator,
-		preFilterTransformers:               map[string]PreFilterTransformer{},
-		filterTransformers:                  map[string]FilterTransformer{},
-		scoreTransformers:                   map[string]ScoreTransformer{},
-		postFilterTransformers:              map[string]PostFilterTransformer{},
-		reservationPreBindPlugins:           map[string]ReservationPreBindPlugin{},
-		preBindExtensionsPlugins:            map[string]PreBindExtensions{},
-		metricsRecorder:                     f.metricsRecorder,
-		podLister:                           fw.SharedInformerFactory().Core().V1().Pods().Lister(),
-		reservationLister:                   f.koordinatorSharedInformerFactory.Scheduling().V1alpha1().Reservations().Lister(),
-		networkTopologyTreeManager:          f.networkTopologyTreeManager,
-		crossSchedulerNominator:             f.crossSchedulerNominator,
-		workloadAuditor:                     f.workloadAuditor,
-	}
-	frameworkExtender.topologyManager = topologymanager.New(frameworkExtender)
-
-	// Register the profile name to CrossSchedulerPodNominator so that pods from
-	// this profile are excluded from cross-scheduler nomination tracking.
-	if f.crossSchedulerNominator != nil {
-		f.crossSchedulerNominator.AddLocalProfileName(fw.ProfileName())
-	}
-
-	return frameworkExtender
+	_ = "STUB: not implemented"
+	return *new(FrameworkExtender)
 }
 
+// Register the profile name to CrossSchedulerPodNominator so that pods from
+// this profile are excluded from cross-scheduler nomination tracking.
+
 func (ext *frameworkExtenderImpl) updateTransformer(transformers ...SchedulingTransformer) {
-	for _, transformer := range transformers {
-		preFilterTransformer, ok := transformer.(PreFilterTransformer)
-		if ok {
-			ext.preFilterTransformers[transformer.Name()] = preFilterTransformer
-			klog.V(4).InfoS("framework extender got scheduling transformer registered", "preFilter", preFilterTransformer.Name())
-		}
-		filterTransformer, ok := transformer.(FilterTransformer)
-		if ok {
-			ext.filterTransformers[transformer.Name()] = filterTransformer
-			klog.V(4).InfoS("framework extender got scheduling transformer registered", "filter", filterTransformer.Name())
-		}
-		scoreTransformer, ok := transformer.(ScoreTransformer)
-		if ok {
-			ext.scoreTransformers[transformer.Name()] = scoreTransformer
-			klog.V(4).InfoS("framework extender got scheduling transformer registered", "score", scoreTransformer.Name())
-		}
-		postFilterTransformer, ok := transformer.(PostFilterTransformer)
-		if ok {
-			ext.postFilterTransformers[transformer.Name()] = postFilterTransformer
-			klog.V(4).InfoS("framework extender got scheduling transformer registered", "postFilter", postFilterTransformer.Name())
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (ext *frameworkExtenderImpl) updatePlugins(pl fwktype.Plugin) {
-	if transformer, ok := pl.(SchedulingTransformer); ok {
-		ext.updateTransformer(transformer)
-	}
-	// TODO(joseph): In the future, use only the default ReservationNominator
-	if r, ok := pl.(ReservationNominator); ok {
-		ext.reservationNominator = r
-		klog.V(4).InfoS("framework extender got ReservationNominator registered", "profile", ext.ProfileName(), "plugin", pl.Name())
-	}
-	if r, ok := pl.(ReservationCache); ok {
-		ext.reservationCache = r
-		SetReservationCache(r, ext.Framework.ProfileName())
-		klog.V(4).InfoS("framework extender got ReservationCache registered", "profile", ext.ProfileName(), "plugin", pl.Name())
-	}
-	if r, ok := pl.(ReservationFilterPlugin); ok {
-		ext.reservationFilterPlugins = append(ext.reservationFilterPlugins, r)
-	}
-	if r, ok := pl.(ReservationScorePlugin); ok {
-		ext.reservationScorePlugins = append(ext.reservationScorePlugins, r)
-	}
-	if r, ok := pl.(ReservationPreBindPlugin); ok {
-		ext.reservationPreBindPlugins[r.Name()] = r
-	}
-	if r, ok := pl.(ReservationRestorePlugin); ok {
-		ext.reservationRestorePlugins = append(ext.reservationRestorePlugins, r)
-	}
-	if r, ok := pl.(ReservationPreAllocationRestorePlugin); ok {
-		ext.reservationPreAllocationRestorePlugins = append(ext.reservationPreAllocationRestorePlugins, r)
-	}
-	if r, ok := pl.(ResizePodPlugin); ok {
-		ext.resizePodPlugins = append(ext.resizePodPlugins, r)
-	}
-	if p, ok := pl.(PreBindExtensions); ok {
-		ext.preBindExtensionsPlugins[p.Name()] = p
-	}
-	if p, ok := pl.(topologymanager.NUMATopologyHintProvider); ok {
-		ext.numaTopologyHintProviders = append(ext.numaTopologyHintProviders, p)
-	}
-	if p, ok := pl.(FindOneNodePluginProvider); ok && p.FindOneNodePlugin() != nil {
-		if ext.findOneNodePlugin == nil {
-			ext.findOneNodePlugin = p.FindOneNodePlugin()
-		} else {
-			klog.Warningf("framework extender got multiple FindOneNodePlugin registered, using the first one with name: %s", ext.findOneNodePlugin.Name())
-		}
-	}
-	if p, ok := pl.(PreferNodesPluginProvider); ok && p.PreferNodesPlugin() != nil {
-		if ext.preferNodesPlugin == nil {
-			ext.preferNodesPlugin = p.PreferNodesPlugin()
-			klog.V(4).InfoS("framework extender got PreferNodesPlugin registered", "profile", ext.ProfileName(), "plugin", pl.Name())
-		} else {
-			klog.Warningf("framework extender got multiple PreferNodesPlugin registered, using the first one with name: %s", ext.preferNodesPlugin.Name())
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (ext *frameworkExtenderImpl) SetConfiguredPlugins(plugins *schedconfig.Plugins) {
-	ext.configuredPlugins = plugins
+// TODO(joseph): In the future, use only the default ReservationNominator
 
-	for _, pl := range ext.configuredPlugins.PreFilter.Enabled {
-		transformer := ext.preFilterTransformers[pl.Name]
-		if transformer != nil {
-			ext.preFilterTransformersEnabled = append(ext.preFilterTransformersEnabled, transformer)
-		}
-	}
-	for _, pl := range ext.configuredPlugins.Filter.Enabled {
-		transformer := ext.filterTransformers[pl.Name]
-		if transformer != nil {
-			ext.filterTransformersEnabled = append(ext.filterTransformersEnabled, transformer)
-		}
-	}
-	for _, pl := range ext.configuredPlugins.Score.Enabled {
-		transformer := ext.scoreTransformers[pl.Name]
-		if transformer != nil {
-			ext.scoreTransformersEnabled = append(ext.scoreTransformersEnabled, transformer)
-		}
-	}
-	for _, pl := range ext.configuredPlugins.PostFilter.Enabled {
-		transformer := ext.postFilterTransformers[pl.Name]
-		if transformer != nil {
-			ext.postFilterTransformersEnabled = append(ext.postFilterTransformersEnabled, transformer)
-		}
-	}
-	klog.V(5).InfoS("Set configured transformer plugins",
-		"PreFilterTransformer", len(ext.preFilterTransformersEnabled),
-		"FilterTransformer", len(ext.filterTransformersEnabled),
-		"ScoreTransformer", len(ext.scoreTransformersEnabled),
-		"PostFilterTransformer", len(ext.postFilterTransformersEnabled))
+func (ext *frameworkExtenderImpl) SetConfiguredPlugins(plugins *schedconfig.Plugins) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (ext *frameworkExtenderImpl) KoordinatorClientSet() koordinatorclientset.Interface {
-	return ext.koordinatorClientSet
+	_ = "STUB: not implemented"
+	return *new(koordinatorclientset.Interface)
 }
 
 func (ext *frameworkExtenderImpl) KoordinatorSharedInformerFactory() koordinatorinformers.SharedInformerFactory {
-	return ext.koordinatorSharedInformerFactory
+	_ = "STUB: not implemented"
+	return *new(koordinatorinformers.SharedInformerFactory)
 }
 
 func (ext *frameworkExtenderImpl) NodeResourceTopologyInformerFactory() nrtinformers.SharedInformerFactory {
-	return ext.nodeResourceTopologyInformerFactory
+	_ = "STUB: not implemented"
+	return *new(nrtinformers.SharedInformerFactory)
 }
 
 // Scheduler return the scheduler adapter to support operating with cache and schedulingQueue.
 // NOTE: Plugins do not acquire a dispatcher instance during plugin initialization,
 // nor are they allowed to hold the object within the plugin object.
 func (ext *frameworkExtenderImpl) Scheduler() Scheduler {
-	return ext.schedulerFn()
+	_ = "STUB: not implemented"
+	return *new(Scheduler)
 }
 
 func (ext *frameworkExtenderImpl) GetReservationCache() ReservationCache {
-	return ext.reservationCache
+	_ = "STUB: not implemented"
+	return *new(ReservationCache)
 }
 
 func (ext *frameworkExtenderImpl) GetReservationNominator() ReservationNominator {
-	return ext.reservationNominator
+	_ = "STUB: not implemented"
+	return *new(ReservationNominator)
 }
 
 func (ext *frameworkExtenderImpl) GetNetworkTopologyTreeManager() networktopology.TreeManager {
-	return ext.networkTopologyTreeManager
+	_ = "STUB: not implemented"
+	return *new(networktopology.TreeManager)
 }
 
 func (ext *frameworkExtenderImpl) GetCrossSchedulerPodNominator() *CrossSchedulerPodNominator {
-	return ext.crossSchedulerNominator
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ext *frameworkExtenderImpl) GetWorkloadAuditor() workloadauditor.WorkloadAuditor {
-	return ext.workloadAuditor
+	_ = "STUB: not implemented"
+	return *new(workloadauditor.WorkloadAuditor)
 }
 
 // RunPreFilterPlugins transforms the PreFilter phase of framework with pre-filter transformers.
 func (ext *frameworkExtenderImpl) RunPreFilterPlugins(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod) (*fwktype.PreFilterResult, *fwktype.Status, sets.Set[string]) {
-	trace := utiltrace.New("RunPreFilterPluginTransformers", utiltrace.Field{Key: "namespace", Value: pod.Namespace}, utiltrace.Field{Key: "name", Value: pod.Name})
-	defer trace.LogIfLong(5 * time.Millisecond)
-	for _, transformer := range ext.preFilterTransformersEnabled {
-		startTime := time.Now()
-		trace.Step(fmt.Sprintf("BeforePrefilter %s begin", transformer.Name()))
-		newPod, transformed, status := transformer.BeforePreFilter(ctx, cycleState, pod)
-		trace.Step(fmt.Sprintf("BeforePrefilter %s done", transformer.Name()))
-		ext.metricsRecorder.ObservePluginDurationAsync("BeforePreFilter", transformer.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			status = status.WithPlugin(transformer.Name())
-			klog.ErrorS(status.AsError(), "Failed to run BeforePreFilter", "pod", klog.KObj(pod), "plugin", transformer.Name())
-			return nil, status, nil
-		}
-		if transformed {
-			klog.V(5).InfoS("BeforePreFilter transformed", "transformer", transformer.Name(), "pod", klog.KObj(pod))
-			pod = newPod
-		}
-	}
-
-	result, status, rejectors := ext.Framework.RunPreFilterPlugins(ctx, cycleState, pod)
-	if !status.IsSuccess() {
-		return result, status, rejectors
-	}
-
-	for _, transformer := range ext.preFilterTransformersEnabled {
-		startTime := time.Now()
-		trace.Step(fmt.Sprintf("AfterPrefilter %s begin", transformer.Name()))
-		status = transformer.AfterPreFilter(ctx, cycleState, pod, result)
-		trace.Step(fmt.Sprintf("AfterPrefilter %s done", transformer.Name()))
-		ext.metricsRecorder.ObservePluginDurationAsync("AfterPreFilter", transformer.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			status = status.WithPlugin(transformer.Name())
-			klog.ErrorS(status.AsError(), "Failed to run AfterPreFilter", "pod", klog.KObj(pod), "plugin", transformer.Name())
-			return nil, status, nil
-		}
-	}
-
-	if pod.Status.NominatedNodeName != "" && !result.AllNodes() && !result.NodeNames.Has(pod.Status.NominatedNodeName) {
-		klog.Warningf("Pod %s/%s is nominated to node %s, but it is not in the pre-filter result", pod.Namespace, pod.Name, pod.Status.NominatedNodeName)
-	}
-
-	// FindOneNode
-	nodeName, status := ext.RunFindOneNodePlugin(ctx, cycleState, pod, result)
-	if status.IsSuccess() {
-		klog.V(6).InfoS("FindOneNodePlugin succeeded", "pod", klog.KObj(pod), "plugin", ext.findOneNodePlugin.Name(), "nodeName", nodeName)
-		return &fwktype.PreFilterResult{NodeNames: sets.New[string](nodeName)}, nil, nil
-	} else if !status.IsSkip() {
-		status = status.WithPlugin(ext.findOneNodePlugin.Name())
-		klog.ErrorS(status.AsError(), "Failed to run FindOneNodePlugin", "pod", klog.KObj(pod), "plugin", ext.findOneNodePlugin.Name())
-		return nil, status, nil
-	} // skip
-
-	// PreferNodes
-	nodeName, status = ext.RunPreferNodesPlugin(ctx, cycleState, pod, result)
-	if status.IsSuccess() {
-		klog.V(6).InfoS("PreferNodesPlugin succeeded", "pod", klog.KObj(pod), "plugin", ext.preferNodesPlugin.Name(), "nodeName", nodeName)
-		return &fwktype.PreFilterResult{NodeNames: sets.New[string](nodeName)}, nil, nil
-	} else if !status.IsSkip() {
-		status = status.WithPlugin(ext.preferNodesPlugin.Name())
-		klog.ErrorS(status.AsError(), "Failed to run PreferNodesPlugin", "pod", klog.KObj(pod), "plugin", ext.preferNodesPlugin.Name())
-		return nil, status, nil
-	} // skip
-
-	return result, nil, rejectors
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
+// FindOneNode
+
+// skip
+
+// PreferNodes
+
+// skip
+
 func (ext *frameworkExtenderImpl) RunFindOneNodePlugin(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, result *fwktype.PreFilterResult) (string, *fwktype.Status) {
-	if ext.findOneNodePlugin != nil {
-		startTime := time.Now()
-		nodeName, status := ext.findOneNodePlugin.FindOneNode(ctx, cycleState, pod, result)
-		ext.metricsRecorder.ObservePluginDurationAsync("FindOneNodePlugin", ext.findOneNodePlugin.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		return nodeName, status
-	}
-	return "", fwktype.NewStatus(fwktype.Skip)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (ext *frameworkExtenderImpl) RunPreferNodesPlugin(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, result *fwktype.PreFilterResult) (string, *fwktype.Status) {
-	if ext.preferNodesPlugin != nil {
-		startTime := time.Now()
-		nodeNames, status := ext.preferNodesPlugin.PreferNodes(ctx, cycleState, pod, result)
-		ext.metricsRecorder.ObservePluginDurationAsync("PreferNodesPlugin", ext.preferNodesPlugin.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			return "", status
-		}
-
-		// If the PreferNodes plugin returns Success, try to filter the preferred nodes.
-		// Then if any preferred node passes the predicate, return the node as the PreFilterResult.
-		// Otherwise, fallback to the original PreFilterResult.
-		for _, nodeName := range nodeNames {
-			nodeInfo, err := ext.SnapshotSharedLister().NodeInfos().Get(nodeName)
-			if err != nil {
-				klog.ErrorS(err, "Failed to get preferred nodeInfo, aborted", "pod", klog.KObj(pod), "plugin", ext.preferNodesPlugin.Name(), "node", nodeName)
-				continue
-			}
-			status = ext.RunFilterPluginsWithNominatedPods(ctx, cycleState, pod, nodeInfo)
-			if status.IsSuccess() { // pick first suitable node
-				return nodeName, nil
-			} else {
-				klog.V(4).InfoS("Failed to filter for Pod on preferred Node",
-					"pod", klog.KObj(pod), "node", nodeName, "preferNodesPlugin", ext.preferNodesPlugin.Name(), "failedPlugin", status.Plugin(), "reason", status.Message())
-			}
-		}
-		klog.V(5).InfoS("Failed to filter for Pod on all preferred Nodes, fallback to original prefilter result",
-			"pod", klog.KObj(pod), "preferNodesPlugin", ext.preferNodesPlugin.Name(), "failedNodes", nodeNames)
-
-	}
-	return "", fwktype.NewStatus(fwktype.Skip)
+	_ = "STUB: not implemented"
+	return "", nil
 }
+
+// If the PreferNodes plugin returns Success, try to filter the preferred nodes.
+// Then if any preferred node passes the predicate, return the node as the PreFilterResult.
+// Otherwise, fallback to the original PreFilterResult.
+
+// pick first suitable node
 
 // RunFilterPluginsWithNominatedPods transforms the Filter phase of framework with filter transformers.
 // We don't transform RunFilterPlugins since framework's RunFilterPluginsWithNominatedPods just calls its RunFilterPlugins.
 func (ext *frameworkExtenderImpl) RunFilterPluginsWithNominatedPods(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeInfo fwktype.NodeInfo) *fwktype.Status {
-	for _, transformer := range ext.filterTransformersEnabled {
-		startTime := time.Now()
-		newPod, newNodeInfo, transformed, status := transformer.BeforeFilter(ctx, cycleState, pod, nodeInfo)
-		ext.metricsRecorder.ObservePluginDurationAsync("BeforeFilter", transformer.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			status = status.WithPlugin(transformer.Name())
-			klog.ErrorS(status.AsError(), "Failed to run BeforeFilter", "pod", klog.KObj(pod), "plugin", transformer.Name())
-			return status
-		}
-		if transformed {
-			klog.V(5).InfoS("BeforeFilter transformed", "transformer", transformer.Name(), "pod", klog.KObj(pod))
-			pod = newPod
-			nodeInfo = newNodeInfo
-		}
-	}
-
-	return ext.runFilterPluginsWithNominatedPods(ctx, cycleState, pod, nodeInfo)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ext *frameworkExtenderImpl) RunScorePlugins(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeInfos []fwktype.NodeInfo) ([]fwktype.NodePluginScores, *fwktype.Status) {
-	for _, transformer := range ext.scoreTransformersEnabled {
-		startTime := time.Now()
-		newPod, newNodeInfos, transformed, status := transformer.BeforeScore(ctx, state, pod, nodeInfos)
-		ext.metricsRecorder.ObservePluginDurationAsync("BeforeScore", transformer.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			klog.ErrorS(status.AsError(), "Failed to run BeforeScore", "pod", klog.KObj(pod), "plugin", transformer.Name())
-			return nil, status
-		}
-		if transformed {
-			klog.V(5).InfoS("BeforeScore transformed", "transformer", transformer.Name(), "pod", klog.KObj(pod))
-			pod = newPod
-			nodeInfos = newNodeInfos
-		}
-	}
-	pluginToNodeScores, status := ext.Framework.RunScorePlugins(ctx, state, pod, nodeInfos)
-	if status.IsSuccess() && debugTopNScores > 0 {
-		debugScores(debugTopNScores, pod, pluginToNodeScores, nodeInfos)
-	}
-	return pluginToNodeScores, status
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (ext *frameworkExtenderImpl) RunPostFilterPlugins(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, filteredNodeStatusMap fwktype.NodeToStatusReader) (_ *fwktype.PostFilterResult, status *fwktype.Status) {
-	schedulingphase.RecordPhase(state, schedulingphase.PostFilter)
-	defer func() { schedulingphase.RecordPhase(state, "") }()
-	defer func() {
-		for _, transformer := range ext.postFilterTransformersEnabled {
-			startTime := time.Now()
-			transformer.AfterPostFilter(ctx, state, pod, filteredNodeStatusMap)
-			ext.metricsRecorder.ObservePluginDurationAsync("AfterPostFilter", transformer.Name(), "", metrics.SinceInSeconds(startTime))
-		}
-		diagnosis := GetDiagnosis(state)
-		DumpDiagnosis(diagnosis)
-		if diagnosis != nil && diagnosis.IsRootCausePod && diagnosis.AuditType != "" && ext.workloadAuditor != nil {
-			ext.workloadAuditor.RecordDiagnosis(pod, diagnosis.QuestionedKey, diagnosis.AuditType, diagnosis.AuditMessage)
-		}
-		if diagnosis != nil {
-			if suggestion := diagnosis.GetSuggestion(); suggestion != nil {
-				if status == nil {
-					status = fwktype.NewStatus(fwktype.Success)
-				}
-				status.AppendReason(fmt.Sprintf("Suggestion: {type: %s, message: %s}", suggestion.Type, suggestion.Message))
-			}
-		}
-	}()
-
-	return ext.Framework.RunPostFilterPlugins(ctx, state, pod, filteredNodeStatusMap)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RunPreBindPlugins supports PreBindReservation for Reservation
 func (ext *frameworkExtenderImpl) RunPreBindPlugins(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
-	if !reservationutil.IsReservePod(pod) {
-		if k8sfeature.DefaultFeatureGate.Enabled(features.DynamicSchedulerCheck) {
-			curPod, err := ext.podLister.Pods(pod.Namespace).Get(pod.Name)
-			if err != nil {
-				return fwktype.AsStatus(err)
-			}
-			if curPod.Spec.SchedulerName != ext.ProfileName() {
-				klog.V(4).ErrorS(ErrSchedulerNameUnmatched, "failed to PreBind Pod",
-					"pod", klog.KObj(pod), "schedulerName", curPod.Spec.SchedulerName, "profile", ext.ProfileName())
-				return fwktype.AsStatus(ErrSchedulerNameUnmatched)
-			}
-			if curPod.DeletionTimestamp != nil {
-				klog.V(4).ErrorS(ErrPodIsBeingDeleted, "failed to PreBind Pod",
-					"pod", klog.KObj(pod), "deletionTimestamp", curPod.DeletionTimestamp)
-				return fwktype.AsStatus(ErrPodIsBeingDeleted)
-			}
-		}
-
-		original := pod
-		pod = pod.DeepCopy()
-		status := ext.Framework.RunPreBindPlugins(ctx, state, pod, nodeName)
-		if !status.IsSuccess() {
-			return status
-		}
-		return ext.runPreBindExtensionPlugins(ctx, state, original, pod)
-	}
-
-	rName := reservationutil.GetReservationNameFromReservePod(pod)
-	reservation, err := ext.reservationLister.Get(rName)
-	if err != nil {
-		return fwktype.AsStatus(err)
-	}
-	if k8sfeature.DefaultFeatureGate.Enabled(features.DynamicSchedulerCheck) {
-		// check if schedulerName matched
-		if reservationutil.GetReservationSchedulerName(reservation) != ext.ProfileName() {
-			klog.V(4).ErrorS(ErrSchedulerNameUnmatched, "failed to PreBind Reservation",
-				"reservation", klog.KObj(reservation), "schedulerName", reservationutil.GetReservationSchedulerName(reservation), "profile", ext.ProfileName())
-			return fwktype.AsStatus(ErrSchedulerNameUnmatched)
-		}
-		if reservation.DeletionTimestamp != nil {
-			klog.V(4).ErrorS(ErrPodIsBeingDeleted, "failed to PreBind Reservation",
-				"reservation", klog.KObj(reservation), "deletionTimestamp", reservation.DeletionTimestamp)
-			return fwktype.AsStatus(ErrPodIsBeingDeleted)
-		}
-	}
-
-	original := reservation
-	reservation = reservation.DeepCopy()
-	reservation.Status.NodeName = nodeName
-	for _, plugin := range ext.configuredPlugins.PreBind.Enabled {
-		pl := ext.reservationPreBindPlugins[plugin.Name]
-		if pl == nil {
-			continue
-		}
-		startTime := time.Now()
-		status := pl.PreBindReservation(ctx, state, reservation, nodeName)
-		ext.metricsRecorder.ObservePluginDurationAsync("PreBindReservation", pl.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			status = status.WithPlugin(pl.Name())
-			err := status.AsError()
-			klog.ErrorS(err, "Failed running ReservationPreBindPlugin plugin", "plugin", pl.Name(), "reservation", klog.KObj(reservation), "status", status)
-			return fwktype.AsStatus(fmt.Errorf("running ReservationPreBindPlugin plugin %q: %w", pl.Name(), err))
-		}
-	}
-	return ext.runPreBindExtensionPlugins(ctx, state, original, reservation)
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// check if schedulerName matched
+
 func (ext *frameworkExtenderImpl) runPreBindExtensionPlugins(ctx context.Context, cycleState fwktype.CycleState, originalObj, modifiedObj metav1.Object) *fwktype.Status {
-	plugins := ext.configuredPlugins
-	for _, plugin := range plugins.PreBind.Enabled {
-		pl := ext.preBindExtensionsPlugins[plugin.Name]
-		if pl == nil {
-			continue
-		}
-		status := pl.ApplyPatch(ctx, cycleState, originalObj, modifiedObj)
-		if status != nil && status.Code() == fwktype.Skip {
-			continue
-		}
-		if !status.IsSuccess() {
-			status = status.WithPlugin(pl.Name())
-			err := status.AsError()
-			klog.ErrorS(err, "Failed running PreBindExtension plugin", "plugin", pl.Name(), "pod", klog.KObj(originalObj), "status", status)
-			return fwktype.AsStatus(fmt.Errorf("running PreBindExtension plugin %q: %w", pl.Name(), err))
-		}
-		return status
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (ext *frameworkExtenderImpl) RunPostBindPlugins(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeName string) {
-	if ext.monitor != nil {
-		defer ext.monitor.Complete(pod, nil)
-	}
-	ext.Framework.RunPostBindPlugins(ctx, state, pod, nodeName)
-	if ext.workloadAuditor != nil {
-		ext.workloadAuditor.RecordPodScheduleResult(pod, workloadauditor.RecordTypeScheduled, nodeName)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (ext *frameworkExtenderImpl) RunReservationExtensionPreRestoreReservation(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod) *fwktype.Status {
-	for _, pl := range ext.reservationRestorePlugins {
-		status := pl.PreRestoreReservation(ctx, cycleState, pod)
-		if !status.IsSuccess() {
-			klog.ErrorS(status.AsError(), "Failed running PreRestoreReservation on plugin", "plugin", pl.Name(), "pod", klog.KObj(pod))
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // RunReservationExtensionRestoreReservation restores the Reservation during PreFilter phase
 func (ext *frameworkExtenderImpl) RunReservationExtensionRestoreReservation(ctx context.Context, cycleState fwktype.CycleState, podToSchedule *corev1.Pod, matched []*ReservationInfo, unmatched []*ReservationInfo, nodeInfo fwktype.NodeInfo) (PluginToReservationRestoreStates, *fwktype.Status) {
-	var pluginToRestoreState PluginToReservationRestoreStates
-	for _, pl := range ext.reservationRestorePlugins {
-		state, status := pl.RestoreReservation(ctx, cycleState, podToSchedule, matched, unmatched, nodeInfo)
-		if !status.IsSuccess() {
-			klog.ErrorS(status.AsError(), "Failed running RestoreReservation on plugin", "plugin", pl.Name(), "pod", klog.KObj(podToSchedule))
-			return nil, status
-		}
-		if pluginToRestoreState == nil {
-			pluginToRestoreState = PluginToReservationRestoreStates{}
-		}
-		pluginToRestoreState[pl.Name()] = state
-	}
-	return pluginToRestoreState, nil
+	_ = "STUB: not implemented"
+	return *new(PluginToReservationRestoreStates), nil
 }
 
 func (ext *frameworkExtenderImpl) RunReservationExtensionFinalRestoreReservation(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, states PluginToNodeReservationRestoreStates) *fwktype.Status {
-	for _, pl := range ext.reservationRestorePlugins {
-		s, ok := states[pl.Name()]
-		if !ok {
-			continue
-		}
-		status := pl.FinalRestoreReservation(ctx, cycleState, pod, s)
-		if !status.IsSuccess() {
-			klog.ErrorS(status.AsError(), "Failed running FinalRestoreReservation on plugin", "plugin", pl.Name(), "pod", klog.KObj(pod))
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (ext *frameworkExtenderImpl) RunReservationExtensionPreRestoreReservationPreAllocation(ctx context.Context, cycleState fwktype.CycleState, rInfo *ReservationInfo) *fwktype.Status {
-	for _, pl := range ext.reservationPreAllocationRestorePlugins {
-		status := pl.PreRestoreReservationPreAllocation(ctx, cycleState, rInfo)
-		if !status.IsSuccess() {
-			klog.ErrorS(status.AsError(), "Failed running PreRestoreReservationPreAllocation on plugin", "plugin", pl.Name(), "reservation", rInfo.GetName())
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (ext *frameworkExtenderImpl) RunReservationExtensionRestoreReservationPreAllocation(ctx context.Context, cycleState fwktype.CycleState, rInfo *ReservationInfo, preAllocatable []*corev1.Pod, nodeInfo fwktype.NodeInfo) (PluginToReservationRestoreStates, *fwktype.Status) {
-	var pluginToRestoreState PluginToReservationRestoreStates
-	for _, pl := range ext.reservationPreAllocationRestorePlugins {
-		state, status := pl.RestoreReservationPreAllocation(ctx, cycleState, rInfo, preAllocatable, nodeInfo)
-		if !status.IsSuccess() {
-			klog.ErrorS(status.AsError(), "Failed running RestoreReservationPreAllocation on plugin", "plugin", pl.Name(), "reservation", rInfo.GetName())
-			return nil, status
-		}
-		if pluginToRestoreState == nil {
-			pluginToRestoreState = PluginToReservationRestoreStates{}
-		}
-		pluginToRestoreState[pl.Name()] = state
-	}
-	return pluginToRestoreState, nil
+	_ = "STUB: not implemented"
+	return *new(PluginToReservationRestoreStates), nil
 }
 
 // RunReservationFilterPlugins determines whether the Reservation can participate in the Reserve
 func (ext *frameworkExtenderImpl) RunReservationFilterPlugins(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, reservationInfo *ReservationInfo, nodeInfo fwktype.NodeInfo) *fwktype.Status {
-	for _, pl := range ext.reservationFilterPlugins {
-		status := pl.FilterReservation(ctx, cycleState, pod, reservationInfo, nodeInfo)
-		if !status.IsSuccess() {
-			if debugFilterFailure {
-				klog.Infof("Failed to FilterWithReservation for Pod %q with Reservation %q on Node %q, failedPlugin: %s, reason: %s", klog.KObj(pod), klog.KObj(reservationInfo), nodeInfo.Node().Name, pl.Name(), status.Message())
-			}
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // RunNominateReservationFilterPlugins determines whether the Reservation can participate in the Reserve.
 func (ext *frameworkExtenderImpl) RunNominateReservationFilterPlugins(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, reservationInfo *ReservationInfo, nodeName string) *fwktype.Status {
-	for _, pl := range ext.reservationFilterPlugins {
-		status := pl.FilterNominateReservation(ctx, cycleState, pod, reservationInfo, nodeName)
-		if !status.IsSuccess() {
-			if debugFilterFailure {
-				klog.Infof("Failed to FilterNominateReservation for Pod %q with Reservation %q on Node %q, failedPlugin: %s, reason: %s", klog.KObj(pod), klog.KObj(reservationInfo), nodeName, pl.Name(), status.Message())
-			}
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // RunReservationScorePlugins ranks the Reservations
 func (ext *frameworkExtenderImpl) RunReservationScorePlugins(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, reservationInfos []*ReservationInfo, nodeName string) (ps PluginToReservationScores, status *fwktype.Status) {
-	if len(reservationInfos) == 0 {
-		return
-	}
-	pluginToReservationScores := make(PluginToReservationScores, len(ext.reservationScorePlugins))
-	for _, pl := range ext.reservationScorePlugins {
-		pluginToReservationScores[pl.Name()] = make(ReservationScoreList, len(reservationInfos))
-	}
-
-	for _, pl := range ext.reservationScorePlugins {
-		for index, rInfo := range reservationInfos {
-			s, status := pl.ScoreReservation(ctx, cycleState, pod, rInfo, nodeName)
-			if !status.IsSuccess() {
-				err := fmt.Errorf("plugin %q failed with: %w", pl.Name(), status.AsError())
-				return nil, fwktype.AsStatus(err)
-			}
-			pluginToReservationScores[pl.Name()][index] = ReservationScore{
-				Name:      rInfo.GetName(),
-				Namespace: rInfo.GetNamespace(),
-				UID:       rInfo.UID(),
-				Score:     s,
-			}
-		}
-	}
-
-	for _, pl := range ext.reservationScorePlugins {
-		scoreExtensions := pl.ReservationScoreExtensions()
-		if scoreExtensions == nil {
-			continue
-		}
-		reservationScoreList := pluginToReservationScores[pl.Name()]
-		status := scoreExtensions.NormalizeReservationScore(ctx, cycleState, pod, reservationScoreList)
-		if !status.IsSuccess() {
-			return nil, fwktype.AsStatus(fmt.Errorf("running Normalize on Score plugins: %w", status.AsError()))
-		}
-	}
-
-	// TODO: Should support configure weight
-	for _, pl := range ext.reservationScorePlugins {
-		weight := 1
-		reservationScoreList := pluginToReservationScores[pl.Name()]
-
-		for i, reservationScore := range reservationScoreList {
-			// return error if score plugin returns invalid score.
-			if reservationScore.Score > MaxReservationScore || reservationScore.Score < MinReservationScore {
-				err := fmt.Errorf("plugin %q returns an invalid score %v, it should in the range of [%v, %v]", pl.Name(), reservationScore.Score, MinReservationScore, MaxReservationScore)
-				return nil, fwktype.AsStatus(err)
-			}
-			reservationScoreList[i].Score = reservationScore.Score * int64(weight)
-		}
-	}
-
-	return pluginToReservationScores, nil
+	_ = "STUB: not implemented"
+	return *new(PluginToReservationScores), nil
 }
+
+// TODO: Should support configure weight
+
+// return error if score plugin returns invalid score.
 
 func (ext *frameworkExtenderImpl) RunReservationPreAllocationScorePlugins(ctx context.Context, cycleState fwktype.CycleState, rInfo *ReservationInfo, pods []*corev1.Pod, nodeName string) (ps PluginToReservationScores, status *fwktype.Status) {
-	if len(pods) == 0 {
-		return
-	}
-	// each ReservationScore corresponds to a pod
-	pluginToReservationScores := make(PluginToReservationScores, len(ext.reservationScorePlugins))
-	for _, pl := range ext.reservationScorePlugins {
-		pluginToReservationScores[pl.Name()] = make(ReservationScoreList, len(pods))
-	}
-
-	for _, pl := range ext.reservationScorePlugins {
-		for index, pod := range pods {
-			s, status := pl.ScoreReservation(ctx, cycleState, pod, rInfo, nodeName)
-			if !status.IsSuccess() {
-				err := fmt.Errorf("plugin %q for pod %s failed with: %w", pl.Name(), klog.KObj(pod), status.AsError())
-				return nil, fwktype.AsStatus(err)
-			}
-			pluginToReservationScores[pl.Name()][index] = ReservationScore{
-				Name:      pod.GetName(),
-				Namespace: pod.GetNamespace(),
-				UID:       pod.GetUID(),
-				Score:     s,
-			}
-		}
-	}
-
-	for _, pl := range ext.reservationScorePlugins {
-		scoreExtensions := pl.ReservationScoreExtensions()
-		if scoreExtensions == nil {
-			continue
-		}
-		reservationScoreList := pluginToReservationScores[pl.Name()]
-		status = scoreExtensions.NormalizeReservationScore(ctx, cycleState, rInfo.GetReservePod(), reservationScoreList)
-		if !status.IsSuccess() {
-			return nil, fwktype.AsStatus(fmt.Errorf("running Normalize on Score plugins: %w", status.AsError()))
-		}
-	}
-	// TODO: Should support configure weight (same as RunReservationScorePlugins)
-	for _, pl := range ext.reservationScorePlugins {
-		weight := 1
-		reservationScoreList := pluginToReservationScores[pl.Name()]
-		for i, reservationScore := range reservationScoreList {
-			// return error if score plugin returns invalid score.
-			if reservationScore.Score > MaxReservationScore || reservationScore.Score < MinReservationScore {
-				err := fmt.Errorf("plugin %q returns an invalid score %v, it should in the range of [%v, %v]",
-					pl.Name(), reservationScore.Score, MinReservationScore, MaxReservationScore)
-				return nil, fwktype.AsStatus(err)
-			}
-			reservationScoreList[i].Score = reservationScore.Score * int64(weight)
-		}
-	}
-	return pluginToReservationScores, nil
+	_ = "STUB: not implemented"
+	return *new(PluginToReservationScores), nil
 }
 
+// each ReservationScore corresponds to a pod
+
+// TODO: Should support configure weight (same as RunReservationScorePlugins)
+
+// return error if score plugin returns invalid score.
+
 func (ext *frameworkExtenderImpl) RegisterForgetPodHandler(handler ForgetPodHandler) {
-	ext.forgetPodHandlers = append(ext.forgetPodHandlers, handler)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (ext *frameworkExtenderImpl) ForgetPod(logger klog.Logger, pod *corev1.Pod) (err error) {
-	scheduler := ext.Scheduler()
-	if scheduler == nil {
-		err = fmt.Errorf("scheduler or scheduler cache is nil")
-	} else {
-		cache := scheduler.GetCache()
-		if cache == nil {
-			err = fmt.Errorf("scheduler or scheduler cache is nil")
-		} else {
-			err = cache.ForgetPod(logger, pod)
-		}
-	}
-
-	// Always call plugin handlers even if ForgetPod fails.
-	// It is tolerated for multi-scheduler scenarios where the pod is not in assumed
-	// cache (because it was assumed bound but then failed), but we still need to clean
-	// up plugin-specific accounting.
-	for _, handler := range ext.forgetPodHandlers {
-		handler(pod)
-	}
-
-	// Return the original error after calling handlers
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// Always call plugin handlers even if ForgetPod fails.
+// It is tolerated for multi-scheduler scenarios where the pod is not in assumed
+// cache (because it was assumed bound but then failed), but we still need to clean
+// up plugin-specific accounting.
+
+// Return the original error after calling handlers
+
 func (ext *frameworkExtenderImpl) RunNUMATopologyManagerAdmit(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, node *corev1.Node, numaNodes []int, policyType apiext.NUMATopologyPolicy, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) *fwktype.Status {
-	return ext.topologyManager.Admit(ctx, cycleState, pod, node, numaNodes, policyType, exclusivePolicy, allNUMANodeStatus)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ext *frameworkExtenderImpl) GetNUMATopologyHintProvider() []topologymanager.NUMATopologyHintProvider {
-	return ext.numaTopologyHintProviders
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ext *frameworkExtenderImpl) RunReservePluginsReserve(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
-	schedulingphase.RecordPhase(cycleState, schedulingphase.Reserve)
-	defer func() { schedulingphase.RecordPhase(cycleState, "") }()
-	status := ext.Framework.RunReservePluginsReserve(ctx, cycleState, pod, nodeName)
-	// FIXME: keep consistent behavior with the framework assuming
-	if reservationNominator := ext.GetReservationNominator(); reservationNominator != nil {
-		reservationNominator.DeleteNominatedReservePodOrReservation(pod)
-	}
-	return status
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// FIXME: keep consistent behavior with the framework assuming
+
 func (ext *frameworkExtenderImpl) RunResizePod(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
-	for _, pl := range ext.resizePodPlugins {
-		startTime := time.Now()
-		status := pl.ResizePod(ctx, cycleState, pod, nodeName)
-		ext.metricsRecorder.ObservePluginDurationAsync("ResizePod", pl.Name(), status.Code().String(), metrics.SinceInSeconds(startTime))
-		if !status.IsSuccess() {
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

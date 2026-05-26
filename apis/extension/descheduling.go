@@ -17,10 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"fmt"
-	"strconv"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -54,38 +50,17 @@ type SoftEvictionSpec struct {
 }
 
 func GetSoftEvictionSpec(annotations map[string]string) (*SoftEvictionSpec, error) {
-	evictionSpec := &SoftEvictionSpec{}
-	data, ok := annotations[AnnotationSoftEviction]
-	if !ok {
-		return evictionSpec, nil
-	}
-	err := json.Unmarshal([]byte(data), evictionSpec)
-	if err != nil {
-		return evictionSpec, err
-	}
-	return evictionSpec, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetEvictionCost(annotations map[string]string) (int32, error) {
-	if value, exist := annotations[AnnotationEvictionCost]; exist {
-		// values that start with plus sign (e.g, "+10") or leading zeros (e.g., "008") are not valid.
-		if !validFirstDigit(value) {
-			return 0, fmt.Errorf("invalid value %q", value)
-		}
-
-		i, err := strconv.ParseInt(value, 10, 32)
-		if err != nil {
-			// make sure we default to 0 on error.
-			return 0, err
-		}
-		return int32(i), nil
-	}
+	_ = "STUB: not implemented"
 	return 0, nil
 }
 
-func validFirstDigit(str string) bool {
-	if len(str) == 0 {
-		return false
-	}
-	return str[0] == '-' || (str[0] == '0' && str == "0") || (str[0] >= '1' && str[0] <= '9')
-}
+// values that start with plus sign (e.g, "+10") or leading zeros (e.g., "008") are not valid.
+
+// make sure we default to 0 on error.
+
+func validFirstDigit(str string) bool { _ = "STUB: not implemented"; return false }

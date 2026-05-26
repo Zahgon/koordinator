@@ -17,14 +17,7 @@ limitations under the License.
 package system
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/klog/v2"
 )
 
 /*
@@ -42,63 +35,26 @@ const (
 	SysHasGenericInitiator = "devices/system/node/has_generic_initiator"
 )
 
-func GetHasGenericInitiatorPath() string {
-	return filepath.Join(Conf.SysRootDir, SysHasGenericInitiator)
-}
+func GetHasGenericInitiatorPath() string { _ = "STUB: not implemented"; return "" }
 
-func GetNUMANodesHasGI() sets.Set[int32] {
-	path := GetHasGenericInitiatorPath()
-	rawNUMANodes, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
-	ids, err := parseIDs(strings.TrimSpace(string(rawNUMANodes)))
-	if err != nil {
-		klog.V(4).InfoS("parseIDs error: %v", err)
-		return nil
-	}
-	return ids
-}
+func GetNUMANodesHasGI() sets.Set[int32] { _ = "STUB: not implemented"; return nil }
 
 func parseIDs(s string) (sets.Set[int32], error) {
-	idSets := sets.New[int32]()
+	_ = "STUB: not implemented"
+	return nil,
 
-	// Handle empty string.
-	if s == "" {
-		return nil, nil
-	}
-
-	// Split CPU list string:
-	// "0-5,34,46-48 => ["0-5", "34", "46-48"]
-	ranges := strings.Split(s, ",")
-
-	for _, r := range ranges {
-		boundaries := strings.Split(r, "-")
-		if len(boundaries) == 1 {
-			// Handle ranges that consist of only one element like "34".
-			elem, err := strconv.ParseInt(boundaries[0], 10, 32) // assert cpu id is in range of int32
-			if err != nil {
-				return nil, err
-			}
-			idSets.Insert(int32(elem))
-		} else if len(boundaries) == 2 {
-			// Handle multi-element ranges like "0-5".
-			start, err := strconv.ParseInt(boundaries[0], 10, 32) // assert cpu id is in range of int32
-			if err != nil {
-				return nil, err
-			}
-			end, err := strconv.ParseInt(boundaries[1], 10, 32)
-			if err != nil {
-				return nil, err
-			}
-			// Add all elements to the result.
-			// e.g. "0-5", "46-48" => [0, 1, 2, 3, 4, 5, 46, 47, 48].
-			for e := start; e <= end; e++ {
-				idSets.Insert(int32(e))
-			}
-		} else {
-			return nil, fmt.Errorf("invalid format: %s", r)
-		}
-	}
-	return idSets, nil
+		// Handle empty string.
+		nil
 }
+
+// Split CPU list string:
+// "0-5,34,46-48 => ["0-5", "34", "46-48"]
+
+// Handle ranges that consist of only one element like "34".
+// assert cpu id is in range of int32
+
+// Handle multi-element ranges like "0-5".
+// assert cpu id is in range of int32
+
+// Add all elements to the result.
+// e.g. "0-5", "46-48" => [0, 1, 2, 3, 4, 5, 46, 47, 48].

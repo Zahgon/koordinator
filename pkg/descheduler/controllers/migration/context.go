@@ -20,8 +20,6 @@ import (
 	"context"
 	"time"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	sev1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
 
@@ -37,41 +35,13 @@ type JobContext struct {
 }
 
 func WithContext(ctx context.Context, jobCtx *JobContext) context.Context {
-	return context.WithValue(ctx, ctxKey, jobCtx)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func FromContext(ctx context.Context) *JobContext {
-	jobCtx, _ := ctx.Value(ctxKey).(*JobContext)
-	return jobCtx
-}
+func FromContext(ctx context.Context) *JobContext { _ = "STUB: not implemented"; return nil }
 
 func (c *JobContext) ApplyTo(job *sev1alpha1.PodMigrationJob) error {
-	if c == nil {
-		return nil
-	}
-	if len(c.Labels) > 0 {
-		if job.Labels == nil {
-			job.Labels = make(map[string]string)
-		}
-		for k, v := range c.Labels {
-			job.Labels[k] = v
-		}
-	}
-	if len(c.Annotations) > 0 {
-		if job.Annotations == nil {
-			job.Annotations = make(map[string]string)
-		}
-		for k, v := range c.Annotations {
-			job.Annotations[k] = v
-		}
-	}
-	if c.Timeout != nil {
-		job.Spec.TTL = &metav1.Duration{
-			Duration: *c.Timeout,
-		}
-	}
-	if c.Mode != "" {
-		job.Spec.Mode = c.Mode
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

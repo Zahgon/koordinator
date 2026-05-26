@@ -17,14 +17,7 @@ limitations under the License.
 package helper
 
 import (
-	"bytes"
-	"fmt"
-	"os"
-	"path/filepath"
 	"regexp"
-	"strconv"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 var (
@@ -32,44 +25,12 @@ var (
 )
 
 func ParsePCIInfo(busID string) (int32, string, string, error) {
-	nodeID, err := getNUMANodeID(busID)
-	if err != nil {
-		return 0, "", "", fmt.Errorf("failed to parse NUMA Node ID, err: %w", err)
-	}
-	pcie, err := getPCIERootComplexID(busID)
-	if err != nil {
-		return 0, "", "", fmt.Errorf("failed to parse PCIE ID, err: %w", err)
-	}
-	return nodeID, pcie, busID, nil
+	_ = "STUB: not implemented"
+	return 0, "", "", nil
 }
 
-func getPCIERootComplexID(bdf string) (string, error) {
-	path, err := filepath.EvalSymlinks(filepath.Join(system.GetPCIDeviceDir(), bdf))
-	if err != nil {
-		return "", err
-	}
-	return parsePCIEID(path), err
-}
+func getPCIERootComplexID(bdf string) (string, error) { _ = "STUB: not implemented"; return "", nil }
 
-func parsePCIEID(path string) string {
-	result := pcieRegexp.FindAllStringSubmatch(path, -1)
-	if len(result) == 0 || len(result[0]) == 0 {
-		return ""
-	}
-	return result[0][0]
-}
+func parsePCIEID(path string) string { _ = "STUB: not implemented"; return "" }
 
-func getNUMANodeID(bdf string) (int32, error) {
-	data, err := os.ReadFile(filepath.Join(system.GetPCIDeviceDir(), bdf, "numa_node"))
-	if err != nil {
-		return -1, err
-	}
-	nodeID, err := strconv.Atoi(string(bytes.TrimSpace(data)))
-	if err != nil {
-		return 0, err
-	}
-	if nodeID == -1 {
-		nodeID = 0
-	}
-	return int32(nodeID), nil
-}
+func getNUMANodeID(bdf string) (int32, error) { _ = "STUB: not implemented"; return 0, nil }

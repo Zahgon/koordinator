@@ -17,20 +17,11 @@ limitations under the License.
 package resourceexecutor
 
 import (
-	"bufio"
-	"bytes"
-	"fmt"
-	"math"
-	"regexp"
-	"strconv"
 	"sync"
 	"time"
 
-	"k8s.io/klog/v2"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	sysutil "github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
-	"github.com/koordinator-sh/koordinator/pkg/util/cpuset"
 )
 
 var DefaultCgroupUpdaterFactory = NewCgroupUpdaterFactory()
@@ -116,73 +107,59 @@ type CgroupResourceUpdater struct {
 	eventHelper     *audit.EventHelper
 }
 
-func (u *CgroupResourceUpdater) Name() string {
-	return "cgroup"
-}
+func (u *CgroupResourceUpdater) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (u *CgroupResourceUpdater) ResourceType() sysutil.ResourceType {
-	return u.file.ResourceType()
+	_ = "STUB: not implemented"
+	return *new(sysutil.ResourceType)
 }
 
-func (u *CgroupResourceUpdater) Key() string {
-	return u.file.Path(u.parentDir)
-}
+func (u *CgroupResourceUpdater) Key() string { _ = "STUB: not implemented"; return "" }
 
-func (u *CgroupResourceUpdater) Path() string {
-	return u.file.Path(u.parentDir)
-}
+func (u *CgroupResourceUpdater) Path() string { _ = "STUB: not implemented"; return "" }
 
-func (u *CgroupResourceUpdater) Value() string {
-	return u.value
-}
+func (u *CgroupResourceUpdater) Value() string { _ = "STUB: not implemented"; return "" }
 
-func (u *CgroupResourceUpdater) update() error {
-	return u.updateFunc(u)
-}
+func (u *CgroupResourceUpdater) update() error { _ = "STUB: not implemented"; return nil }
 
 func (u *CgroupResourceUpdater) GetEventHelper() *audit.EventHelper {
-	return u.eventHelper
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (u *CgroupResourceUpdater) SetEventHelper(a *audit.EventHelper) {
-	u.eventHelper = a
+	_ = "STUB: not implemented"
+	return
 }
 
 func (u *CgroupResourceUpdater) MergeUpdate() (ResourceUpdater, error) {
-	if u.mergeUpdateFunc == nil {
-		return nil, u.updateFunc(u)
-	}
-	return u.mergeUpdateFunc(u)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 func (u *CgroupResourceUpdater) Clone() ResourceUpdater {
-	return &CgroupResourceUpdater{
-		file:                u.file,
-		parentDir:           u.parentDir,
-		value:               u.value,
-		lastUpdateTimestamp: u.lastUpdateTimestamp,
-		updateFunc:          u.updateFunc,
-		mergeUpdateFunc:     u.mergeUpdateFunc,
-		eventHelper:         u.eventHelper,
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater)
 }
 
 func (u *CgroupResourceUpdater) GetLastUpdateTimestamp() time.Time {
-	return u.lastUpdateTimestamp
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
 func (u *CgroupResourceUpdater) UpdateLastUpdateTimestamp(time time.Time) {
-	u.lastUpdateTimestamp = time
+	_ = "STUB: not implemented"
+	return
 }
 
 func (u *CgroupResourceUpdater) WithUpdateFunc(updateFunc UpdateFunc) *CgroupResourceUpdater {
-	u.updateFunc = updateFunc
-	return u
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (u *CgroupResourceUpdater) WithMergeUpdateFunc(mergeUpdateFunc MergeUpdateFunc) *CgroupResourceUpdater {
-	u.mergeUpdateFunc = mergeUpdateFunc
-	return u
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type DefaultResourceUpdater struct {
@@ -194,67 +171,55 @@ type DefaultResourceUpdater struct {
 	eventHelper         *audit.EventHelper
 }
 
-func (u *DefaultResourceUpdater) Name() string {
-	return "default"
-}
+func (u *DefaultResourceUpdater) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (u *DefaultResourceUpdater) ResourceType() sysutil.ResourceType {
-	return sysutil.ResourceType(u.file)
+	_ = "STUB: not implemented"
+	return *new(sysutil.ResourceType)
 }
 
-func (u *DefaultResourceUpdater) Key() string {
-	return u.key
-}
+func (u *DefaultResourceUpdater) Key() string { _ = "STUB: not implemented"; return "" }
 
 func (u *DefaultResourceUpdater) Path() string {
-	return u.file // no additional parent dir here
+	_ = "STUB: not implemented"
+	// no additional parent dir here
+	return ""
 }
 
-func (u *DefaultResourceUpdater) Value() string {
-	return u.value
-}
+func (u *DefaultResourceUpdater) Value() string { _ = "STUB: not implemented"; return "" }
 
-func (u *DefaultResourceUpdater) update() error {
-	return u.updateFunc(u)
-}
+func (u *DefaultResourceUpdater) update() error { _ = "STUB: not implemented"; return nil }
 
 func (u *DefaultResourceUpdater) MergeUpdate() (ResourceUpdater, error) {
-	return nil, u.updateFunc(u)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 func (u *DefaultResourceUpdater) Clone() ResourceUpdater {
-	return &DefaultResourceUpdater{
-		key:                 u.key,
-		file:                u.file,
-		value:               u.value,
-		lastUpdateTimestamp: u.lastUpdateTimestamp,
-		updateFunc:          u.updateFunc,
-		eventHelper:         u.eventHelper,
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater)
 }
 
 func (u *DefaultResourceUpdater) GetLastUpdateTimestamp() time.Time {
-	return u.lastUpdateTimestamp
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
 func (u *DefaultResourceUpdater) UpdateLastUpdateTimestamp(time time.Time) {
-	u.lastUpdateTimestamp = time
+	_ = "STUB: not implemented"
+	return
 }
 
 // NewCommonDefaultUpdater returns a DefaultResourceUpdater for update general files.
 func NewCommonDefaultUpdater(key string, file string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	return NewCommonDefaultUpdaterWithUpdateFunc(key, file, value, CommonDefaultUpdateFunc, e)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 // NewCommonDefaultUpdaterWithUpdateFunc returns a DefaultResourceUpdater for update general files with the given update function.
 func NewCommonDefaultUpdaterWithUpdateFunc(key string, file string, value string, updateFunc UpdateFunc, e *audit.EventHelper) (ResourceUpdater, error) {
-	return &DefaultResourceUpdater{
-		key:         key,
-		file:        file,
-		value:       value,
-		updateFunc:  updateFunc,
-		eventHelper: e,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 type NewResourceUpdaterFunc func(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error)
@@ -265,68 +230,42 @@ type ResourceUpdaterFactory interface {
 }
 
 func NewCgroupUpdater(resourceType sysutil.ResourceType, parentDir string, value string, updateFunc UpdateFunc, e *audit.EventHelper) (ResourceUpdater, error) {
-	r, err := sysutil.GetCgroupResource(resourceType)
-	if err != nil {
-		return nil, err
-	}
-	return &CgroupResourceUpdater{
-		file:        r,
-		parentDir:   parentDir,
-		value:       value,
-		updateFunc:  updateFunc,
-		eventHelper: e,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 func NewCgroupUpdaterWithUpdateFunc(updateFn UpdateFunc) func(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	return func(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-		return NewCgroupUpdater(resourceType, parentDir, value, updateFn, e)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewCommonCgroupUpdater returns a CgroupResourceUpdater for updating known cgroup resources.
 func NewCommonCgroupUpdater(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	return NewCgroupUpdaterWithUpdateFunc(CommonCgroupUpdateFunc)(resourceType, parentDir, value, e)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 func NewMergeableCgroupUpdaterWithCondition(resourceType sysutil.ResourceType, parentDir string, value string, updateFunc UpdateFunc, mergeCondition MergeConditionFunc, e *audit.EventHelper) (ResourceUpdater, error) {
-	r, err := sysutil.GetCgroupResource(resourceType)
-	if err != nil {
-		return nil, err
-	}
-	return &CgroupResourceUpdater{
-		file:       r,
-		parentDir:  parentDir,
-		value:      value,
-		updateFunc: updateFunc,
-		mergeUpdateFunc: func(resource ResourceUpdater) (ResourceUpdater, error) {
-			return MergeFuncUpdateCgroup(resource, mergeCondition)
-		},
-		eventHelper: e,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 func NewMergeableCgroupUpdaterWithConditionFunc(updateFn UpdateFunc, mergeCondition MergeConditionFunc) func(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	return func(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-		return NewMergeableCgroupUpdaterWithCondition(resourceType, parentDir, value, updateFn, mergeCondition, e)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func NewMergeableCgroupUpdaterIfValueLarger(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	return NewMergeableCgroupUpdaterWithConditionFunc(CommonCgroupUpdateFunc, MergeConditionIfValueIsLarger)(resourceType, parentDir, value, e)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 // NewDetailCgroupUpdater returns a new *CgroupResourceUpdater according to the given Resource, which is generally used
 // for backwards compatibility. It is not guaranteed for updating successfully since it does not retrieve from the
 // known cgroup resources.
 func NewDetailCgroupUpdater(resource sysutil.Resource, parentDir string, value string, updateFunc UpdateFunc, e *audit.EventHelper) (ResourceUpdater, error) {
-	return &CgroupResourceUpdater{
-		file:        resource,
-		parentDir:   parentDir,
-		value:       value,
-		updateFunc:  updateFunc,
-		eventHelper: e,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 type CgroupUpdaterFactoryImpl struct {
@@ -335,265 +274,108 @@ type CgroupUpdaterFactoryImpl struct {
 }
 
 func NewCgroupUpdaterFactory() ResourceUpdaterFactory {
-	return &CgroupUpdaterFactoryImpl{
-		registry: map[sysutil.ResourceType]NewResourceUpdaterFunc{},
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdaterFactory)
 }
 
 func (f *CgroupUpdaterFactoryImpl) Register(g NewResourceUpdaterFunc, resourceTypes ...sysutil.ResourceType) {
-	f.lock.Lock()
-	defer f.lock.Unlock()
-	for _, t := range resourceTypes {
-		_, ok := f.registry[t]
-		if ok {
-			klog.Warningf("resource type %s already registered, ignored", t)
-			continue
-		}
-		f.registry[t] = g
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (f *CgroupUpdaterFactoryImpl) New(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-	g, ok := f.registry[resourceType]
-	if !ok {
-		return nil, fmt.Errorf("resource type %s not registered", resourceType)
-	}
-	return g(resourceType, parentDir, value, e)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
-func CommonCgroupUpdateFunc(resource ResourceUpdater) error {
-	c := resource.(*CgroupResourceUpdater)
-	return cgroupWriteIfDifferentWithLog(c)
-}
+func CommonCgroupUpdateFunc(resource ResourceUpdater) error { _ = "STUB: not implemented"; return nil }
 
-func CommonDefaultUpdateFunc(resource ResourceUpdater) error {
-	c := resource.(*DefaultResourceUpdater)
-	return commonWriteIfDifferentWithLog(c)
-}
+func CommonDefaultUpdateFunc(resource ResourceUpdater) error { _ = "STUB: not implemented"; return nil }
 
 func CgroupUpdateWithUnlimitedFunc(resource ResourceUpdater) error {
-	c := resource.(*CgroupResourceUpdater)
-	// NOTE: convert "-1" to "max", since some cgroups-v2 files only accept "max" to unlimit resource instead of "-1".
-	//       DO NOT use it on the cgroups which has a valid value of "-1".
-	if c.value == sysutil.CgroupUnlimitedSymbolStr && sysutil.GetCurrentCgroupVersion() == sysutil.CgroupVersionV2 {
-		c.value = sysutil.CgroupMaxSymbolStr
-	}
-	return cgroupWriteIfDifferentWithLog(c)
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// NOTE: convert "-1" to "max", since some cgroups-v2 files only accept "max" to unlimit resource instead of "-1".
+//       DO NOT use it on the cgroups which has a valid value of "-1".
+
 func CgroupUpdateCPUSharesFunc(resource ResourceUpdater) error {
-	c := resource.(*CgroupResourceUpdater)
-	// convert values in `cpu.shares` (v1) into values in `cpu.weight` (v2)
-	if sysutil.GetCurrentCgroupVersion() == sysutil.CgroupVersionV2 {
-		v, err := sysutil.ConvertCPUSharesToWeight(c.value)
-		if err != nil {
-			return err
-		}
-		c.value = strconv.FormatInt(v, 10)
-	}
-	return cgroupWriteIfDifferentWithLog(c)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// convert values in `cpu.shares` (v1) into values in `cpu.weight` (v2)
 
 type MergeConditionFunc func(oldValue, newValue string) (mergedValue string, needMerge bool, err error)
 
 func MergeFuncUpdateCgroup(resource ResourceUpdater, mergeCondition MergeConditionFunc) (ResourceUpdater, error) {
-	c := resource.(*CgroupResourceUpdater)
-
-	isValid, msg := c.file.IsValid(c.value)
-	if !isValid {
-		klog.V(6).Infof("failed to merge update cgroup %v, read new value err: %s", c.Path(), msg)
-		return resource, fmt.Errorf("parse new value failed, err: %v", msg)
-	}
-
-	oldStr, err := cgroupFileRead(c.parentDir, c.file)
-	if err != nil {
-		klog.V(6).Infof("failed to merge update cgroup %v, read old value err: %s", c.Path(), err)
-		return resource, err
-	}
-
-	mergedValue, needMerge, err := mergeCondition(oldStr, c.value)
-	if err != nil {
-		klog.V(6).Infof("failed to merge update cgroup %v, check merge condition err: %s", c.Path(), err)
-		return resource, err
-	}
-	// skip the write when merge condition is not meet
-	if !needMerge {
-		merged := resource.Clone().(*CgroupResourceUpdater)
-		merged.value = oldStr
-		klog.V(6).Infof("skip merge update cgroup %v since no need to merge new value[%v] with old[%v]",
-			c.Path(), c.value, oldStr)
-		return merged, nil
-	}
-
-	// otherwise, do write for the current value
-	if c.eventHelper != nil {
-		_ = c.eventHelper.Do()
-	} else {
-		_ = audit.V(3).Reason(ReasonUpdateCgroups).Message("update %v to %v", resource.Path(), resource.Value()).Do()
-	}
-	klog.V(6).Infof("merge update cgroup %v with merged value[%v], original new[%v], old[%v]",
-		c.Path(), mergedValue, c.value, oldStr)
-	// suppose current value is different
-	return resource, cgroupFileWrite(c.parentDir, c.file, mergedValue)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
+
+// skip the write when merge condition is not meet
+
+// otherwise, do write for the current value
+
+// suppose current value is different
 
 // MergeConditionIfValueIsLarger returns a merge condition where only do update when the new value is larger.
 func MergeConditionIfValueIsLarger(oldValue, newValue string) (string, bool, error) {
-	var newV, oldV int64
-	var err error
-	if newValue == sysutil.CgroupMaxSymbolStr || newValue == sysutil.CgroupUnlimitedSymbolStr {
-		newV = int64(math.MaxInt64)
-	} else {
-		newV, err = strconv.ParseInt(newValue, 10, 64)
-		if err != nil {
-			return newValue, false, fmt.Errorf("new value is not int64, err: %v", err)
-		}
-	}
-	if oldValue == sysutil.CgroupMaxSymbolStr || oldValue == sysutil.CgroupUnlimitedSymbolStr { // compatible with cgroup valued "max"
-		oldV = int64(math.MaxInt64)
-	} else {
-		oldV, err = strconv.ParseInt(oldValue, 10, 64)
-		if err != nil {
-			return newValue, false, fmt.Errorf("old value is not int64, err: %v", err)
-		}
-	}
-	return newValue, newV > oldV, nil
+	_ = "STUB: not implemented"
+	return "", false, nil
 }
+
+// compatible with cgroup valued "max"
 
 func MergeConditionIfCFSQuotaIsLarger(oldValue, newValue string) (string, bool, error) {
-	var newV, oldV int64
-	var err error
-	if newValue == sysutil.CgroupMaxSymbolStr || newValue == sysutil.CgroupUnlimitedSymbolStr {
-		newV = int64(math.MaxInt64)
-	} else {
-		newV, err = strconv.ParseInt(newValue, 10, 64)
-		if err != nil {
-			return newValue, false, fmt.Errorf("new value is not int64, err: %v", err)
-		}
-	}
-
-	// cgroup-v2 content: "max 100000", "100000 100000"
-	if sysutil.GetCurrentCgroupVersion() == sysutil.CgroupVersionV2 {
-		oldV, err = sysutil.ParseCPUCFSQuotaV2(oldValue)
-		if err != nil {
-			return newValue, false, fmt.Errorf("cannot parse old value %s, err: %v", oldValue, err)
-		}
-		if oldV == -1 {
-			oldV = int64(math.MaxInt64)
-		}
-	} else { // cgroup-v1 content: "-1", "100000"
-		if oldValue == sysutil.CgroupUnlimitedSymbolStr { // compatible with cgroup valued "max"
-			oldV = int64(math.MaxInt64)
-		} else {
-			oldV, err = strconv.ParseInt(oldValue, 10, 64)
-			if err != nil {
-				return newValue, false, fmt.Errorf("old value is not int64, err: %v", err)
-			}
-		}
-	}
-
-	return newValue, newV > oldV, nil
+	_ = "STUB: not implemented"
+	return "", false, nil
 }
+
+// cgroup-v2 content: "max 100000", "100000 100000"
+
+// cgroup-v1 content: "-1", "100000"
+// compatible with cgroup valued "max"
 
 // MergeConditionIfCPUSetIsLooser returns a merge condition where only do update when the new cpuset value is looser.
 func MergeConditionIfCPUSetIsLooser(oldValue, newValue string) (string, bool, error) {
-	v, err := cpuset.Parse(newValue)
-	if err != nil {
-		return newValue, false, fmt.Errorf("new value is not valid cpuset, err: %v", err)
-	}
-	old, err := cpuset.Parse(oldValue)
-	if err != nil {
-		return newValue, false, fmt.Errorf("old value is not valid cpuset, err: %v", err)
-	}
-
-	// no need to merge if new cpuset is equal to old
-	if v.Equals(old) {
-		return newValue, false, nil
-	}
-	// no need to merge if new cpuset is a subset of the old
-	if v.IsSubsetOf(old) {
-		return newValue, false, nil
-	}
-
-	// need to update with the merged of old and new cpuset values
-	merged := v.Union(old)
-	return merged.String(), true, nil
+	_ = "STUB: not implemented"
+	return "", false, nil
 }
 
+// no need to merge if new cpuset is equal to old
+
+// no need to merge if new cpuset is a subset of the old
+
+// need to update with the merged of old and new cpuset values
+
 func cgroupWriteIfDifferentWithLog(c *CgroupResourceUpdater) error {
-	updated, err := cgroupFileWriteIfDifferent(c.parentDir, c.file, c.value)
-	if err != nil {
-		return err
-	}
-	if updated && c.eventHelper != nil {
-		_ = c.eventHelper.Do()
-	} else if updated {
-		_ = audit.V(3).Reason(ReasonUpdateCgroups).Message("update %v to %v", c.Path(), c.Value()).Do()
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func commonWriteIfDifferentWithLog(c *DefaultResourceUpdater) error {
-	updated, err := sysutil.CommonFileWriteIfDifferent(c.Path(), c.value)
-	if err != nil {
-		return err
-	}
-	if updated && c.eventHelper != nil {
-		_ = c.eventHelper.Do()
-	} else if updated {
-		_ = audit.V(3).Reason(ReasonUpdateSystemConfig).Message("update %v to %v", c.Path(), c.Value()).Do()
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func BlkIOUpdateFunc(resource ResourceUpdater) error {
-	info := resource.(*CgroupResourceUpdater)
-	return cgroupBlkIOFileWriteIfDifferent(info.parentDir, info.file, info.Value())
-}
+func BlkIOUpdateFunc(resource ResourceUpdater) error { _ = "STUB: not implemented"; return nil }
 
 func NewBlkIOResourceUpdater(resourceType sysutil.ResourceType, parentDir string, value string, e *audit.EventHelper) (ResourceUpdater, error) {
-	return NewCgroupUpdaterWithUpdateFunc(BlkIOUpdateFunc)(resourceType, parentDir, value, e)
+	_ = "STUB: not implemented"
+	return *new(ResourceUpdater), nil
 }
 
 func cgroupBlkIOFileWriteIfDifferent(cgroupTaskDir string, file sysutil.Resource, value string) error {
-	var needUpdate bool
-	currentValue, currentErr := cgroupFileRead(cgroupTaskDir, file)
-	if currentErr != nil {
-		return currentErr
-	}
-
-	switch file.ResourceType() {
-	case sysutil.BlkioIOQoSName, sysutil.BlkioIOModelName:
-		needUpdate = CheckIfBlkRootConfigNeedUpdate(currentValue, value)
-	case sysutil.BlkioTRIopsName, sysutil.BlkioTRBpsName, sysutil.BlkioTWIopsName, sysutil.BlkioTWBpsName, sysutil.BlkioIOWeightName:
-		needUpdate = CheckIfBlkQOSNeedUpdate(currentValue, value)
-	default:
-		return fmt.Errorf("unknown blkio resource file %s", file.ResourceType())
-	}
-
-	if !needUpdate {
-		klog.V(6).Infof("no need to update blk cgroup file %s/%s: currentValue is %s, value is %s", cgroupTaskDir, file.ResourceType(), currentValue, value)
-		return nil
-	}
-
-	klog.V(6).Infof("need to update blk cgroup file %s/%s: currentValue is %s, value is %s", cgroupTaskDir, file.ResourceType(), currentValue, value)
-	return cgroupFileWrite(cgroupTaskDir, file, value)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // https://www.alibabacloud.com/help/en/elastic-compute-service/latest/configure-the-weight-based-throttling-feature-of-blk-iocost
 func CheckIfBlkRootConfigNeedUpdate(oldValue string, newValue string) bool {
-	needUpdate := true
-	scanner := bufio.NewScanner(bytes.NewReader([]byte(oldValue)))
-	for scanner.Scan() {
-		if regexp.MustCompile(fmt.Sprintf("^%s$", newValue)).FindString(scanner.Text()) == newValue {
-			needUpdate = false
-			break
-		}
-	}
-
-	return needUpdate
+	_ = "STUB: not implemented"
+	return false
 }
 
 // blkio.cost.weight: configure iocost weight
@@ -602,36 +384,15 @@ func CheckIfBlkRootConfigNeedUpdate(oldValue string, newValue string) bool {
 // blkio.throttle.write_bps_device: configure write bps
 // blkio.throttle.write_iops_device: configure write iops
 func CheckIfBlkQOSNeedUpdate(oldValue string, newValue string) bool {
-	var needUpdate bool
-	scanner := bufio.NewScanner(bytes.NewReader([]byte(oldValue)))
-	// newValue: "253:0 30"
-	// out: [["253:0 0" "253:0" "0"]]
-	out := regexp.MustCompile(`(^[0-9]+:[0-9]+) ([0-9]+)$`).FindAllStringSubmatch(newValue, -1)
-
-	var majminWithZero string
-	if len(out) == 1 && len(out[0]) == 3 && out[0][2] == "0" {
-		majminWithZero = out[0][1]
-	}
-	if majminWithZero != "" {
-		// If majminWithZero is not empty, it means to assign a zero value to a device
-		needUpdate = false
-		for scanner.Scan() {
-			if len(regexp.MustCompile(fmt.Sprintf("^%s ", majminWithZero)).FindString(scanner.Text())) != 0 {
-				needUpdate = true
-				break
-			}
-		}
-	} else {
-		// If majminWithZero is empty, it means to update the blkio cgroup file
-		needUpdate = true
-		for scanner.Scan() {
-			// If currentValue does not completely contain newValue, a write operation is required
-			if regexp.MustCompile(fmt.Sprintf("^%s$", newValue)).FindString(scanner.Text()) == newValue {
-				needUpdate = false
-				break
-			}
-		}
-	}
-
-	return needUpdate
+	_ = "STUB: not implemented"
+	return false
 }
+
+// newValue: "253:0 30"
+// out: [["253:0 0" "253:0" "0"]]
+
+// If majminWithZero is not empty, it means to assign a zero value to a device
+
+// If majminWithZero is empty, it means to update the blkio cgroup file
+
+// If currentValue does not completely contain newValue, a write operation is required

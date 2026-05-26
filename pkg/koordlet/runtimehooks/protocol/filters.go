@@ -25,10 +25,8 @@ const (
 )
 
 func ContainerReconcileIgnoreFilter(pod *corev1.Pod, container *corev1.Container, containerStat *corev1.ContainerStatus) bool {
+	_ = "STUB: not implemented"
 	// for containers in kata pod, no need to reconcile container cgroup
 	// TODO define filters as runtime hook plugin level
-	if pod.Spec.RuntimeClassName != nil && *pod.Spec.RuntimeClassName == runtimeClassKata {
-		return true
-	}
 	return false
 }

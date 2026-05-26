@@ -43,12 +43,14 @@ type elasticQuotaProfileLister struct {
 
 // NewElasticQuotaProfileLister returns a new ElasticQuotaProfileLister.
 func NewElasticQuotaProfileLister(indexer cache.Indexer) ElasticQuotaProfileLister {
-	return &elasticQuotaProfileLister{listers.New[*quotav1alpha1.ElasticQuotaProfile](indexer, quotav1alpha1.Resource("elasticquotaprofile"))}
+	_ = "STUB: not implemented"
+	return *new(ElasticQuotaProfileLister)
 }
 
 // ElasticQuotaProfiles returns an object that can list and get ElasticQuotaProfiles.
 func (s *elasticQuotaProfileLister) ElasticQuotaProfiles(namespace string) ElasticQuotaProfileNamespaceLister {
-	return elasticQuotaProfileNamespaceLister{listers.NewNamespaced[*quotav1alpha1.ElasticQuotaProfile](s.ResourceIndexer, namespace)}
+	_ = "STUB: not implemented"
+	return *new(ElasticQuotaProfileNamespaceLister)
 }
 
 // ElasticQuotaProfileNamespaceLister helps list and get ElasticQuotaProfiles.

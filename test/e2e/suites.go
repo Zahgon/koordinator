@@ -17,77 +17,23 @@ limitations under the License.
 
 package e2e
 
-import (
-	"fmt"
-	"os"
-	"path"
-	"time"
-
-	clientset "k8s.io/client-go/kubernetes"
-
-	"github.com/koordinator-sh/koordinator/test/e2e/framework"
-	e2emetrics "github.com/koordinator-sh/koordinator/test/e2e/framework/metrics"
-)
-
 // CleanupSuite is the boilerplate that can be used after tests on ginkgo were run, on the SynchronizedAfterSuite step.
 // Similar to SynchronizedBeforeSuite, we want to run some operations only once (such as collecting cluster logs).
 // Here, the order of functions is reversed; first, the function which runs everywhere,
 // and then the function that only runs on the first Ginkgo node.
 func CleanupSuite() {
+	_ = "STUB: not implemented"
 	// Run on all Ginkgo nodes
-	framework.Logf("Running AfterSuite actions on all nodes")
-	framework.RunCleanupActions()
+	return
 }
 
 // AfterSuiteActions are actions that are run on ginkgo's SynchronizedAfterSuite
 func AfterSuiteActions() {
+	_ = "STUB: not implemented"
 	// Run only Ginkgo on node 1
-	framework.Logf("Running AfterSuite actions on node 1")
-	if framework.TestContext.ReportDir != "" {
-		framework.CoreDump(framework.TestContext.ReportDir)
-	}
-	if framework.TestContext.GatherSuiteMetricsAfterTest {
-		if err := gatherTestSuiteMetrics(); err != nil {
-			framework.Logf("Error gathering metrics: %v", err)
-		}
-	}
-	if framework.TestContext.NodeKiller.Enabled {
-		close(framework.TestContext.NodeKiller.NodeKillerStopCh)
-	}
+	return
 }
 
-func gatherTestSuiteMetrics() error {
-	framework.Logf("Gathering metrics")
-	config, err := framework.LoadConfig()
-	if err != nil {
-		return fmt.Errorf("error loading client config: %v", err)
-	}
-	c, err := clientset.NewForConfig(config)
-	if err != nil {
-		return fmt.Errorf("error creating client: %v", err)
-	}
+func gatherTestSuiteMetrics() error { _ = "STUB: not implemented"; return nil }
 
-	// Grab metrics for apiserver, scheduler, controller-manager, kubelet (for non-kubemark case) and cluster autoscaler (optionally).
-	grabber, err := e2emetrics.NewMetricsGrabber(c, nil, config, !framework.ProviderIs("kubemark"), true, true, true, framework.TestContext.IncludeClusterAutoscalerMetrics, false)
-	if err != nil {
-		return fmt.Errorf("failed to create MetricsGrabber: %v", err)
-	}
-
-	received, err := grabber.Grab()
-	if err != nil {
-		return fmt.Errorf("failed to grab metrics: %v", err)
-	}
-
-	metricsForE2E := (*e2emetrics.ComponentCollection)(&received)
-	metricsJSON := metricsForE2E.PrintJSON()
-	if framework.TestContext.ReportDir != "" {
-		filePath := path.Join(framework.TestContext.ReportDir, "MetricsForE2ESuite_"+time.Now().Format(time.RFC3339)+".json")
-		if err := os.WriteFile(filePath, []byte(metricsJSON), 0644); err != nil {
-			return fmt.Errorf("error writing to %q: %v", filePath, err)
-		}
-	} else {
-		framework.Logf("\n\nTest Suite Metrics:\n%s\n", metricsJSON)
-	}
-
-	return nil
-}
+// Grab metrics for apiserver, scheduler, controller-manager, kubelet (for non-kubemark case) and cluster autoscaler (optionally).

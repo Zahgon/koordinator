@@ -40,21 +40,9 @@ var (
 	}
 )
 
-func ResetHostApplicationResourceUsage() {
-	HostApplicationResourceUsage.Reset()
-}
+func ResetHostApplicationResourceUsage() { _ = "STUB: not implemented"; return }
 
 func RecordHostApplicationResourceUsage(resourceName string, hostAppSpec *slov1alpha1.HostApplicationSpec, value float64) {
-	if hostAppSpec == nil {
-		return
-	}
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[hostApplicationName] = hostAppSpec.Name
-	labels[ResourceKey] = resourceName
-	labels[priorityClass] = string(hostAppSpec.Priority)
-	labels[qos] = string(hostAppSpec.QoS)
-	HostApplicationResourceUsage.With(labels).Set(value)
+	_ = "STUB: not implemented"
+	return
 }

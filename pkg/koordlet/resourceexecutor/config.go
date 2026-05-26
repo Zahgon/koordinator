@@ -34,12 +34,6 @@ type Config struct {
 	ResourceForceUpdateSeconds int
 }
 
-func NewDefaultConfig() *Config {
-	return &Config{
-		ResourceForceUpdateSeconds: 60,
-	}
-}
+func NewDefaultConfig() *Config { _ = "STUB: not implemented"; return nil }
 
-func (c *Config) InitFlags(fs *flag.FlagSet) {
-	fs.IntVar(&c.ResourceForceUpdateSeconds, "resource-force-update-seconds", c.ResourceForceUpdateSeconds, "executor force update resources interval by seconds")
-}
+func (c *Config) InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }

@@ -18,12 +18,10 @@ package noderesourcesfitplus
 
 import (
 	"context"
-	"fmt"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	fwk "k8s.io/kube-scheduler/framework"
-	fwktype "k8s.io/kube-scheduler/framework"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
@@ -46,21 +44,11 @@ type Plugin struct {
 }
 
 func New(_ context.Context, args runtime.Object, handle fwk.Handle) (fwk.Plugin, error) {
-	nodeResourcesFitPlusArgs, ok := args.(*config.NodeResourcesFitPlusArgs)
-
-	if !ok {
-		return nil, fmt.Errorf("want args to be of type NodeResourcesArgs, got %T", nodeResourcesFitPlusArgs)
-	}
-
-	return &Plugin{
-		handle: handle,
-		args:   nodeResourcesFitPlusArgs,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fwk.Plugin), nil
 }
 
-func (s *Plugin) Name() string {
-	return Name
-}
+func (s *Plugin) Name() string { _ = "STUB: not implemented"; return "" }
 
 type preScoreState struct {
 	framework.Resource
@@ -69,71 +57,33 @@ type preScoreState struct {
 
 // Clone the prefilter state.
 func (s *preScoreState) Clone() fwk.StateData {
-	return s
+	_ = "STUB: not implemented"
+	return *new(fwk.StateData)
 }
 
 func (s *Plugin) PreScore(ctx context.Context, cycleState fwk.CycleState, pod *v1.Pod, nodes []fwk.NodeInfo) *fwk.Status {
-	cycleState.Write(preScoreStateKey, computePodResourceRequest(pod))
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *Plugin) Score(ctx context.Context, state fwk.CycleState, p *v1.Pod, nodeInfo fwk.NodeInfo) (int64, *fwk.Status) {
-	n, ok := nodeInfo.(fwktype.NodeInfo)
-	if !ok {
-		return 0, fwk.NewStatus(fwk.Error, fmt.Sprintf("nodeInfo type assertion failed for node %v", nodeInfo))
-	}
-
-	r := ResourceAllocationPriority{
-		scorer: resourceScorer,
-	}
-
-	scoreState, err := getPreScoreState(state)
-	if err != nil {
-		return 0, fwk.NewStatus(fwk.Error, fmt.Sprintf("get state node %q from PreScore: %v", n.Node().Name, err))
-	}
-	scores := r.getResourceScore(s.args, scoreState.ResourceName, p, n, n.Node().Name)
-
-	return scores, fwk.NewStatus(fwk.Success, "")
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (p *Plugin) ScoreExtensions() fwk.ScoreExtensions {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(fwk.ScoreExtensions)
 }
 
 func fitsPodRequestName(podRequest framework.Resource) []v1.ResourceName {
-	var podRequestResource []v1.ResourceName
-
-	if podRequest.MilliCPU > 0 {
-		podRequestResource = append(podRequestResource, v1.ResourceCPU)
-	}
-
-	if podRequest.Memory > 0 {
-		podRequestResource = append(podRequestResource, v1.ResourceMemory)
-	}
-
-	if podRequest.EphemeralStorage > 0 {
-		podRequestResource = append(podRequestResource, v1.ResourceEphemeralStorage)
-	}
-
-	for rName, rQuant := range podRequest.ScalarResources {
-		if rQuant > 0 {
-			podRequestResource = append(podRequestResource, rName)
-		}
-	}
-
-	return podRequestResource
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func getPreScoreState(cycleState fwk.CycleState) (*preScoreState, error) {
-	c, err := cycleState.Read(preScoreStateKey)
-	if err != nil {
-		// preFilterState doesn't exist, likely PreFilter wasn't invoked.
-		return nil, fmt.Errorf("error reading %q from cycleState: %w", preScoreStateKey, err)
-	}
-
-	s, ok := c.(*preScoreState)
-	if !ok {
-		return nil, fmt.Errorf("%+v  convert to NodeResourcesFit.preFilterState error", c)
-	}
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// preFilterState doesn't exist, likely PreFilter wasn't invoked.

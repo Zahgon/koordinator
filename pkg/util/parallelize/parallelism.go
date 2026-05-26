@@ -20,7 +20,6 @@ package parallelize
 //@see k8s scheduler/internal/parallelize/parallelism
 import (
 	"context"
-	"math"
 
 	"k8s.io/client-go/util/workqueue"
 )
@@ -32,18 +31,10 @@ var (
 // chunkSizeFor returns a chunk size for the given number of items to use for
 // parallel work. The size aims to produce good CPU utilization.
 // returns max(1, min(sqrt(n), n/Parallelism))
-func chunkSizeFor(n int) int {
-	s := int(math.Sqrt(float64(n)))
-
-	if r := n/parallelism + 1; s > r {
-		s = r
-	} else if s < 1 {
-		s = 1
-	}
-	return s
-}
+func chunkSizeFor(n int) int { _ = "STUB: not implemented"; return 0 }
 
 // Until is a wrapper around workqueue.ParallelizeUntil to use in scheduling algorithms.
 func Until(ctx context.Context, pieces int, doWorkPiece workqueue.DoWorkPieceFunc) {
-	workqueue.ParallelizeUntil(ctx, parallelism, pieces, doWorkPiece, workqueue.WithChunkSize(chunkSizeFor(pieces)))
+	_ = "STUB: not implemented"
+	return
 }

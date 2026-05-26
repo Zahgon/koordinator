@@ -17,14 +17,10 @@ limitations under the License.
 package metrics
 
 import (
-	"fmt"
-	"sort"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -41,27 +37,23 @@ type GCGaugeVec struct {
 }
 
 func NewGCGaugeVec(name string, vec *prometheus.GaugeVec) *GCGaugeVec {
-	return newGCGaugeVec(name, vec, defaultMetricGC)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newGCGaugeVec(name string, vec *prometheus.GaugeVec, metricGC MetricGC) *GCGaugeVec {
-	metricGC.AddMetric(name, vec.MetricVec)
-	return &GCGaugeVec{name: name, vec: vec, expireStatus: metricGC}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (g *GCGaugeVec) GetGaugeVec() *prometheus.GaugeVec {
-	return g.vec
-}
+func (g *GCGaugeVec) GetGaugeVec() *prometheus.GaugeVec { _ = "STUB: not implemented"; return nil }
 
 func (g *GCGaugeVec) WithSet(labels prometheus.Labels, value float64) {
-	g.vec.With(labels).Set(value)
-	g.expireStatus.UpdateStatus(g.name, labels)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (g *GCGaugeVec) Delete(labels prometheus.Labels) {
-	g.vec.Delete(labels)
-	g.expireStatus.RemoveStatus(g.name, labels)
-}
+func (g *GCGaugeVec) Delete(labels prometheus.Labels) { _ = "STUB: not implemented"; return }
 
 type GCCounterVec struct {
 	name         string
@@ -70,27 +62,23 @@ type GCCounterVec struct {
 }
 
 func NewGCCounterVec(name string, vec *prometheus.CounterVec) *GCCounterVec {
-	return newGCCounterVec(name, vec, defaultMetricGC)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newGCCounterVec(name string, vec *prometheus.CounterVec, metricGC MetricGC) *GCCounterVec {
-	metricGC.AddMetric(name, vec.MetricVec)
-	return &GCCounterVec{name: name, vec: vec, expireStatus: metricGC}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (g *GCCounterVec) GetCounterVec() *prometheus.CounterVec {
-	return g.vec
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (g *GCCounterVec) WithInc(labels prometheus.Labels) {
-	g.vec.With(labels).Inc()
-	g.expireStatus.UpdateStatus(g.name, labels)
-}
+func (g *GCCounterVec) WithInc(labels prometheus.Labels) { _ = "STUB: not implemented"; return }
 
-func (g *GCCounterVec) Delete(labels prometheus.Labels) {
-	g.vec.Delete(labels)
-	g.expireStatus.RemoveStatus(g.name, labels)
-}
+func (g *GCCounterVec) Delete(labels prometheus.Labels) { _ = "STUB: not implemented"; return }
 
 // GCHistogramVec wraps a prometheus.HistogramVec and integrates with MetricGC for expiration handling.
 type GCHistogramVec struct {
@@ -100,29 +88,29 @@ type GCHistogramVec struct {
 }
 
 func NewGCHistogramVec(name string, vec *prometheus.HistogramVec) *GCHistogramVec {
-	return newGCHistogramVec(name, vec, defaultMetricGC)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newGCHistogramVec(name string, vec *prometheus.HistogramVec, metricGC MetricGC) *GCHistogramVec {
-	metricGC.AddMetric(name, vec.MetricVec)
-	return &GCHistogramVec{name: name, vec: vec, expireStatus: metricGC}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (g *GCHistogramVec) GetHistogramVec() *prometheus.HistogramVec {
-	return g.vec
+	_ = "STUB: not implemented"
+
+	// WithObserve records a value in the histogram and updates the expiration status.
+	return nil
 }
 
-// WithObserve records a value in the histogram and updates the expiration status.
 func (g *GCHistogramVec) WithObserve(labels prometheus.Labels, value float64) {
-	g.vec.With(labels).Observe(value)
-	g.expireStatus.UpdateStatus(g.name, labels)
+	_ = "STUB: not implemented"
+	return
 }
 
 // Delete removes the metric with the given labels and updates the expiration status.
-func (g *GCHistogramVec) Delete(labels prometheus.Labels) {
-	g.vec.Delete(labels)
-	g.expireStatus.RemoveStatus(g.name, labels)
-}
+func (g *GCHistogramVec) Delete(labels prometheus.Labels) { _ = "STUB: not implemented"; return }
 
 type MetricVecGC interface {
 	// Len returns the length of the alive metric statuses.
@@ -149,65 +137,27 @@ type metricStatus struct {
 }
 
 func NewMetricVecGC(name string, metricVec *prometheus.MetricVec) MetricVecGC {
-	return &metricVecGC{
-		name:      name,
-		metricVec: metricVec,
-		statuses:  map[string]metricStatus{},
-	}
+	_ = "STUB: not implemented"
+	return *new(MetricVecGC)
 }
 
-func (v *metricVecGC) Len() int {
-	v.lock.Lock()
-	defer v.lock.Unlock()
-	return len(v.statuses)
-}
+func (v *metricVecGC) Len() int { _ = "STUB: not implemented"; return 0 }
 
 func (v *metricVecGC) UpdateStatus(updateTime int64, labels prometheus.Labels) {
-	statusKey := labelsToKey(labels)
-	status := &metricStatus{
-		Labels:          labels,
-		lastUpdatedUnix: updateTime,
-	}
-
-	v.lock.Lock()
-	defer v.lock.Unlock()
-	v.updateStatus(statusKey, status)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (v *metricVecGC) updateStatus(statusKey string, status *metricStatus) {
-	v.statuses[statusKey] = *status
+	_ = "STUB: not implemented"
+	return
 }
 
-func (v *metricVecGC) RemoveStatus(labels prometheus.Labels) {
-	statusKey := labelsToKey(labels)
+func (v *metricVecGC) RemoveStatus(labels prometheus.Labels) { _ = "STUB: not implemented"; return }
 
-	v.lock.Lock()
-	defer v.lock.Unlock()
-	v.removeStatus(statusKey)
-}
+func (v *metricVecGC) removeStatus(statusKey string) { _ = "STUB: not implemented"; return }
 
-func (v *metricVecGC) removeStatus(statusKey string) {
-	delete(v.statuses, statusKey)
-}
-
-func (v *metricVecGC) ExpireMetrics(expireTime int64) int {
-	v.lock.Lock()
-	defer v.lock.Unlock()
-	count := 0
-	for key, status := range v.statuses {
-		if status.lastUpdatedUnix < expireTime {
-			v.removeStatus(key)
-			v.metricVec.Delete(status.Labels)
-			count++
-			klog.V(6).Infof("metricVecGC %s delete metric, key %s, updateTime %v, expireTime %v",
-				v.name, key, status.lastUpdatedUnix, expireTime)
-		}
-	}
-	if count > 0 {
-		klog.V(5).Infof("metricVecGC %s expires metrics successfully, expire num: %d", v.name, count)
-	}
-	return count
-}
+func (v *metricVecGC) ExpireMetrics(expireTime int64) int { _ = "STUB: not implemented"; return 0 }
 
 type MetricGC interface {
 	Run()
@@ -231,138 +181,55 @@ type metricGC struct {
 }
 
 func NewMetricGC(expireTime time.Duration, interval time.Duration) MetricGC {
-	m := &metricGC{
-		metrics:    map[string]MetricVecGC{},
-		expireTime: expireTime,
-		interval:   interval,
-		stopCh:     make(chan struct{}, 1),
-	}
-	m.Run()
-
-	return m
+	_ = "STUB: not implemented"
+	return *new(MetricGC)
 }
 
 func (e *metricGC) AddMetric(metricName string, metric *prometheus.MetricVec) {
-	e.globalLock.Lock()
-	defer e.globalLock.Unlock()
-	e.addMetric(metricName, metric)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (e *metricGC) addMetric(metricName string, metric *prometheus.MetricVec) {
-	vecGC := NewMetricVecGC(metricName, metric)
-	e.metrics[metricName] = vecGC
+	_ = "STUB: not implemented"
+	return
 }
 
-func (e *metricGC) Run() {
-	go e.run()
-}
+func (e *metricGC) Run() { _ = "STUB: not implemented"; return }
 
-func (e *metricGC) run() {
-	timer := time.NewTimer(e.interval)
-	defer timer.Stop()
-	for {
-		select {
-		case <-timer.C:
-			err := e.expire()
-			if err != nil {
-				klog.Errorf("expire metrics error! err: %v", err)
-			}
-			timer.Reset(e.interval)
-		case <-e.stopCh:
-			klog.Infof("metrics gc task stopped!")
-			return
-		}
-	}
-}
+func (e *metricGC) run() { _ = "STUB: not implemented"; return }
 
-func (e *metricGC) Stop() {
-	close(e.stopCh)
-}
+func (e *metricGC) Stop() { _ = "STUB: not implemented"; return }
 
 func (e *metricGC) UpdateStatus(metricName string, labels prometheus.Labels) {
-	e.globalLock.RLock()
+	_ = "STUB: not implemented"
+	return
+
 	// different metric vectors can update simultaneously
-	err := e.updateStatus(time.Now().Unix(), metricName, labels)
-	e.globalLock.RUnlock()
-	if err != nil {
-		klog.Errorf("failed to update status for metric %s, err: %s", metricName, err.Error())
-	}
 }
 
 func (e *metricGC) updateStatus(updateTime int64, metricName string, labels prometheus.Labels) error {
-	metric, ok := e.metrics[metricName]
-	if !ok {
-		return fmt.Errorf("metric not correctly added")
-	}
-	metric.UpdateStatus(updateTime, labels)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (e *metricGC) RemoveStatus(metricName string, labels prometheus.Labels) {
-	e.globalLock.RLock()
-	err := e.removeStatus(metricName, labels)
-	e.globalLock.RUnlock()
-	if err != nil {
-		klog.Errorf("failed to remove status for metric %s, err: %s", metricName, err.Error())
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (e *metricGC) removeStatus(metricName string, labels prometheus.Labels) error {
-	metric, ok := e.metrics[metricName]
-	if !ok {
-		return fmt.Errorf("metric not correctly added")
-	}
-	metric.RemoveStatus(labels)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (e *metricGC) CountStatus(metricName string) int {
-	e.globalLock.RLock()
-	defer e.globalLock.RUnlock()
-	metric, ok := e.metrics[metricName]
-	if !ok {
-		return 0
-	}
-	return metric.Len()
-}
+func (e *metricGC) CountStatus(metricName string) int { _ = "STUB: not implemented"; return 0 }
 
-func (e *metricGC) statusLen() int {
-	e.globalLock.RLock()
-	defer e.globalLock.RUnlock()
-	statusLen := 0
-	for _, metric := range e.metrics {
-		statusLen += metric.Len()
-	}
-	return statusLen
-}
+func (e *metricGC) statusLen() int { _ = "STUB: not implemented"; return 0 }
 
-func (e *metricGC) expire() error {
-	e.globalLock.RLock()
-	defer e.globalLock.RUnlock()
-	expireTime := time.Now().Unix() - int64(e.expireTime/time.Second)
-	count := 0
-	for _, metric := range e.metrics {
-		count += metric.ExpireMetrics(expireTime)
-	}
-	if count > 0 {
-		klog.V(4).Infof("expire metrics successfully, expire num: %d", count)
-	}
-	return nil
-}
+func (e *metricGC) expire() error { _ = "STUB: not implemented"; return nil }
 
 // labelsToKey generate a key for a metric with the given metric label pairs.
 // NOTE: It assumes that the label keys of a metric vector are fixed.
 // pattern: ${name}:${key1},${key2},...
-func labelsToKey(labels prometheus.Labels) string {
-	keys := make([]string, 0, len(labels))
-	for key := range labels {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	var b strings.Builder
-	for i := range keys {
-		b.WriteString(labels[keys[i]])
-		b.WriteByte(',')
-	}
-	return b.String()
-}
+func labelsToKey(labels prometheus.Labels) string { _ = "STUB: not implemented"; return "" }

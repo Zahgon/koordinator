@@ -18,23 +18,13 @@ package loadaware
 
 import (
 	"context"
-	"fmt"
-	"math"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
-	"github.com/koordinator-sh/koordinator/apis/extension"
-	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config/validation"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	frameworkexthelper "github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/helper"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/loadaware/estimator"
 )
 
@@ -80,297 +70,83 @@ type Plugin struct {
 }
 
 func New(_ context.Context, args runtime.Object, handle fwktype.Handle) (fwktype.Plugin, error) {
-	pluginArgs, ok := args.(*config.LoadAwareSchedulingArgs)
-	if !ok {
-		return nil, fmt.Errorf("want args to be of type LoadAwareSchedulingArgs, got %T", args)
-	}
-
-	if err := validation.ValidateLoadAwareSchedulingArgs(pluginArgs); err != nil {
-		return nil, err
-	}
-
-	frameworkExtender, ok := handle.(frameworkext.ExtendedHandle)
-	if !ok {
-		return nil, fmt.Errorf("want handle to be of type frameworkext.ExtendedHandle, got %T", handle)
-	}
-
-	estimator, err := estimator.NewEstimator(pluginArgs, handle)
-	if err != nil {
-		return nil, err
-	}
-
-	vectorizer := NewResourceVectorizerFromArgs(pluginArgs)
-	assignCache := newPodAssignCache(estimator, vectorizer, pluginArgs)
-	podInformer := frameworkExtender.SharedInformerFactory().Core().V1().Pods()
-	frameworkexthelper.ForceSyncFromInformer(context.TODO().Done(), frameworkExtender.SharedInformerFactory(), podInformer.Informer(), assignCache)
-	frameworkExtender.RegisterForgetPodHandler(func(pod *corev1.Pod) {
-		assignCache.unAssign(pod.Spec.NodeName, pod)
-	})
-	koordInformers := frameworkExtender.KoordinatorSharedInformerFactory()
-	nodeMetricInformer := koordInformers.Slo().V1alpha1().NodeMetrics()
-	frameworkexthelper.ForceSyncFromInformer(context.TODO().Done(), koordInformers, nodeMetricInformer.Informer(), assignCache.NodeMetricHandler())
-	scoreWeights := vectorizer.ToFactorVec(pluginArgs.ResourceWeights)
-	if pluginArgs.DominantResourceWeight == 0 && scoreWeights.Empty() {
-		scoreWeights = nil
-	}
-	return &Plugin{
-		handle:         handle,
-		args:           pluginArgs,
-		vectorizer:     vectorizer,
-		filterProfile:  NewUsageThresholdsFilterProfile(pluginArgs, vectorizer),
-		scoreWeights:   scoreWeights,
-		estimator:      estimator,
-		podAssignCache: assignCache,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(fwktype.Plugin), nil
 }
 
-func (p *Plugin) Name() string { return Name }
+func (p *Plugin) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (p *Plugin) EventsToRegister(_ context.Context) ([]fwktype.ClusterEventWithHint, error) {
+	_ = "STUB: not implemented"
 	// To register a custom event, follow the naming convention at:
 	// https://github.com/kubernetes/kubernetes/blob/e1ad9bee5bba8fbe85a6bf6201379ce8b1a611b1/pkg/scheduler/eventhandlers.go#L415-L422
-	gvk := fmt.Sprintf("nodemetrics.%v.%v", slov1alpha1.GroupVersion.Version, slov1alpha1.GroupVersion.Group)
-	return []fwktype.ClusterEventWithHint{
-		{Event: fwktype.ClusterEvent{Resource: fwktype.Pod, ActionType: fwktype.Delete}},
-		{Event: fwktype.ClusterEvent{Resource: fwktype.EventResource(gvk), ActionType: fwktype.Add | fwktype.Update | fwktype.Delete}},
-	}, nil
+	return nil, nil
 }
 
 func (p *Plugin) PreFilter(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodes []fwktype.NodeInfo) (*fwktype.PreFilterResult, *fwktype.Status) {
+	_ = "STUB: not implemented"
 	// add estimated resources for incoming pod to cache
-	_ = p.addEstimatedOfIncoming(p.vectorizer.EmptyVec(), state, pod)
 	return nil, nil
 }
 
 // PreFilterExtensions returns a PreFilterExtensions interface if the plugin implements one.
 func (p *Plugin) PreFilterExtensions() fwktype.PreFilterExtensions {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(fwktype.PreFilterExtensions)
 }
 
 func (p *Plugin) Filter(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeInfo fwktype.NodeInfo) *fwktype.Status {
-	node := nodeInfo.Node()
-	if node == nil {
-		return fwktype.NewStatus(fwktype.Error, "node not found")
-	}
-
-	if isDaemonSetPod(pod.OwnerReferences) {
-		return nil
-	}
-
-	filterProfile := p.filterProfile.generateUsageThresholdsFilterProfile(node, p.vectorizer)
-	prodPod := !filterProfile.ProdUsageThresholds.Empty() && extension.GetPodPriorityClassWithDefault(pod) == extension.PriorityProd
-	var usageThresholds ResourceVector
-	isAgg := false
-	if prodPod {
-		usageThresholds = filterProfile.ProdUsageThresholds
-	} else if agg := filterProfile.AggregatedUsage; agg != nil {
-		usageThresholds = agg.UsageThresholds
-		isAgg = true
-	} else {
-		usageThresholds = filterProfile.UsageThresholds
-	}
-	if usageThresholds.Empty() {
-		return nil // skip if filter thresholds are disabled
-	}
-
-	allocatableList, err := p.estimator.EstimateNode(node)
-	if err != nil {
-		klog.ErrorS(err, "Estimated node allocatable failed!", "node", node.Name)
-		return nil
-	}
-	allocatable := p.vectorizer.ToVec(allocatableList)
-
-	var aggDuration metav1.Duration
-	var aggType extension.AggregationType
-	if !prodPod && isAgg {
-		agg := filterProfile.AggregatedUsage
-		aggDuration, aggType = agg.UsageAggregatedDuration, agg.UsageAggregationType
-	}
-
-	nodeMetric, estimated, estimatedPods, err := p.podAssignCache.GetNodeMetricAndEstimatedOfExisting(node.Name, prodPod, aggDuration, aggType, klog.V(6).Enabled())
-	if err != nil {
-		// For nodes that lack load information, fall back to the situation where there is no load-aware scheduling.
-		// Some nodes in the cluster do not install the koordlet, but users newly created Pod use koord-scheduler to schedule,
-		// and the load-aware scheduling itself is an optimization, so we should skip these nodes.
-		if errors.IsNotFound(err) {
-			return nil
-		}
-		return fwktype.NewStatus(fwktype.Error, err.Error())
-	}
-	if p.args.FilterExpiredNodeMetrics != nil && *p.args.FilterExpiredNodeMetrics &&
-		p.args.NodeMetricExpirationSeconds != nil && isNodeMetricExpired(nodeMetric, *p.args.NodeMetricExpirationSeconds) {
-		if p.args.EnableScheduleWhenNodeMetricsExpired != nil && !*p.args.EnableScheduleWhenNodeMetricsExpired {
-			return fwktype.NewStatus(fwktype.Unschedulable, ErrReasonNodeMetricExpired)
-		}
-		return nil
-	}
-	if nodeMetric.Status.NodeMetric == nil {
-		klog.Warningf("nodeMetrics(%s) should not be nil.", node.Name)
-		return nil
-	}
-
-	if err = p.addEstimatedOfIncoming(estimated, state, pod); err != nil {
-		klog.ErrorS(err, "Failed to estimate incoming pod usage", "pod", klog.KObj(pod))
-	} else if klog.V(6).Enabled() {
-		klog.InfoS("Estimate node usage for filtering", "pod", klog.KObj(pod), "node", nodeMetric.Name,
-			"estimated", klog.Format(p.vectorizer.ToList(estimated)),
-			"estimatedExistingPods", klog.KObjSlice(estimatedPods))
-	}
-	return p.filterNodeUsage(node.Name, pod, usageThresholds, estimated, allocatable, isAgg)
-}
-
-func (p *Plugin) ScoreExtensions() fwktype.ScoreExtensions {
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// skip if filter thresholds are disabled
+
+// For nodes that lack load information, fall back to the situation where there is no load-aware scheduling.
+// Some nodes in the cluster do not install the koordlet, but users newly created Pod use koord-scheduler to schedule,
+// and the load-aware scheduling itself is an optimization, so we should skip these nodes.
+
+func (p *Plugin) ScoreExtensions() fwktype.ScoreExtensions {
+	_ = "STUB: not implemented"
+	return *new(fwktype.ScoreExtensions)
+}
+
 func (p *Plugin) Reserve(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeName string) *fwktype.Status {
-	p.podAssignCache.assign(nodeName, pod)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (p *Plugin) Unreserve(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeName string) {
-	p.podAssignCache.unAssign(nodeName, pod)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *Plugin) Score(ctx context.Context, state fwktype.CycleState, pod *corev1.Pod, nodeInfo fwktype.NodeInfo) (int64, *fwktype.Status) {
-	if p.scoreWeights == nil {
-		return 0, nil // skip if score weights are disabled
-	}
-
-	nodeName := nodeInfo.Node().Name
-	nodeInfoSnapshot, err := p.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
-	if err != nil {
-		return 0, fwktype.NewStatus(fwktype.Error, fmt.Sprintf("getting node %q from Snapshot: %v", nodeName, err))
-	}
-	node := nodeInfoSnapshot.Node()
-	if node == nil {
-		return 0, fwktype.NewStatus(fwktype.Error, "node not found")
-	}
-
-	allocatableList, err := p.estimator.EstimateNode(node)
-	if err != nil {
-		klog.ErrorS(err, "Estimated node allocatable failed!", "node", node.Name)
-		return 0, nil
-	}
-	allocatable := p.vectorizer.ToVec(allocatableList)
-
-	prodPod := p.args.ScoreAccordingProdUsage && extension.GetPodPriorityClassWithDefault(pod) == extension.PriorityProd
-	var aggDuration metav1.Duration
-	var aggType extension.AggregationType
-	if agg := p.args.Aggregated; !prodPod && agg != nil && agg.ScoreAggregationType != "" {
-		aggDuration, aggType = agg.ScoreAggregatedDuration, agg.ScoreAggregationType
-	}
-
-	nodeMetric, estimated, estimatedPods, err := p.podAssignCache.GetNodeMetricAndEstimatedOfExisting(nodeName, prodPod, aggDuration, aggType, klog.V(6).Enabled())
-	if err != nil {
-		// caused by load-aware scheduling itself is an optimization,
-		// so we should skip the node and score the node 0
-		if errors.IsNotFound(err) {
-			return 0, nil
-		}
-		return 0, fwktype.NewStatus(fwktype.Error, err.Error())
-	}
-	if p.args.NodeMetricExpirationSeconds != nil && isNodeMetricExpired(nodeMetric, *p.args.NodeMetricExpirationSeconds) {
-		return 0, nil
-	}
-	if nodeMetric.Status.NodeMetric == nil {
-		klog.Warningf("nodeMetrics(%s) should not be nil.", node.Name)
-		return 0, nil
-	}
-
-	if err = p.addEstimatedOfIncoming(estimated, state, pod); err != nil {
-		klog.ErrorS(err, "Failed to estimate incoming pod usage", "pod", klog.KObj(pod))
-		return 0, nil
-	}
-	if klog.V(6).Enabled() {
-		klog.InfoS("Estimate node usage for scoring", "pod", klog.KObj(pod), "node", nodeMetric.Name,
-			"estimated", klog.Format(p.vectorizer.ToList(estimated)),
-			"estimatedExistingPods", klog.KObjSlice(estimatedPods))
-	}
-	score := loadAwareSchedulingScorer(p.args.DominantResourceWeight, p.scoreWeights, estimated, allocatable)
-	return score, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
+
+// skip if score weights are disabled
+
+// caused by load-aware scheduling itself is an optimization,
+// so we should skip the node and score the node 0
 
 // try to use state cache before EstimatePod
 func (p *Plugin) addEstimatedOfIncoming(estimated ResourceVector, cycleState fwktype.CycleState, pod *corev1.Pod) error {
-	var podEstimated ResourceVector
-	if c, err := cycleState.Read(incomingPodEstimatedStateKey); err == nil {
-		podEstimated, _ = c.(ResourceVector)
-	}
-	if podEstimated == nil {
-		list, err := p.estimator.EstimatePod(pod)
-		if err != nil {
-			// use len=0 but not empty vector to indicate error occurred
-			cycleState.Write(incomingPodEstimatedStateKey, ResourceVector{})
-			return err
-		}
-		podEstimated = p.vectorizer.ToFactorVec(list)
-		cycleState.Write(incomingPodEstimatedStateKey, podEstimated)
-	} else if len(podEstimated) == 0 {
-		return fmt.Errorf("error occurred in former estimation from cycleState with key %q", incomingPodEstimatedStateKey)
-	}
-	estimated.Add(podEstimated)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (p *Plugin) filterNodeUsage(nodeName string, pod *corev1.Pod, usageThresholds, estimatedUsed, allocatable ResourceVector, isAgg bool) *fwktype.Status {
-	for i, value := range usageThresholds {
-		if value == 0 {
-			continue
-		}
-		total := allocatable[i]
-		if total == 0 {
-			continue
-		}
-		estimated := estimatedUsed[i]
-		usage := int64(math.Round(float64(estimated) / float64(total) * 100))
-		if usage <= value {
-			continue
-		}
+// use len=0 but not empty vector to indicate error occurred
 
-		reason := ErrReasonUsageExceedThreshold
-		if isAgg {
-			reason = ErrReasonAggregatedUsageExceedThreshold
-		}
-		resourceName := p.vectorizer[i]
-		if klog.V(5).Enabled() {
-			klog.InfoS("Node is unschedulable since usage exceeds threshold", "pod", klog.KObj(pod), "node", nodeName,
-				"resource", resourceName, "usage", usage, "threshold", value,
-				"estimated", getResourceQuantity(resourceName, estimated),
-				"total", getResourceQuantity(resourceName, total))
-		}
-		return fwktype.NewStatus(fwktype.Unschedulable, fmt.Sprintf(reason, resourceName))
-	}
+func (p *Plugin) filterNodeUsage(nodeName string, pod *corev1.Pod, usageThresholds, estimatedUsed, allocatable ResourceVector, isAgg bool) *fwktype.Status {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func loadAwareSchedulingScorer(dominantWeight int64, resToWeightMap, used, allocatable ResourceVector) int64 {
-	var nodeScore, dominantScore, weightSum int64
-	if dominantWeight != 0 {
-		dominantScore, weightSum = fwktype.MaxNodeScore, dominantWeight
-	}
-	for i, weight := range resToWeightMap {
-		score := leastUsedScore(used[i], allocatable[i])
-		nodeScore += score * weight
-		weightSum += weight
-		if dominantScore > score {
-			dominantScore = score
-		}
-	}
-	nodeScore += dominantScore * dominantWeight
-	if weightSum <= 0 {
-		return 0
-	}
-	return nodeScore / weightSum
+	_ = "STUB: not implemented"
+	return 0
 }
 
-func leastUsedScore(used, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if used > capacity {
-		return 0
-	}
-
-	return ((capacity - used) * fwktype.MaxNodeScore) / capacity
-}
+func leastUsedScore(used, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }

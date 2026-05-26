@@ -19,46 +19,47 @@ limitations under the License.
 
 package system
 
-import "fmt"
-
 type CoreSched struct{}
 
-func NewCoreSched() CoreSchedInterface {
-	return &CoreSched{}
-}
+func NewCoreSched() CoreSchedInterface { _ = "STUB: not implemented"; return *new(CoreSchedInterface) }
 
 func NewCoreSchedExtended() CoreSchedExtendedInterface {
-	return &CoreSched{}
+	_ = "STUB: not implemented"
+	return *new(CoreSchedExtendedInterface)
 }
 
-func (c *CoreSched) Lock() {}
+func (c *CoreSched) Lock() { _ = "STUB: not implemented"; return }
 
-func (c *CoreSched) Unlock() {}
+func (c *CoreSched) Unlock() { _ = "STUB: not implemented"; return }
 
 func (c *CoreSched) Get(pidType CoreSchedScopeType, pid uint32) (uint64, error) {
-	return 0, fmt.Errorf("unsupported platform")
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (s *CoreSched) Create(pidType CoreSchedScopeType, pid uint32) error {
-	return fmt.Errorf("unsupported platform")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *CoreSched) ShareTo(pidType CoreSchedScopeType, pid uint32) error {
-	return fmt.Errorf("unsupported platform")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *CoreSched) ShareFrom(pidType CoreSchedScopeType, pid uint32) error {
-	return fmt.Errorf("unsupported platform")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *CoreSched) Clear(pidType CoreSchedScopeType, pid ...uint32) ([]uint32, error) {
-	return nil, fmt.Errorf("unsupported platform")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (s *CoreSched) Assign(pidTypeFrom CoreSchedScopeType, pidFrom uint32, pidTypeTo CoreSchedScopeType, pidsTo ...uint32) ([]uint32, error) {
-	return nil, fmt.Errorf("unsupported platform")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func ProbeCoreSchedIfEnabled() bool {
-	return false
-}
+func ProbeCoreSchedIfEnabled() bool { _ = "STUB: not implemented"; return false }

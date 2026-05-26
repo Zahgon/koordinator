@@ -17,8 +17,6 @@ limitations under the License.
 package metrics
 
 import (
-	"strconv"
-
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -55,44 +53,14 @@ var (
 	}
 )
 
-func RecordCPUSetSharePoolCores(value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	CPUSetSharePoolCPUS.With(labels).Set(value)
-}
+func RecordCPUSetSharePoolCores(value float64) { _ = "STUB: not implemented"; return }
 
-func RecordCPUSetBESharePoolCores(value float64) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	CPUSetBESharePoolCPUS.With(labels).Set(value)
-}
+func RecordCPUSetBESharePoolCores(value float64) { _ = "STUB: not implemented"; return }
 
-func RecordCPUSetSharePoolInfo(cpu int) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[CPUIDKey] = strconv.Itoa(cpu)
-	CPUSetSharePoolInfo.With(labels).Set(1)
-}
+func RecordCPUSetSharePoolInfo(cpu int) { _ = "STUB: not implemented"; return }
 
-func ResetCPUSetSharePoolInfo() {
-	CPUSetSharePoolInfo.Reset()
-}
+func ResetCPUSetSharePoolInfo() { _ = "STUB: not implemented"; return }
 
-func RecordCPUSetBESharePoolInfo(cpu int) {
-	labels := genNodeLabels()
-	if labels == nil {
-		return
-	}
-	labels[CPUIDKey] = strconv.Itoa(cpu)
-	CPUSetBESharePoolInfo.With(labels).Set(1)
-}
+func RecordCPUSetBESharePoolInfo(cpu int) { _ = "STUB: not implemented"; return }
 
-func ResetCPUSetBESharePoolInfo() {
-	CPUSetBESharePoolInfo.Reset()
-}
+func ResetCPUSetBESharePoolInfo() { _ = "STUB: not implemented"; return }

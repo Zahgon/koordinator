@@ -17,11 +17,7 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/apiserver/pkg/quota/v1"
 
 	"github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 )
@@ -58,175 +54,92 @@ const (
 	AnnotationMaxStrictCheckResourceKeys = QuotaKoordinatorPrefix + "/max-strict-check-resource-keys"
 )
 
-func GetParentQuotaName(quota *v1alpha1.ElasticQuota) string {
-	parentName := quota.Labels[LabelQuotaParent]
-	if parentName == "" && quota.Name != RootQuotaName {
-		return RootQuotaName //default return RootQuotaName
-	}
-	return parentName
-}
+func GetParentQuotaName(quota *v1alpha1.ElasticQuota) string { _ = "STUB: not implemented"; return "" }
 
-func IsParentQuota(quota *v1alpha1.ElasticQuota) bool {
-	return quota.Labels[LabelQuotaIsParent] == "true"
-}
+//default return RootQuotaName
+
+func IsParentQuota(quota *v1alpha1.ElasticQuota) bool { _ = "STUB: not implemented"; return false }
 
 func IsAllowLentResource(quota *v1alpha1.ElasticQuota) bool {
-	return quota.Labels[LabelAllowLentResource] != "false"
+	_ = "STUB: not implemented"
+	return false
 }
 
-func IsAllowForceUpdate(quota *v1alpha1.ElasticQuota) bool {
-	return quota.Labels[LabelAllowForceUpdate] == "true"
-}
+func IsAllowForceUpdate(quota *v1alpha1.ElasticQuota) bool { _ = "STUB: not implemented"; return false }
 
-func IsTreeRootQuota(quota *v1alpha1.ElasticQuota) bool {
-	return quota.Labels[LabelQuotaIsRoot] == "true"
-}
+func IsTreeRootQuota(quota *v1alpha1.ElasticQuota) bool { _ = "STUB: not implemented"; return false }
 
-func IsPodNonPreemptible(pod *corev1.Pod) bool {
-	return pod.Labels[LabelPreemptible] == "false"
-}
+func IsPodNonPreemptible(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }
 
-func GetQuotaTreeID(quota *v1alpha1.ElasticQuota) string {
-	return quota.Labels[LabelQuotaTreeID]
-}
+func GetQuotaTreeID(quota *v1alpha1.ElasticQuota) string { _ = "STUB: not implemented"; return "" }
 
 func GetSharedWeight(quota *v1alpha1.ElasticQuota) corev1.ResourceList {
-	value, exist := quota.Annotations[AnnotationSharedWeight]
-	if exist {
-		resList := corev1.ResourceList{}
-		err := json.Unmarshal([]byte(value), &resList)
-		if err == nil && !v1.IsZero(resList) {
-			return resList
-		}
-	}
-	return quota.Spec.Max.DeepCopy() //default equals to max
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList)
 }
 
-func IsForbiddenModify(quota *v1alpha1.ElasticQuota) (bool, error) {
-	if quota.Name == SystemQuotaName || quota.Name == RootQuotaName {
-		// can't modify SystemQuotaGroup
-		return true, fmt.Errorf("invalid quota %s", quota.Name)
-	}
+//default equals to max
 
+func IsForbiddenModify(quota *v1alpha1.ElasticQuota) (bool, error) {
+	_ = "STUB: not implemented"
 	return false, nil
 }
 
-func GetQuotaName(pod *corev1.Pod) string {
-	return pod.Labels[LabelQuotaName]
-}
+// can't modify SystemQuotaGroup
+
+func GetQuotaName(pod *corev1.Pod) string { _ = "STUB: not implemented"; return "" }
 
 func GetAnnotationQuotaNamespaces(quota *v1alpha1.ElasticQuota) []string {
-	if quota.Annotations == nil {
-		return nil
-	}
-	if quota.Annotations[AnnotationQuotaNamespaces] == "" {
-		return nil
-	}
-
-	var namespaces []string
-	if err := json.Unmarshal([]byte(quota.Annotations[AnnotationQuotaNamespaces]), &namespaces); err != nil {
-		return nil
-	}
-	return namespaces
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func GetNonPreemptibleRequest(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	nonPreemptibleRequest := corev1.ResourceList{}
-	if quota.Annotations[AnnotationNonPreemptibleRequest] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationNonPreemptibleRequest]), &nonPreemptibleRequest); err != nil {
-			return nonPreemptibleRequest, err
-		}
-	}
-	return nonPreemptibleRequest, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetNonPreemptibleUsed(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	nonPreemptibleUsed := corev1.ResourceList{}
-	if quota.Annotations[AnnotationNonPreemptibleUsed] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationNonPreemptibleUsed]), &nonPreemptibleUsed); err != nil {
-			return nonPreemptibleUsed, err
-		}
-	}
-	return nonPreemptibleUsed, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetGuaranteed(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	guaranteed := corev1.ResourceList{}
-	if quota.Annotations[AnnotationGuaranteed] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationGuaranteed]), &guaranteed); err != nil {
-			return guaranteed, err
-		}
-	}
-	return guaranteed, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetAllocated(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	allocated := corev1.ResourceList{}
-	if quota.Annotations[AnnotationAllocated] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationAllocated]), &allocated); err != nil {
-			return allocated, err
-		}
-	}
-	return allocated, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetRuntime(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	runtime := corev1.ResourceList{}
-	if quota.Annotations[AnnotationRuntime] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationRuntime]), &runtime); err != nil {
-			return runtime, err
-		}
-	}
-	return runtime, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetRequest(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	request := corev1.ResourceList{}
-	if quota.Annotations[AnnotationRequest] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationRequest]), &request); err != nil {
-			return request, err
-		}
-	}
-	return request, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetChildRequest(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	request := corev1.ResourceList{}
-	if quota.Annotations[AnnotationChildRequest] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationChildRequest]), &request); err != nil {
-			return request, err
-		}
-	}
-	return request, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetUnschedulableResource(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	unschedulable := corev1.ResourceList{}
-	if quota.Annotations[AnnotationUnschedulableResource] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationUnschedulableResource]), &unschedulable); err != nil {
-			return unschedulable, err
-		}
-	}
-	return unschedulable, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetAdmission(quota *v1alpha1.ElasticQuota) (corev1.ResourceList, error) {
-	admission := corev1.ResourceList{}
-	if quota.Annotations[AnnotationAdmission] != "" {
-		if err := json.Unmarshal([]byte(quota.Annotations[AnnotationAdmission]), &admission); err != nil {
-			return admission, err
-		}
-	}
-	return admission, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func GetMaxStrictCheckResourceKeys(quota *v1alpha1.ElasticQuota) ([]corev1.ResourceName, error) {
-	if quota.Annotations[AnnotationMaxStrictCheckResourceKeys] == "" {
-		return nil, nil
-	}
-	resources := []corev1.ResourceName{}
-	if err := json.Unmarshal([]byte(quota.Annotations[AnnotationMaxStrictCheckResourceKeys]), &resources); err != nil {
-		return nil, err
-	}
-	return resources, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

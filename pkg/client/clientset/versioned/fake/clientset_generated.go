@@ -21,18 +21,11 @@ package fake
 import (
 	clientset "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned"
 	analysisv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/analysis/v1alpha1"
-	fakeanalysisv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/analysis/v1alpha1/fake"
 	configv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/config/v1alpha1"
-	fakeconfigv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/config/v1alpha1/fake"
 	quotav1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/quota/v1alpha1"
-	fakequotav1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/quota/v1alpha1/fake"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/scheduling/v1alpha1"
-	fakeschedulingv1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/scheduling/v1alpha1/fake"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/slo/v1alpha1"
-	fakeslov1alpha1 "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/typed/slo/v1alpha1/fake"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
@@ -47,31 +40,8 @@ import (
 // server side apply testing. NewClientset is only available when apply configurations are generated (e.g.
 // via --with-applyconfig).
 func NewSimpleClientset(objects ...runtime.Object) *Clientset {
-	o := testing.NewObjectTracker(scheme, codecs.UniversalDecoder())
-	for _, obj := range objects {
-		if err := o.Add(obj); err != nil {
-			panic(err)
-		}
-	}
-
-	cs := &Clientset{tracker: o}
-	cs.discovery = &fakediscovery.FakeDiscovery{Fake: &cs.Fake}
-	cs.AddReactor("*", "*", testing.ObjectReaction(o))
-	cs.AddWatchReactor("*", func(action testing.Action) (handled bool, ret watch.Interface, err error) {
-		var opts metav1.ListOptions
-		if watchAction, ok := action.(testing.WatchActionImpl); ok {
-			opts = watchAction.ListOptions
-		}
-		gvr := action.GetResource()
-		ns := action.GetNamespace()
-		watch, err := o.Watch(gvr, ns, opts)
-		if err != nil {
-			return false, nil, err
-		}
-		return true, watch, nil
-	})
-
-	return cs
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Clientset implements clientset.Interface. Meant to be embedded into a
@@ -84,23 +54,24 @@ type Clientset struct {
 }
 
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
-	return c.discovery
+	_ = "STUB: not implemented"
+	return *new(discovery.DiscoveryInterface)
 }
 
 func (c *Clientset) Tracker() testing.ObjectTracker {
-	return c.tracker
+	_ = "STUB: not implemented"
+
+	// IsWatchListSemanticsSupported informs the reflector that this client
+	// doesn't support WatchList semantics.
+	//
+	// This is a synthetic method whose sole purpose is to satisfy the optional
+	// interface check performed by the reflector.
+	// Returning true signals that WatchList can NOT be used.
+	// No additional logic is implemented here.
+	return *new(testing.ObjectTracker)
 }
 
-// IsWatchListSemanticsSupported informs the reflector that this client
-// doesn't support WatchList semantics.
-//
-// This is a synthetic method whose sole purpose is to satisfy the optional
-// interface check performed by the reflector.
-// Returning true signals that WatchList can NOT be used.
-// No additional logic is implemented here.
-func (c *Clientset) IsWatchListSemanticsUnSupported() bool {
-	return true
-}
+func (c *Clientset) IsWatchListSemanticsUnSupported() bool { _ = "STUB: not implemented"; return false }
 
 var (
 	_ clientset.Interface = &Clientset{}
@@ -109,25 +80,30 @@ var (
 
 // AnalysisV1alpha1 retrieves the AnalysisV1alpha1Client
 func (c *Clientset) AnalysisV1alpha1() analysisv1alpha1.AnalysisV1alpha1Interface {
-	return &fakeanalysisv1alpha1.FakeAnalysisV1alpha1{Fake: &c.Fake}
+	_ = "STUB: not implemented"
+	return *new(analysisv1alpha1.AnalysisV1alpha1Interface)
 }
 
 // ConfigV1alpha1 retrieves the ConfigV1alpha1Client
 func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
-	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
+	_ = "STUB: not implemented"
+	return *new(configv1alpha1.ConfigV1alpha1Interface)
 }
 
 // QuotaV1alpha1 retrieves the QuotaV1alpha1Client
 func (c *Clientset) QuotaV1alpha1() quotav1alpha1.QuotaV1alpha1Interface {
-	return &fakequotav1alpha1.FakeQuotaV1alpha1{Fake: &c.Fake}
+	_ = "STUB: not implemented"
+	return *new(quotav1alpha1.QuotaV1alpha1Interface)
 }
 
 // SchedulingV1alpha1 retrieves the SchedulingV1alpha1Client
 func (c *Clientset) SchedulingV1alpha1() schedulingv1alpha1.SchedulingV1alpha1Interface {
-	return &fakeschedulingv1alpha1.FakeSchedulingV1alpha1{Fake: &c.Fake}
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.SchedulingV1alpha1Interface)
 }
 
 // SloV1alpha1 retrieves the SloV1alpha1Client
 func (c *Clientset) SloV1alpha1() slov1alpha1.SloV1alpha1Interface {
-	return &fakeslov1alpha1.FakeSloV1alpha1{Fake: &c.Fake}
+	_ = "STUB: not implemented"
+	return *new(slov1alpha1.SloV1alpha1Interface)
 }

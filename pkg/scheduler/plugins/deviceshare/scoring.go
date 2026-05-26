@@ -20,145 +20,46 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 	schedconfig "k8s.io/kubernetes/pkg/scheduler/apis/config"
-	pluginhelper "k8s.io/kubernetes/pkg/scheduler/framework/plugins/helper"
 
 	schedulerconfig "github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/topologymanager"
 )
 
 func (p *Plugin) PreScore(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodes []fwktype.NodeInfo) *fwktype.Status {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return status
-	}
-	if state.skip {
-		return fwktype.NewStatus(fwktype.Skip)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (p *Plugin) Score(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, nodeInfo fwktype.NodeInfo) (int64, *fwktype.Status) {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return 0, status
-	}
-	if state.skip {
-		return 0, nil
-	}
-
-	nodeName := nodeInfo.Node().Name
-	nodeInfoSnapshot, err := p.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
-	if err != nil {
-		return 0, fwktype.AsStatus(err)
-	}
-
-	nodeDeviceInfo := p.nodeDeviceCache.getNodeDevice(nodeName, false)
-	if nodeDeviceInfo == nil {
-		return 0, nil
-	}
-
-	store := topologymanager.GetStore(cycleState)
-	affinity, _ := store.GetAffinity(nodeName)
-
-	allocator := &AutopilotAllocator{
-		state:      state,
-		nodeDevice: nodeDeviceInfo,
-		node:       nodeInfoSnapshot.Node(),
-		pod:        pod,
-		scorer:     p.scorer,
-		numaNodes:  affinity.NUMANodeAffinity,
-	}
-
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	restoreState := reservationRestoreState.getNodeState(nodeName)
-	preemptible := appendAllocated(nil, restoreState.mergedUnmatchedUsed, state.preemptibleDevices[nodeName])
-
-	nodeDeviceInfo.lock.RLock()
-	defer nodeDeviceInfo.lock.RUnlock()
-
-	var reservationInfo *frameworkext.ReservationInfo
-	if reservationNominator := p.handle.GetReservationNominator(); reservationNominator != nil {
-		reservationInfo = reservationNominator.GetNominatedReservation(pod, nodeName)
-	}
-	if reservationInfo != nil {
-		score, status := p.scoreWithNominatedReservation(allocator, state, restoreState, nodeName, pod, preemptible, reservationInfo)
-		if status.IsSuccess() {
-			return score, nil
-		}
-		klog.ErrorS(status.AsError(), "Failed to scoreWithNominatedReservation of DeviceShare",
-			"pod", klog.KObj(pod), "reservation", klog.KObj(reservationInfo), "node", nodeName)
-	}
-
-	preemptible = appendAllocated(preemptible, restoreState.mergedMatchedAllocatable)
-	score, status := allocator.score(nil, preemptible)
-	if !status.IsSuccess() {
-		klog.ErrorS(status.AsError(), "Failed to score of DeviceShare", "pod", klog.KObj(pod), "node", nodeName)
-		return 0, status
-	}
-	return score, nil
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (p *Plugin) ScoreExtensions() fwktype.ScoreExtensions {
-	return p
+	_ = "STUB: not implemented"
+	return *new(fwktype.ScoreExtensions)
 }
 
 func (p *Plugin) NormalizeScore(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, scores fwktype.NodeScoreList) *fwktype.Status {
-	return pluginhelper.DefaultNormalizeScore(fwktype.MaxNodeScore, false, scores)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *Plugin) ScoreReservation(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, reservationInfo *frameworkext.ReservationInfo, nodeName string) (int64, *fwktype.Status) {
-	state, status := getPreFilterState(cycleState)
-	if !status.IsSuccess() {
-		return 0, status
-	}
-	if state.skip {
-		return 0, nil
-	}
-
-	nodeInfo, err := p.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
-	if err != nil {
-		return 0, fwktype.AsStatus(err)
-	}
-
-	reservationRestoreState := getReservationRestoreState(cycleState)
-	restoreState := reservationRestoreState.getNodeState(nodeName)
-
-	nodeDeviceInfo := p.nodeDeviceCache.getNodeDevice(nodeName, false)
-	if nodeDeviceInfo == nil {
-		return 0, nil
-	}
-
-	store := topologymanager.GetStore(cycleState)
-	affinity, _ := store.GetAffinity(nodeInfo.Node().Name)
-
-	allocator := &AutopilotAllocator{
-		state:      state,
-		nodeDevice: nodeDeviceInfo,
-		node:       nodeInfo.Node(),
-		pod:        pod,
-		scorer:     p.scorer,
-		numaNodes:  affinity.NUMANodeAffinity,
-	}
-
-	preemptible := appendAllocated(nil, restoreState.mergedUnmatchedUsed, state.preemptibleDevices[nodeName])
-
-	nodeDeviceInfo.lock.RLock()
-	defer nodeDeviceInfo.lock.RUnlock()
-
-	return p.scoreWithNominatedReservation(allocator, state, restoreState, nodeName, pod, preemptible, reservationInfo)
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (p *Plugin) ReservationScoreExtensions() frameworkext.ReservationScoreExtensions {
-	return p
+	_ = "STUB: not implemented"
+	return *new(frameworkext.ReservationScoreExtensions)
 }
 
 func (p *Plugin) NormalizeReservationScore(ctx context.Context, cycleState fwktype.CycleState, pod *corev1.Pod, scores frameworkext.ReservationScoreList) *fwktype.Status {
-	return frameworkext.DefaultReservationNormalizeScore(frameworkext.MaxReservationScore, false, scores)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // deviceResourceStrategyTypeMap maps strategy to scorer implementation
@@ -199,125 +100,34 @@ type resourceToValueMap map[corev1.ResourceName]int64
 
 // scoreDevice will use `scorer` function to calculate the score per device.
 func (r *resourceAllocationScorer) scoreDevice(podRequest corev1.ResourceList, total, free corev1.ResourceList) int64 {
-	if r.resourceToWeightMap == nil {
-		return 0
-	}
-
-	requested := make(resourceToValueMap)
-	allocatable := make(resourceToValueMap)
-	for resourceName := range r.resourceToWeightMap {
-		totalQuantity := total[resourceName]
-		if totalQuantity.IsZero() {
-			continue
-		}
-		freeQuantity := free[resourceName]
-
-		req := totalQuantity.DeepCopy()
-		if totalQuantity.Cmp(freeQuantity) >= 0 {
-			req.Sub(freeQuantity)
-			req.Add(podRequest[resourceName])
-		}
-
-		allocatable[resourceName], requested[resourceName] = totalQuantity.Value(), req.Value()
-	}
-
-	score := r.scorer(requested, allocatable)
-	return score
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (r *resourceAllocationScorer) scoreNode(podRequest corev1.ResourceList, totalDeviceResources, freeDeviceResources deviceResources) int64 {
-	if r.resourceToWeightMap == nil {
-		return 0
-	}
-
-	requested := make(resourceToValueMap)
-	allocatable := make(resourceToValueMap)
-	for resourceName := range r.resourceToWeightMap {
-		var total resource.Quantity
-		for _, deviceRes := range totalDeviceResources {
-			total.Add(deviceRes[resourceName])
-		}
-		if total.IsZero() {
-			continue
-		}
-		var free resource.Quantity
-		for _, deviceRes := range freeDeviceResources {
-			free.Add(deviceRes[resourceName])
-		}
-
-		req := total.DeepCopy()
-		if total.Cmp(free) >= 0 {
-			req.Sub(free)
-			req.Add(podRequest[resourceName])
-		}
-		allocatable[resourceName], requested[resourceName] = total.Value(), req.Value()
-	}
-
-	score := r.scorer(requested, allocatable)
-	return score
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // resourcesToWeightMap make weightmap from resources spec
 func resourcesToWeightMap(resourceSpecs []schedconfig.ResourceSpec) resourceToWeightMap {
-	resourceToWeightMap := make(resourceToWeightMap)
-	for _, resourceSpec := range resourceSpecs {
-		resourceToWeightMap[corev1.ResourceName(resourceSpec.Name)] = resourceSpec.Weight
-	}
-	return resourceToWeightMap
+	_ = "STUB: not implemented"
+	return *new(resourceToWeightMap)
 }
 
 func leastResourceScorer(resToWeightMap resourceToWeightMap) func(resourceToValueMap, resourceToValueMap) int64 {
-	return func(requested, allocatable resourceToValueMap) int64 {
-		var nodeScore, weightSum int64
-		for resourceName := range requested {
-			weight := resToWeightMap[resourceName]
-			resourceScore := leastRequestedScore(requested[resourceName], allocatable[resourceName])
-			nodeScore += resourceScore * weight
-			weightSum += weight
-		}
-		if weightSum == 0 {
-			return 0
-		}
-		return nodeScore / weightSum
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func leastRequestedScore(requested, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if requested > capacity {
-		return 0
-	}
-
-	return ((capacity - requested) * fwktype.MaxNodeScore) / capacity
-}
+func leastRequestedScore(requested, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }
 
 func mostResourceScorer(resToWeightMap resourceToWeightMap) func(requested, allocable resourceToValueMap) int64 {
-	return func(requested, allocatable resourceToValueMap) int64 {
-		var nodeScore, weightSum int64
-		for resourceName := range requested {
-			weight := resToWeightMap[resourceName]
-			resourceScore := mostRequestedScore(requested[resourceName], allocatable[resourceName])
-			nodeScore += resourceScore * weight
-			weightSum += weight
-		}
-		if weightSum == 0 {
-			return 0
-		}
-		return nodeScore / weightSum
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func mostRequestedScore(requested, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if requested > capacity {
-		// `requested` might be greater than `capacity` because pods with no
-		// requests get minimum values.
-		requested = capacity
-	}
+func mostRequestedScore(requested, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }
 
-	return (requested * fwktype.MaxNodeScore) / capacity
-}
+// `requested` might be greater than `capacity` because pods with no
+// requests get minimum values.

@@ -17,9 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"encoding/json"
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
@@ -36,59 +33,23 @@ const (
 )
 
 func GetPodCPUBurstConfig(pod *corev1.Pod) (*CPUBurstConfig, error) {
-	if pod == nil || pod.Annotations == nil {
-		return nil, nil
-	}
-	annotation, exist := pod.Annotations[AnnotationPodCPUBurst]
-	if !exist {
-		return nil, nil
-	}
-	cpuBurst := CPUBurstConfig{}
-
-	err := json.Unmarshal([]byte(annotation), &cpuBurst)
-	if err != nil {
-		return nil, err
-	}
-	return &cpuBurst, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetPodMemoryQoSConfig(pod *corev1.Pod) (*PodMemoryQOSConfig, error) {
-	if pod == nil || pod.Annotations == nil {
-		return nil, nil
-	}
-	value, exist := pod.Annotations[AnnotationPodMemoryQoS]
-	if !exist {
-		return nil, nil
-	}
-	cfg := PodMemoryQOSConfig{}
-	err := json.Unmarshal([]byte(value), &cfg)
-	if err != nil {
-		return nil, err
-	}
-	return &cfg, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetPodCPUQoSConfigByAttr(labels, annotations map[string]string) (*CPUQOSCfg, error) {
-	value, exist := annotations[AnnotationPodCPUQoS]
-	if !exist {
-		return nil, nil
-	}
-	cfg := CPUQOSCfg{}
-	err := json.Unmarshal([]byte(value), &cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	// check before return
-	if cfg.GroupIdentity != nil {
-		bvt := *cfg.GroupIdentity
-		// bvt value allowed [-1, 2], see https://help.aliyun.com/zh/alinux/user-guide/group-identity-feature
-		if bvt < -1 || bvt > 2 {
-			return nil, fmt.Errorf("bad group identity value: %v", bvt)
-		}
-	}
-	return &cfg, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// check before return
+
+// bvt value allowed [-1, 2], see https://help.aliyun.com/zh/alinux/user-guide/group-identity-feature
 
 const (
 	// LabelCoreSchedGroupID is the label key of the group ID of the Linux Core Scheduling.
@@ -131,22 +92,10 @@ const (
 )
 
 // GetCoreSchedGroupID gets the core sched group ID for the pod according to the labels.
-func GetCoreSchedGroupID(labels map[string]string) string {
-	if labels != nil {
-		return labels[LabelCoreSchedGroupID]
-	}
-	return ""
-}
+func GetCoreSchedGroupID(labels map[string]string) string { _ = "STUB: not implemented"; return "" }
 
 // GetCoreSchedPolicy gets the core sched policy for the pod according to the labels.
 func GetCoreSchedPolicy(labels map[string]string) CoreSchedPolicy {
-	if labels == nil {
-		return CoreSchedPolicyDefault
-	}
-	if v := labels[LabelCoreSchedPolicy]; v == string(CoreSchedPolicyNone) {
-		return CoreSchedPolicyNone
-	} else if v == string(CoreSchedPolicyExclusive) {
-		return CoreSchedPolicyExclusive
-	}
-	return CoreSchedPolicyDefault
+	_ = "STUB: not implemented"
+	return *new(CoreSchedPolicy)
 }

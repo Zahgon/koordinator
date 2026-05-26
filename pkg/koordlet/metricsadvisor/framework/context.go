@@ -20,8 +20,6 @@ import (
 	"sync"
 	"time"
 
-	"k8s.io/klog/v2"
-
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
 )
 
@@ -32,23 +30,13 @@ type Context struct {
 }
 
 func DeviceCollectorsStarted(devices map[string]DeviceCollector) bool {
-	for name, device := range devices {
-		if device.Enabled() && !device.Started() {
-			klog.V(6).Infof("device collector %v is enabled but has not started yet", name)
-			return false
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func CollectorsHasStarted(collectors map[string]Collector) bool {
-	for name, collector := range collectors {
-		if collector.Enabled() && !collector.Started() {
-			klog.V(6).Infof("collector %v is enabled but has not started yet", name)
-			return false
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 type CPUStat struct {
@@ -64,14 +52,7 @@ type SharedState struct {
 	LatestMetric
 }
 
-func NewSharedState() *SharedState {
-	return &SharedState{
-		LatestMetric: LatestMetric{
-			podsCPUByCollector:    make(map[string]metriccache.Point),
-			podsMemoryByCollector: make(map[string]metriccache.Point),
-		},
-	}
-}
+func NewSharedState() *SharedState { _ = "STUB: not implemented"; return nil }
 
 type LatestMetric struct {
 	nodeMutex  sync.RWMutex
@@ -88,48 +69,31 @@ type LatestMetric struct {
 }
 
 func (r *SharedState) UpdateNodeUsage(cpu, memory metriccache.Point) {
-	r.nodeMutex.Lock()
-	defer r.nodeMutex.Unlock()
-	r.nodeCPU = &cpu
-	r.nodeMemory = &memory
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *SharedState) UpdatePodUsage(collectorName string, cpu, memory metriccache.Point) {
-	r.podMutex.Lock()
-	defer r.podMutex.Unlock()
-	r.podsCPUByCollector[collectorName] = cpu
-	r.podsMemoryByCollector[collectorName] = memory
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *SharedState) UpdateHostAppUsage(cpu, memory metriccache.Point) {
-	r.hostAppMutex.Lock()
-	defer r.hostAppMutex.Unlock()
-	r.hostAppCPU = &cpu
-	r.hostAppMemory = &memory
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *SharedState) GetNodeUsage() (cpu, memory *metriccache.Point) {
-	r.nodeMutex.RLock()
-	defer r.nodeMutex.RUnlock()
-	return r.nodeCPU, r.nodeMemory
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *SharedState) GetHostAppUsage() (cpu, memory *metriccache.Point) {
-	r.hostAppMutex.RLock()
-	defer r.hostAppMutex.RUnlock()
-	return r.hostAppCPU, r.hostAppMemory
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *SharedState) GetPodsUsageByCollector() (cpu, memory map[string]metriccache.Point) {
-	r.podMutex.RLock()
-	defer r.podMutex.RUnlock()
-	podsCPU := map[string]metriccache.Point{}
-	podsMemory := map[string]metriccache.Point{}
-	for collector, val := range r.podsCPUByCollector {
-		podsCPU[collector] = val
-	}
-	for collector, val := range r.podsMemoryByCollector {
-		podsMemory[collector] = val
-	}
-	return podsCPU, podsMemory
+	_ = "STUB: not implemented"
+	return nil, nil
 }

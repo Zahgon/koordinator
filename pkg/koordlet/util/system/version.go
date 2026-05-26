@@ -16,43 +16,15 @@ limitations under the License.
 
 package system
 
-import (
-	"path/filepath"
-
-	"k8s.io/klog/v2"
-)
-
 var HostSystemInfo = collectVersionInfo()
 
-func collectVersionInfo() VersionInfo {
-	return VersionInfo{
-		IsAnolisOS: isAnolisOS(),
-	}
-}
+func collectVersionInfo() VersionInfo { _ = "STUB: not implemented"; return *new(VersionInfo) }
 
 type VersionInfo struct {
 	// Open Anolis OS (kernel): https://github.com/alibaba/cloud-kernel
 	IsAnolisOS bool
 }
 
-func isAnolisOS() bool {
-	return isSupportBvtOrWmarRatio()
-}
+func isAnolisOS() bool { _ = "STUB: not implemented"; return false }
 
-func isSupportBvtOrWmarRatio() bool {
-	bvtFilePath := filepath.Join(GetRootCgroupSubfsDir(CgroupCPUDir), CPUBVTWarpNsName)
-	exists, err := PathExists(bvtFilePath)
-	klog.V(2).Infof("[%v] PathExists exists %v, err: %v", bvtFilePath, exists, err)
-	if err == nil && exists {
-		return true
-	}
-
-	wmarkRatioPath := filepath.Join(GetRootCgroupSubfsDir(CgroupMemDir), "*", MemoryWmarkRatioName)
-	matches, err := filepath.Glob(wmarkRatioPath)
-	klog.V(2).Infof("[%v] PathExists wmark_ratio exists %v, err: %v", wmarkRatioPath, matches, err)
-	if err == nil && len(matches) > 0 {
-		return true
-	}
-
-	return false
-}
+func isSupportBvtOrWmarRatio() bool { _ = "STUB: not implemented"; return false }

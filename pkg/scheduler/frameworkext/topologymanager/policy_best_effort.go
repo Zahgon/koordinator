@@ -19,7 +19,6 @@ package topologymanager
 
 import (
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/util/bitmask"
 )
 
 type bestEffortPolicy struct {
@@ -33,28 +32,18 @@ var _ Policy = &bestEffortPolicy{}
 const PolicyBestEffort string = "best-effort"
 
 // NewBestEffortPolicy returns best-effort policy.
-func NewBestEffortPolicy(numaNodes []int) Policy {
-	return &bestEffortPolicy{numaNodes: numaNodes}
-}
+func NewBestEffortPolicy(numaNodes []int) Policy { _ = "STUB: not implemented"; return *new(Policy) }
 
-func (p *bestEffortPolicy) Name() string {
-	return PolicyBestEffort
-}
+func (p *bestEffortPolicy) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (p *bestEffortPolicy) canAdmitPodResult(hint *NUMATopologyHint) bool {
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *bestEffortPolicy) Merge(providersHints []map[string][]NUMATopologyHint, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) (NUMATopologyHint, bool, []string) {
-	filteredProvidersHints, _, _ := filterProvidersHints(providersHints)
-	bestHint := mergeFilteredHints(p.numaNodes, filteredProvidersHints, exclusivePolicy, allNUMANodeStatus)
-	// 如果 bestHint 不是一个所有资源都可分的 numa affinity，则应该返回 bestHint 为亲和所有 NUMANode，即放弃任何 NUMA 倾向
-	if bestHint.Unsatisfied {
-		affinityAllNUMANodes, _ := bitmask.NewBitMask(p.numaNodes...)
-		bestHint = NUMATopologyHint{
-			NUMANodeAffinity: affinityAllNUMANodes,
-		}
-	}
-	admit := p.canAdmitPodResult(&bestHint)
-	return bestHint, admit, nil
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyHint), false, nil
 }
+
+// 如果 bestHint 不是一个所有资源都可分的 numa affinity，则应该返回 bestHint 为亲和所有 NUMANode，即放弃任何 NUMA 倾向

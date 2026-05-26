@@ -17,16 +17,11 @@ limitations under the License.
 package health
 
 import (
-	"crypto/tls"
-	"crypto/x509"
-	"fmt"
 	"net/http"
-	"os"
 	"path"
 	"sync"
 
 	"github.com/fsnotify/fsnotify"
-	"k8s.io/klog/v2"
 
 	webhookutil "github.com/koordinator-sh/koordinator/pkg/webhook/util"
 )
@@ -39,101 +34,22 @@ var (
 	client    *http.Client
 )
 
-func loadHTTPClientWithCACert() error {
-	caCert, err := os.ReadFile(caCertFilePath)
-	if err != nil {
-		return err
-	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
-	lock.Lock()
-	defer lock.Unlock()
-	client = &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs: caCertPool,
-			},
-		},
-	}
-	return nil
-}
+func loadHTTPClientWithCACert() error { _ = "STUB: not implemented"; return nil }
 
-func watchCACert(watcher *fsnotify.Watcher) {
-	for {
-		select {
-		case event, ok := <-watcher.Events:
-			// Channel is closed.
-			if !ok {
-				return
-			}
+func watchCACert(watcher *fsnotify.Watcher) { _ = "STUB: not implemented"; return }
 
-			// Only care about events which may modify the contents of the file.
-			if !(isWrite(event) || isRemove(event) || isCreate(event)) {
-				continue
-			}
+// Channel is closed.
 
-			klog.Infof("Watched ca-cert %v %v", event.Name, event.Op)
+// Only care about events which may modify the contents of the file.
 
-			// If the file was removed, re-add the watch.
-			if isRemove(event) {
-				if err := watcher.Add(event.Name); err != nil {
-					klog.Errorf("Failed to re-watch ca-cert %v: %v", event.Name, err)
-				}
-			}
+// If the file was removed, re-add the watch.
 
-			if err := loadHTTPClientWithCACert(); err != nil {
-				klog.Errorf("Failed to reload ca-cert %v: %v", event.Name, err)
-			}
+// Channel is closed.
 
-		case err, ok := <-watcher.Errors:
-			// Channel is closed.
-			if !ok {
-				return
-			}
-			klog.Errorf("Failed to watch ca-cert: %v", err)
-		}
-	}
-}
+func isWrite(event fsnotify.Event) bool { _ = "STUB: not implemented"; return false }
 
-func isWrite(event fsnotify.Event) bool {
-	return event.Op&fsnotify.Write == fsnotify.Write
-}
+func isCreate(event fsnotify.Event) bool { _ = "STUB: not implemented"; return false }
 
-func isCreate(event fsnotify.Event) bool {
-	return event.Op&fsnotify.Create == fsnotify.Create
-}
+func isRemove(event fsnotify.Event) bool { _ = "STUB: not implemented"; return false }
 
-func isRemove(event fsnotify.Event) bool {
-	return event.Op&fsnotify.Remove == fsnotify.Remove
-}
-
-func Checker(_ *http.Request) error {
-	onceWatch.Do(func() {
-		if err := loadHTTPClientWithCACert(); err != nil {
-			panic(fmt.Errorf("failed to load ca-cert for the first time: %v", err))
-		}
-		watcher, err := fsnotify.NewWatcher()
-		if err != nil {
-			panic(fmt.Errorf("failed to new ca-cert watcher: %v", err))
-		}
-		if err = watcher.Add(caCertFilePath); err != nil {
-			panic(fmt.Errorf("failed to add %v into watcher: %v", caCertFilePath, err))
-		}
-		go watchCACert(watcher)
-	})
-
-	url := fmt.Sprintf("https://localhost:%d/healthz", webhookutil.GetPort())
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	lock.Lock()
-	defer lock.Unlock()
-	_, err = client.Do(req)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+func Checker(_ *http.Request) error { _ = "STUB: not implemented"; return nil }

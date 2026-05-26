@@ -17,23 +17,12 @@ limitations under the License.
 package quotaevaluate
 
 import (
-	"encoding/json"
-	"fmt"
-	"sort"
-	"strings"
 	"sync"
-	"time"
 
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apimachinery/pkg/util/wait"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
 	"k8s.io/client-go/util/workqueue"
-	apiresource "k8s.io/component-helpers/resource"
-	"k8s.io/klog/v2"
 	"k8s.io/utils/clock"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
@@ -100,354 +89,70 @@ type admissionWaiter struct {
 
 type defaultDeny struct{}
 
-func (defaultDeny) Error() string {
-	return "DEFAULT DENY"
-}
+func (defaultDeny) Error() string { _ = "STUB: not implemented"; return "" }
 
 // IsDefaultDeny returns true if the error is defaultDeny
-func IsDefaultDeny(err error) bool {
-	if err == nil {
-		return false
-	}
+func IsDefaultDeny(err error) bool { _ = "STUB: not implemented"; return false }
 
-	_, ok := err.(defaultDeny)
-	return ok
-}
-
-func newAdmissionWaiter(a *Attributes) *admissionWaiter {
-	return &admissionWaiter{
-		attributes: a,
-		finished:   make(chan struct{}),
-		result:     defaultDeny{},
-	}
-}
+func newAdmissionWaiter(a *Attributes) *admissionWaiter { _ = "STUB: not implemented"; return nil }
 
 func NewQuotaEvaluator(quotaAccessor QuotaAccessor, workers int, stopCh <-chan struct{}) Evaluator {
-	evaluator := &quotaEvaluator{
-		quotaAccessor: quotaAccessor,
-
-		queue:      workqueue.NewNamed("admission_quota_controller"),
-		work:       map[string][]*admissionWaiter{},
-		dirtyWork:  map[string][]*admissionWaiter{},
-		inProgress: sets.String{},
-
-		workers: workers,
-		stopCh:  stopCh,
-	}
-
-	return evaluator
+	_ = "STUB: not implemented"
+	return *new(Evaluator)
 }
 
 // start begins watching and syncing.
-func (e *quotaEvaluator) start() {
-	defer utilruntime.HandleCrash()
+func (e *quotaEvaluator) start() { _ = "STUB: not implemented"; return }
 
-	for i := 0; i < e.workers; i++ {
-		go wait.Until(e.doWork, time.Second, e.stopCh)
-	}
-}
+func (e *quotaEvaluator) shutdownOnStop() { _ = "STUB: not implemented"; return }
 
-func (e *quotaEvaluator) shutdownOnStop() {
-	<-e.stopCh
-	klog.Infof("Shutting down quota evaluator")
-	e.queue.ShutDown()
-}
-
-func (e *quotaEvaluator) doWork() {
-	workFunc := func() bool {
-		key, admissionAttributes, quit := e.getWork()
-		if quit {
-			return true
-		}
-		defer e.completeWork(key)
-		if len(admissionAttributes) == 0 {
-			return false
-		}
-		e.checkAttributes(key, admissionAttributes)
-		return false
-	}
-	for {
-		if quit := workFunc(); quit {
-			klog.Infof("quota evaluator worker shutdown")
-			return
-		}
-	}
-}
+func (e *quotaEvaluator) doWork() { _ = "STUB: not implemented"; return }
 
 func (e *quotaEvaluator) checkAttributes(key string, admissionAttributes []*admissionWaiter) {
+	_ = "STUB: not implemented"
 	// notify all on exit
-	defer func() {
-		for _, admissionAttribute := range admissionAttributes {
-			close(admissionAttribute.finished)
-		}
-	}()
-
-	quota, err := e.quotaAccessor.GetQuota(key)
-	if err != nil {
-		for _, admissionAttribute := range admissionAttributes {
-			admissionAttribute.result = err
-		}
-		return
-	}
-
-	e.checkQuota(quota, admissionAttributes, 3)
+	return
 }
 
 func (e *quotaEvaluator) checkQuota(quota *v1alpha1.ElasticQuota, admissionAttributes []*admissionWaiter, remainingRetries int) {
+	_ = "STUB: not implemented"
 	// yet another copy to compare against originals to see if we actually have deltas
-	originalQuota := quota.DeepCopy()
-	originChildRequest, err := extension.GetChildRequest(originalQuota)
-	if err != nil {
-		klog.Warningf("failed go get child request %v/%v, err: %v", quota.Namespace, quota.Name, err)
-	}
-	childRequest, err := extension.GetChildRequest(quota)
-	if err != nil {
-		klog.Warningf("failed go get child request %v/%v, err: %v", quota.Namespace, quota.Name, err)
-	}
-
-	changed := false
-	for i := range admissionAttributes {
-		admissionAttribute := admissionAttributes[i]
-		newQuota, err := e.checkRequest(quota, admissionAttribute.attributes)
-		if err != nil {
-			admissionAttribute.result = err
-			continue
-		}
-
-		newChildRequest, err := extension.GetChildRequest(newQuota)
-		if err != nil {
-			klog.Warningf("failed go get child request %v/%v, err: %v", quota.Namespace, quota.Name, err)
-		}
-		if !quotav1.Equals(childRequest, newChildRequest) {
-			changed = true
-		} else {
-			admissionAttribute.result = nil
-		}
-
-		childRequest = newChildRequest
-		quota = newQuota
-	}
-
-	if !changed {
-		return
-	}
-
-	var updateErr error
-	if !quotav1.Equals(originChildRequest, childRequest) {
-		updateErr = e.quotaAccessor.UpdateQuotaStatus(quota)
-	}
-
-	if updateErr == nil {
-		for _, admissionAttribute := range admissionAttributes {
-			if IsDefaultDeny(admissionAttribute.result) {
-				admissionAttribute.result = nil
-			}
-		}
-		return
-	}
-
-	// at this point, errors are fatal.  Update all waiters without status to failed and return
-	if remainingRetries <= 0 {
-		for _, admissionAttribute := range admissionAttributes {
-			if IsDefaultDeny(admissionAttribute.result) {
-				admissionAttribute.result = updateErr
-			}
-		}
-		return
-	}
-
-	newQuota, err := e.quotaAccessor.GetQuota(fmt.Sprintf("%s/%s", quota.Namespace, quota.Name))
-	if err != nil {
-		// this means that updates failed.  Anything with a default deny error has failed and we need to let them know
-		for _, admissionAttribute := range admissionAttributes {
-			if IsDefaultDeny(admissionAttribute.result) {
-				admissionAttribute.result = updateErr
-			}
-		}
-		return
-	}
-
-	e.checkQuota(newQuota, admissionAttributes, remainingRetries-1)
+	return
 }
 
-func (e *quotaEvaluator) Handles(a *Attributes) bool {
-	if a.Operation == admissionv1.Create {
-		return true
-	}
-	return false
-}
+// at this point, errors are fatal.  Update all waiters without status to failed and return
 
-func QuotaV1Pod(pod *corev1.Pod, clock clock.Clock) bool {
-	if corev1.PodFailed == pod.Status.Phase || corev1.PodSucceeded == pod.Status.Phase {
-		return false
-	}
-	if pod.DeletionTimestamp != nil && pod.DeletionGracePeriodSeconds != nil {
-		now := clock.Now()
-		deletionTime := pod.DeletionTimestamp.Time
-		gracePeriod := time.Duration(*pod.DeletionGracePeriodSeconds) * time.Second
-		if now.After(deletionTime.Add(gracePeriod)) {
-			return false
-		}
-	}
-	return true
-}
+// this means that updates failed.  Anything with a default deny error has failed and we need to let them know
+
+func (e *quotaEvaluator) Handles(a *Attributes) bool { _ = "STUB: not implemented"; return false }
+
+func QuotaV1Pod(pod *corev1.Pod, clock clock.Clock) bool { _ = "STUB: not implemented"; return false }
 
 func PodUsageFunc(pod *corev1.Pod, clock clock.Clock) (corev1.ResourceList, error) {
-	if !QuotaV1Pod(pod, clock) {
-		return corev1.ResourceList{}, nil
-	}
-
-	requests := apiresource.PodRequests(pod, apiresource.PodResourcesOptions{})
-
-	return requests, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func (e *quotaEvaluator) checkRequest(quota *v1alpha1.ElasticQuota, a *Attributes) (*v1alpha1.ElasticQuota, error) {
-	if !e.Handles(a) {
-		return quota, nil
-	}
-
-	if len(quotav1.Intersection(quotav1.ResourceNames(quota.Spec.Max), podResources)) == 0 {
-		return quota, nil
-	}
-
-	deltaUsage, err := PodUsageFunc(a.Pod, clock.RealClock{})
-	if err != nil {
-		return quota, err
-	}
-
-	deltaUsage = quotav1.RemoveZeros(deltaUsage)
-	if len(deltaUsage) == 0 {
-		return quota, nil
-	}
-
-	hardResources := quotav1.ResourceNames(quota.Spec.Max)
-	requestedUsage := quotav1.Mask(deltaUsage, hardResources)
-	requestedUsage = quotav1.RemoveZeros(requestedUsage)
-	if len(requestedUsage) == 0 {
-		return quota, nil
-	}
-
-	quotaCopy := quota.DeepCopy()
-	used, err := extension.GetChildRequest(quotaCopy)
-	if err != nil {
-		return nil, err
-	}
-	admission, err := GetQuotaAdmission(quotaCopy)
-	if err != nil {
-		return nil, err
-	}
-
-	newUsage := quotav1.Add(used, requestedUsage)
-	maskedNewUsage := quotav1.Mask(newUsage, quotav1.ResourceNames(requestedUsage))
-
-	if allowed, exceeded := quotav1.LessThanOrEqual(maskedNewUsage, admission); !allowed {
-		failedRequestedUsage := quotav1.Mask(requestedUsage, exceeded)
-		failedUsed := quotav1.Mask(used, exceeded)
-		failedHard := quotav1.Mask(admission, exceeded)
-		return quota, fmt.Errorf("exceeded quota: %s/%s, requested: %s, used: %s, limited: %s",
-			quota.Namespace, quota.Name,
-			prettyPrint(failedRequestedUsage),
-			prettyPrint(failedUsed),
-			prettyPrint(failedHard))
-	}
-
-	data, err := json.Marshal(newUsage)
-	if err != nil {
-		return nil, err
-	}
-	if quotaCopy.Annotations == nil {
-		quotaCopy.Annotations = make(map[string]string)
-	}
-	quotaCopy.Annotations[extension.AnnotationChildRequest] = string(data)
-
-	return quotaCopy, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (e *quotaEvaluator) Evaluate(a *Attributes) error {
-	e.init.Do(e.start)
+func (e *quotaEvaluator) Evaluate(a *Attributes) error { _ = "STUB: not implemented"; return nil }
 
-	if !e.Handles(a) {
-		return nil
-	}
-	waiter := newAdmissionWaiter(a)
+// wait for completion or timeout
 
-	e.addWork(waiter)
+func (e *quotaEvaluator) addWork(a *admissionWaiter) { _ = "STUB: not implemented"; return }
 
-	// wait for completion or timeout
-	select {
-	case <-waiter.finished:
-	case <-time.After(10 * time.Second):
-		return apierrors.NewInternalError(fmt.Errorf("elastic quota evaluation timed out"))
-	}
-
-	return waiter.result
-}
-
-func (e *quotaEvaluator) addWork(a *admissionWaiter) {
-	e.workLock.Lock()
-	defer e.workLock.Unlock()
-
-	key := fmt.Sprintf("%s/%s", a.attributes.QuotaNamespace, a.attributes.QuotaName)
-	e.queue.Add(key)
-
-	if e.inProgress.Has(key) {
-		e.dirtyWork[key] = append(e.dirtyWork[key], a)
-		return
-	}
-
-	e.work[key] = append(e.work[key], a)
-}
-
-func (e *quotaEvaluator) completeWork(key string) {
-	e.workLock.Lock()
-	defer e.workLock.Unlock()
-
-	e.queue.Done(key)
-	e.work[key] = e.dirtyWork[key]
-	delete(e.dirtyWork, key)
-	e.inProgress.Delete(key)
-}
+func (e *quotaEvaluator) completeWork(key string) { _ = "STUB: not implemented"; return }
 
 func (e *quotaEvaluator) getWork() (string, []*admissionWaiter, bool) {
-	uncastKey, shutdown := e.queue.Get()
-	if shutdown {
-		return "", []*admissionWaiter{}, shutdown
-	}
-	key := uncastKey.(string)
-
-	e.workLock.Lock()
-	defer e.workLock.Unlock()
-
-	work := e.work[key]
-	delete(e.work, key)
-	delete(e.dirtyWork, key)
-	e.inProgress.Insert(key)
-	return key, work, false
+	_ = "STUB: not implemented"
+	return "", nil, false
 }
 
 // prettyPrint formats a resource list for usage in errors
 // it outputs resources sorted in increasing order
-func prettyPrint(item corev1.ResourceList) string {
-	parts := []string{}
-	keys := []string{}
-	for key := range item {
-		keys = append(keys, string(key))
-	}
-	sort.Strings(keys)
-	for _, key := range keys {
-		value := item[corev1.ResourceName(key)]
-		constraint := key + "=" + value.String()
-		parts = append(parts, constraint)
-	}
-	return strings.Join(parts, ",")
-}
+func prettyPrint(item corev1.ResourceList) string { _ = "STUB: not implemented"; return "" }
 
-func prettyPrintResourceNames(a []corev1.ResourceName) string {
-	values := []string{}
-	for _, value := range a {
-		values = append(values, string(value))
-	}
-	sort.Strings(values)
-	return strings.Join(values, ",")
-}
+func prettyPrintResourceNames(a []corev1.ResourceName) string { _ = "STUB: not implemented"; return "" }

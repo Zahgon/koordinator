@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,14 +56,6 @@ type reservations struct {
 
 // newReservations returns a Reservations
 func newReservations(c *SchedulingV1alpha1Client) *reservations {
-	return &reservations{
-		gentype.NewClientWithList[*schedulingv1alpha1.Reservation, *schedulingv1alpha1.ReservationList](
-			"reservations",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			"",
-			func() *schedulingv1alpha1.Reservation { return &schedulingv1alpha1.Reservation{} },
-			func() *schedulingv1alpha1.ReservationList { return &schedulingv1alpha1.ReservationList{} },
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

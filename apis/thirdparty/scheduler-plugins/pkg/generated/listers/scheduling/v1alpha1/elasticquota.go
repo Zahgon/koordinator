@@ -20,7 +20,6 @@ package v1alpha1
 
 import (
 	v1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 )
@@ -43,20 +42,20 @@ type elasticQuotaLister struct {
 
 // NewElasticQuotaLister returns a new ElasticQuotaLister.
 func NewElasticQuotaLister(indexer cache.Indexer) ElasticQuotaLister {
-	return &elasticQuotaLister{indexer: indexer}
+	_ = "STUB: not implemented"
+	return *new(ElasticQuotaLister)
 }
 
 // List lists all ElasticQuotas in the indexer.
 func (s *elasticQuotaLister) List(selector labels.Selector) (ret []*v1alpha1.ElasticQuota, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.ElasticQuota))
-	})
-	return ret, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ElasticQuotas returns an object that can list and get ElasticQuotas.
 func (s *elasticQuotaLister) ElasticQuotas(namespace string) ElasticQuotaNamespaceLister {
-	return elasticQuotaNamespaceLister{indexer: s.indexer, namespace: namespace}
+	_ = "STUB: not implemented"
+	return *new(ElasticQuotaNamespaceLister)
 }
 
 // ElasticQuotaNamespaceLister helps list and get ElasticQuotas.
@@ -80,20 +79,12 @@ type elasticQuotaNamespaceLister struct {
 
 // List lists all ElasticQuotas in the indexer for a given namespace.
 func (s elasticQuotaNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.ElasticQuota, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.ElasticQuota))
-	})
-	return ret, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Get retrieves the ElasticQuota from the indexer for a given namespace and name.
 func (s elasticQuotaNamespaceLister) Get(name string) (*v1alpha1.ElasticQuota, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("elasticquota"), name)
-	}
-	return obj.(*v1alpha1.ElasticQuota), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

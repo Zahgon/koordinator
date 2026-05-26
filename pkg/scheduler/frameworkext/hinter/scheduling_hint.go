@@ -29,21 +29,16 @@ type SchedulingHintStateData struct {
 }
 
 func (a *SchedulingHintStateData) Clone() fwktype.StateData {
-	return &SchedulingHintStateData{
-		PreFilterNodes: a.PreFilterNodes,
-		PreferredNodes: a.PreferredNodes,
-		Extensions:     a.Extensions,
-	}
+	_ = "STUB: not implemented"
+	return *new(fwktype.StateData)
 }
 
 func GetSchedulingHintState(cycleState fwktype.CycleState) *SchedulingHintStateData {
-	stateData, err := cycleState.Read(SchedulingHintStateKey)
-	if err != nil {
-		return nil
-	}
-	return stateData.(*SchedulingHintStateData)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func SetSchedulingHintState(cycleState fwktype.CycleState, data *SchedulingHintStateData) {
-	cycleState.Write(SchedulingHintStateKey, data)
+	_ = "STUB: not implemented"
+	return
 }

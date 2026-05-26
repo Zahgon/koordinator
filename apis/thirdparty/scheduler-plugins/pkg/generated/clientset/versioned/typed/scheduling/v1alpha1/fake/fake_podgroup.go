@@ -23,11 +23,9 @@ import (
 
 	v1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/apis/scheduling/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
 )
 
 // FakePodGroups implements PodGroupInterface
@@ -42,101 +40,55 @@ var podgroupsKind = schema.GroupVersionKind{Group: "scheduling.sigs.k8s.io", Ver
 
 // Get takes name of the podGroup, and returns the corresponding podGroup object, and an error if there is any.
 func (c *FakePodGroups) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.PodGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(podgroupsResource, c.ns, name), &v1alpha1.PodGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.PodGroup), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // List takes label and field selectors, and returns the list of PodGroups that match those selectors.
 func (c *FakePodGroups) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.PodGroupList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(podgroupsResource, podgroupsKind, c.ns, opts), &v1alpha1.PodGroupList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.PodGroupList{ListMeta: obj.(*v1alpha1.PodGroupList).ListMeta}
-	for _, item := range obj.(*v1alpha1.PodGroupList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Watch returns a watch.Interface that watches the requested podGroups.
 func (c *FakePodGroups) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(podgroupsResource, c.ns, opts))
-
+	_ = "STUB: not implemented"
+	return *new(watch.Interface), nil
 }
 
 // Create takes the representation of a podGroup and creates it.  Returns the server's representation of the podGroup, and an error, if there is any.
 func (c *FakePodGroups) Create(ctx context.Context, podGroup *v1alpha1.PodGroup, opts v1.CreateOptions) (result *v1alpha1.PodGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(podgroupsResource, c.ns, podGroup), &v1alpha1.PodGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.PodGroup), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Update takes the representation of a podGroup and updates it. Returns the server's representation of the podGroup, and an error, if there is any.
 func (c *FakePodGroups) Update(ctx context.Context, podGroup *v1alpha1.PodGroup, opts v1.UpdateOptions) (result *v1alpha1.PodGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(podgroupsResource, c.ns, podGroup), &v1alpha1.PodGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.PodGroup), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
 func (c *FakePodGroups) UpdateStatus(ctx context.Context, podGroup *v1alpha1.PodGroup, opts v1.UpdateOptions) (*v1alpha1.PodGroup, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(podgroupsResource, "status", c.ns, podGroup), &v1alpha1.PodGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.PodGroup), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Delete takes name of the podGroup and deletes it. Returns an error if one occurs.
 func (c *FakePodGroups) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(podgroupsResource, c.ns, name), &v1alpha1.PodGroup{})
-
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DeleteCollection deletes a collection of objects.
 func (c *FakePodGroups) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(podgroupsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.PodGroupList{})
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Patch applies the patch and returns the patched podGroup.
 func (c *FakePodGroups) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.PodGroup, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(podgroupsResource, c.ns, name, pt, data, subresources...), &v1alpha1.PodGroup{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.PodGroup), err
+	_ = "STUB: not implemented"
+	return nil, nil
 }

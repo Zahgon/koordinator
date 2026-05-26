@@ -25,13 +25,9 @@ const (
 	defaultTimeout = 60 * time.Second
 )
 
-func defaultAnomalyCondition(counter Counter) bool {
-	return counter.ConsecutiveAbnormalities > 5
-}
+func defaultAnomalyCondition(counter Counter) bool { _ = "STUB: not implemented"; return false }
 
-func defaultNormalCondition(counter Counter) bool {
-	return counter.ConsecutiveNormalities > 3
-}
+func defaultNormalCondition(counter Counter) bool { _ = "STUB: not implemented"; return false }
 
 // Options configures BasicDetector
 type Options struct {
@@ -72,136 +68,42 @@ type BasicDetector struct {
 
 // NewBasicDetector returns a new BasicDetector configured with the given Options.
 func NewBasicDetector(name string, opts Options) *BasicDetector {
-	d := &BasicDetector{
-		name:               name,
-		timeout:            defaultTimeout,
-		anomalyConditionFn: defaultAnomalyCondition,
-		normalConditionFn:  defaultNormalCondition,
-		onStateChange:      opts.OnStateChange,
-	}
-	if opts.Timeout > 0 {
-		d.timeout = opts.Timeout
-	}
-	if opts.AnomalyConditionFn != nil {
-		d.anomalyConditionFn = opts.AnomalyConditionFn
-	}
-	if opts.NormalConditionFn != nil {
-		d.normalConditionFn = opts.NormalConditionFn
-	}
-
-	d.toNewGeneration(time.Now())
-	return d
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Name returns the name of the BasicDetector.
 func (d *BasicDetector) Name() string {
-	return d.name
+	_ = "STUB: not implemented"
+
+	// State returns the current state of the BasicDetector.
+	return ""
 }
 
-// State returns the current state of the BasicDetector.
-func (d *BasicDetector) State() State {
-	d.mutex.Lock()
-	defer d.mutex.Unlock()
-
-	now := time.Now()
-	state := d.currentState(now)
-	return state
-}
+func (d *BasicDetector) State() State { _ = "STUB: not implemented"; return *new(State) }
 
 // Counter returns internal counters
-func (d *BasicDetector) Counter() Counter {
-	d.mutex.Lock()
-	defer d.mutex.Unlock()
-
-	return d.counter
-}
+func (d *BasicDetector) Counter() Counter { _ = "STUB: not implemented"; return *new(Counter) }
 
 func (d *BasicDetector) Mark(normality bool) (State, error) {
-	d.mutex.Lock()
-	defer d.mutex.Unlock()
-
-	now := time.Now()
-	state := d.currentState(now)
-
-	d.counter.onMark()
-	if normality {
-		d.onNormality(state, now)
-	} else {
-		d.onAbnormalities(state, now)
-	}
-	return d.currentState(now), nil
+	_ = "STUB: not implemented"
+	return *new(State), nil
 }
 
-func (d *BasicDetector) Reset() {
-	d.mutex.Lock()
-	defer d.mutex.Unlock()
-	d.setState(StateOK, time.Now())
-}
+func (d *BasicDetector) Reset() { _ = "STUB: not implemented"; return }
 
-func (d *BasicDetector) onNormality(state State, now time.Time) {
-	switch state {
-	case StateOK:
-		d.counter.onNormality()
-	case StateAnomaly:
-		d.counter.onNormality()
-		if d.normalConditionFn(d.counter) {
-			d.setState(StateOK, now)
-		}
-	}
-}
+func (d *BasicDetector) onNormality(state State, now time.Time) { _ = "STUB: not implemented"; return }
 
 func (d *BasicDetector) onAbnormalities(state State, now time.Time) {
-	switch state {
-	case StateOK:
-		d.counter.onAbnormalities()
-		if d.anomalyConditionFn(d.counter) {
-			d.setState(StateAnomaly, now)
-		}
-	case StateAnomaly:
-		d.counter.onAbnormalities()
-		d.setState(StateAnomaly, now)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (d *BasicDetector) currentState(now time.Time) State {
-	switch d.state {
-	case StateOK:
-		if !d.expiration.IsZero() && d.expiration.Before(now) {
-			d.toNewGeneration(now)
-		}
-	case StateAnomaly:
-		if d.expiration.Before(now) || d.normalConditionFn(d.counter) {
-			d.setState(StateOK, now)
-		}
-	}
-	return d.state
+	_ = "STUB: not implemented"
+	return *new(State)
 }
 
-func (d *BasicDetector) setState(state State, now time.Time) {
-	if d.state == state {
-		return
-	}
+func (d *BasicDetector) setState(state State, now time.Time) { _ = "STUB: not implemented"; return }
 
-	prev := d.state
-	d.state = state
-
-	d.toNewGeneration(now)
-
-	if d.onStateChange != nil {
-		d.onStateChange(d.name, prev, state)
-	}
-}
-
-func (d *BasicDetector) toNewGeneration(now time.Time) {
-	d.counter.clear()
-
-	var zero time.Time
-	switch d.state {
-	case StateOK:
-		d.expiration = zero
-	case StateAnomaly:
-		d.expiration = now.Add(d.timeout)
-	default:
-		d.expiration = zero
-	}
-}
+func (d *BasicDetector) toNewGeneration(now time.Time) { _ = "STUB: not implemented"; return }

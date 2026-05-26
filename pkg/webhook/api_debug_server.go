@@ -19,19 +19,14 @@ package webhook
 import (
 	"net/http"
 
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
 var debugAPIProviderMap = map[string]http.Handler{}
 
 func RegisterDebugAPIProvider(name string, provider http.Handler) {
-	debugAPIProviderMap[name] = provider
+	_ = "STUB: not implemented"
+	return
 }
 
-func InstallDebugAPIHandler(server webhook.Server) {
-	for name, provider := range debugAPIProviderMap {
-		server.Register(name, provider)
-		klog.Infof("Success register debug api handler, name:%v", name)
-	}
-}
+func InstallDebugAPIHandler(server webhook.Server) { _ = "STUB: not implemented"; return }

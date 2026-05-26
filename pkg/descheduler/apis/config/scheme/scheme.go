@@ -19,10 +19,6 @@ package scheme
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/apis/config/v1alpha2"
 )
 
 var (
@@ -38,7 +34,4 @@ func init() {
 }
 
 // AddToScheme builds the koord-descheduler scheme using all known versions of the koord-descheduler api.
-func AddToScheme(scheme *runtime.Scheme) {
-	utilruntime.Must(config.AddToScheme(scheme))
-	utilruntime.Must(v1alpha2.AddToScheme(scheme))
-}
+func AddToScheme(scheme *runtime.Scheme) { _ = "STUB: not implemented"; return }

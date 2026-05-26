@@ -19,12 +19,9 @@ limitations under the License.
 package versioned
 
 import (
-	"fmt"
-
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/thirdparty/scheduler-plugins/pkg/generated/clientset/versioned/typed/scheduling/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
-	flowcontrol "k8s.io/client-go/util/flowcontrol"
 )
 
 type Interface interface {
@@ -41,57 +38,24 @@ type Clientset struct {
 
 // SchedulingV1alpha1 retrieves the SchedulingV1alpha1Client
 func (c *Clientset) SchedulingV1alpha1() schedulingv1alpha1.SchedulingV1alpha1Interface {
-	return c.schedulingV1alpha1
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.SchedulingV1alpha1Interface)
 }
 
 // Discovery retrieves the DiscoveryClient
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
-	if c == nil {
-		return nil
-	}
-	return c.DiscoveryClient
+	_ = "STUB: not implemented"
+	return *new(discovery.DiscoveryInterface)
 }
 
 // NewForConfig creates a new Clientset for the given config.
 // If config's RateLimiter is not set and QPS and Burst are acceptable,
 // NewForConfig will generate a rate-limiter in configShallowCopy.
-func NewForConfig(c *rest.Config) (*Clientset, error) {
-	configShallowCopy := *c
-	if configShallowCopy.RateLimiter == nil && configShallowCopy.QPS > 0 {
-		if configShallowCopy.Burst <= 0 {
-			return nil, fmt.Errorf("burst is required to be greater than 0 when RateLimiter is not set and QPS is set to greater than 0")
-		}
-		configShallowCopy.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(configShallowCopy.QPS, configShallowCopy.Burst)
-	}
-	var cs Clientset
-	var err error
-	cs.schedulingV1alpha1, err = schedulingv1alpha1.NewForConfig(&configShallowCopy)
-	if err != nil {
-		return nil, err
-	}
-
-	cs.DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(&configShallowCopy)
-	if err != nil {
-		return nil, err
-	}
-	return &cs, nil
-}
+func NewForConfig(c *rest.Config) (*Clientset, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // NewForConfigOrDie creates a new Clientset for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *Clientset {
-	var cs Clientset
-	cs.schedulingV1alpha1 = schedulingv1alpha1.NewForConfigOrDie(c)
-
-	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
-	return &cs
-}
+func NewForConfigOrDie(c *rest.Config) *Clientset { _ = "STUB: not implemented"; return nil }
 
 // New creates a new Clientset for the given RESTClient.
-func New(c rest.Interface) *Clientset {
-	var cs Clientset
-	cs.schedulingV1alpha1 = schedulingv1alpha1.New(c)
-
-	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
-	return &cs
-}
+func New(c rest.Interface) *Clientset { _ = "STUB: not implemented"; return nil }

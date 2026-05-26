@@ -26,17 +26,14 @@ import (
 type performanceCollector struct{}
 
 func New(opt *framework.Options) framework.Collector {
-	return &performanceCollector{}
+	_ = "STUB: not implemented"
+	return *new(framework.Collector)
 }
 
-func (p *performanceCollector) Enabled() bool {
-	return false
-}
+func (p *performanceCollector) Enabled() bool { _ = "STUB: not implemented"; return false }
 
-func (p *performanceCollector) Setup(c *framework.Context) {}
+func (p *performanceCollector) Setup(c *framework.Context) { _ = "STUB: not implemented"; return }
 
-func (p *performanceCollector) Run(stopCh <-chan struct{}) {}
+func (p *performanceCollector) Run(stopCh <-chan struct{}) { _ = "STUB: not implemented"; return }
 
-func (p *performanceCollector) Started() bool {
-	return false
-}
+func (p *performanceCollector) Started() bool { _ = "STUB: not implemented"; return false }

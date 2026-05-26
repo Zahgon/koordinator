@@ -40,10 +40,11 @@ type nodeMutateBuilder struct {
 }
 
 func (b *nodeMutateBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *nodeMutateBuilder) Build() admission.Handler {
-	return NewNodeStatusMutatingHandler(b.mgr.GetClient(), admission.NewDecoder(b.mgr.GetScheme()))
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

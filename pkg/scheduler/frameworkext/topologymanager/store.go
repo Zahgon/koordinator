@@ -30,32 +30,21 @@ type Store struct {
 	affinityMap sync.Map
 }
 
-func InitStore(cycleState fwktype.CycleState) {
-	cycleState.Write(affinityStateKey, &Store{})
-}
+func InitStore(cycleState fwktype.CycleState) { _ = "STUB: not implemented"; return }
 
-func GetStore(cycleState fwktype.CycleState) *Store {
-	s, err := cycleState.Read(affinityStateKey)
-	if err != nil {
-		return &Store{}
-	}
-	store := s.(*Store)
-	return store
-}
+func GetStore(cycleState fwktype.CycleState) *Store { _ = "STUB: not implemented"; return nil }
 
 func (s *Store) Clone() fwktype.StateData {
-	return s
+	_ = "STUB: not implemented"
+	return *new(fwktype.StateData)
 }
 
 func (s *Store) SetAffinity(nodeName string, affinity NUMATopologyHint) {
-	s.affinityMap.Store(nodeName, &affinity)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Store) GetAffinity(nodeName string) (NUMATopologyHint, bool) {
-	val, ok := s.affinityMap.Load(nodeName)
-	if !ok {
-		return NUMATopologyHint{}, false
-	}
-	hint := val.(*NUMATopologyHint)
-	return *hint, true
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyHint), false
 }

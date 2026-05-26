@@ -17,41 +17,14 @@ limitations under the License.
 package node
 
 import (
-	"fmt"
-
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	utilptr "k8s.io/utils/ptr"
-
-	imageutils "github.com/koordinator-sh/koordinator/test/utils/image"
 )
 
 // PreconfiguredRuntimeClassHandler returns configured runtime handler.
-func PreconfiguredRuntimeClassHandler(handler string) string {
-	if handler == "docker" {
-		return handler
-	}
+func PreconfiguredRuntimeClassHandler(handler string) string { _ = "STUB: not implemented"; return "" }
 
-	// test-handler is the name of the runtime handler that is expected to be
-	// preconfigured in the test environment.
-	return "test-handler"
-}
+// test-handler is the name of the runtime handler that is expected to be
+// preconfigured in the test environment.
 
 // NewRuntimeClassPod returns a test pod with the given runtimeClassName
-func NewRuntimeClassPod(runtimeClassName string) *v1.Pod {
-	return &v1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: fmt.Sprintf("test-runtimeclass-%s-", runtimeClassName),
-		},
-		Spec: v1.PodSpec{
-			RuntimeClassName: &runtimeClassName,
-			Containers: []v1.Container{{
-				Name:    "test",
-				Image:   imageutils.GetE2EImage(imageutils.BusyBox),
-				Command: []string{"true"},
-			}},
-			RestartPolicy:                v1.RestartPolicyNever,
-			AutomountServiceAccountToken: utilptr.To[bool](false),
-		},
-	}
-}
+func NewRuntimeClassPod(runtimeClassName string) *v1.Pod { _ = "STUB: not implemented"; return nil }

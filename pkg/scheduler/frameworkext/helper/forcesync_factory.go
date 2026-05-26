@@ -19,7 +19,6 @@ package helper
 import (
 	"time"
 
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/informers/core"
@@ -43,22 +42,21 @@ type forceSyncSharedInformerFactory struct {
 }
 
 func NewForceSyncSharedInformerFactory(factory informers.SharedInformerFactory) informers.SharedInformerFactory {
-	return &forceSyncSharedInformerFactory{
-		SharedInformerFactory: factory,
-		namespace:             corev1.NamespaceAll,
-		defaultResync:         0,
-	}
+	_ = "STUB: not implemented"
+	return *new(informers.SharedInformerFactory)
 }
 
 func (f *forceSyncSharedInformerFactory) InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer {
-	informer := f.SharedInformerFactory.InformerFor(obj, newFunc)
-	return newForceSyncSharedIndexInformer(informer, f.defaultResync)
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func (f *forceSyncSharedInformerFactory) Core() core.Interface {
-	return core.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(core.Interface)
 }
 
 func (f *forceSyncSharedInformerFactory) Storage() storage.Interface {
-	return storage.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(storage.Interface)
 }

@@ -17,17 +17,11 @@ limitations under the License.
 package controller
 
 import (
-	"context"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	corelister "k8s.io/client-go/listers/core/v1"
-	"k8s.io/klog/v2"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	reservationutil "github.com/koordinator-sh/koordinator/pkg/util/reservation"
 )
 
 const (
@@ -35,52 +29,14 @@ const (
 	defaultGCDuration      = 24 * time.Hour
 )
 
-func (c *Controller) gcReservations() {
-	reservations, err := c.reservationLister.List(labels.Everything())
-	if err != nil {
-		klog.Errorf("failed to list reservations, abort the GC turn, err: %s", err)
-		return
-	}
-	for _, reservation := range reservations {
-		if reservationutil.IsReservationExpired(reservation) || reservationutil.IsReservationSucceeded(reservation) {
-			if isReservationNeedCleanup(reservation, c.gcDuration) || missingNode(reservation, c.nodeLister) {
-				if err = c.koordClientSet.SchedulingV1alpha1().Reservations().Delete(context.TODO(), reservation.Name, metav1.DeleteOptions{}); err != nil {
-					klog.V(3).InfoS("failed to delete reservation", "reservation", klog.KObj(reservation), "err", err)
-				} else {
-					klog.V(4).InfoS("Reservation has been garbage collected", "reservation", klog.KObj(reservation))
-				}
-			}
-		}
-	}
-}
+func (c *Controller) gcReservations() { _ = "STUB: not implemented"; return }
 
 func missingNode(reservation *schedulingv1alpha1.Reservation, nodeLister corelister.NodeLister) bool {
-	if reservation.Status.NodeName != "" {
-		if _, err := nodeLister.Get(reservation.Status.NodeName); err != nil {
-			if errors.IsNotFound(err) {
-				return true
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func isReservationNeedCleanup(r *schedulingv1alpha1.Reservation, gcDuration time.Duration) bool {
-	if r == nil {
-		return true
-	}
-	if reservationutil.IsReservationExpired(r) {
-		for _, condition := range r.Status.Conditions {
-			if condition.Reason == schedulingv1alpha1.ReasonReservationExpired {
-				return time.Since(condition.LastTransitionTime.Time) > gcDuration
-			}
-		}
-	} else if reservationutil.IsReservationSucceeded(r) {
-		for _, condition := range r.Status.Conditions {
-			if condition.Reason == schedulingv1alpha1.ReasonReservationSucceeded {
-				return time.Since(condition.LastProbeTime.Time) > gcDuration
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }

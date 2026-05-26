@@ -17,13 +17,7 @@ limitations under the License.
 package prediction
 
 import (
-	"encoding/json"
-	"os"
-	"path/filepath"
-	"strings"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 
 	"github.com/koordinator-sh/koordinator/pkg/util/histogram"
 )
@@ -50,9 +44,7 @@ type Checkpointer interface {
 }
 
 // NewFileCheckpointer creates a new file-based checkpointer with the specified directory.
-func NewFileCheckpointer(path string) *fileCheckpointer {
-	return &fileCheckpointer{path: path}
-}
+func NewFileCheckpointer(path string) *fileCheckpointer { _ = "STUB: not implemented"; return nil }
 
 // fileCheckpointer is an implementation of the Checkpointer interface using files.
 type fileCheckpointer struct {
@@ -61,60 +53,17 @@ type fileCheckpointer struct {
 
 // Save saves the given model as a checkpoint with the specified UID.
 func (f *fileCheckpointer) Save(checkpoint ModelCheckpoint) error {
-	filename := filepath.Join(f.path, string(checkpoint.UID))
-	tmpFilename := filename + TmpFileSuffix
-	file, err := os.Create(tmpFilename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	if err := encoder.Encode(checkpoint); err != nil {
-		return err
-	}
-
-	return os.Rename(tmpFilename, filename)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Remove removes the given model the specified UID.
-func (f *fileCheckpointer) Remove(UID UIDType) error {
-	filename := filepath.Join(f.path, string(UID))
-	return os.Remove(filename)
-}
+func (f *fileCheckpointer) Remove(UID UIDType) error { _ = "STUB: not implemented"; return nil }
 
 // Restore returns a slice of ModelCheckpoint instances by scanning and decoding checkpoint files from the specified path.
 func (f *fileCheckpointer) Restore() ([]*ModelCheckpoint, error) {
-	models := make([]*ModelCheckpoint, 0, 32)
-	err := filepath.Walk(f.path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		if strings.HasSuffix(path, TmpFileSuffix) {
-			err := os.Remove(path)
-			klog.InfoS("remove tmp file", path, err)
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			klog.InfoS("open file failed, skip it", path)
-			return nil
-		}
-		defer file.Close()
-
-		checkpoint := &ModelCheckpoint{}
-		decoder := json.NewDecoder(file)
-		if err := decoder.Decode(checkpoint); err != nil {
-			checkpoint.Error = err
-		}
-		// reset UID to the file name
-		checkpoint.UID = UIDType(filepath.Base(path))
-		models = append(models, checkpoint)
-		return nil
-	})
-	return models, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// reset UID to the file name

@@ -29,12 +29,13 @@ type FakeConfigV1alpha1 struct {
 }
 
 func (c *FakeConfigV1alpha1) ClusterColocationProfiles() v1alpha1.ClusterColocationProfileInterface {
-	return newFakeClusterColocationProfiles(c)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.ClusterColocationProfileInterface)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeConfigV1alpha1) RESTClient() rest.Interface {
-	var ret *rest.RESTClient
-	return ret
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

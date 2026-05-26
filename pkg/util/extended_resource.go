@@ -31,56 +31,49 @@ var ExtendedResourceNames = []corev1.ResourceName{
 }
 
 func GetBatchMilliCPUFromResourceList(r corev1.ResourceList) int64 {
+	_ = "STUB: not implemented"
 	// assert r != nil
-	if milliCPU, ok := r[extension.BatchCPU]; ok {
-		return milliCPU.Value()
-	}
-	return -1
+	return 0
 }
 
 func GetBatchMemoryFromResourceList(r corev1.ResourceList) int64 {
+	_ = "STUB: not implemented"
 	// assert r != nil
-	if memory, ok := r[extension.BatchMemory]; ok {
-		return memory.Value()
-	}
-	return -1
+	return 0
 }
 
 func GetMidMilliCPUFromResourceList(r corev1.ResourceList) int64 {
+	_ = "STUB: not implemented"
 	// assert r != nil
-	if milliCPU, ok := r[extension.MidCPU]; ok {
-		return milliCPU.Value()
-	}
-	return -1
+	return 0
 }
 
 func GetMidMemoryFromResourceList(r corev1.ResourceList) int64 {
+	_ = "STUB: not implemented"
 	// assert r != nil
-	if memory, ok := r[extension.MidMemory]; ok {
-		return memory.Value()
-	}
-	return -1
+	return 0
 }
 
 func GetContainerBatchMilliCPURequest(c *corev1.Container) int64 {
-	return GetBatchMilliCPUFromResourceList(c.Resources.Requests)
+	_ = "STUB: not implemented"
+	return 0
 }
 
-func GetContainerBatchMilliCPULimit(c *corev1.Container) int64 {
-	return GetBatchMilliCPUFromResourceList(c.Resources.Limits)
-}
+func GetContainerBatchMilliCPULimit(c *corev1.Container) int64 { _ = "STUB: not implemented"; return 0 }
 
-func GetContainerMidMilliCPURequest(c *corev1.Container) int64 {
-	return GetMidMilliCPUFromResourceList(c.Resources.Requests)
-}
+func GetContainerMidMilliCPURequest(c *corev1.Container) int64 { _ = "STUB: not implemented"; return 0 }
+
 func GetContainerMidMemoryByteRequest(c *corev1.Container) int64 {
-	return GetMidMemoryFromResourceList(c.Resources.Requests)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func GetContainerBatchMemoryByteRequest(c *corev1.Container) int64 {
-	return GetBatchMemoryFromResourceList(c.Resources.Requests)
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func GetContainerBatchMemoryByteLimit(c *corev1.Container) int64 {
-	return GetBatchMemoryFromResourceList(c.Resources.Limits)
+	_ = "STUB: not implemented"
+	return 0
 }

@@ -18,8 +18,6 @@ package reservation
 
 import (
 	fwktype "k8s.io/kube-scheduler/framework"
-
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/hinter"
 )
 
 type HintState struct {
@@ -35,19 +33,6 @@ type HintExtensions struct {
 }
 
 func getSchedulingHint(cycleState fwktype.CycleState) (*HintState, bool) {
-	schedulingHint := hinter.GetSchedulingHintState(cycleState)
-	if schedulingHint == nil || schedulingHint.Extensions == nil {
-		return nil, false
-	}
-	if schedulingHint.Extensions[Name] == nil {
-		return nil, false
-	}
-	extensions, ok := schedulingHint.Extensions[Name].(HintExtensions)
-	if !ok {
-		return nil, false
-	}
-	return &HintState{
-		PreFilterNodeInfos: schedulingHint.PreFilterNodes,
-		HintExtensions:     extensions,
-	}, true
+	_ = "STUB: not implemented"
+	return nil, false
 }

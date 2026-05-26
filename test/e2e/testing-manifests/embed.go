@@ -27,8 +27,6 @@ import (
 var e2eTestingManifestsFS embed.FS
 
 func GetE2ETestingManifestsFS() e2etestfiles.EmbeddedFileSource {
-	return e2etestfiles.EmbeddedFileSource{
-		EmbeddedFS: e2eTestingManifestsFS,
-		Root:       "test/e2e/testing-manifests",
-	}
+	_ = "STUB: not implemented"
+	return *new(e2etestfiles.EmbeddedFileSource)
 }

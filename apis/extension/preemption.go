@@ -29,28 +29,13 @@ const (
 )
 
 func GetPodKoordPreemptionPolicy(pod *corev1.Pod) *corev1.PreemptionPolicy {
-	if pod == nil || pod.Labels == nil {
-		return nil
-	}
-	switch s := corev1.PreemptionPolicy(pod.Labels[LabelPodPreemptionPolicy]); s {
-	case corev1.PreemptNever, corev1.PreemptLowerPriority:
-		return &s
-	default:
-		return nil
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func GetPreemptionPolicyPtr(policy corev1.PreemptionPolicy) *corev1.PreemptionPolicy {
-	return &policy
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func IsPodPreemptible(pod *corev1.Pod) bool {
-	if pod == nil || pod.Labels == nil {
-		return true
-	}
-	v, ok := pod.Labels[LabelDisablePreemptible]
-	if !ok {
-		return true
-	}
-	return v != "true"
-}
+func IsPodPreemptible(pod *corev1.Pod) bool { _ = "STUB: not implemented"; return false }

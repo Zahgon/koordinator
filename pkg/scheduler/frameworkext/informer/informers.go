@@ -21,31 +21,11 @@ import (
 
 	policyv1 "k8s.io/api/policy/v1"
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
-	resourcev1 "k8s.io/api/resource/v1"
-	resourcev1alpha3 "k8s.io/api/resource/v1alpha3"
 	storagev1 "k8s.io/api/storage/v1"
 	storagev1beta1 "k8s.io/api/storage/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/informers"
-	policyv1informers "k8s.io/client-go/informers/policy/v1"
-	policyv1beta1informers "k8s.io/client-go/informers/policy/v1beta1"
-	resourcev1informers "k8s.io/client-go/informers/resource/v1"
-	resourcev1alpha3informers "k8s.io/client-go/informers/resource/v1alpha3"
-	storagev1informers "k8s.io/client-go/informers/storage/v1"
-	storagev1beta1informers "k8s.io/client-go/informers/storage/v1beta1"
 	clientset "k8s.io/client-go/kubernetes"
-	kubefake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-	"k8s.io/kubernetes/pkg/apis/policy"
-	policyv1adapt "k8s.io/kubernetes/pkg/apis/policy/v1"
-	policyv1beta1adapt "k8s.io/kubernetes/pkg/apis/policy/v1beta1"
-	"k8s.io/kubernetes/pkg/apis/storage"
-	storagev1adapt "k8s.io/kubernetes/pkg/apis/storage/v1"
-	storagev1beta1adapt "k8s.io/kubernetes/pkg/apis/storage/v1beta1"
-
-	koordfeatures "github.com/koordinator-sh/koordinator/pkg/features"
 )
 
 type SetupInformerFn func(informerFactory informers.SharedInformerFactory)
@@ -55,166 +35,84 @@ var setupInformers = []SetupInformerFn{
 }
 
 func SetupCustomInformers(informerFactory informers.SharedInformerFactory) {
-	for _, setupInformer := range setupInformers {
-		setupInformer(informerFactory)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func setupCompatibleInformers(informerFactory informers.SharedInformerFactory) {
-	if k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.DisableDynamicResourceAllocationInformer) {
-		// Clusters below k8s v1.32 do not have resource.k8s.io/v1 APIs (ResourceClaims,
-		// ResourceSlices, DeviceClasses, DeviceTaintRules). When DynamicResourceAllocation
-		// is locked to true in k8s 1.35, we must stub these informers with a fake client
-		// to prevent watch errors like "resourceclaims.resource.k8s.io is forbidden".
-		disableDynamicResourceAllocationInformer(informerFactory)
-	}
-
-	if k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.DisableCSIStorageCapacityInformer) {
-		// Versions below k8s v1.22 need to disable CSIStorageCapacity
-		disableCSIStorageCapacityInformer(informerFactory)
-	} else if k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.CompatibleCSIStorageCapacity) &&
-		k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.CSIStorageCapacity) {
-		// The k8s v1.22 version needs to enable the FeatureGate to convert v1beta1.CSIStorageCapacity to v1.CSIStorageCapacity
-		setupCompatibleCSICapacityInformer(informerFactory)
-	}
-
-	if k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.DisablePodDisruptionBudgetInformer) {
-		disablePodDisruptionBudgetInformer(informerFactory)
-	} else if k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.CompatiblePodDisruptionBudget) &&
-		k8sfeature.DefaultFeatureGate.Enabled(koordfeatures.PodDisruptionBudget) {
-		// Versions below k8s v1.22 need to enable the FeatureGate to convert v1beta1.PodDisruptionBudget to v1.PodDisruptionBudget
-		setupCompatiblePodDisruptionBudgetInformer(informerFactory)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Clusters below k8s v1.32 do not have resource.k8s.io/v1 APIs (ResourceClaims,
+// ResourceSlices, DeviceClasses, DeviceTaintRules). When DynamicResourceAllocation
+// is locked to true in k8s 1.35, we must stub these informers with a fake client
+// to prevent watch errors like "resourceclaims.resource.k8s.io is forbidden".
+
+// Versions below k8s v1.22 need to disable CSIStorageCapacity
+
+// The k8s v1.22 version needs to enable the FeatureGate to convert v1beta1.CSIStorageCapacity to v1.CSIStorageCapacity
+
+// Versions below k8s v1.22 need to enable the FeatureGate to convert v1beta1.PodDisruptionBudget to v1.PodDisruptionBudget
 
 // disableDynamicResourceAllocationInformer stubs out all DRA informers with a fake client
 // so they never connect to the real API server. This is needed for clusters running
 // Kubernetes < 1.32 that do not have the resource.k8s.io/v1 API group.
 func disableDynamicResourceAllocationInformer(informerFactory informers.SharedInformerFactory) {
-	fakeClient := kubefake.NewSimpleClientset()
-	informerFactory.InformerFor(&resourcev1.ResourceClaim{}, func(_ clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		return resourcev1informers.NewFilteredResourceClaimInformer(fakeClient, metav1.NamespaceAll, resyncPeriod, nil, nil)
-	})
-	informerFactory.InformerFor(&resourcev1.ResourceClaimTemplate{}, func(_ clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		return resourcev1informers.NewFilteredResourceClaimTemplateInformer(fakeClient, metav1.NamespaceAll, resyncPeriod, nil, nil)
-	})
-	informerFactory.InformerFor(&resourcev1.ResourceSlice{}, func(_ clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		return resourcev1informers.NewFilteredResourceSliceInformer(fakeClient, resyncPeriod, nil, nil)
-	})
-	informerFactory.InformerFor(&resourcev1.DeviceClass{}, func(_ clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		return resourcev1informers.NewFilteredDeviceClassInformer(fakeClient, resyncPeriod, nil, nil)
-	})
-	informerFactory.InformerFor(&resourcev1alpha3.DeviceTaintRule{}, func(_ clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		return resourcev1alpha3informers.NewFilteredDeviceTaintRuleInformer(fakeClient, resyncPeriod, nil, nil)
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func disableCSIStorageCapacityInformer(informerFactory informers.SharedInformerFactory) {
-	informerFactory.InformerFor(&storagev1beta1.CSIStorageCapacity{}, func(k clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		fakeClient := kubefake.NewSimpleClientset()
-		return storagev1beta1informers.NewFilteredCSIStorageCapacityInformer(fakeClient, metav1.NamespaceAll, resyncPeriod, nil, nil)
-	})
-
-	informerFactory.InformerFor(&storagev1.CSIStorageCapacity{}, func(k clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		fakeClient := kubefake.NewSimpleClientset()
-		return storagev1informers.NewFilteredCSIStorageCapacityInformer(fakeClient, metav1.NamespaceAll, resyncPeriod, nil, nil)
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func setupCompatibleCSICapacityInformer(informerFactory informers.SharedInformerFactory) {
-	i := informerFactory.InformerFor(&storagev1.CSIStorageCapacity{}, newCSIStorageCapacityInformer)
-	// set transform funcs after the InformerFor
-	if err := i.SetTransform(storagev1beta1CSIStorageCapacityTransformer); err != nil {
-		klog.Fatalf("Failed to SetTransform with storagev1informer, err: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
+// set transform funcs after the InformerFor
+
 func newCSIStorageCapacityInformer(client clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	storageCapacityInformer := storagev1beta1informers.NewFilteredCSIStorageCapacityInformer(client, metav1.NamespaceAll, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, nil)
-	return storageCapacityInformer
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func storagev1beta1CSIStorageCapacityTransformer(obj interface{}) (interface{}, error) {
-	var storageCapacity *storagev1beta1.CSIStorageCapacity
-	switch t := obj.(type) {
-	case *storagev1beta1.CSIStorageCapacity:
-		storageCapacity = t
-	case cache.DeletedFinalStateUnknown:
-		storageCapacity, _ = t.Obj.(*storagev1beta1.CSIStorageCapacity)
-	}
-	if storageCapacity == nil {
-		klog.Fatalf("the impossible happened")
-	}
-	capacity, err := convertV1Beta1CSIStorageCapacityToV1CSIStorageCapacity(storageCapacity)
-	if err != nil {
-		klog.ErrorS(err, "Failed to convert storagev1beta1.CSIStorageCapacity to storagev1.CSIStorageCapacity")
-		return nil, err
-	}
-	return capacity, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func convertV1Beta1CSIStorageCapacityToV1CSIStorageCapacity(in *storagev1beta1.CSIStorageCapacity) (*storagev1.CSIStorageCapacity, error) {
-	storageCSIStorageCapacity := &storage.CSIStorageCapacity{}
-	err := storagev1beta1adapt.Convert_v1beta1_CSIStorageCapacity_To_storage_CSIStorageCapacity(in, storageCSIStorageCapacity, nil)
-	if err != nil {
-		return nil, err
-	}
-	out := &storagev1.CSIStorageCapacity{}
-	err = storagev1adapt.Convert_storage_CSIStorageCapacity_To_v1_CSIStorageCapacity(storageCSIStorageCapacity, out, nil)
-	return out, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func disablePodDisruptionBudgetInformer(informerFactory informers.SharedInformerFactory) {
-	informerFactory.InformerFor(&policyv1beta1.PodDisruptionBudget{}, func(k clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		fakeClient := kubefake.NewSimpleClientset()
-		return policyv1beta1informers.NewFilteredPodDisruptionBudgetInformer(fakeClient, metav1.NamespaceAll, resyncPeriod, nil, nil)
-	})
-
-	informerFactory.InformerFor(&policyv1.PodDisruptionBudget{}, func(k clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-		fakeClient := kubefake.NewSimpleClientset()
-		return policyv1informers.NewFilteredPodDisruptionBudgetInformer(fakeClient, metav1.NamespaceAll, resyncPeriod, nil, nil)
-	})
+	_ = "STUB: not implemented"
+	return
 }
 
 func setupCompatiblePodDisruptionBudgetInformer(informerFactory informers.SharedInformerFactory) {
-	i := informerFactory.InformerFor(&policyv1.PodDisruptionBudget{}, newPodDisruptionBudgetInformer)
-	// set transform funcs after the InformerFor
-	if err := i.SetTransform(policyv1beta1PodDisruptionBudgetTransformer); err != nil {
-		klog.Fatalf("Failed to SetTransform with policyv1informer, err: %v", err)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
+// set transform funcs after the InformerFor
+
 func newPodDisruptionBudgetInformer(client clientset.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	pdbInformer := policyv1beta1informers.NewFilteredPodDisruptionBudgetInformer(client, metav1.NamespaceAll, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, nil)
-	return pdbInformer
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
 func policyv1beta1PodDisruptionBudgetTransformer(obj interface{}) (interface{}, error) {
-	var podDisruptionBudget *policyv1beta1.PodDisruptionBudget
-	switch t := obj.(type) {
-	case *policyv1beta1.PodDisruptionBudget:
-		podDisruptionBudget = t
-	case cache.DeletedFinalStateUnknown:
-		podDisruptionBudget, _ = t.Obj.(*policyv1beta1.PodDisruptionBudget)
-	}
-	if podDisruptionBudget == nil {
-		klog.Fatalf("the impossible happened")
-	}
-	out, err := convertV1Beta1PodDisruptionBudgetToV1PodDisruptionBudget(podDisruptionBudget)
-	if err != nil {
-		klog.ErrorS(err, "Failed to convert policyv1beta1.PodDisruptionBudget to policyv1.PodDisruptionBudget")
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func convertV1Beta1PodDisruptionBudgetToV1PodDisruptionBudget(in *policyv1beta1.PodDisruptionBudget) (*policyv1.PodDisruptionBudget, error) {
-	podDisruptionBudget := &policy.PodDisruptionBudget{}
-	err := policyv1beta1adapt.Convert_v1beta1_PodDisruptionBudget_To_policy_PodDisruptionBudget(in, podDisruptionBudget, nil)
-	if err != nil {
-		return nil, err
-	}
-	out := &policyv1.PodDisruptionBudget{}
-	err = policyv1adapt.Convert_policy_PodDisruptionBudget_To_v1_PodDisruptionBudget(podDisruptionBudget, out, nil)
-	return out, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }

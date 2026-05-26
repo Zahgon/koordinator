@@ -17,7 +17,6 @@ limitations under the License.
 package metriccache
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -222,16 +221,19 @@ type Point struct {
 
 // timestamp return the metric ts as milli-seconds
 func (p *Point) timestamp() int64 {
+	_ = "STUB: not implemented"
 	// use milli seconds here to follow prometheus.tsdb
-	return p.Timestamp.UnixMilli()
+	return 0
 }
 
 // value return the exact value of point
 func (p *Point) value() float64 {
-	return p.Value
+	_ = "STUB: not implemented"
+
+	// MetricMeta is the meta info of metric
+	return 0
 }
 
-// MetricMeta is the meta info of metric
 type MetricMeta interface {
 	// GetKind should returns the metric kind like pod_cpu_usage, pod_cpu_throttled
 	GetKind() string
@@ -247,15 +249,15 @@ type metricMeta struct {
 	property map[string]string
 }
 
-func (m *metricMeta) GetKind() string {
-	return string(m.kind)
-}
+func (m *metricMeta) GetKind() string { _ = "STUB: not implemented"; return "" }
 
 func (m *metricMeta) GetProperties() map[string]string {
-	return m.property
+	_ = "STUB: not implemented"
+
+	// MetricSample is a sample of specified metric, e.g. '{__name__: node_cpu_usage} = <2023-04-18:20:00:00, 4.1 core>'
+	return nil
 }
 
-// MetricSample is a sample of specified metric, e.g. '{__name__: node_cpu_usage} = <2023-04-18:20:00:00, 4.1 core>'
 type MetricSample interface {
 	MetricMeta
 
@@ -298,53 +300,23 @@ type metricResource struct {
 }
 
 func (m *metricResource) withPropertySchema(properties ...MetricProperty) MetricResource {
-	for _, p := range properties {
-		if m.propertySchema == nil {
-			m.propertySchema = make(map[MetricProperty]struct{}, len(properties))
-		}
-		m.propertySchema[p] = struct{}{}
-	}
-	return m
+	_ = "STUB: not implemented"
+	return *new(MetricResource)
 }
 
 func (m *metricResource) GenerateSample(properties map[MetricProperty]string, t time.Time, val float64) (MetricSample, error) {
-	s := &metricSample{
-		metricMeta: metricMeta{
-			kind:     m.kind,
-			property: make(map[string]string, len(properties)),
-		},
-		Point: Point{
-			Timestamp: t,
-			Value:     val,
-		},
-	}
-	// all properties in schema must be set for new sample to be appended
-	for k, v := range properties {
-		if _, exist := m.propertySchema[k]; !exist {
-			return nil, fmt.Errorf("property %v is not registered in metric %v", k, m.kind)
-		}
-		s.property[string(k)] = v
-	}
-	if len(s.property) != len(m.propertySchema) {
-		return nil, fmt.Errorf("property is not fulled set, current %v, schema %v", properties, m.propertySchema)
-	}
-	return s, nil
+	_ = "STUB: not implemented"
+	return *new(MetricSample), nil
 }
 
+// all properties in schema must be set for new sample to be appended
+
 func (m *metricResource) BuildQueryMeta(properties map[MetricProperty]string) (MetricMeta, error) {
-	meta := &metricMeta{
-		kind:     m.kind,
-		property: make(map[string]string, len(properties)),
-	}
-	// property for query must be registered in schema
-	for k, v := range properties {
-		if _, exist := m.propertySchema[k]; !exist {
-			return nil, fmt.Errorf("property %v is not registered in metric %v", k, m.kind)
-		}
-		meta.property[string(k)] = v
-	}
-	return meta, nil
+	_ = "STUB: not implemented"
+	return *new(MetricMeta), nil
 }
+
+// property for query must be registered in schema
 
 // MetricFactory generates MetricResource by specified kind
 type MetricFactory interface {
@@ -353,17 +325,18 @@ type MetricFactory interface {
 }
 
 func NewMetricFactory() MetricFactory {
-	return &metricFactory{}
+	_ = "STUB: not implemented"
+	return *
+
+	// metricFactory implements the MetricFactory
+	new(MetricFactory)
 }
 
-// metricFactory implements the MetricFactory
 var _ MetricFactory = &metricFactory{}
 
 type metricFactory struct{}
 
 func (f *metricFactory) New(metricKind MetricKind) MetricResource {
-	return &metricResource{
-		kind:           metricKind,
-		propertySchema: nil,
-	}
+	_ = "STUB: not implemented"
+	return *new(MetricResource)
 }

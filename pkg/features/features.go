@@ -163,6 +163,4 @@ func init() {
 	runtime.Must(utilfeature.DefaultMutableFeatureGate.Add(transformerFeatureGates))
 }
 
-func SetDefaultFeatureGates() {
-
-}
+func SetDefaultFeatureGates() { _ = "STUB: not implemented"; return }

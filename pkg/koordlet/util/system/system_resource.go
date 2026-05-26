@@ -18,9 +18,6 @@ package system
 
 import (
 	"math"
-	"path/filepath"
-
-	"k8s.io/utils/ptr"
 )
 
 const (
@@ -79,60 +76,43 @@ type SystemResource struct {
 }
 
 func (c *SystemResource) ResourceType() ResourceType {
-	if len(c.Type) > 0 {
-		return c.Type
-	}
-	return ResourceType(c.FileName)
+	_ = "STUB: not implemented"
+	return *new(ResourceType)
 }
 
-func (c *SystemResource) Path(dynamicPath string) string {
-	return filepath.Join(c.RootDir(), c.RelativePath, c.FileName)
-}
+func (c *SystemResource) Path(dynamicPath string) string { _ = "STUB: not implemented"; return "" }
 
 func (c *SystemResource) IsSupported(dynamicPath string) (bool, string) {
-	if c.Supported == nil {
-		if c.CheckSupported == nil {
-			return false, "unknown support status"
-		}
-		isSupported, msg := c.CheckSupported(c, dynamicPath)
-		if c.CheckOnce {
-			c.Supported = &isSupported
-			c.SupportMsg = msg
-		}
-		return isSupported, msg
-	}
-	return *c.Supported, c.SupportMsg
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func (c *SystemResource) IsValid(v string) (bool, string) {
-	if c.Validator == nil {
-		return true, ""
-	}
-	return c.Validator.Validate(v)
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func (c *SystemResource) WithValidator(validator ResourceValidator) Resource {
-	c.Validator = validator
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (c *SystemResource) WithSupported(isSupported bool, msg string) Resource {
-	c.Supported = ptr.To[bool](isSupported)
-	c.SupportMsg = msg
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (c *SystemResource) WithCheckSupported(checkSupportedFn func(r Resource, parentDir string) (isSupported bool, msg string)) Resource {
-	c.Supported = nil
-	c.CheckSupported = checkSupportedFn
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (c *SystemResource) WithCheckOnce(isCheckOnce bool) Resource {
-	c.CheckOnce = isCheckOnce
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func NewCommonSystemResource(relativePath, fileName string, Rootdir func() string) Resource {
-	return &SystemResource{Type: ResourceType(fileName), FileName: fileName, RelativePath: relativePath, RootDir: Rootdir, Supported: ptr.To[bool](true)}
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }

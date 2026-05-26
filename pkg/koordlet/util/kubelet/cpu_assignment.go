@@ -17,10 +17,6 @@ limitations under the License.
 package kubelet
 
 import (
-	"fmt"
-	"sort"
-
-	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/kubelet/cm/cpumanager/topology"
 	"k8s.io/utils/cpuset"
 )
@@ -34,39 +30,13 @@ const (
 
 type mapIntInt map[int]int
 
-func (m mapIntInt) Clone() mapIntInt {
-	cp := make(mapIntInt, len(m))
-	for k, v := range m {
-		cp[k] = v
-	}
-	return cp
-}
+func (m mapIntInt) Clone() mapIntInt { _ = "STUB: not implemented"; return *new(mapIntInt) }
 
-func (m mapIntInt) Keys() []int {
-	var keys []int
-	for k := range m {
-		keys = append(keys, k)
-	}
-	return keys
-}
+func (m mapIntInt) Keys() []int { _ = "STUB: not implemented"; return nil }
 
-func (m mapIntInt) Values(keys ...int) []int {
-	if keys == nil {
-		keys = m.Keys()
-	}
-	var values []int
-	for _, k := range keys {
-		values = append(values, m[k])
-	}
-	return values
-}
+func (m mapIntInt) Values(keys ...int) []int { _ = "STUB: not implemented"; return nil }
 
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
+func min(x, y int) int { _ = "STUB: not implemented"; return 0 }
 
 type numaOrSocketsFirstFuncs interface {
 	takeFullFirstLevel()
@@ -84,93 +54,45 @@ var _ numaOrSocketsFirstFuncs = (*socketsFirst)(nil)
 
 // If NUMA nodes are higher in the memory hierarchy than sockets, then we take
 // from the set of NUMA Nodes as the first level.
-func (n *numaFirst) takeFullFirstLevel() {
-	n.acc.takeFullNUMANodes()
-}
+func (n *numaFirst) takeFullFirstLevel() { _ = "STUB: not implemented"; return }
 
 // If NUMA nodes are higher in the memory hierarchy than sockets, then we take
 // from the set of sockets as the second level.
-func (n *numaFirst) takeFullSecondLevel() {
-	n.acc.takeFullSockets()
-}
+func (n *numaFirst) takeFullSecondLevel() { _ = "STUB: not implemented"; return }
 
 // If NUMA nodes are higher in the memory hierarchy than sockets, then just
 // sort the NUMA nodes directly, and return them.
-func (n *numaFirst) sortAvailableNUMANodes() []int {
-	numas := n.acc.details.NUMANodes().UnsortedList()
-	n.acc.sort(numas, n.acc.details.CPUsInNUMANodes)
-	return numas
-}
+func (n *numaFirst) sortAvailableNUMANodes() []int { _ = "STUB: not implemented"; return nil }
 
 // If NUMA nodes are higher in the memory hierarchy than sockets, then we need
 // to pull the set of sockets out of each sorted NUMA node, and accumulate the
 // partial order across them.
-func (n *numaFirst) sortAvailableSockets() []int {
-	var result []int
-	for _, numa := range n.sortAvailableNUMANodes() {
-		sockets := n.acc.details.SocketsInNUMANodes(numa).UnsortedList()
-		n.acc.sort(sockets, n.acc.details.CPUsInSockets)
-		result = append(result, sockets...)
-	}
-	return result
-}
+func (n *numaFirst) sortAvailableSockets() []int { _ = "STUB: not implemented"; return nil }
 
 // If NUMA nodes are higher in the memory hierarchy than sockets, then
 // cores sit directly below sockets in the memory hierarchy.
-func (n *numaFirst) sortAvailableCores() []int {
-	var result []int
-	for _, socket := range n.acc.sortAvailableSockets() {
-		cores := n.acc.details.CoresInSockets(socket).UnsortedList()
-		n.acc.sort(cores, n.acc.details.CPUsInCores)
-		result = append(result, cores...)
-	}
-	return result
-}
+func (n *numaFirst) sortAvailableCores() []int { _ = "STUB: not implemented"; return nil }
 
 // If sockets are higher in the memory hierarchy than NUMA nodes, then we take
 // from the set of sockets as the first level.
-func (s *socketsFirst) takeFullFirstLevel() {
-	s.acc.takeFullSockets()
-}
+func (s *socketsFirst) takeFullFirstLevel() { _ = "STUB: not implemented"; return }
 
 // If sockets are higher in the memory hierarchy than NUMA nodes, then we take
 // from the set of NUMA Nodes as the second level.
-func (s *socketsFirst) takeFullSecondLevel() {
-	s.acc.takeFullNUMANodes()
-}
+func (s *socketsFirst) takeFullSecondLevel() { _ = "STUB: not implemented"; return }
 
 // If sockets are higher in the memory hierarchy than NUMA nodes, then we need
 // to pull the set of NUMA nodes out of each sorted Socket, and accumulate the
 // partial order across them.
-func (s *socketsFirst) sortAvailableNUMANodes() []int {
-	var result []int
-	for _, socket := range s.sortAvailableSockets() {
-		numas := s.acc.details.NUMANodesInSockets(socket).UnsortedList()
-		s.acc.sort(numas, s.acc.details.CPUsInNUMANodes)
-		result = append(result, numas...)
-	}
-	return result
-}
+func (s *socketsFirst) sortAvailableNUMANodes() []int { _ = "STUB: not implemented"; return nil }
 
 // If sockets are higher in the memory hierarchy than NUMA nodes, then just
 // sort the sockets directly, and return them.
-func (s *socketsFirst) sortAvailableSockets() []int {
-	sockets := s.acc.details.Sockets().UnsortedList()
-	s.acc.sort(sockets, s.acc.details.CPUsInSockets)
-	return sockets
-}
+func (s *socketsFirst) sortAvailableSockets() []int { _ = "STUB: not implemented"; return nil }
 
 // If sockets are higher in the memory hierarchy than NUMA nodes, then cores
 // sit directly below NUMA Nodes in the memory hierarchy.
-func (s *socketsFirst) sortAvailableCores() []int {
-	var result []int
-	for _, numa := range s.acc.sortAvailableNUMANodes() {
-		cores := s.acc.details.CoresInNUMANodes(numa).UnsortedList()
-		s.acc.sort(cores, s.acc.details.CPUsInCores)
-		result = append(result, cores...)
-	}
-	return result
-}
+func (s *socketsFirst) sortAvailableCores() []int { _ = "STUB: not implemented"; return nil }
 
 type cpuAccumulator struct {
 	topo               *topology.CPUTopology
@@ -181,75 +103,36 @@ type cpuAccumulator struct {
 }
 
 func newCPUAccumulator(topo *topology.CPUTopology, availableCPUs cpuset.CPUSet, numCPUs int) *cpuAccumulator {
-	acc := &cpuAccumulator{
-		topo:          topo,
-		details:       topo.CPUDetails.KeepOnly(availableCPUs),
-		numCPUsNeeded: numCPUs,
-		result:        cpuset.New(),
-	}
-
-	// if topo.NumSockets >= topo.NumNUMANodes {
-	// 	acc.numaOrSocketsFirst = &numaFirst{acc}
-	// } else {
-	// 	acc.numaOrSocketsFirst = &socketsFirst{acc}
-	// }
-	acc.numaOrSocketsFirst = &socketsFirst{acc}
-
-	return acc
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// if topo.NumSockets >= topo.NumNUMANodes {
+// 	acc.numaOrSocketsFirst = &numaFirst{acc}
+// } else {
+// 	acc.numaOrSocketsFirst = &socketsFirst{acc}
+// }
 
 // Returns true if the supplied NUMANode is fully available in `topoDetails`.
-func (a *cpuAccumulator) isNUMANodeFree(numaID int) bool {
-	return a.details.CPUsInNUMANodes(numaID).Size() == a.topo.CPUDetails.CPUsInNUMANodes(numaID).Size()
-}
+func (a *cpuAccumulator) isNUMANodeFree(numaID int) bool { _ = "STUB: not implemented"; return false }
 
 // Returns true if the supplied socket is fully available in `topoDetails`.
-func (a *cpuAccumulator) isSocketFree(socketID int) bool {
-	return a.details.CPUsInSockets(socketID).Size() == a.topo.CPUsPerSocket()
-}
+func (a *cpuAccumulator) isSocketFree(socketID int) bool { _ = "STUB: not implemented"; return false }
 
 // Returns true if the supplied core is fully available in `topoDetails`.
-func (a *cpuAccumulator) isCoreFree(coreID int) bool {
-	return a.details.CPUsInCores(coreID).Size() == a.topo.CPUsPerCore()
-}
+func (a *cpuAccumulator) isCoreFree(coreID int) bool { _ = "STUB: not implemented"; return false }
 
 // Returns free NUMA Node IDs as a slice sorted by sortAvailableNUMANodes().
-func (a *cpuAccumulator) freeNUMANodes() []int {
-	free := []int{}
-	for _, numa := range a.sortAvailableNUMANodes() {
-		if a.isNUMANodeFree(numa) {
-			free = append(free, numa)
-		}
-	}
-	return free
-}
+func (a *cpuAccumulator) freeNUMANodes() []int { _ = "STUB: not implemented"; return nil }
 
 // Returns free socket IDs as a slice sorted by sortAvailableSockets().
-func (a *cpuAccumulator) freeSockets() []int {
-	free := []int{}
-	for _, socket := range a.sortAvailableSockets() {
-		if a.isSocketFree(socket) {
-			free = append(free, socket)
-		}
-	}
-	return free
-}
+func (a *cpuAccumulator) freeSockets() []int { _ = "STUB: not implemented"; return nil }
 
 // Returns free core IDs as a slice sorted by sortAvailableCores().
-func (a *cpuAccumulator) freeCores() []int {
-	free := []int{}
-	for _, core := range a.sortAvailableCores() {
-		if a.isCoreFree(core) {
-			free = append(free, core)
-		}
-	}
-	return free
-}
+func (a *cpuAccumulator) freeCores() []int { _ = "STUB: not implemented"; return nil }
 
 // Returns free CPU IDs as a slice sorted by sortAvailableCPUs().
-func (a *cpuAccumulator) freeCPUs() []int {
-	return a.sortAvailableCPUs()
-}
+func (a *cpuAccumulator) freeCPUs() []int { _ = "STUB: not implemented"; return nil }
 
 // Sorts the provided list of NUMA nodes/sockets/cores/cpus referenced in 'ids'
 // by the number of available CPUs contained within them (smallest to largest).
@@ -258,206 +141,90 @@ func (a *cpuAccumulator) freeCPUs() []int {
 // NUMA nodes/sockets/cores/cpus have the same number of available CPUs, they
 // are sorted in ascending order by their id.
 func (a *cpuAccumulator) sort(ids []int, getCPUs func(ids ...int) cpuset.CPUSet) {
-	sort.Slice(ids,
-		func(i, j int) bool {
-			iCPUs := getCPUs(ids[i])
-			jCPUs := getCPUs(ids[j])
-			if iCPUs.Size() < jCPUs.Size() {
-				return true
-			}
-			if iCPUs.Size() > jCPUs.Size() {
-				return false
-			}
-			return ids[i] < ids[j]
-		})
+	_ = "STUB: not implemented"
+	return
 }
 
 // Sort all NUMA nodes with free CPUs.
-func (a *cpuAccumulator) sortAvailableNUMANodes() []int {
-	return a.numaOrSocketsFirst.sortAvailableNUMANodes()
-}
+func (a *cpuAccumulator) sortAvailableNUMANodes() []int { _ = "STUB: not implemented"; return nil }
 
 // Sort all sockets with free CPUs.
-func (a *cpuAccumulator) sortAvailableSockets() []int {
-	return a.numaOrSocketsFirst.sortAvailableSockets()
-}
+func (a *cpuAccumulator) sortAvailableSockets() []int { _ = "STUB: not implemented"; return nil }
 
 // Sort all cores with free CPUs:
-func (a *cpuAccumulator) sortAvailableCores() []int {
-	return a.numaOrSocketsFirst.sortAvailableCores()
-}
+func (a *cpuAccumulator) sortAvailableCores() []int { _ = "STUB: not implemented"; return nil }
 
 // Sort all available CPUs:
 // - First by core using sortAvailableCores().
 // - Then within each core, using the sort() algorithm defined above.
-func (a *cpuAccumulator) sortAvailableCPUs() []int {
-	var result []int
-	for _, core := range a.sortAvailableCores() {
-		cpus := a.details.CPUsInCores(core).UnsortedList()
-		sort.Ints(cpus)
-		result = append(result, cpus...)
-	}
-	return result
-}
+func (a *cpuAccumulator) sortAvailableCPUs() []int { _ = "STUB: not implemented"; return nil }
 
-func (a *cpuAccumulator) take(cpus cpuset.CPUSet) {
-	a.result = a.result.Union(cpus)
-	a.details = a.details.KeepOnly(a.details.CPUs().Difference(a.result))
-	a.numCPUsNeeded -= cpus.Size()
-}
+func (a *cpuAccumulator) take(cpus cpuset.CPUSet) { _ = "STUB: not implemented"; return }
 
-func (a *cpuAccumulator) takeFullNUMANodes() {
-	for _, numa := range a.freeNUMANodes() {
-		cpusInNUMANode := a.topo.CPUDetails.CPUsInNUMANodes(numa)
-		if !a.needs(cpusInNUMANode.Size()) {
-			continue
-		}
-		klog.V(4).InfoS("takeFullNUMANodes: claiming NUMA node", "numa", numa)
-		a.take(cpusInNUMANode)
-	}
-}
+func (a *cpuAccumulator) takeFullNUMANodes() { _ = "STUB: not implemented"; return }
 
-func (a *cpuAccumulator) takeFullSockets() {
-	for _, socket := range a.freeSockets() {
-		cpusInSocket := a.topo.CPUDetails.CPUsInSockets(socket)
-		if !a.needs(cpusInSocket.Size()) {
-			continue
-		}
-		klog.V(4).InfoS("takeFullSockets: claiming socket", "socket", socket)
-		a.take(cpusInSocket)
-	}
-}
+func (a *cpuAccumulator) takeFullSockets() { _ = "STUB: not implemented"; return }
 
-func (a *cpuAccumulator) takeFullCores() {
-	for _, core := range a.freeCores() {
-		cpusInCore := a.topo.CPUDetails.CPUsInCores(core)
-		if !a.needs(cpusInCore.Size()) {
-			continue
-		}
-		klog.V(4).InfoS("takeFullCores: claiming core", "core", core)
-		a.take(cpusInCore)
-	}
-}
+func (a *cpuAccumulator) takeFullCores() { _ = "STUB: not implemented"; return }
 
-func (a *cpuAccumulator) takeRemainingCPUs() {
-	for _, cpu := range a.sortAvailableCPUs() {
-		klog.V(4).InfoS("takeRemainingCPUs: claiming CPU", "cpu", cpu)
-		a.take(cpuset.New(cpu))
-		if a.isSatisfied() {
-			return
-		}
-	}
-}
+func (a *cpuAccumulator) takeRemainingCPUs() { _ = "STUB: not implemented"; return }
 
 func (a *cpuAccumulator) rangeNUMANodesNeededToSatisfy(cpuGroupSize int) (int, int) {
+	_ = "STUB: not implemented"
 	// Get the total number of NUMA nodes in the system.
-	numNUMANodes := a.topo.CPUDetails.NUMANodes().Size()
-
-	// Get the total number of NUMA nodes that have CPUs available on them.
-	numNUMANodesAvailable := a.details.NUMANodes().Size()
-
-	// Get the total number of CPUs in the system.
-	numCPUs := a.topo.CPUDetails.CPUs().Size()
-
-	// Get the total number of 'cpuGroups' in the system.
-	numCPUGroups := (numCPUs-1)/cpuGroupSize + 1
-
-	// Calculate the number of 'cpuGroups' per NUMA Node in the system (rounding up).
-	numCPUGroupsPerNUMANode := (numCPUGroups-1)/numNUMANodes + 1
-
-	// Calculate the number of available 'cpuGroups' across all NUMA nodes as
-	// well as the number of 'cpuGroups' that need to be allocated (rounding up).
-	numCPUGroupsNeeded := (a.numCPUsNeeded-1)/cpuGroupSize + 1
-
-	// Calculate the minimum number of numa nodes required to satisfy the
-	// allocation (rounding up).
-	minNUMAs := (numCPUGroupsNeeded-1)/numCPUGroupsPerNUMANode + 1
-
-	// Calculate the maximum number of numa nodes required to satisfy the allocation.
-	maxNUMAs := min(numCPUGroupsNeeded, numNUMANodesAvailable)
-
-	return minNUMAs, maxNUMAs
+	return 0, 0
 }
 
-func (a *cpuAccumulator) needs(n int) bool {
-	return a.numCPUsNeeded >= n
-}
+// Get the total number of NUMA nodes that have CPUs available on them.
 
-func (a *cpuAccumulator) isSatisfied() bool {
-	return a.numCPUsNeeded < 1
-}
+// Get the total number of CPUs in the system.
 
-func (a *cpuAccumulator) isFailed() bool {
-	return a.numCPUsNeeded > a.details.CPUs().Size()
-}
+// Get the total number of 'cpuGroups' in the system.
+
+// Calculate the number of 'cpuGroups' per NUMA Node in the system (rounding up).
+
+// Calculate the number of available 'cpuGroups' across all NUMA nodes as
+// well as the number of 'cpuGroups' that need to be allocated (rounding up).
+
+// Calculate the minimum number of numa nodes required to satisfy the
+// allocation (rounding up).
+
+// Calculate the maximum number of numa nodes required to satisfy the allocation.
+
+func (a *cpuAccumulator) needs(n int) bool { _ = "STUB: not implemented"; return false }
+
+func (a *cpuAccumulator) isSatisfied() bool { _ = "STUB: not implemented"; return false }
+
+func (a *cpuAccumulator) isFailed() bool { _ = "STUB: not implemented"; return false }
 
 // iterateCombinations walks through all n-choose-k subsets of size k in n and
 // calls function 'f()' on each subset. For example, if n={0,1,2}, and k=2,
 // then f() will be called on the subsets {0,1}, {0,2}. and {1,2}. If f() ever
 // returns 'Break', we break early and exit the loop.
 func (a *cpuAccumulator) iterateCombinations(n []int, k int, f func([]int) LoopControl) {
-	if k < 1 {
-		return
-	}
-
-	var helper func(n []int, k int, start int, accum []int, f func([]int) LoopControl) LoopControl
-	helper = func(n []int, k int, start int, accum []int, f func([]int) LoopControl) LoopControl {
-		if k == 0 {
-			return f(accum)
-		}
-		for i := start; i <= len(n)-k; i++ {
-			control := helper(n, k-1, i+1, append(accum, n[i]), f)
-			if control == Break {
-				return Break
-			}
-		}
-		return Continue
-	}
-
-	helper(n, k, 0, []int{}, f)
+	_ = "STUB: not implemented"
+	return
 }
 
 func takeByTopologyNUMAPacked(topo *topology.CPUTopology, availableCPUs cpuset.CPUSet, numCPUs int) (cpuset.CPUSet, error) {
-	acc := newCPUAccumulator(topo, availableCPUs, numCPUs)
-	if acc.isSatisfied() {
-		return acc.result, nil
-	}
-	if acc.isFailed() {
-		return cpuset.New(), fmt.Errorf("not enough cpus available to satisfy request")
-	}
-
-	// Algorithm: topology-aware best-fit
-	// 1. Acquire whole NUMA nodes and sockets, if available and the container
-	//    requires at least a NUMA node or socket's-worth of CPUs. If NUMA
-	//    Nodes map to 1 or more sockets, pull from NUMA nodes first.
-	//    Otherwise pull from sockets first.
-	acc.numaOrSocketsFirst.takeFullFirstLevel()
-	if acc.isSatisfied() {
-		return acc.result, nil
-	}
-	acc.numaOrSocketsFirst.takeFullSecondLevel()
-	if acc.isSatisfied() {
-		return acc.result, nil
-	}
-
-	// 2. Acquire whole cores, if available and the container requires at least
-	//    a core's-worth of CPUs.
-	acc.takeFullCores()
-	if acc.isSatisfied() {
-		return acc.result, nil
-	}
-
-	// 3. Acquire single threads, preferring to fill partially-allocated cores
-	//    on the same sockets as the whole cores we have already taken in this
-	//    allocation.
-	acc.takeRemainingCPUs()
-	if acc.isSatisfied() {
-		return acc.result, nil
-	}
-
-	return cpuset.New(), fmt.Errorf("failed to allocate cpus")
+	_ = "STUB: not implemented"
+	return *new(cpuset.CPUSet), nil
 }
 
+// Algorithm: topology-aware best-fit
+// 1. Acquire whole NUMA nodes and sockets, if available and the container
+//    requires at least a NUMA node or socket's-worth of CPUs. If NUMA
+//    Nodes map to 1 or more sockets, pull from NUMA nodes first.
+//    Otherwise pull from sockets first.
+
+// 2. Acquire whole cores, if available and the container requires at least
+//    a core's-worth of CPUs.
+
+// 3. Acquire single threads, preferring to fill partially-allocated cores
+//    on the same sockets as the whole cores we have already taken in this
+//    allocation.
+
 func TakeByTopology(availableCPUs cpuset.CPUSet, numCPUs int, cpuTopology *topology.CPUTopology) (cpuset.CPUSet, error) {
-	return takeByTopologyNUMAPacked(cpuTopology, availableCPUs, numCPUs)
+	_ = "STUB: not implemented"
+	return *new(cpuset.CPUSet), nil
 }

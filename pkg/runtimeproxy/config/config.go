@@ -16,11 +16,6 @@ limitations under the License.
 
 package config
 
-import (
-	"fmt"
-	"strings"
-)
-
 type FailurePolicyType string
 
 const (
@@ -33,14 +28,8 @@ const (
 )
 
 func GetFailurePolicyType(typeString string) (FailurePolicyType, error) {
-	switch typeString {
-	case "Fail":
-		return PolicyFail, nil
-	case "Ignore":
-		return PolicyIgnore, nil
-	default:
-		return "", fmt.Errorf("failure policy type not supported")
-	}
+	_ = "STUB: not implemented"
+	return *new(FailurePolicyType), nil
 }
 
 type RuntimeHookType string
@@ -80,51 +69,18 @@ const (
 )
 
 func (ht RuntimeHookType) OccursOn(path RuntimeRequestPath) bool {
-	switch ht {
-	case PreRunPodSandbox:
-		if path == RunPodSandbox {
-			return true
-		}
-	case PostStopPodSandbox:
-		if path == StopPodSandbox {
-			return true
-		}
-	case PreCreateContainer:
-		if path == CreateContainer {
-			return true
-		}
-	case PreStartContainer:
-		if path == StartContainer {
-			return true
-		}
-	case PostStartContainer:
-		if path == StartContainer {
-			return true
-		}
-	case PreUpdateContainerResources:
-		if path == UpdateContainerResources {
-			return true
-		}
-	case PostStopContainer:
-		if path == StopContainer {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (hp RuntimeRequestPath) PreHookType() RuntimeHookType {
-	if hp == RunPodSandbox {
-		return PreRunPodSandbox
-	}
-	return NoneRuntimeHookType
+	_ = "STUB: not implemented"
+	return *new(RuntimeHookType)
 }
 
 func (hp RuntimeRequestPath) PostHookType() RuntimeHookType {
-	if hp == RunPodSandbox {
-		return NoneRuntimeHookType
-	}
-	return NoneRuntimeHookType
+	_ = "STUB: not implemented"
+	return *new(RuntimeHookType)
 }
 
 type RuntimeHookStage string
@@ -136,10 +92,6 @@ const (
 )
 
 func (ht RuntimeHookType) HookStage() RuntimeHookStage {
-	if strings.HasPrefix(string(ht), "Pre") {
-		return PreHook
-	} else if strings.HasPrefix(string(ht), "Post") {
-		return PostHook
-	}
-	return UnknownHook
+	_ = "STUB: not implemented"
+	return *new(RuntimeHookStage)
 }

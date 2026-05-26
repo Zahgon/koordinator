@@ -24,12 +24,4 @@ const (
 	Unknown                       CallHookPluginOperation = "Unknown"
 )
 
-func MergeMap(a, b map[string]string) map[string]string {
-	if a == nil {
-		a = make(map[string]string)
-	}
-	for key, val := range b {
-		a[key] = val
-	}
-	return a
-}
+func MergeMap(a, b map[string]string) map[string]string { _ = "STUB: not implemented"; return nil }

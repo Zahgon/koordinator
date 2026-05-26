@@ -17,14 +17,10 @@ limitations under the License.
 package nodenumaresource
 
 import (
-	"sort"
-	"strconv"
-	"strings"
 	"sync"
 
 	nrtv1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
 	"github.com/koordinator-sh/koordinator/pkg/util/cpuset"
@@ -59,191 +55,49 @@ type topologyManager struct {
 }
 
 func NewTopologyOptionsManager() TopologyOptionsManager {
-	manager := &topologyManager{
-		topologyOptions: map[string]TopologyOptions{},
-	}
-	return manager
+	_ = "STUB: not implemented"
+	return *new(TopologyOptionsManager)
 }
 
 func (m *topologyManager) GetTopologyOptions(nodeName string) TopologyOptions {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
-	return m.topologyOptions[nodeName]
+	_ = "STUB: not implemented"
+	return *new(TopologyOptions)
 }
 
 func (m *topologyManager) UpdateTopologyOptions(nodeName string, updateFn func(options *TopologyOptions)) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	options := m.topologyOptions[nodeName]
-	updateFn(&options)
-	if options.MaxRefCount == 0 {
-		options.MaxRefCount = 1
-	}
-	m.topologyOptions[nodeName] = options
+	_ = "STUB: not implemented"
+	return
 }
 
-func (m *topologyManager) Delete(nodeName string) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	delete(m.topologyOptions, nodeName)
-}
+func (m *topologyManager) Delete(nodeName string) { _ = "STUB: not implemented"; return }
 
 func NewTopologyOptions(nrt *nrtv1alpha1.NodeResourceTopology) TopologyOptions {
-	podCPUAllocs, err := extension.GetPodCPUAllocs(nrt.Annotations)
-	if err != nil {
-		klog.Errorf("Failed to GetPodCPUAllocs from new NodeResourceTopology %s, err: %v", nrt.Name, err)
-	}
-
-	kubeletPolicy, err := extension.GetKubeletCPUManagerPolicy(nrt.Annotations)
-	if err != nil {
-		klog.Errorf("Failed to GetKubeletCPUManagerPolicy from NodeResourceTopology %s, err: %v", nrt.Name, err)
-	}
-	var kubeletReservedCPUs cpuset.CPUSet
-	if kubeletPolicy != nil {
-		kubeletReservedCPUs, err = cpuset.Parse(kubeletPolicy.ReservedCPUs)
-		if err != nil {
-			klog.Errorf("Failed to Parse kubelet reserved CPUs %s, err: %v", kubeletPolicy.ReservedCPUs, err)
-		}
-	}
-
-	// remove cpus reserved by node.annotation.
-	reservedCPUsString, _ := extension.GetReservedCPUs(nrt.Annotations)
-	nodeReservationReservedCPUs, err := cpuset.Parse(reservedCPUsString)
-	if err != nil {
-		klog.Errorf("Failed to parse nodeResourceResource reservedCPUs, name: %v, err: %v", nrt.Name, err)
-	}
-	reportedCPUTopology, err := extension.GetCPUTopology(nrt.Annotations)
-	if err != nil {
-		klog.Errorf("Failed to GetCPUTopology, name: %s, err: %v", nrt.Name, err)
-	}
-
-	// reservedCPUs = cpus(all) - cpus(guaranteed) - cpus(kubeletReserved) - cpus(nodeReservationReserved) - cpus(systemQOSReserved)
-	cpuTopology := convertCPUTopology(reportedCPUTopology)
-	reservedCPUs := getPodAllocsCPUSet(podCPUAllocs)
-	reservedCPUs = reservedCPUs.Union(kubeletReservedCPUs)
-	reservedCPUs = reservedCPUs.Union(nodeReservationReservedCPUs)
-	systemQOSResource, err := extension.GetSystemQOSResource(nrt.Annotations)
-	if err != nil {
-		klog.Errorf("Failed to GetSystemQOSResource, name: %v, err: %v", nrt.Name, err)
-	} else if systemQOSResource != nil && systemQOSResource.IsCPUSetExclusive() {
-		cpus, err := cpuset.Parse(systemQOSResource.CPUSet)
-		if err != nil {
-			klog.Errorf("Failed to parse systemQOSResource.CPUSet, name: %s, err: %v", nrt.Name, err)
-		} else {
-			reservedCPUs = reservedCPUs.Union(cpus)
-		}
-	}
-
-	policy := convertToNUMATopologyPolicy(nrt)
-	numaNodeResources := extractNUMANodeResources(nrt)
-
-	cpuDetails := cpuTopology.CPUDetails.KeepOnly(reservedCPUs)
-	for i, numaNode := range numaNodeResources {
-		cpuQuantity := numaNode.Resources[corev1.ResourceCPU]
-		if cpuQuantity.IsZero() {
-			continue
-		}
-		cpusInNUMANode := cpuDetails.CPUsInNUMANodes(numaNode.Node)
-		cpuQuantity.SetMilli(cpuQuantity.MilliValue() - int64(cpusInNUMANode.Size())*1000)
-		numaNodeResources[i].Resources[corev1.ResourceCPU] = cpuQuantity
-	}
-
-	amplificationRatios, err := extension.GetNodeResourceAmplificationRatios(nrt.Annotations)
-	if err != nil {
-		klog.Errorf("Failed to GetNodeResourceAmplificationRatios, name: %s, err: %v", nrt.Name, err)
-	}
-
-	return TopologyOptions{
-		NodeResourceTopology: nrt,
-		CPUTopology:          cpuTopology,
-		ReservedCPUs:         reservedCPUs,
-		Policy:               kubeletPolicy,
-		MaxRefCount:          1,
-		NUMATopologyPolicy:   policy,
-		NUMANodeResources:    numaNodeResources,
-		AmplificationRatios:  amplificationRatios,
-	}
+	_ = "STUB: not implemented"
+	return *new(TopologyOptions)
 }
 
+// remove cpus reserved by node.annotation.
+
+// reservedCPUs = cpus(all) - cpus(guaranteed) - cpus(kubeletReserved) - cpus(nodeReservationReserved) - cpus(systemQOSReserved)
+
 func getPodAllocsCPUSet(podCPUAllocs extension.PodCPUAllocs) cpuset.CPUSet {
-	if len(podCPUAllocs) == 0 {
-		return cpuset.CPUSet{}
-	}
-	builder := cpuset.NewCPUSetBuilder()
-	for _, v := range podCPUAllocs {
-		if !v.ManagedByKubelet || v.UID == "" || v.CPUSet == "" {
-			continue
-		}
-		cpuset, err := cpuset.Parse(v.CPUSet)
-		if err != nil || cpuset.IsEmpty() {
-			continue
-		}
-		builder.Add(cpuset.ToSliceNoSort()...)
-	}
-	return builder.Result()
+	_ = "STUB: not implemented"
+	return *new(cpuset.CPUSet)
 }
 
 func convertCPUTopology(reportedCPUTopology *extension.CPUTopology) *CPUTopology {
-	builder := NewCPUTopologyBuilder()
-	for _, info := range reportedCPUTopology.Detail {
-		builder.AddCPUInfo(int(info.Socket), int(info.Node), int(info.Core), int(info.ID))
-	}
-	return builder.Result()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func extractNUMANodeResources(nrt *nrtv1alpha1.NodeResourceTopology) []NUMANodeResource {
-	numaNodeResources := make([]NUMANodeResource, 0, len(nrt.Zones))
-	for i := range nrt.Zones {
-		zone := &nrt.Zones[i]
-		if zone.Type != "Node" {
-			continue
-		}
-		parts := strings.Split(zone.Name, "node-")
-		if len(parts) != 2 {
-			continue
-		}
-		nodeID, err := strconv.Atoi(parts[1])
-		if err != nil {
-			klog.ErrorS(err, "Failed to parse zone name of NodeResourceTopology", "node", nrt.Name, "zoneName", zone.Name)
-			continue
-		}
-		resources := make(corev1.ResourceList)
-		for _, res := range zone.Resources {
-			resName := corev1.ResourceName(res.Name)
-			resources[resName] = res.Allocatable
-		}
-		numaNodeResources = append(numaNodeResources, NUMANodeResource{
-			Node:      nodeID,
-			Resources: resources,
-		})
-	}
-	sort.Slice(numaNodeResources, func(i, j int) bool {
-		return numaNodeResources[i].Node < numaNodeResources[j].Node
-	})
-	return numaNodeResources
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func convertToNUMATopologyPolicy(nrt *nrtv1alpha1.NodeResourceTopology) extension.NUMATopologyPolicy {
-	for _, policy := range nrt.TopologyPolicies {
-		switch nrtv1alpha1.TopologyManagerPolicy(policy) {
-		case nrtv1alpha1.BestEffort:
-			return extension.NUMATopologyPolicyBestEffort
-		case nrtv1alpha1.Restricted:
-			return extension.NUMATopologyPolicyRestricted
-		case nrtv1alpha1.SingleNUMANodePodLevel:
-			return extension.NUMATopologyPolicySingleNUMANode
-		}
-	}
-	return extension.NUMATopologyPolicyNone
+	_ = "STUB: not implemented"
+	return *new(extension.NUMATopologyPolicy)
 }
 
-func (opts *TopologyOptions) getNUMANodes() []int {
-	if len(opts.NUMANodeResources) == 0 {
-		return nil
-	}
-	nodes := make([]int, 0, len(opts.NUMANodeResources))
-	for _, v := range opts.NUMANodeResources {
-		nodes = append(nodes, v.Node)
-	}
-	return nodes
-}
+func (opts *TopologyOptions) getNUMANodes() []int { _ = "STUB: not implemented"; return nil }

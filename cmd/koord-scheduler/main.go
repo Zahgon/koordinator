@@ -56,11 +56,8 @@ var koordinatorPlugins = map[string]frameworkruntime.PluginFactory{
 }
 
 func flatten(plugins map[string]frameworkruntime.PluginFactory) []app.Option {
-	options := make([]app.Option, 0, len(plugins))
-	for name, factoryFn := range plugins {
-		options = append(options, app.WithPlugin(name, factoryFn))
-	}
-	return options
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func main() {

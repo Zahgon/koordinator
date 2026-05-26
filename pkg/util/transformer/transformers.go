@@ -22,7 +22,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 	koordinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
@@ -40,35 +39,8 @@ var transformerFactories = map[schema.GroupVersionResource]TransformFactory{
 }
 
 func SetupTransformers(informerFactory informers.SharedInformerFactory, koordInformerFactory koordinformers.SharedInformerFactory, nodeResourceTopologyInformerFactory nrtinformers.SharedInformerFactory) {
-	for resource, transformFn := range transformers {
-		informer, err := informerFactory.ForResource(resource)
-		if err != nil {
-			informer, err = koordInformerFactory.ForResource(resource)
-			if err != nil {
-				informer, err = nodeResourceTopologyInformerFactory.ForResource(resource)
-				if err != nil {
-					klog.Fatalf("Failed to create informer for resource %v, err: %v", resource.String(), err)
-				}
-			}
-		}
-		if err := informer.Informer().SetTransform(transformFn); err != nil {
-			klog.Fatalf("Failed to SetTransform in informer, resource: %v, err: %v", resource, err)
-		}
-
-	}
-	for resource, transformFactory := range transformerFactories {
-		informer, err := informerFactory.ForResource(resource)
-		if err != nil {
-			informer, err = koordInformerFactory.ForResource(resource)
-			if err != nil {
-				klog.Fatalf("Failed to create informer for resource %v, err: %v", resource.String(), err)
-			}
-		}
-		// new transformFunc after initialization
-		transformFn := transformFactory()
-		if err := informer.Informer().SetTransform(transformFn); err != nil {
-			klog.Fatalf("Failed to SetTransform in informer, resource: %v, err: %v", resource, err)
-		}
-	}
-
+	_ = "STUB: not implemented"
+	return
 }
+
+// new transformFunc after initialization

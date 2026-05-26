@@ -21,7 +21,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -68,27 +67,6 @@ const (
 )
 
 // Register registers the metrics with the node object
-func Register(node *corev1.Node) {
-	nodeLock.Lock()
-	defer nodeLock.Unlock()
+func Register(node *corev1.Node) { _ = "STUB: not implemented"; return }
 
-	if node != nil {
-		NodeName = node.Name
-	} else {
-		NodeName = ""
-		klog.Warning("register nil node for metrics")
-	}
-	Node = node
-}
-
-func genNodeLabels() prometheus.Labels {
-	nodeLock.RLock()
-	defer nodeLock.RUnlock()
-	if Node == nil {
-		return nil
-	}
-
-	return prometheus.Labels{
-		NodeKey: NodeName,
-	}
-}
+func genNodeLabels() prometheus.Labels { _ = "STUB: not implemented"; return *new(prometheus.Labels) }

@@ -17,11 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"encoding/json"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 )
@@ -42,36 +38,12 @@ type OriginAllocatable struct {
 }
 
 func GetOriginExtendedAllocatable(annotations map[string]string) (*OriginAllocatable, error) {
-	originAllocatableStr, exist := annotations[NodeOriginExtendedAllocatableAnnotationKey]
-	if !exist {
-		return nil, nil
-	}
-	originAllocatable := &OriginAllocatable{}
-	if err := json.Unmarshal([]byte(originAllocatableStr), originAllocatable); err != nil {
-		return nil, err
-	}
-	return originAllocatable, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SetOriginExtendedAllocatableRes(annotations map[string]string, extendedAllocatable corev1.ResourceList) error {
-	old, err := GetOriginExtendedAllocatable(annotations)
-	if old == nil || err != nil {
-		old = &OriginAllocatable{}
-	}
-	if old.Resources == nil {
-		old.Resources = map[corev1.ResourceName]resource.Quantity{}
-	}
-	for resourceName, value := range extendedAllocatable {
-		old.Resources[resourceName] = value
-	}
-	newStr, err := json.Marshal(old)
-	if err != nil {
-		return err
-	}
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[NodeOriginExtendedAllocatableAnnotationKey] = string(newStr)
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -86,68 +58,22 @@ type ThirdPartyAllocation struct {
 }
 
 func GetThirdPartyAllocations(annotations map[string]string) (*ThirdPartyAllocations, error) {
-	valueStr, exist := annotations[NodeThirdPartyAllocationsAnnotationKey]
-	if !exist {
-		return nil, nil
-	}
-	object := &ThirdPartyAllocations{}
-	if err := json.Unmarshal([]byte(valueStr), object); err != nil {
-		return nil, err
-	}
-	return object, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetThirdPartyAllocatedResByPriority(annotations map[string]string, priority apiext.PriorityClass) (corev1.ResourceList, error) {
-	allocations, err := GetThirdPartyAllocations(annotations)
-	if err != nil || allocations == nil {
-		return nil, err
-	}
-	result := corev1.ResourceList{}
-	for _, alloc := range allocations.Allocations {
-		if alloc.Priority == priority {
-			result = quotav1.Add(result, alloc.Resources)
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList), nil
 }
 
 func SetThirdPartyAllocation(annotations map[string]string, name string, priority apiext.PriorityClass,
 	resource corev1.ResourceList) error {
+	_ = "STUB: not implemented"
 	// parse or init old allocations
-	oldAllocations, err := GetThirdPartyAllocations(annotations)
-	if oldAllocations == nil || err != nil {
-		oldAllocations = &ThirdPartyAllocations{}
-	}
-	if oldAllocations.Allocations == nil {
-		oldAllocations.Allocations = make([]ThirdPartyAllocation, 0, 1)
-	}
-
-	// create or update old alloc
-	newAlloc := ThirdPartyAllocation{
-		Name:      name,
-		Priority:  priority,
-		Resources: resource,
-	}
-	exist := false
-	for i := range oldAllocations.Allocations {
-		if oldAllocations.Allocations[i].Name == name {
-			oldAllocations.Allocations[i] = newAlloc
-			exist = true
-			break
-		}
-	}
-	if !exist {
-		oldAllocations.Allocations = append(oldAllocations.Allocations, newAlloc)
-	}
-
-	// update allocation string
-	newStr, err := json.Marshal(oldAllocations)
-	if err != nil {
-		return err
-	}
-	if annotations == nil {
-		annotations = map[string]string{}
-	}
-	annotations[NodeThirdPartyAllocationsAnnotationKey] = string(newStr)
 	return nil
 }
+
+// create or update old alloc
+
+// update allocation string

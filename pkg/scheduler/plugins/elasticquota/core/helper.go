@@ -18,17 +18,9 @@ package core
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
-	apiresource "k8s.io/component-helpers/resource"
-
-	"github.com/koordinator-sh/koordinator/pkg/features"
 )
 
 func PodRequests(pod *corev1.Pod) (reqs corev1.ResourceList) {
-	if k8sfeature.DefaultFeatureGate.Enabled(features.ElasticQuotaIgnorePodOverhead) {
-		return apiresource.PodRequests(pod, apiresource.PodResourcesOptions{
-			ExcludeOverhead: true,
-		})
-	}
-	return apiresource.PodRequests(pod, apiresource.PodResourcesOptions{})
+	_ = "STUB: not implemented"
+	return *new(corev1.ResourceList)
 }

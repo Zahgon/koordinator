@@ -19,12 +19,9 @@ package asynclog
 import (
 	"bytes"
 	"io"
-	"os"
 	"sync"
-	"sync/atomic"
 
 	"github.com/spf13/pflag"
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -41,20 +38,9 @@ var (
 	}
 )
 
-func EnableAsyncIfNeed() bool {
-	once.Do(func() {
-		if *enableAsync {
-			globalOutput = newOutput(*queueLength)
-			klog.SetOutput(globalOutput)
-			klog.LogToStderr(false)
-		}
-	})
-	return *enableAsync
-}
+func EnableAsyncIfNeed() bool { _ = "STUB: not implemented"; return false }
 
-func FlushAndExit() {
-	globalOutput.FlushAndExit()
-}
+func FlushAndExit() { _ = "STUB: not implemented"; return }
 
 type output struct {
 	w            io.Writer
@@ -63,54 +49,12 @@ type output struct {
 	shuttingDown int32
 }
 
-func newOutput(queueLength int) *output {
-	o := &output{
-		w:     os.Stderr,
-		logCh: make(chan *bytes.Buffer, queueLength),
-		quit:  make(chan bool),
-	}
-	go o.logger()
-	return o
-}
+func newOutput(queueLength int) *output { _ = "STUB: not implemented"; return nil }
 
-func (o *output) logger() {
-	for {
-		select {
-		case <-o.quit:
-		drain:
-			for {
-				select {
-				case buff := <-o.logCh:
-					buff.WriteTo(o.w)
-				default:
-					break drain
-				}
-			}
-			close(o.quit)
-			return
-		case buff := <-o.logCh:
-			buff.WriteTo(o.w)
-			buff.Reset()
-			dataPool.Put(buff)
-		}
-	}
-}
+func (o *output) logger() { _ = "STUB: not implemented"; return }
 
-func (o *output) FlushAndExit() {
-	if atomic.CompareAndSwapInt32(&o.shuttingDown, 0, 1) {
-		o.quit <- true
-		<-o.quit
-	}
-}
+func (o *output) FlushAndExit() { _ = "STUB: not implemented"; return }
 
-func (o *output) Write(data []byte) (int, error) {
-	if atomic.LoadInt32(&o.shuttingDown) == 1 {
-		<-o.quit
-		return o.w.Write(data)
-	}
-	// The data must be copied to a temporary buffer because the data may be reused
-	buff := dataPool.Get().(*bytes.Buffer)
-	buff.Write(data)
-	o.logCh <- buff
-	return len(data), nil
-}
+func (o *output) Write(data []byte) (int, error) { _ = "STUB: not implemented"; return 0, nil }
+
+// The data must be copied to a temporary buffer because the data may be reused

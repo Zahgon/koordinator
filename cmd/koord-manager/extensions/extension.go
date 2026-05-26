@@ -25,9 +25,8 @@ import (
 
 // for third-party extensions
 func PrepareExtensions(restConfig *rest.Config, mgr ctrl.Manager) {
-
+	_ = "STUB: not implemented"
+	return
 }
 
-func StartExtensions(ctx context.Context, mgr ctrl.Manager) {
-
-}
+func StartExtensions(ctx context.Context, mgr ctrl.Manager) { _ = "STUB: not implemented"; return }

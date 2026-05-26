@@ -17,13 +17,7 @@ limitations under the License.
 package tc
 
 import (
-	"encoding/json"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/apis/extension"
 )
 
 type NetQosGlobalConfig struct {
@@ -49,37 +43,21 @@ const (
 )
 
 func GetPodNetQoSClassByName(qos string) NetQoSClass {
-	q := extension.QoSClass(qos)
-
-	switch q {
-	case extension.QoSSystem:
-		return NETQoSSystem
-	case extension.QoSLSE, extension.QoSLSR, extension.QoSLS:
-		return NETQoSLS
-	case extension.QoSBE:
-		return NETQoSBE
-	}
-
-	return NETQoSNone
+	_ = "STUB: not implemented"
+	return *new(NetQoSClass)
 }
 
 func GetPodNetQoSClass(pod *corev1.Pod) NetQoSClass {
-	if pod == nil || pod.Labels == nil {
-		return NETQoSNone
-	}
-	return GetNetQoSClassByAttrs(pod.Labels, pod.Annotations)
+	_ = "STUB: not implemented"
+	return *new(NetQoSClass)
 }
 
 func GetNetQoSClassByAttrs(labels, annotations map[string]string) NetQoSClass {
-	if labels == nil {
-		return NETQoSNone
-	}
-	// annotations are for old format adaption reason
-	if q, exist := labels[extension.LabelPodQoS]; exist {
-		return GetPodNetQoSClassByName(q)
-	}
-	return NETQoSNone
+	_ = "STUB: not implemented"
+	return *new(NetQoSClass)
 }
+
+// annotations are for old format adaption reason
 
 type NetworkQoS struct {
 	// IngressLimit and EgressLimit is the bandwidth in bps
@@ -90,35 +68,8 @@ type NetworkQoS struct {
 }
 
 func getIngressAndEgress(anno map[string]string) (uint64, uint64, error) {
-	klog.V(5).Infof("start to get pod qos from anno: %v", anno)
-	var ingress, egress uint64
-
-	if anno[extension.AnnotationNetworkQOS] != "" {
-		nqos := &NetworkQoS{
-			IngressLimit: "0",
-			EgressLimit:  "0",
-		}
-		err := json.Unmarshal([]byte(anno[extension.AnnotationNetworkQOS]), nqos)
-		if err != nil {
-			return 0, 0, err
-		}
-
-		ing, err := resource.ParseQuantity(nqos.IngressLimit)
-		if err != nil {
-			return 0, 0, err
-		}
-		ingress = BitsToBytes(uint64(ing.Value()))
-
-		eg, err := resource.ParseQuantity(nqos.EgressLimit)
-		if err != nil {
-			return 0, 0, err
-		}
-		egress = BitsToBytes(uint64(eg.Value()))
-	}
-
-	return ingress, egress, nil
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }
 
-func BitsToBytes[T uint64 | float64 | int](bits T) T {
-	return bits / 8
-}
+func BitsToBytes[T uint64 | float64 | int](bits T) T { _ = "STUB: not implemented"; return *new(T) }

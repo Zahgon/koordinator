@@ -119,18 +119,11 @@ type EvictOptions struct {
 }
 
 func FillEvictOptionsFromContext(ctx context.Context, options *EvictOptions) {
-	if options.PluginName == "" {
-		if val := ctx.Value(EvictionPluginNameContextKey); val != nil {
-			options.PluginName = val.(string)
-		}
-	}
-	if options.Reason == "" {
-		if val := ctx.Value(EvictionReasonContextKey); val != nil {
-			options.Reason = val.(string)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func PluginNameWithContext(ctx context.Context, pluginName string) context.Context {
-	return context.WithValue(ctx, EvictionPluginNameContextKey, pluginName)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }

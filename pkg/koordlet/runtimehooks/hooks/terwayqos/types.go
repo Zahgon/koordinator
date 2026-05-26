@@ -17,10 +17,6 @@ limitations under the License.
 package terwayqos
 
 import (
-	"bytes"
-	"fmt"
-	"reflect"
-
 	"github.com/koordinator-sh/koordinator/apis/extension"
 )
 
@@ -52,26 +48,9 @@ type Node struct {
 	L2RxBpsMax uint64 `text:"offline_l2_rx_bps_max"`
 }
 
-func (n Node) MarshalText() (text []byte, err error) {
-	val := reflect.ValueOf(n)
-	typ := val.Type()
+func (n Node) MarshalText() (text []byte, err error) { _ = "STUB: not implemented"; return nil, nil }
 
-	var buffer bytes.Buffer
-
-	for i := 0; i < val.NumField(); i++ {
-		field := typ.Field(i)
-		tagValue := field.Tag.Get("text")
-		if tagValue == "" {
-			continue // Skip fields without text tag
-		}
-
-		fieldValue := val.Field(i)
-		line := fmt.Sprintf("%s %v\n", tagValue, fieldValue.Interface())
-		buffer.WriteString(line)
-	}
-
-	return buffer.Bytes(), nil
-}
+// Skip fields without text tag
 
 type Pod struct {
 	PodName      string    `json:"podName"`

@@ -24,7 +24,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
@@ -34,7 +33,6 @@ import (
 	"k8s.io/klog/v2/klogr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
-	ctrlmetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/koordinator-sh/koordinator/cmd/koord-manager/extensions"
@@ -44,8 +42,6 @@ import (
 	utilclient "github.com/koordinator-sh/koordinator/pkg/util/client"
 	utilfeature "github.com/koordinator-sh/koordinator/pkg/util/feature"
 	"github.com/koordinator-sh/koordinator/pkg/util/fieldindex"
-	metricsutil "github.com/koordinator-sh/koordinator/pkg/util/metrics"
-	kmmetrics "github.com/koordinator-sh/koordinator/pkg/util/metrics/koordmanager"
 	"github.com/koordinator-sh/koordinator/pkg/util/sloconfig"
 	"github.com/koordinator-sh/koordinator/pkg/webhook"
 	podvalidating "github.com/koordinator-sh/koordinator/pkg/webhook/pod/validating"
@@ -204,25 +200,6 @@ func main() {
 	}
 }
 
-func setRestConfig(c *rest.Config) {
-	if *restConfigQPS > 0 {
-		c.QPS = float32(*restConfigQPS)
-	}
-	if *restConfigBurst > 0 {
-		c.Burst = *restConfigBurst
-	}
-}
+func setRestConfig(c *rest.Config) { _ = "STUB: not implemented"; return }
 
-func installMetricsHandler(mgr *ctrl.Options) {
-	if mgr.Metrics.ExtraHandlers == nil {
-		mgr.Metrics.ExtraHandlers = map[string]http.Handler{}
-	}
-	for path, handler := range map[string]http.Handler{
-		kmmetrics.InternalHTTPPath: promhttp.HandlerFor(kmmetrics.InternalRegistry, promhttp.HandlerOpts{}),
-		kmmetrics.ExternalHTTPPath: promhttp.HandlerFor(kmmetrics.ExternalRegistry, promhttp.HandlerOpts{}),
-		kmmetrics.DefaultHTTPPath: promhttp.HandlerFor(
-			metricsutil.MergedGatherFunc(kmmetrics.InternalRegistry, kmmetrics.ExternalRegistry, ctrlmetrics.Registry), promhttp.HandlerOpts{}),
-	} {
-		mgr.Metrics.ExtraHandlers[path] = handler
-	}
-}
+func installMetricsHandler(mgr *ctrl.Options) { _ = "STUB: not implemented"; return }

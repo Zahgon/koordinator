@@ -21,8 +21,6 @@ limitations under the License.
 package util
 
 import (
-	reflect "reflect"
-
 	gomock "go.uber.org/mock/gomock"
 	v1 "k8s.io/api/core/v1"
 )
@@ -40,40 +38,37 @@ type MockEvictionExecutorMockRecorder struct {
 
 // NewMockEvictionExecutor creates a new mock instance.
 func NewMockEvictionExecutor(ctrl *gomock.Controller) *MockEvictionExecutor {
-	mock := &MockEvictionExecutor{ctrl: ctrl}
-	mock.recorder = &MockEvictionExecutorMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockEvictionExecutor) EXPECT() *MockEvictionExecutorMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Evict mocks base method.
+	return nil
 }
 
-// Evict mocks base method.
 func (m *MockEvictionExecutor) Evict(pod *v1.Pod, node *v1.Node, releaseReason, message string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Evict", pod, node, releaseReason, message)
-	ret0, _ := ret[0].(bool)
-	return ret0
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Evict indicates an expected call of Evict.
 func (mr *MockEvictionExecutorMockRecorder) Evict(pod, node, releaseReason, message interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Evict", reflect.TypeOf((*MockEvictionExecutor)(nil).Evict), pod, node, releaseReason, message)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsPodEvicted mocks base method.
 func (m *MockEvictionExecutor) IsPodEvicted(arg0 *v1.Pod) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsPodEvicted", arg0)
-	ret0, _ := ret[0].(bool)
-	return ret0
+	_ = "STUB: not implemented"
+	return false
 }
 
 // IsPodEvicted indicates an expected call of IsPodEvicted.
 func (mr *MockEvictionExecutorMockRecorder) IsPodEvicted(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPodEvicted", reflect.TypeOf((*MockEvictionExecutor)(nil).IsPodEvicted), arg0)
+	_ = "STUB: not implemented"
+	return nil
 }

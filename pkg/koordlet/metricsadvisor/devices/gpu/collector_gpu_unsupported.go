@@ -21,5 +21,6 @@ package gpu
 
 // initGPUDeviceManager will not retry if init fails,
 func initGPUDeviceManager() GPUDeviceManager {
-	return &dummyDeviceManager{}
+	_ = "STUB: not implemented"
+	return *new(GPUDeviceManager)
 }

@@ -28,7 +28,6 @@ package nri
 
 import (
 	context "context"
-	reflect "reflect"
 	time "time"
 
 	api "github.com/containerd/nri/pkg/api"
@@ -50,124 +49,94 @@ type MockStubInterfaceMockRecorder struct {
 
 // NewMockStubInterface creates a new mock instance.
 func NewMockStubInterface(ctrl *gomock.Controller) *MockStubInterface {
-	mock := &MockStubInterface{ctrl: ctrl}
-	mock.recorder = &MockStubInterfaceMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockStubInterface) EXPECT() *MockStubInterfaceMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Logger mocks base method.
+	return nil
 }
 
-// Logger mocks base method.
-func (m *MockStubInterface) Logger() log.Logger {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Logger")
-	ret0, _ := ret[0].(log.Logger)
-	return ret0
-}
+func (m *MockStubInterface) Logger() log.Logger { _ = "STUB: not implemented"; return *new(log.Logger) }
 
 // Logger indicates an expected call of Logger.
 func (mr *MockStubInterfaceMockRecorder) Logger() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logger", reflect.TypeOf((*MockStubInterface)(nil).Logger))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RegistrationTimeout mocks base method.
 func (m *MockStubInterface) RegistrationTimeout() time.Duration {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegistrationTimeout")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 // RegistrationTimeout indicates an expected call of RegistrationTimeout.
 func (mr *MockStubInterfaceMockRecorder) RegistrationTimeout() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegistrationTimeout", reflect.TypeOf((*MockStubInterface)(nil).RegistrationTimeout))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RequestTimeout mocks base method.
 func (m *MockStubInterface) RequestTimeout() time.Duration {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestTimeout")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 // RequestTimeout indicates an expected call of RequestTimeout.
 func (mr *MockStubInterfaceMockRecorder) RequestTimeout() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestTimeout", reflect.TypeOf((*MockStubInterface)(nil).RequestTimeout))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Run mocks base method.
-func (m *MockStubInterface) Run(arg0 context.Context) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Run", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
+func (m *MockStubInterface) Run(arg0 context.Context) error { _ = "STUB: not implemented"; return nil }
 
 // Run indicates an expected call of Run.
 func (mr *MockStubInterfaceMockRecorder) Run(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockStubInterface)(nil).Run), arg0)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Start mocks base method.
 func (m *MockStubInterface) Start(arg0 context.Context) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Start", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Start indicates an expected call of Start.
 func (mr *MockStubInterfaceMockRecorder) Start(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockStubInterface)(nil).Start), arg0)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Stop mocks base method.
-func (m *MockStubInterface) Stop() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Stop")
-}
+func (m *MockStubInterface) Stop() { _ = "STUB: not implemented"; return }
 
 // Stop indicates an expected call of Stop.
-func (mr *MockStubInterfaceMockRecorder) Stop() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockStubInterface)(nil).Stop))
-}
+func (mr *MockStubInterfaceMockRecorder) Stop() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // UpdateContainers mocks base method.
 func (m *MockStubInterface) UpdateContainers(arg0 []*api.ContainerUpdate) ([]*api.ContainerUpdate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateContainers", arg0)
-	ret0, _ := ret[0].([]*api.ContainerUpdate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateContainers indicates an expected call of UpdateContainers.
 func (mr *MockStubInterfaceMockRecorder) UpdateContainers(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContainers", reflect.TypeOf((*MockStubInterface)(nil).UpdateContainers), arg0)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Wait mocks base method.
-func (m *MockStubInterface) Wait() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Wait")
-}
+func (m *MockStubInterface) Wait() { _ = "STUB: not implemented"; return }
 
 // Wait indicates an expected call of Wait.
-func (mr *MockStubInterfaceMockRecorder) Wait() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Wait", reflect.TypeOf((*MockStubInterface)(nil).Wait))
-}
+func (mr *MockStubInterfaceMockRecorder) Wait() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // MockServer is a mock of Server interface.
 type MockServer struct {
@@ -182,116 +151,89 @@ type MockServerMockRecorder struct {
 }
 
 // NewMockServer creates a new mock instance.
-func NewMockServer(ctrl *gomock.Controller) *MockServer {
-	mock := &MockServer{ctrl: ctrl}
-	mock.recorder = &MockServerMockRecorder{mock}
-	return mock
-}
+func NewMockServer(ctrl *gomock.Controller) *MockServer { _ = "STUB: not implemented"; return nil }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockServer) EXPECT() *MockServerMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Configure mocks base method.
+	return nil
 }
 
-// Configure mocks base method.
 func (m *MockServer) Configure(ctx context.Context, config, runtime, version string) (api.EventMask, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Configure", ctx, config, runtime, version)
-	ret0, _ := ret[0].(api.EventMask)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return *new(api.EventMask), nil
 }
 
 // Configure indicates an expected call of Configure.
 func (mr *MockServerMockRecorder) Configure(ctx, config, runtime, version any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Configure", reflect.TypeOf((*MockServer)(nil).Configure), ctx, config, runtime, version)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CreateContainer mocks base method.
 func (m *MockServer) CreateContainer(arg0 context.Context, arg1 *api.PodSandbox, arg2 *api.Container) (*api.ContainerAdjustment, []*api.ContainerUpdate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateContainer", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*api.ContainerAdjustment)
-	ret1, _ := ret[1].([]*api.ContainerUpdate)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
 
 // CreateContainer indicates an expected call of CreateContainer.
 func (mr *MockServerMockRecorder) CreateContainer(arg0, arg1, arg2 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateContainer", reflect.TypeOf((*MockServer)(nil).CreateContainer), arg0, arg1, arg2)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemovePodSandbox mocks base method.
 func (m *MockServer) RemovePodSandbox(arg0 context.Context, arg1 *api.PodSandbox) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemovePodSandbox", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemovePodSandbox indicates an expected call of RemovePodSandbox.
 func (mr *MockServerMockRecorder) RemovePodSandbox(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemovePodSandbox", reflect.TypeOf((*MockServer)(nil).RemovePodSandbox), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunPodSandbox mocks base method.
 func (m *MockServer) RunPodSandbox(arg0 context.Context, arg1 *api.PodSandbox) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RunPodSandbox", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunPodSandbox indicates an expected call of RunPodSandbox.
 func (mr *MockServerMockRecorder) RunPodSandbox(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunPodSandbox", reflect.TypeOf((*MockServer)(nil).RunPodSandbox), arg0, arg1)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Start mocks base method.
-func (m *MockServer) Start() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Start")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
+func (m *MockServer) Start() error { _ = "STUB: not implemented"; return nil }
 
 // Start indicates an expected call of Start.
-func (mr *MockServerMockRecorder) Start() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockServer)(nil).Start))
-}
+func (mr *MockServerMockRecorder) Start() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // Synchronize mocks base method.
 func (m *MockServer) Synchronize(arg0 context.Context, arg1 []*api.PodSandbox, arg2 []*api.Container) ([]*api.ContainerUpdate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Synchronize", arg0, arg1, arg2)
-	ret0, _ := ret[0].([]*api.ContainerUpdate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Synchronize indicates an expected call of Synchronize.
 func (mr *MockServerMockRecorder) Synchronize(arg0, arg1, arg2 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Synchronize", reflect.TypeOf((*MockServer)(nil).Synchronize), arg0, arg1, arg2)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpdateContainer mocks base method.
 func (m *MockServer) UpdateContainer(arg0 context.Context, arg1 *api.PodSandbox, arg2 *api.Container, arg3 *api.LinuxResources) ([]*api.ContainerUpdate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateContainer", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].([]*api.ContainerUpdate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // UpdateContainer indicates an expected call of UpdateContainer.
 func (mr *MockServerMockRecorder) UpdateContainer(arg0, arg1, arg2, arg3 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateContainer", reflect.TypeOf((*MockServer)(nil).UpdateContainer), arg0, arg1, arg2, arg3)
+	_ = "STUB: not implemented"
+	return nil
 }

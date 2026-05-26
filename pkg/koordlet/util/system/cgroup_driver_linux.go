@@ -20,19 +20,7 @@ limitations under the License.
 package system
 
 import (
-	"bufio"
-	"bytes"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"sync"
-
-	"github.com/opencontainers/runc/libcontainer/userns"
-	"github.com/spf13/pflag"
-	"golang.org/x/sys/unix"
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -45,17 +33,8 @@ var (
 )
 
 func GetCgroupDriverFromCgroupName() CgroupDriverType {
-	isSystemd := FileExists(filepath.Join(GetRootCgroupSubfsDir(CgroupCPUDir), KubeRootNameSystemd))
-	if isSystemd {
-		return Systemd
-	}
-
-	isCgroupfs := FileExists(filepath.Join(GetRootCgroupSubfsDir(CgroupCPUDir), KubeRootNameCgroupfs))
-	if isCgroupfs {
-		return Cgroupfs
-	}
-
-	return ""
+	_ = "STUB: not implemented"
+	return *new(CgroupDriverType)
 }
 
 // GetCgroupDriverFromKubeletPort get Kubelet's cgroup driver from kubelet port.
@@ -66,90 +45,20 @@ func GetCgroupDriverFromCgroupName() CgroupDriverType {
 //  3. If kubelet config is relative path, join with /proc/${pidof kubelet}/cwd.
 //     search 'cgroupDriver:' in kubelet config file, that's it.
 func GetCgroupDriverFromKubeletPort(port int) (CgroupDriverType, error) {
-	kubeletPid, err := KubeletPortToPid(port)
-	if err != nil {
-		return "", fmt.Errorf("failed to find kubelet's pid, kubelet may stop: %v", err)
-	}
-
-	kubeletArgs, err := ProcCmdLine(Conf.ProcRootDir, kubeletPid)
-	if err != nil || len(kubeletArgs) <= 1 {
-		return "", fmt.Errorf("failed to get kubelet's args: %v", err)
-	}
-
-	var argsCgroupDriver string
-	var argsConfigFile string
-	fs := pflag.NewFlagSet("GuessTest", pflag.ContinueOnError)
-	fs.ParseErrorsWhitelist.UnknownFlags = true
-	fs.StringVar(&argsCgroupDriver, "cgroup-driver", "", "")
-	fs.StringVar(&argsConfigFile, "config", "", "")
-	if err := fs.Parse(kubeletArgs[1:]); err != nil {
-		return "", fmt.Errorf("failed to parse kubelet's args, kubelet version may not support: %v", err)
-	}
-	// kubelet command-line args will override configuration from config file
-	if argsCgroupDriver != "" {
-		return CgroupDriverType(argsCgroupDriver), nil
-	} else if argsConfigFile == "" {
-		klog.Infof("Neither '--cgroup-driver' or '--config' is specify, use default: '%s'", string(kubeletDefaultCgroupDriver))
-		return kubeletDefaultCgroupDriver, nil
-	}
-
-	// parse kubelet config file
-	var kubeletConfigFile string
-	if filepath.IsAbs(argsConfigFile) {
-		kubeletConfigFile = argsConfigFile
-	} else {
-		kubletCWD, err := os.Readlink(filepath.Join(Conf.ProcRootDir, strconv.Itoa(kubeletPid), "cwd"))
-		if err != nil {
-			klog.Errorf("failed to get kubelet's cwd: %v", err)
-			if exePath, err := os.Readlink(filepath.Join(Conf.ProcRootDir, strconv.Itoa(kubeletPid), "exe")); err != nil {
-				kubletCWD = filepath.Dir(exePath)
-			} else {
-				kubletCWD = "/"
-			}
-		}
-		kubeletConfigFile = filepath.Join(kubletCWD, argsConfigFile)
-	}
-
-	// kubelet config file is in host path
-	fileBuf, _, err := ExecCmdOnHost([]string{"cat", kubeletConfigFile})
-	if err != nil {
-		return "", fmt.Errorf("failed to read kubelet's config file(%s): %v", kubeletConfigFile, err)
-	}
-	scanner := bufio.NewScanner(bytes.NewBuffer(fileBuf))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) == 0 {
-			continue
-		}
-		parts := strings.Fields(line)
-		// remove trailing ':' from key
-		key := parts[0][:len(parts[0])-1]
-		if key == kubeletConfigCgroupDriverKey {
-			return CgroupDriverType(strings.TrimSpace(parts[1])), nil
-		}
-	}
-	klog.Infof("Cgroup driver is not specify in kubelet config file, use default: '%s'", kubeletDefaultCgroupDriver)
-	return kubeletDefaultCgroupDriver, nil
+	_ = "STUB: not implemented"
+	return *new(CgroupDriverType), nil
 }
+
+// kubelet command-line args will override configuration from config file
+
+// parse kubelet config file
+
+// kubelet config file is in host path
+
+// remove trailing ':' from key
 
 // IsUsingCgroupsV2 checks once if the CGroup V2 is in use.
 // modify base: github.com/opencontainers/runc/libcontainer/cgroups/utils.go IsCgroup2UnifiedMode
-func IsUsingCgroupsV2() bool {
-	unifiedMountpoint := strings.TrimSuffix(Conf.CgroupRootDir, "/")
+func IsUsingCgroupsV2() bool { _ = "STUB: not implemented"; return false }
 
-	isUnifiedOnce.Do(func() {
-		var st unix.Statfs_t
-		err := unix.Statfs(unifiedMountpoint, &st)
-		if err != nil {
-			if os.IsNotExist(err) && userns.RunningInUserNS() {
-				// ignore the "not found" error if running in userns
-				klog.ErrorS(err, "%s missing, assuming cgroup v1", unifiedMountpoint)
-				isUnified = false
-				return
-			}
-			panic(fmt.Sprintf("cannot statfs cgroup root: %s", err))
-		}
-		isUnified = st.Type == unix.CGROUP2_SUPER_MAGIC
-	})
-	return isUnified
-}
+// ignore the "not found" error if running in userns

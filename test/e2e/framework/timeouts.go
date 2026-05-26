@@ -84,21 +84,4 @@ type TimeoutContext struct {
 }
 
 // NewTimeoutContextWithDefaults returns a TimeoutContext with default values.
-func NewTimeoutContextWithDefaults() *TimeoutContext {
-	return &TimeoutContext{
-		PodStart:                  podStartTimeout,
-		PodStartShort:             podStartShortTimeout,
-		PodStartSlow:              podStartSlowTimeout,
-		PodDelete:                 podDeleteTimeout,
-		ClaimProvision:            claimProvisionTimeout,
-		ClaimProvisionShort:       claimProvisionShortTimeout,
-		ClaimBound:                claimBoundTimeout,
-		PVReclaim:                 pvReclaimTimeout,
-		PVBound:                   pvBoundTimeout,
-		PVDelete:                  pvDeleteTimeout,
-		PVDeleteSlow:              pvDeleteSlowTimeout,
-		SnapshotCreate:            snapshotCreateTimeout,
-		SnapshotDelete:            snapshotDeleteTimeout,
-		SnapshotControllerMetrics: snapshotControllerMetricsTimeout,
-	}
-}
+func NewTimeoutContextWithDefaults() *TimeoutContext { _ = "STUB: not implemented"; return nil }

@@ -31,22 +31,6 @@ type fakeClusterNetworkTopologies struct {
 }
 
 func newFakeClusterNetworkTopologies(fake *FakeSchedulingV1alpha1) schedulingv1alpha1.ClusterNetworkTopologyInterface {
-	return &fakeClusterNetworkTopologies{
-		gentype.NewFakeClientWithList[*v1alpha1.ClusterNetworkTopology, *v1alpha1.ClusterNetworkTopologyList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("clusternetworktopologies"),
-			v1alpha1.SchemeGroupVersion.WithKind("ClusterNetworkTopology"),
-			func() *v1alpha1.ClusterNetworkTopology { return &v1alpha1.ClusterNetworkTopology{} },
-			func() *v1alpha1.ClusterNetworkTopologyList { return &v1alpha1.ClusterNetworkTopologyList{} },
-			func(dst, src *v1alpha1.ClusterNetworkTopologyList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.ClusterNetworkTopologyList) []*v1alpha1.ClusterNetworkTopology {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.ClusterNetworkTopologyList, items []*v1alpha1.ClusterNetworkTopology) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.ClusterNetworkTopologyInterface)
 }

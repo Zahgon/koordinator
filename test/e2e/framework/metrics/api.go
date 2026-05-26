@@ -18,8 +18,6 @@ limitations under the License.
 package metrics
 
 import (
-	"fmt"
-
 	e2eperftype "github.com/koordinator-sh/koordinator/test/e2e/perftype"
 )
 
@@ -39,27 +37,18 @@ type APIResponsiveness struct {
 }
 
 // SummaryKind returns the summary of API responsiveness.
-func (a *APIResponsiveness) SummaryKind() string {
-	return "APIResponsiveness"
-}
+func (a *APIResponsiveness) SummaryKind() string { _ = "STUB: not implemented"; return "" }
 
 // PrintHumanReadable returns metrics with JSON format.
-func (a *APIResponsiveness) PrintHumanReadable() string {
-	return PrettyPrintJSON(a)
-}
+func (a *APIResponsiveness) PrintHumanReadable() string { _ = "STUB: not implemented"; return "" }
 
 // PrintJSON returns metrics of PerfData(50, 90 and 99th percentiles) with JSON format.
-func (a *APIResponsiveness) PrintJSON() string {
-	return PrettyPrintJSON(APICallToPerfData(a))
-}
+func (a *APIResponsiveness) PrintJSON() string { _ = "STUB: not implemented"; return "" }
 
-func (a *APIResponsiveness) Len() int { return len(a.APICalls) }
-func (a *APIResponsiveness) Swap(i, j int) {
-	a.APICalls[i], a.APICalls[j] = a.APICalls[j], a.APICalls[i]
-}
-func (a *APIResponsiveness) Less(i, j int) bool {
-	return a.APICalls[i].Latency.Perc99 < a.APICalls[j].Latency.Perc99
-}
+func (a *APIResponsiveness) Len() int      { _ = "STUB: not implemented"; return 0 }
+func (a *APIResponsiveness) Swap(i, j int) { _ = "STUB: not implemented"; return }
+
+func (a *APIResponsiveness) Less(i, j int) bool { _ = "STUB: not implemented"; return false }
 
 // currentAPICallMetricsVersion is the current apicall performance metrics version. We should
 // bump up the version each time we make incompatible change to the metrics.
@@ -67,24 +56,8 @@ const currentAPICallMetricsVersion = "v1"
 
 // APICallToPerfData transforms APIResponsiveness to PerfData.
 func APICallToPerfData(apicalls *APIResponsiveness) *e2eperftype.PerfData {
-	perfData := &e2eperftype.PerfData{Version: currentAPICallMetricsVersion}
-	for _, apicall := range apicalls.APICalls {
-		item := e2eperftype.DataItem{
-			Data: map[string]float64{
-				"Perc50": float64(apicall.Latency.Perc50) / 1000000, // us -> ms
-				"Perc90": float64(apicall.Latency.Perc90) / 1000000,
-				"Perc99": float64(apicall.Latency.Perc99) / 1000000,
-			},
-			Unit: "ms",
-			Labels: map[string]string{
-				"Verb":        apicall.Verb,
-				"Resource":    apicall.Resource,
-				"Subresource": apicall.Subresource,
-				"Scope":       apicall.Scope,
-				"Count":       fmt.Sprintf("%v", apicall.Count),
-			},
-		}
-		perfData.DataItems = append(perfData.DataItems, item)
-	}
-	return perfData
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// us -> ms

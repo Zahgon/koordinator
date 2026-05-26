@@ -24,9 +24,8 @@ package v1alpha1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -67,70 +66,43 @@ type runtimeHookServiceClient struct {
 }
 
 func NewRuntimeHookServiceClient(cc grpc.ClientConnInterface) RuntimeHookServiceClient {
-	return &runtimeHookServiceClient{cc}
+	_ = "STUB: not implemented"
+	return *new(RuntimeHookServiceClient)
 }
 
 func (c *runtimeHookServiceClient) PreRunPodSandboxHook(ctx context.Context, in *PodSandboxHookRequest, opts ...grpc.CallOption) (*PodSandboxHookResponse, error) {
-	out := new(PodSandboxHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PreRunPodSandboxHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *runtimeHookServiceClient) PostStopPodSandboxHook(ctx context.Context, in *PodSandboxHookRequest, opts ...grpc.CallOption) (*PodSandboxHookResponse, error) {
-	out := new(PodSandboxHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PostStopPodSandboxHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *runtimeHookServiceClient) PreCreateContainerHook(ctx context.Context, in *ContainerResourceHookRequest, opts ...grpc.CallOption) (*ContainerResourceHookResponse, error) {
-	out := new(ContainerResourceHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PreCreateContainerHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *runtimeHookServiceClient) PreStartContainerHook(ctx context.Context, in *ContainerResourceHookRequest, opts ...grpc.CallOption) (*ContainerResourceHookResponse, error) {
-	out := new(ContainerResourceHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PreStartContainerHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *runtimeHookServiceClient) PostStartContainerHook(ctx context.Context, in *ContainerResourceHookRequest, opts ...grpc.CallOption) (*ContainerResourceHookResponse, error) {
-	out := new(ContainerResourceHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PostStartContainerHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *runtimeHookServiceClient) PostStopContainerHook(ctx context.Context, in *ContainerResourceHookRequest, opts ...grpc.CallOption) (*ContainerResourceHookResponse, error) {
-	out := new(ContainerResourceHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PostStopContainerHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *runtimeHookServiceClient) PreUpdateContainerResourcesHook(ctx context.Context, in *ContainerResourceHookRequest, opts ...grpc.CallOption) (*ContainerResourceHookResponse, error) {
-	out := new(ContainerResourceHookResponse)
-	err := c.cc.Invoke(ctx, "/runtime.v1alpha1.RuntimeHookService/PreUpdateContainerResourcesHook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RuntimeHookServiceServer is the server API for RuntimeHookService service.
@@ -167,163 +139,91 @@ type UnimplementedRuntimeHookServiceServer struct {
 }
 
 func (UnimplementedRuntimeHookServiceServer) PreRunPodSandboxHook(context.Context, *PodSandboxHookRequest) (*PodSandboxHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PreRunPodSandboxHook not implemented")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
-func (UnimplementedRuntimeHookServiceServer) PostStopPodSandboxHook(context.Context, *PodSandboxHookRequest) (*PodSandboxHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PostStopPodSandboxHook not implemented")
-}
-func (UnimplementedRuntimeHookServiceServer) PreCreateContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PreCreateContainerHook not implemented")
-}
-func (UnimplementedRuntimeHookServiceServer) PreStartContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PreStartContainerHook not implemented")
-}
-func (UnimplementedRuntimeHookServiceServer) PostStartContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PostStartContainerHook not implemented")
-}
-func (UnimplementedRuntimeHookServiceServer) PostStopContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PostStopContainerHook not implemented")
-}
-func (UnimplementedRuntimeHookServiceServer) PreUpdateContainerResourcesHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PreUpdateContainerResourcesHook not implemented")
-}
-func (UnimplementedRuntimeHookServiceServer) mustEmbedUnimplementedRuntimeHookServiceServer() {}
 
-// UnsafeRuntimeHookServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RuntimeHookServiceServer will
-// result in compilation errors.
+func (UnimplementedRuntimeHookServiceServer) PostStopPodSandboxHook(context.Context, *PodSandboxHookRequest) (*PodSandboxHookResponse, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (UnimplementedRuntimeHookServiceServer) PreCreateContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (UnimplementedRuntimeHookServiceServer) PreStartContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (UnimplementedRuntimeHookServiceServer) PostStartContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (UnimplementedRuntimeHookServiceServer) PostStopContainerHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (UnimplementedRuntimeHookServiceServer) PreUpdateContainerResourcesHook(context.Context, *ContainerResourceHookRequest) (*ContainerResourceHookResponse, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
+}
+
+func (UnimplementedRuntimeHookServiceServer) mustEmbedUnimplementedRuntimeHookServiceServer() {
+	_ = "STUB: not implemented"
+
+	// UnsafeRuntimeHookServiceServer may be embedded to opt out of forward compatibility for this service.
+	// Use of this interface is not recommended, as added methods to RuntimeHookServiceServer will
+	// result in compilation errors.
+	return
+}
+
 type UnsafeRuntimeHookServiceServer interface {
 	mustEmbedUnimplementedRuntimeHookServiceServer()
 }
 
 func RegisterRuntimeHookServiceServer(s grpc.ServiceRegistrar, srv RuntimeHookServiceServer) {
-	s.RegisterService(&RuntimeHookService_ServiceDesc, srv)
+	_ = "STUB: not implemented"
+	return
 }
 
 func _RuntimeHookService_PreRunPodSandboxHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PodSandboxHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PreRunPodSandboxHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PreRunPodSandboxHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PreRunPodSandboxHook(ctx, req.(*PodSandboxHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func _RuntimeHookService_PostStopPodSandboxHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PodSandboxHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PostStopPodSandboxHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PostStopPodSandboxHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PostStopPodSandboxHook(ctx, req.(*PodSandboxHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func _RuntimeHookService_PreCreateContainerHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContainerResourceHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PreCreateContainerHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PreCreateContainerHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PreCreateContainerHook(ctx, req.(*ContainerResourceHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func _RuntimeHookService_PreStartContainerHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContainerResourceHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PreStartContainerHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PreStartContainerHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PreStartContainerHook(ctx, req.(*ContainerResourceHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func _RuntimeHookService_PostStartContainerHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContainerResourceHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PostStartContainerHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PostStartContainerHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PostStartContainerHook(ctx, req.(*ContainerResourceHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func _RuntimeHookService_PostStopContainerHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContainerResourceHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PostStopContainerHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PostStopContainerHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PostStopContainerHook(ctx, req.(*ContainerResourceHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func _RuntimeHookService_PreUpdateContainerResourcesHook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContainerResourceHookRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RuntimeHookServiceServer).PreUpdateContainerResourcesHook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/runtime.v1alpha1.RuntimeHookService/PreUpdateContainerResourcesHook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RuntimeHookServiceServer).PreUpdateContainerResourcesHook(ctx, req.(*ContainerResourceHookRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RuntimeHookService_ServiceDesc is the grpc.ServiceDesc for RuntimeHookService service.

@@ -18,22 +18,13 @@ package webhook
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"time"
 
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/rest"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
-	"sigs.k8s.io/controller-runtime/pkg/webhook/conversion"
 
-	webhookutil "github.com/koordinator-sh/koordinator/pkg/webhook/util"
-	webhookcontroller "github.com/koordinator-sh/koordinator/pkg/webhook/util/controller"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/util/framework"
-	"github.com/koordinator-sh/koordinator/pkg/webhook/util/health"
 )
 
 type GateFunc func() (enabled bool)
@@ -46,116 +37,32 @@ var (
 )
 
 func addHandlersWithGate(m map[string]framework.HandlerBuilder, fn GateFunc) {
-	for path, handlerBuilder := range m {
-		if len(path) == 0 {
-			klog.Warningf("Skip handler with empty path.")
-			continue
-		}
-		if path[0] != '/' {
-			path = "/" + path
-		}
-		_, found := HandlerBuilderMap[path]
-		if found {
-			klog.V(1).Infof("conflicting webhook builder path %v in handler map", path)
-		}
-		HandlerBuilderMap[path] = handlerBuilder
-		if fn != nil {
-			handlerGates[path] = fn
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func filterActiveHandlers() {
-	disablePaths := sets.NewString()
-	for path := range HandlerBuilderMap {
-		if fn, ok := handlerGates[path]; ok {
-			if !fn() {
-				disablePaths.Insert(path)
-			}
-		}
-	}
-	for _, path := range disablePaths.List() {
-		delete(HandlerBuilderMap, path)
-	}
-}
+func filterActiveHandlers() { _ = "STUB: not implemented"; return }
 
-func SetupWithWebhookOpt(opt *manager.Options) {
-	opt.WebhookServer = webhook.NewServer(webhook.Options{
-		Host:    "0.0.0.0",
-		Port:    webhookutil.GetPort(),
-		CertDir: webhookutil.GetCertDir(),
-	})
-}
+func SetupWithWebhookOpt(opt *manager.Options) { _ = "STUB: not implemented"; return }
 
-func SetupWithManager(mgr manager.Manager) error {
-	server := mgr.GetWebhookServer()
+func SetupWithManager(mgr manager.Manager) error { _ = "STUB: not implemented"; return nil }
 
-	// register admission handlers
-	filterActiveHandlers()
-	for path, handlerBuilder := range HandlerBuilderMap {
-		handler := handlerBuilder.WithControllerManager(mgr).Build()
-		server.Register(path, &webhook.Admission{Handler: handler})
-		handlerMap[path] = handler
-		klog.V(3).Infof("Registered webhook handler %s", path)
-	}
+// register admission handlers
 
-	// register conversion webhook
-	server.Register("/convert", conversion.NewWebhookHandler(mgr.GetScheme(), conversion.NewRegistry()))
+// register conversion webhook
 
-	// register health handler
-	server.Register("/healthz", &health.Handler{})
-
-	InstallDebugAPIHandler(server)
-
-	return nil
-}
+// register health handler
 
 // +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations,verbs=get;list;watch;update;patch
 // +kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=validatingwebhookconfigurations,verbs=get;list;watch;update;patch
 
-func Initialize(ctx context.Context, cfg *rest.Config) error {
-	c, err := webhookcontroller.New(cfg, handlerMap)
-	if err != nil {
-		return err
-	}
-	go func() {
-		c.Start(ctx)
-	}()
-
-	timer := time.NewTimer(time.Second * 20)
-	defer timer.Stop()
-	select {
-	case <-webhookcontroller.Inited():
-		return nil
-	case <-timer.C:
-		return fmt.Errorf("failed to start webhook controller for waiting more than 20s")
-	}
-}
+func Initialize(ctx context.Context, cfg *rest.Config) error { _ = "STUB: not implemented"; return nil }
 
 func Checker(req *http.Request) error {
+	_ = "STUB: not implemented"
 	// Firstly wait webhook controller initialized
-	select {
-	case <-webhookcontroller.Inited():
-	default:
-		return fmt.Errorf("webhook controller has not initialized")
-	}
-	return health.Checker(req)
+	return nil
 }
 
-func WaitReady() error {
-	startTS := time.Now()
-	var err error
-	for {
-		duration := time.Since(startTS)
-		if err = Checker(nil); err == nil {
-			return nil
-		}
-
-		if duration > time.Second*5 {
-			klog.Warningf("Failed to wait webhook ready over %s: %v", duration, err)
-		}
-		time.Sleep(time.Second * 2)
-	}
-
-}
+func WaitReady() error { _ = "STUB: not implemented"; return nil }

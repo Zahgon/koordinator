@@ -17,16 +17,9 @@ limitations under the License.
 package nodenumaresource
 
 import (
-	"context"
-
 	nrtv1alpha1 "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/apis/topology/v1alpha1"
-	nrtclientset "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/clientset/versioned"
 	nrtinformers "github.com/k8stopologyawareschedwg/noderesourcetopology-api/pkg/generated/informers/externalversions"
-	"k8s.io/client-go/tools/cache"
 	fwktype "k8s.io/kube-scheduler/framework"
-
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
-	frameworkexthelper "github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/helper"
 )
 
 type nodeResourceTopologyEventHandler struct {
@@ -34,75 +27,33 @@ type nodeResourceTopologyEventHandler struct {
 }
 
 func registerNodeResourceTopologyEventHandler(informerFactory nrtinformers.SharedInformerFactory, topologyManager TopologyOptionsManager) error {
-	nodeResTopologyInformer := informerFactory.Topology().V1alpha1().NodeResourceTopologies().Informer()
-	eventHandler := &nodeResourceTopologyEventHandler{
-		topologyManager: topologyManager,
-	}
-	frameworkexthelper.ForceSyncFromInformer(context.TODO().Done(), informerFactory, nodeResTopologyInformer, eventHandler)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func initNRTInformerFactory(handle fwktype.Handle) (nrtinformers.SharedInformerFactory, error) {
-	nrtClient, ok := handle.(nrtclientset.Interface)
-	if !ok {
-		extendedHandle := handle.(frameworkext.ExtendedHandle)
-		nodeResTopologyInformerFactory := extendedHandle.NodeResourceTopologyInformerFactory()
-		return nodeResTopologyInformerFactory, nil
-	}
-
-	nodeResTopologyInformerFactory := nrtinformers.NewSharedInformerFactoryWithOptions(nrtClient, 0)
-	return nodeResTopologyInformerFactory, nil
+	_ = "STUB: not implemented"
+	return *new(nrtinformers.SharedInformerFactory), nil
 }
 
 func (m *nodeResourceTopologyEventHandler) OnAdd(obj interface{}, isInInitialList bool) {
-	nodeResTopology, ok := obj.(*nrtv1alpha1.NodeResourceTopology)
-	if !ok {
-		return
-	}
-	m.updateNodeResourceTopology(nil, nodeResTopology)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *nodeResourceTopologyEventHandler) OnUpdate(oldObj, newObj interface{}) {
-	oldNodeResTopology, ok := oldObj.(*nrtv1alpha1.NodeResourceTopology)
-	if !ok {
-		return
-	}
-
-	nodeResTopology, ok := newObj.(*nrtv1alpha1.NodeResourceTopology)
-	if !ok {
-		return
-	}
-	m.updateNodeResourceTopology(oldNodeResTopology, nodeResTopology)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *nodeResourceTopologyEventHandler) OnDelete(obj interface{}) {
-	var nodeResTopology *nrtv1alpha1.NodeResourceTopology
-	switch t := obj.(type) {
-	case *nrtv1alpha1.NodeResourceTopology:
-		nodeResTopology = t
-	case cache.DeletedFinalStateUnknown:
-		var ok bool
-		nodeResTopology, ok = t.Obj.(*nrtv1alpha1.NodeResourceTopology)
-		if !ok {
-			return
-		}
-	default:
-		break
-	}
-
-	if nodeResTopology == nil {
-		return
-	}
-	m.topologyManager.Delete(nodeResTopology.Name)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *nodeResourceTopologyEventHandler) updateNodeResourceTopology(oldNodeResTopology, newNodeResTopology *nrtv1alpha1.NodeResourceTopology) {
-	topologyOpts := NewTopologyOptions(newNodeResTopology)
-
-	nodeName := newNodeResTopology.Name
-	m.topologyManager.UpdateTopologyOptions(nodeName, func(options *TopologyOptions) {
-		// Give other plugins a chance to customize a different MaxRefCount
-		topologyOpts.MaxRefCount = options.MaxRefCount
-		*options = topologyOpts
-	})
+	_ = "STUB: not implemented"
+	return
 }
+
+// Give other plugins a chance to customize a different MaxRefCount

@@ -21,7 +21,6 @@ import (
 	"sync"
 
 	"k8s.io/component-base/metrics"
-	"k8s.io/component-base/metrics/legacyregistry"
 )
 
 const (
@@ -47,15 +46,10 @@ var registerMetrics sync.Once
 
 // Register all metrics.
 func Register() {
+	_ = "STUB: not implemented"
 	// Register the metrics.
-	registerMetrics.Do(func() {
-		RegisterMetrics(metricsList...)
-	})
+	return
 }
 
 // RegisterMetrics registers a list of metrics.
-func RegisterMetrics(extraMetrics ...metrics.Registerable) {
-	for _, metric := range extraMetrics {
-		legacyregistry.MustRegister(metric)
-	}
-}
+func RegisterMetrics(extraMetrics ...metrics.Registerable) { _ = "STUB: not implemented"; return }

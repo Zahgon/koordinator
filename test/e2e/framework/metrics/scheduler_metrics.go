@@ -22,19 +22,14 @@ import "k8s.io/component-base/metrics/testutil"
 type SchedulerMetrics testutil.Metrics
 
 // Equal returns true if all metrics are the same as the arguments.
-func (m *SchedulerMetrics) Equal(o SchedulerMetrics) bool {
-	return (*testutil.Metrics)(m).Equal(testutil.Metrics(o))
-}
+func (m *SchedulerMetrics) Equal(o SchedulerMetrics) bool { _ = "STUB: not implemented"; return false }
 
 func newSchedulerMetrics() SchedulerMetrics {
-	result := testutil.NewMetrics()
-	return SchedulerMetrics(result)
+	_ = "STUB: not implemented"
+	return *new(SchedulerMetrics)
 }
 
 func parseSchedulerMetrics(data string) (SchedulerMetrics, error) {
-	result := newSchedulerMetrics()
-	if err := testutil.ParseMetrics(data, (*testutil.Metrics)(&result)); err != nil {
-		return SchedulerMetrics{}, err
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return *new(SchedulerMetrics), nil
 }

@@ -17,10 +17,6 @@ limitations under the License.
 
 package nodenumaresource
 
-import (
-	fwktype "k8s.io/kube-scheduler/framework"
-)
-
 // leastResourceScorer favors nodes with fewer requested resources.
 // It calculates the percentage of memory, CPU and other resources requested by pods scheduled on the node, and
 // prioritizes based on the minimum of the average of the fraction of requested to capacity.
@@ -28,31 +24,11 @@ import (
 // Details:
 // (cpu((capacity-requested)*MaxNodeScore*cpuWeight/capacity) + memory((capacity-requested)*MaxNodeScore*memoryWeight/capacity) + ...)/weightSum
 func leastResourceScorer(resToWeightMap resourceToWeightMap) func(resourceToValueMap, resourceToValueMap) int64 {
-	return func(requested, allocable resourceToValueMap) int64 {
-		var nodeScore, weightSum int64
-		for resource := range requested {
-			weight := resToWeightMap[resource]
-			resourceScore := leastRequestedScore(requested[resource], allocable[resource])
-			nodeScore += resourceScore * weight
-			weightSum += weight
-		}
-		if weightSum == 0 {
-			return 0
-		}
-		return nodeScore / weightSum
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // The unused capacity is calculated on a scale of 0-MaxNodeScore
 // 0 being the lowest priority and `MaxNodeScore` being the highest.
 // The more unused resources the higher the score is.
-func leastRequestedScore(requested, capacity int64) int64 {
-	if capacity == 0 {
-		return 0
-	}
-	if requested > capacity {
-		return 0
-	}
-
-	return ((capacity - requested) * fwktype.MaxNodeScore) / capacity
-}
+func leastRequestedScore(requested, capacity int64) int64 { _ = "STUB: not implemented"; return 0 }

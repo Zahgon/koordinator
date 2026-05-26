@@ -17,14 +17,10 @@ limitations under the License.
 package v1alpha2
 
 import (
-	"bytes"
-	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/component-base/config/v1alpha1"
-	"sigs.k8s.io/yaml"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -75,29 +71,13 @@ type DeschedulerConfiguration struct {
 
 // DecodeNestedObjects decodes plugin args for known types.
 func (c *DeschedulerConfiguration) DecodeNestedObjects(d runtime.Decoder) error {
-	for i := range c.Profiles {
-		prof := &c.Profiles[i]
-		for j := range prof.PluginConfig {
-			err := prof.PluginConfig[j].decodeNestedObjects(d)
-			if err != nil {
-				return fmt.Errorf("decoding .profiles[%d].pluginConfig[%d]: %w", i, j, err)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // EncodeNestedObjects encodes plugin args.
 func (c *DeschedulerConfiguration) EncodeNestedObjects(e runtime.Encoder) error {
-	for i := range c.Profiles {
-		prof := &c.Profiles[i]
-		for j := range prof.PluginConfig {
-			err := prof.PluginConfig[j].encodeNestedObjects(e)
-			if err != nil {
-				return fmt.Errorf("encoding .profiles[%d].pluginConfig[%d]: %w", i, j, err)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -149,39 +129,17 @@ type (
 )
 
 func (c *PluginConfig) decodeNestedObjects(d runtime.Decoder) error {
-	gvk := SchemeGroupVersion.WithKind(c.Name + "Args")
-	// dry-run to detect and skip out-of-tree plugin args.
-	if _, _, err := d.Decode(nil, &gvk, nil); runtime.IsNotRegisteredError(err) {
-		return nil
-	}
-
-	obj, parsedGvk, err := d.Decode(c.Args.Raw, &gvk, nil)
-	if err != nil {
-		return fmt.Errorf("decoding args for plugin %s: %w", c.Name, err)
-	}
-	if parsedGvk.GroupKind() != gvk.GroupKind() {
-		return fmt.Errorf("args for plugin %s were not of type %s, got %s", c.Name, gvk.GroupKind(), parsedGvk.GroupKind())
-	}
-	c.Args.Object = obj
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// dry-run to detect and skip out-of-tree plugin args.
 
 func (c *PluginConfig) encodeNestedObjects(e runtime.Encoder) error {
-	if c.Args.Object == nil {
-		return nil
-	}
-	var buf bytes.Buffer
-	err := e.Encode(c.Args.Object, &buf)
-	if err != nil {
-		return err
-	}
-	// The <e> encoder might be a YAML encoder, but the parent encoder expects
-	// JSON output, so we convert YAML back to JSON.
-	// This is a no-op if <e> produces JSON.
-	json, err := yaml.YAMLToJSON(buf.Bytes())
-	if err != nil {
-		return err
-	}
-	c.Args.Raw = json
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// The <e> encoder might be a YAML encoder, but the parent encoder expects
+// JSON output, so we convert YAML back to JSON.
+// This is a no-op if <e> produces JSON.

@@ -36,15 +36,8 @@ var (
 )
 
 func RecordWebhookDurationMilliseconds(webhookType, objectType, operation string, err error, pluginName string, seconds float64) {
-	labels := prometheus.Labels{}
-	labels[WebhookTypeKey] = webhookType
-	labels[ObjectTypeKey] = objectType
-	labels[OperationKey] = operation
-	labels[PluginNameKey] = pluginName
-	labels[StatusKey] = StatusAllowed
-	// TODO Add detailed error codes for ACS integration to better identify specific issues
-	if err != nil {
-		labels[StatusKey] = StatusRejected
-	}
-	WebhookDurationMilliseconds.With(labels).Observe(seconds * 1000)
+	_ = "STUB: not implemented"
+	return
 }
+
+// TODO Add detailed error codes for ACS integration to better identify specific issues

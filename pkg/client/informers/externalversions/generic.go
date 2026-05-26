@@ -19,13 +19,6 @@ limitations under the License.
 package externalversions
 
 import (
-	fmt "fmt"
-
-	v1alpha1 "github.com/koordinator-sh/koordinator/apis/analysis/v1alpha1"
-	configv1alpha1 "github.com/koordinator-sh/koordinator/apis/config/v1alpha1"
-	quotav1alpha1 "github.com/koordinator-sh/koordinator/apis/quota/v1alpha1"
-	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -44,49 +37,30 @@ type genericInformer struct {
 
 // Informer returns the SharedIndexInformer.
 func (f *genericInformer) Informer() cache.SharedIndexInformer {
-	return f.informer
+	_ = "STUB: not implemented"
+
+	// Lister returns the GenericLister.
+	return *new(cache.SharedIndexInformer)
 }
 
-// Lister returns the GenericLister.
 func (f *genericInformer) Lister() cache.GenericLister {
-	return cache.NewGenericLister(f.Informer().GetIndexer(), f.resource)
+	_ = "STUB: not implemented"
+	return *new(cache.GenericLister)
 }
 
 // ForResource gives generic access to a shared informer of the matching type
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
-	switch resource {
+	_ = "STUB: not implemented"
+
 	// Group=analysis, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("recommendations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Analysis().V1alpha1().Recommendations().Informer()}, nil
-
-		// Group=config, Version=v1alpha1
-	case configv1alpha1.SchemeGroupVersion.WithResource("clustercolocationprofiles"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Config().V1alpha1().ClusterColocationProfiles().Informer()}, nil
-
-		// Group=quota, Version=v1alpha1
-	case quotav1alpha1.SchemeGroupVersion.WithResource("elasticquotaprofiles"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Quota().V1alpha1().ElasticQuotaProfiles().Informer()}, nil
-
-		// Group=scheduling, Version=v1alpha1
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("clusternetworktopologies"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().ClusterNetworkTopologies().Informer()}, nil
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("devices"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().Devices().Informer()}, nil
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("podmigrationjobs"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().PodMigrationJobs().Informer()}, nil
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("reservations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().Reservations().Informer()}, nil
-	case schedulingv1alpha1.SchemeGroupVersion.WithResource("scheduleexplanations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Scheduling().V1alpha1().ScheduleExplanations().Informer()}, nil
-
-		// Group=slo, Version=v1alpha1
-	case slov1alpha1.SchemeGroupVersion.WithResource("nodemetrics"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Slo().V1alpha1().NodeMetrics().Informer()}, nil
-	case slov1alpha1.SchemeGroupVersion.WithResource("nodeslos"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Slo().V1alpha1().NodeSLOs().Informer()}, nil
-
-	}
-
-	return nil, fmt.Errorf("no informer found for %v", resource)
+	return *new(GenericInformer), nil
 }
+
+// Group=config, Version=v1alpha1
+
+// Group=quota, Version=v1alpha1
+
+// Group=scheduling, Version=v1alpha1
+
+// Group=slo, Version=v1alpha1

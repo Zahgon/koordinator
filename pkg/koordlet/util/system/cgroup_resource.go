@@ -17,12 +17,8 @@ limitations under the License.
 package system
 
 import (
-	"fmt"
 	"math"
-	"path/filepath"
 	"sync"
-
-	"k8s.io/utils/ptr"
 )
 
 func init() {
@@ -51,59 +47,28 @@ type CgroupResourceRegistryImpl struct {
 }
 
 func NewCgroupResourceRegistry() CgroupResourceRegistry {
-	return &CgroupResourceRegistryImpl{
-		v1: map[ResourceType]Resource{},
-		v2: map[ResourceType]Resource{},
-	}
+	_ = "STUB: not implemented"
+	return *new(CgroupResourceRegistry)
 }
 
 func (r *CgroupResourceRegistryImpl) Add(v CgroupVersion, s ...Resource) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-	m := r.v1
-	if v == CgroupVersionV2 {
-		m = r.v2
-	}
-	for i := range s {
-		if conv, ok := s[i].(*CgroupResource); ok {
-			conv.SetCgroupVersion(v)
-		}
-		m[s[i].ResourceType()] = s[i]
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *CgroupResourceRegistryImpl) Get(v CgroupVersion, key ResourceType) (Resource, bool) {
-	r.lock.RLock()
-	defer r.lock.RUnlock()
-	m := r.v1
-	if v == CgroupVersionV2 {
-		m = r.v2
-	}
-	s, ok := m[key]
-	return s, ok
+	_ = "STUB: not implemented"
+	return *new(Resource), false
 }
 
-func GetCurrentCgroupVersion() CgroupVersion {
-	if UseCgroupsV2.Load() {
-		return CgroupVersionV2
-	}
-	return CgroupVersionV1
-}
+func GetCurrentCgroupVersion() CgroupVersion { _ = "STUB: not implemented"; return *new(CgroupVersion) }
 
 func GetCgroupResource(resourceType ResourceType) (Resource, error) {
-	r, ok := DefaultRegistry.Get(GetCurrentCgroupVersion(), resourceType)
-	if !ok {
-		return nil, fmt.Errorf("%s not found in cgroup registry", resourceType)
-	}
-	return r, nil
+	_ = "STUB: not implemented"
+	return *new(Resource), nil
 }
 
-func IsCgroupV2Resource(r Resource) bool {
-	if conv, ok := r.(*CgroupResource); ok {
-		return conv.GetCgroupVersion() == CgroupVersionV2
-	}
-	return false
-}
+func IsCgroupV2Resource(r Resource) bool { _ = "STUB: not implemented"; return false }
 
 const ( // subsystems
 	CgroupCPUDir     string = "cpu/"
@@ -373,72 +338,56 @@ type CgroupResource struct {
 }
 
 func (c *CgroupResource) ResourceType() ResourceType {
-	if len(c.Type) > 0 {
-		return c.Type
-	}
-	return GetDefaultResourceType(c.Subfs, c.FileName)
+	_ = "STUB: not implemented"
+	return *new(ResourceType)
 }
 
 func (c *CgroupResource) Path(parentDir string) string {
+	_ = "STUB: not implemented"
 	// get cgroup path
-	return filepath.Join(Conf.CgroupRootDir, c.Subfs, parentDir, c.FileName)
+	return ""
 }
 
 func (c *CgroupResource) IsSupported(parentDir string) (bool, string) {
-	if c.Supported != nil {
-		return *c.Supported, c.SupportMsg
-	}
-	if c.CheckSupported == nil {
-		return false, "unknown support status"
-	}
-	isSupported, msg := c.CheckSupported(c, parentDir)
-	if c.CheckOnce {
-		c.Supported = &isSupported
-		c.SupportMsg = msg
-	}
-
-	return isSupported, msg
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func (c *CgroupResource) IsValid(v string) (bool, string) {
-	if c.Validator == nil {
-		return true, ""
-	}
-	return c.Validator.Validate(v)
+	_ = "STUB: not implemented"
+	return false, ""
 }
 
 func (c *CgroupResource) WithValidator(validator ResourceValidator) Resource {
-	c.Validator = validator
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (c *CgroupResource) WithSupported(isSupported bool, msg string) Resource {
-	c.Supported = ptr.To[bool](isSupported)
-	c.SupportMsg = msg
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (c *CgroupResource) WithCheckOnce(isCheckOnce bool) Resource {
-	c.CheckOnce = isCheckOnce
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (c *CgroupResource) WithCheckSupported(checkSupportedFn func(r Resource, parentDir string) (isSupported bool, msg string)) Resource {
-	c.Supported = nil
-	c.CheckSupported = checkSupportedFn
-	return c
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
-func (c *CgroupResource) SetCgroupVersion(cv CgroupVersion) {
-	c.CgroupVersion = cv
-}
+func (c *CgroupResource) SetCgroupVersion(cv CgroupVersion) { _ = "STUB: not implemented"; return }
 
 func (c *CgroupResource) GetCgroupVersion() CgroupVersion {
-	return c.CgroupVersion
+	_ = "STUB: not implemented"
+	return *new(CgroupVersion)
 }
 
 func NewCommonCgroupResource(resourceType ResourceType, filename string, subfs string) Resource {
-	return &CgroupResource{Type: resourceType, FileName: filename, Subfs: subfs, Supported: ptr.To[bool](true)}
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 type CgroupResourceFactory interface {
@@ -449,13 +398,16 @@ type CgroupResourceFactory interface {
 type cgroupResourceFactoryImpl struct{}
 
 func NewCgroupResourceFactory() CgroupResourceFactory {
-	return &cgroupResourceFactoryImpl{}
+	_ = "STUB: not implemented"
+	return *new(CgroupResourceFactory)
 }
 
 func (f *cgroupResourceFactoryImpl) New(filename string, subfs string) Resource {
-	return NewCommonCgroupResource(ResourceType(filename), filename, subfs)
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }
 
 func (f *cgroupResourceFactoryImpl) NewV2(t ResourceType, filename string) Resource {
-	return NewCommonCgroupResource(t, filename, CgroupV2Dir)
+	_ = "STUB: not implemented"
+	return *new(Resource)
 }

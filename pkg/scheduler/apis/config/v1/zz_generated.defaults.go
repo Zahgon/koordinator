@@ -28,41 +28,27 @@ import (
 // RegisterDefaults adds defaulters functions to the given scheme.
 // Public to allow building arbitrary schemes.
 // All generated defaulters are covering - they call all nested defaulters.
-func RegisterDefaults(scheme *runtime.Scheme) error {
-	scheme.AddTypeDefaultingFunc(&CoschedulingArgs{}, func(obj interface{}) { SetObjectDefaults_CoschedulingArgs(obj.(*CoschedulingArgs)) })
-	scheme.AddTypeDefaultingFunc(&DeviceShareArgs{}, func(obj interface{}) { SetObjectDefaults_DeviceShareArgs(obj.(*DeviceShareArgs)) })
-	scheme.AddTypeDefaultingFunc(&ElasticQuotaArgs{}, func(obj interface{}) { SetObjectDefaults_ElasticQuotaArgs(obj.(*ElasticQuotaArgs)) })
-	scheme.AddTypeDefaultingFunc(&LoadAwareSchedulingArgs{}, func(obj interface{}) { SetObjectDefaults_LoadAwareSchedulingArgs(obj.(*LoadAwareSchedulingArgs)) })
-	scheme.AddTypeDefaultingFunc(&NodeNUMAResourceArgs{}, func(obj interface{}) { SetObjectDefaults_NodeNUMAResourceArgs(obj.(*NodeNUMAResourceArgs)) })
-	scheme.AddTypeDefaultingFunc(&ReservationArgs{}, func(obj interface{}) { SetObjectDefaults_ReservationArgs(obj.(*ReservationArgs)) })
-	scheme.AddTypeDefaultingFunc(&SchedulingHintArgs{}, func(obj interface{}) { SetObjectDefaults_SchedulingHintArgs(obj.(*SchedulingHintArgs)) })
-	return nil
-}
+func RegisterDefaults(scheme *runtime.Scheme) error { _ = "STUB: not implemented"; return nil }
 
-func SetObjectDefaults_CoschedulingArgs(in *CoschedulingArgs) {
-	SetDefaults_CoschedulingArgs(in)
-}
+func SetObjectDefaults_CoschedulingArgs(in *CoschedulingArgs) { _ = "STUB: not implemented"; return }
 
-func SetObjectDefaults_DeviceShareArgs(in *DeviceShareArgs) {
-	SetDefaults_DeviceShareArgs(in)
-}
+func SetObjectDefaults_DeviceShareArgs(in *DeviceShareArgs) { _ = "STUB: not implemented"; return }
 
-func SetObjectDefaults_ElasticQuotaArgs(in *ElasticQuotaArgs) {
-	SetDefaults_ElasticQuotaArgs(in)
-}
+func SetObjectDefaults_ElasticQuotaArgs(in *ElasticQuotaArgs) { _ = "STUB: not implemented"; return }
 
 func SetObjectDefaults_LoadAwareSchedulingArgs(in *LoadAwareSchedulingArgs) {
-	SetDefaults_LoadAwareSchedulingArgs(in)
+	_ = "STUB: not implemented"
+	return
 }
 
 func SetObjectDefaults_NodeNUMAResourceArgs(in *NodeNUMAResourceArgs) {
-	SetDefaults_NodeNUMAResourceArgs(in)
+	_ = "STUB: not implemented"
+	return
 }
 
-func SetObjectDefaults_ReservationArgs(in *ReservationArgs) {
-	SetDefaults_ReservationArgs(in)
-}
+func SetObjectDefaults_ReservationArgs(in *ReservationArgs) { _ = "STUB: not implemented"; return }
 
 func SetObjectDefaults_SchedulingHintArgs(in *SchedulingHintArgs) {
-	SetDefaults_SchedulingHintArgs(in)
+	_ = "STUB: not implemented"
+	return
 }

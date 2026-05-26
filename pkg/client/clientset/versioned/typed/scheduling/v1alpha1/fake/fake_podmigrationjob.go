@@ -31,22 +31,6 @@ type fakePodMigrationJobs struct {
 }
 
 func newFakePodMigrationJobs(fake *FakeSchedulingV1alpha1) schedulingv1alpha1.PodMigrationJobInterface {
-	return &fakePodMigrationJobs{
-		gentype.NewFakeClientWithList[*v1alpha1.PodMigrationJob, *v1alpha1.PodMigrationJobList](
-			fake.Fake,
-			"",
-			v1alpha1.SchemeGroupVersion.WithResource("podmigrationjobs"),
-			v1alpha1.SchemeGroupVersion.WithKind("PodMigrationJob"),
-			func() *v1alpha1.PodMigrationJob { return &v1alpha1.PodMigrationJob{} },
-			func() *v1alpha1.PodMigrationJobList { return &v1alpha1.PodMigrationJobList{} },
-			func(dst, src *v1alpha1.PodMigrationJobList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.PodMigrationJobList) []*v1alpha1.PodMigrationJob {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.PodMigrationJobList, items []*v1alpha1.PodMigrationJob) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(schedulingv1alpha1.PodMigrationJobInterface)
 }

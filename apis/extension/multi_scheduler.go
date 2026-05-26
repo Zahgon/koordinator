@@ -17,8 +17,6 @@ limitations under the License.
 package extension
 
 import (
-	"encoding/json"
-
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -31,12 +29,7 @@ const (
 	AnnotationOriginalSchedulerName = InternalSchedulingDomainPrefix + "/original-scheduler-name"
 )
 
-func GetSchedulerName(pod *corev1.Pod) string {
-	if schedulerName, ok := pod.Labels[LabelSchedulerName]; ok {
-		return schedulerName
-	}
-	return pod.Spec.SchedulerName
-}
+func GetSchedulerName(pod *corev1.Pod) string { _ = "STUB: not implemented"; return "" }
 
 type SchedulingHint struct {
 	// NodeNames is a list of node names that the pod is required to be scheduled on.
@@ -60,24 +53,10 @@ const (
 )
 
 func GetSchedulingHint(pod *corev1.Pod) (*SchedulingHint, error) {
-	if pod == nil {
-		return nil, nil
-	}
-	hintStr, ok := pod.Annotations[AnnotationSchedulingHint]
-	if ok && len(hintStr) > 0 { // ignore empty hint
-		hint := &SchedulingHint{}
-		if err := json.Unmarshal([]byte(hintStr), hint); err != nil {
-			return nil, err
-		}
-		return hint, nil
-	}
-	hintStr, ok = pod.Annotations[DeprecatedAnnotationSchedulingHint]
-	if !ok || len(hintStr) == 0 { // ignore empty hint
-		return nil, nil
-	}
-	hint := &SchedulingHint{}
-	if err := json.Unmarshal([]byte(hintStr), hint); err != nil {
-		return nil, err
-	}
-	return hint, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// ignore empty hint
+
+// ignore empty hint

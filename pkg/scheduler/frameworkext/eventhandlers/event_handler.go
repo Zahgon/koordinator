@@ -18,15 +18,12 @@ package eventhandlers
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	k8sfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler"
 	"k8s.io/kubernetes/pkg/scheduler/profile"
 
 	koordinatorinformers "github.com/koordinator-sh/koordinator/pkg/client/informers/externalversions"
-	"github.com/koordinator-sh/koordinator/pkg/features"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext"
 )
 
@@ -35,73 +32,31 @@ import (
 // cache and queue.
 // - Pod and reservation event handlers for multi-scheduler clean up.
 func AddScheduleEventHandler(sched *scheduler.Scheduler, schedAdapter frameworkext.Scheduler, informerFactory informers.SharedInformerFactory, koordSharedInformerFactory koordinatorinformers.SharedInformerFactory, crossSchedulerNominator *frameworkext.CrossSchedulerPodNominator) {
-	podInformer := informerFactory.Core().V1().Pods().Informer()
-	if k8sfeature.DefaultFeatureGate.Enabled(features.DynamicSchedulerCheck) {
-		// Clean up irresponsible pods for scheduling queue
-		_, err := podInformer.AddEventHandler(irresponsibleUnscheduledPodEventHandler(sched, schedAdapter))
-		if err != nil {
-			klog.Fatalf("failed to add irresponsible pod handler for SchedulingQueue, err: %s", err)
-		}
-	}
-
-	reservationInformer := koordSharedInformerFactory.Scheduling().V1alpha1().Reservations().Informer()
-	// unified reservation event handler for both cache and queue
-	_, err := reservationInformer.AddEventHandler(reservationEventHandlers(sched, schedAdapter))
-	if err != nil {
-		klog.Fatalf("failed to add reservation handler, err: %s", err)
-	}
-
-	// Register cross-scheduler pod nominator event handler when feature is enabled.
-	if k8sfeature.DefaultFeatureGate.Enabled(features.CrossSchedulerNomination) && crossSchedulerNominator != nil {
-		_, err := podInformer.AddEventHandler(cache.FilteringResourceEventHandler{
-			FilterFunc: func(obj interface{}) bool {
-				return crossSchedulerNominator.ShouldHandle(obj)
-			},
-			Handler: cache.ResourceEventHandlerFuncs{
-				AddFunc:    crossSchedulerNominator.OnAdd,
-				UpdateFunc: crossSchedulerNominator.OnUpdate,
-				DeleteFunc: crossSchedulerNominator.OnDelete,
-			},
-		})
-		if err != nil {
-			klog.Fatalf("failed to add cross-scheduler pod nominator handler, err: %s", err)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
+// Clean up irresponsible pods for scheduling queue
+
+// unified reservation event handler for both cache and queue
+
+// Register cross-scheduler pod nominator event handler when feature is enabled.
+
 func irresponsibleUnscheduledPodEventHandler(sched *scheduler.Scheduler, schedAdapter frameworkext.Scheduler) cache.ResourceEventHandler {
+	_ = "STUB: not implemented"
 	// 1. If the pod does not change its scheduler name, the default handler keeps the scheduling queue and the
 	//    nominator correct.
 	// 2. If the pod updates to irresponsible from responsible, the default handler deletes the old obj from the queue.
 	// 3. If the pod updates to responsible from irresponsible, the default handler adds the old obj to the queue.
 	// 4. If an irresponsible deleted after enqueued, the default handler may not handle the obj causing a leak.
-	return cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			pod := toPod(obj)
-			if pod == nil {
-				return
-			}
-			if isResponsibleForPod(sched.Profiles, pod) {
-				return
-			}
-			klog.V(3).InfoS("Delete event for irresponsible unscheduled pod", "pod", klog.KObj(pod))
-			schedAdapter.GetSchedulingQueue().Delete(pod)
-			// FIXME: proactively reject waiting pod if it has handled by a responsible profile
-		},
-	}
+	return *new(cache.ResourceEventHandler)
 }
 
-func toPod(obj interface{}) *corev1.Pod {
-	var pod *corev1.Pod
-	switch t := obj.(type) {
-	case *corev1.Pod:
-		pod = t
-	case cache.DeletedFinalStateUnknown:
-		pod, _ = t.Obj.(*corev1.Pod)
-	}
-	return pod
-}
+// FIXME: proactively reject waiting pod if it has handled by a responsible profile
+
+func toPod(obj interface{}) *corev1.Pod { _ = "STUB: not implemented"; return nil }
 
 func isResponsibleForPod(profiles profile.Map, pod *corev1.Pod) bool {
-	return profiles.HandlesSchedulerName(pod.Spec.SchedulerName)
+	_ = "STUB: not implemented"
+	return false
 }

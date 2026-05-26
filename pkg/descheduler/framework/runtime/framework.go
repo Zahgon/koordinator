@@ -18,14 +18,10 @@ package runtime
 
 import (
 	"context"
-	"fmt"
-	"reflect"
-	"sort"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/informers"
 	clientset "k8s.io/client-go/kubernetes"
@@ -65,190 +61,65 @@ type frameworkOptions struct {
 	captureProfile            CaptureProfile
 }
 
-func WithDryRun(dryRun bool) Option {
-	return func(o *frameworkOptions) {
-		o.dryRun = dryRun
-	}
-}
+func WithDryRun(dryRun bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithClientSet sets clientSet for the scheduling Framework.
 func WithClientSet(clientSet clientset.Interface) Option {
-	return func(o *frameworkOptions) {
-		o.clientSet = clientSet
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithKubeConfig sets kubeConfig for the scheduling frameworkImpl.
 func WithKubeConfig(kubeConfig *restclient.Config) Option {
-	return func(o *frameworkOptions) {
-		o.kubeConfig = kubeConfig
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithSharedInformerFactory(sharedInformerFactory informers.SharedInformerFactory) Option {
-	return func(o *frameworkOptions) {
-		o.sharedInformerFactory = sharedInformerFactory
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithGetPodsAssignedToNodeFunc(fn framework.GetPodsAssignedToNodeFunc) Option {
-	return func(opts *frameworkOptions) {
-		opts.getPodsAssignedToNodeFunc = fn
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // CaptureProfile is a callback to capture a finalized profile.
 type CaptureProfile func(profile deschedulerconfig.DeschedulerProfile)
 
 // WithCaptureProfile sets a callback to capture the finalized profile.
-func WithCaptureProfile(c CaptureProfile) Option {
-	return func(o *frameworkOptions) {
-		o.captureProfile = c
-	}
-}
+func WithCaptureProfile(c CaptureProfile) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithEventRecorder sets clientSet for the scheduling frameworkImpl.
 func WithEventRecorder(recorder events.EventRecorder) Option {
-	return func(o *frameworkOptions) {
-		o.eventRecorder = recorder
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func WithEvictionLimiter(limiter EvictionLimiter) Option {
-	return func(o *frameworkOptions) {
-		o.evictionLimiter = limiter
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 func NewFramework(ctx context.Context, r Registry, profile *deschedulerconfig.DeschedulerProfile, opts ...Option) (framework.Handle, error) {
-	options := &frameworkOptions{}
-	for _, optFnc := range opts {
-		optFnc(options)
-	}
-
-	f := &frameworkImpl{
-		dryRun:                    options.dryRun,
-		clientSet:                 options.clientSet,
-		kubeConfig:                options.kubeConfig,
-		eventRecorder:             options.eventRecorder,
-		evictionLimiter:           options.evictionLimiter,
-		sharedInformerFactory:     options.sharedInformerFactory,
-		getPodsAssignedToNodeFunc: options.getPodsAssignedToNodeFunc,
-	}
-
-	if profile == nil || profile.Plugins == nil {
-		return f, nil
-	}
-
-	pluginConfig := make(map[string]runtime.Object, len(profile.PluginConfig))
-	for i := range profile.PluginConfig {
-		name := profile.PluginConfig[i].Name
-		if _, ok := pluginConfig[name]; ok {
-			return nil, fmt.Errorf("repeated config for plugin %s", name)
-		}
-		pluginConfig[name] = profile.PluginConfig[i].Args
-	}
-	outputProfile := deschedulerconfig.DeschedulerProfile{
-		Name:         profile.Name,
-		Plugins:      profile.Plugins,
-		NodeSelector: profile.NodeSelector,
-	}
-
-	f.nodeSelector = profile.NodeSelector
-
-	pluginsMap := make(map[string]framework.Plugin)
-
-	extensionPoints := f.getExtensionPoints(profile.Plugins)
-	outputPluginConfig, err := f.initPlugins(ctx, r, pluginConfig, extensionPoints, pluginsMap)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(f.evictPlugins) == 0 {
-		return nil, fmt.Errorf("no evict plugin is enabled")
-	}
-	if len(f.evictPlugins) > 1 {
-		return nil, fmt.Errorf("only one evict plugin can be enabled")
-	}
-
-	outputProfile.PluginConfig = append(outputProfile.PluginConfig, outputPluginConfig...)
-	if options.captureProfile != nil {
-		if len(outputProfile.PluginConfig) != 0 {
-			sort.Slice(outputProfile.PluginConfig, func(i, j int) bool {
-				return outputProfile.PluginConfig[i].Name < outputProfile.PluginConfig[j].Name
-			})
-		} else {
-			outputProfile.PluginConfig = nil
-		}
-		options.captureProfile(outputProfile)
-	}
-
-	return f, nil
+	_ = "STUB: not implemented"
+	return *new(framework.Handle), nil
 }
 
 func (f *frameworkImpl) initPlugins(ctx context.Context, r Registry, pluginConfig map[string]runtime.Object, extensionPoints []extensionPoint, pluginsMap map[string]framework.Plugin) ([]deschedulerconfig.PluginConfig, error) {
-	pg := sets.NewString()
-	pluginsNeeded(pg, extensionPoints)
-
-	var outputPluginConfig []deschedulerconfig.PluginConfig
-	for name, factory := range r {
-		// initialize only needed plugins.
-		if !pg.Has(name) {
-			continue
-		}
-
-		// initialize plugins that have not yet been created
-		if _, ok := pluginsMap[name]; ok {
-			continue
-		}
-
-		args := pluginConfig[name]
-		if args != nil {
-			outputPluginConfig = append(outputPluginConfig, deschedulerconfig.PluginConfig{
-				Name: name,
-				Args: args,
-			})
-		}
-		p, err := factory(ctx, args, f)
-		if err != nil {
-			return nil, fmt.Errorf("initializing plugin %q: %w", name, err)
-		}
-		pluginsMap[name] = p
-	}
-
-	// initialize plugins per individual extension points
-	for _, e := range extensionPoints {
-		if err := updatePluginList(e.slicePtr, *e.plugins, pluginsMap); err != nil {
-			return nil, err
-		}
-	}
-
-	return outputPluginConfig, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// initialize only needed plugins.
+
+// initialize plugins that have not yet been created
+
+// initialize plugins per individual extension points
+
 func updatePluginList(pluginList interface{}, pluginSet deschedulerconfig.PluginSet, pluginsMap map[string]framework.Plugin) error {
-	plugins := reflect.ValueOf(pluginList).Elem()
-	pluginType := plugins.Type().Elem()
-	set := sets.NewString()
-	for _, ep := range pluginSet.Enabled {
-		pg, ok := pluginsMap[ep.Name]
-		if !ok {
-			return fmt.Errorf("%s %q does not exist", pluginType.Name(), ep.Name)
-		}
-
-		if !reflect.TypeOf(pg).Implements(pluginType) {
-			return fmt.Errorf("plugin %q does not extend %s plugin", ep.Name, pluginType.Name())
-		}
-
-		if set.Has(ep.Name) {
-			return fmt.Errorf("plugin %q already registered as %q", ep.Name, pluginType.Name())
-		}
-
-		set.Insert(ep.Name)
-
-		newPlugins := reflect.Append(plugins, reflect.ValueOf(pg))
-		plugins.Set(newPlugins)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -264,94 +135,47 @@ type extensionPoint struct {
 }
 
 func (f *frameworkImpl) getExtensionPoints(plugins *deschedulerconfig.Plugins) []extensionPoint {
-	if plugins == nil {
-		return nil
-	}
-
-	return []extensionPoint{
-		{&plugins.Deschedule, &f.deschedulePlugins},
-		{&plugins.Balance, &f.balancePlugins},
-		{&plugins.Evict, &f.evictPlugins},
-		{&plugins.Filter, &f.filterPlugins},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func pluginsNeeded(pgSet sets.String, points []extensionPoint) {
-	for _, e := range points {
-		for _, pg := range e.plugins.Enabled {
-			pgSet.Insert(pg.Name)
-		}
-	}
-}
+func pluginsNeeded(pgSet sets.String, points []extensionPoint) { _ = "STUB: not implemented"; return }
 
 func (f *frameworkImpl) ClientSet() clientset.Interface {
-	return f.clientSet
+	_ = "STUB: not implemented"
+	return *new(clientset.Interface)
 }
 
-func (f *frameworkImpl) KubeConfig() *restclient.Config {
-	return f.kubeConfig
-}
+func (f *frameworkImpl) KubeConfig() *restclient.Config { _ = "STUB: not implemented"; return nil }
 
 func (f *frameworkImpl) EventRecorder() events.EventRecorder {
-	return f.eventRecorder
+	_ = "STUB: not implemented"
+	return *new(events.EventRecorder)
 }
 
 func (f *frameworkImpl) Evictor() framework.Evictor {
-	return &evictorProxy{
-		dryRun:          f.dryRun,
-		evictionLimiter: f.evictionLimiter,
-		handle:          f,
-	}
+	_ = "STUB: not implemented"
+	return *new(framework.Evictor)
 }
 
 func (f *frameworkImpl) GetPodsAssignedToNodeFunc() framework.GetPodsAssignedToNodeFunc {
-	return f.getPodsAssignedToNodeFunc
+	_ = "STUB: not implemented"
+	return *new(framework.GetPodsAssignedToNodeFunc)
 }
 
 func (f *frameworkImpl) SharedInformerFactory() informers.SharedInformerFactory {
-	return f.sharedInformerFactory
+	_ = "STUB: not implemented"
+	return *new(informers.SharedInformerFactory)
 }
 
-func (f *frameworkImpl) NodeSelector() *metav1.LabelSelector {
-	return f.nodeSelector
-}
+func (f *frameworkImpl) NodeSelector() *metav1.LabelSelector { _ = "STUB: not implemented"; return nil }
 
 func (f *frameworkImpl) RunDeschedulePlugins(ctx context.Context, nodes []*corev1.Node) *framework.Status {
-	var errs []error
-	for _, pl := range f.deschedulePlugins {
-		childCtx := framework.PluginNameWithContext(ctx, pl.Name())
-		status := pl.Deschedule(childCtx, nodes)
-		if status != nil && status.Err != nil {
-			errs = append(errs, status.Err)
-		}
-	}
-
-	aggrErr := errors.NewAggregate(errs)
-	if aggrErr == nil {
-		return &framework.Status{}
-	}
-
-	return &framework.Status{
-		Err: fmt.Errorf("%v", aggrErr.Error()),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *frameworkImpl) RunBalancePlugins(ctx context.Context, nodes []*corev1.Node) *framework.Status {
-	var errs []error
-	for _, pl := range f.balancePlugins {
-		childCtx := framework.PluginNameWithContext(ctx, pl.Name())
-		status := pl.Balance(childCtx, nodes)
-		if status != nil && status.Err != nil {
-			errs = append(errs, status.Err)
-		}
-	}
-
-	aggrErr := errors.NewAggregate(errs)
-	if aggrErr == nil {
-		return &framework.Status{}
-	}
-
-	return &framework.Status{
-		Err: fmt.Errorf("%v", aggrErr.Error()),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

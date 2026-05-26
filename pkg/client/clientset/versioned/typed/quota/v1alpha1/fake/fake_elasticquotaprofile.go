@@ -31,22 +31,6 @@ type fakeElasticQuotaProfiles struct {
 }
 
 func newFakeElasticQuotaProfiles(fake *FakeQuotaV1alpha1, namespace string) quotav1alpha1.ElasticQuotaProfileInterface {
-	return &fakeElasticQuotaProfiles{
-		gentype.NewFakeClientWithList[*v1alpha1.ElasticQuotaProfile, *v1alpha1.ElasticQuotaProfileList](
-			fake.Fake,
-			namespace,
-			v1alpha1.SchemeGroupVersion.WithResource("elasticquotaprofiles"),
-			v1alpha1.SchemeGroupVersion.WithKind("ElasticQuotaProfile"),
-			func() *v1alpha1.ElasticQuotaProfile { return &v1alpha1.ElasticQuotaProfile{} },
-			func() *v1alpha1.ElasticQuotaProfileList { return &v1alpha1.ElasticQuotaProfileList{} },
-			func(dst, src *v1alpha1.ElasticQuotaProfileList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.ElasticQuotaProfileList) []*v1alpha1.ElasticQuotaProfile {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.ElasticQuotaProfileList, items []*v1alpha1.ElasticQuotaProfile) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(quotav1alpha1.ElasticQuotaProfileInterface)
 }

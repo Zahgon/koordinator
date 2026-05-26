@@ -29,12 +29,13 @@ type FakeQuotaV1alpha1 struct {
 }
 
 func (c *FakeQuotaV1alpha1) ElasticQuotaProfiles(namespace string) v1alpha1.ElasticQuotaProfileInterface {
-	return newFakeElasticQuotaProfiles(c, namespace)
+	_ = "STUB: not implemented"
+	return *new(v1alpha1.ElasticQuotaProfileInterface)
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeQuotaV1alpha1) RESTClient() rest.Interface {
-	var ret *rest.RESTClient
-	return ret
+	_ = "STUB: not implemented"
+	return *new(rest.Interface)
 }

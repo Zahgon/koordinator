@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,16 +56,6 @@ type clusterNetworkTopologies struct {
 
 // newClusterNetworkTopologies returns a ClusterNetworkTopologies
 func newClusterNetworkTopologies(c *SchedulingV1alpha1Client) *clusterNetworkTopologies {
-	return &clusterNetworkTopologies{
-		gentype.NewClientWithList[*schedulingv1alpha1.ClusterNetworkTopology, *schedulingv1alpha1.ClusterNetworkTopologyList](
-			"clusternetworktopologies",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			"",
-			func() *schedulingv1alpha1.ClusterNetworkTopology { return &schedulingv1alpha1.ClusterNetworkTopology{} },
-			func() *schedulingv1alpha1.ClusterNetworkTopologyList {
-				return &schedulingv1alpha1.ClusterNetworkTopologyList{}
-			},
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

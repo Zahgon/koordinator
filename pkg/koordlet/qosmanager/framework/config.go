@@ -31,26 +31,6 @@ type Config struct {
 	QOSExtensionCfg            *QOSExtensionConfig
 }
 
-func NewDefaultConfig() *Config {
-	return &Config{
-		ReconcileIntervalSeconds:   1,
-		CPUSuppressIntervalSeconds: 1,
-		CPUEvictIntervalSeconds:    1,
-		MemoryEvictIntervalSeconds: 1,
-		MemoryEvictCoolTimeSeconds: 4,
-		CPUEvictCoolTimeSeconds:    20,
-		OnlyEvictByAPI:             false,
-		QOSExtensionCfg:            &QOSExtensionConfig{FeatureGates: map[string]bool{}},
-	}
-}
+func NewDefaultConfig() *Config { _ = "STUB: not implemented"; return nil }
 
-func (c *Config) InitFlags(fs *flag.FlagSet) {
-	fs.IntVar(&c.ReconcileIntervalSeconds, "reconcile-interval-seconds", c.ReconcileIntervalSeconds, "reconcile be pod cgroup interval by seconds")
-	fs.IntVar(&c.CPUSuppressIntervalSeconds, "cpu-suppress-interval-seconds", c.CPUSuppressIntervalSeconds, "suppress be pod cpu resource interval by seconds")
-	fs.IntVar(&c.CPUEvictIntervalSeconds, "cpu-evict-interval-seconds", c.CPUEvictIntervalSeconds, "evict be pod(cpu) interval by seconds")
-	fs.IntVar(&c.MemoryEvictIntervalSeconds, "memory-evict-interval-seconds", c.MemoryEvictIntervalSeconds, "evict be pod(memory) interval by seconds")
-	fs.IntVar(&c.MemoryEvictCoolTimeSeconds, "memory-evict-cool-time-seconds", c.MemoryEvictCoolTimeSeconds, "cooling time: memory next evict time should after lastEvictTime + MemoryEvictCoolTimeSeconds")
-	fs.IntVar(&c.CPUEvictCoolTimeSeconds, "cpu-evict-cool-time-seconds", c.CPUEvictCoolTimeSeconds, "cooltime: CPU next evict time should after lastEvictTime + CPUEvictCoolTimeSeconds")
-	fs.BoolVar(&c.OnlyEvictByAPI, "only-evict-by-api", c.OnlyEvictByAPI, "only evict pod if call eviction api successed")
-	c.QOSExtensionCfg.InitFlags(fs)
-}
+func (c *Config) InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }

@@ -17,19 +17,15 @@ limitations under the License.
 package protocol
 
 import (
-	"strconv"
-
 	"github.com/containerd/nri/pkg/api"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/record"
-	"k8s.io/component-helpers/resource"
 
 	runtimeapi "github.com/koordinator-sh/koordinator/apis/runtime/v1alpha1"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/resourceexecutor"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/statesinformer"
-	sysutil "github.com/koordinator-sh/koordinator/pkg/koordlet/util/system"
 )
 
 type HooksProtocol interface {
@@ -95,105 +91,29 @@ type Resources struct {
 	Resctrl *Resctrl
 }
 
-func (r *Resources) IsOriginResSet() bool {
-	return r.CPUShares != nil || r.CFSQuota != nil || r.CPUSet != nil || r.MemoryLimit != nil
-}
+func (r *Resources) IsOriginResSet() bool { _ = "STUB: not implemented"; return false }
 
-func (r *Resources) FromPod(pod *corev1.Pod) {
-	requests := resource.PodRequests(pod, resource.PodResourcesOptions{})
-	limits := resource.PodLimits(pod, resource.PodResourcesOptions{})
-	cpuShares := sysutil.MilliCPUToShares(requests.Cpu().MilliValue())
-	cfsQuota := sysutil.MilliCPUToQuota(limits.Cpu().MilliValue())
-	memoryLimit := limits.Memory().Value()
-	if memoryLimit <= 0 {
-		memoryLimit = -1
-	}
-	r.CPUShares = &cpuShares
-	r.CFSQuota = &cfsQuota
-	r.MemoryLimit = &memoryLimit
-}
+func (r *Resources) FromPod(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
-func (r *Resources) FromContainer(container *corev1.Container) {
-	if requests := container.Resources.Requests; requests != nil {
-		cpuShares := sysutil.MilliCPUToShares(requests.Cpu().MilliValue())
-		r.CPUShares = &cpuShares
-	} else {
-		cpuShares := sysutil.MilliCPUToShares(0)
-		r.CPUShares = &cpuShares
-	}
-	if limits := container.Resources.Limits; limits != nil {
-		cfsQuota := sysutil.MilliCPUToQuota(limits.Cpu().MilliValue())
-		r.CFSQuota = &cfsQuota
-		memoryLimit := limits.Memory().Value()
-		if memoryLimit <= 0 {
-			memoryLimit = -1
-		}
-		r.MemoryLimit = &memoryLimit
-	} else {
-		cfsQuota := sysutil.MilliCPUToQuota(0)
-		r.CFSQuota = &cfsQuota
-		memoryLimit := int64(-1)
-		r.MemoryLimit = &memoryLimit
-	}
-}
+func (r *Resources) FromContainer(container *corev1.Container) { _ = "STUB: not implemented"; return }
 
 // FromLinuxContainerResources extracts resource information from LinuxContainerResources
 func (r *Resources) FromLinuxContainerResources(resources *runtimeapi.LinuxContainerResources) {
-	if resources == nil {
-		return
-	}
-	if resources.CpuShares != 0 {
-		cpuShares := resources.CpuShares
-		r.CPUShares = &cpuShares
-	}
-	if resources.CpuQuota != 0 {
-		cfsQuota := resources.CpuQuota
-		r.CFSQuota = &cfsQuota
-	}
-	// MemoryLimitInBytes: 0 means not specified, negative values mean unlimited (-1)
-	if resources.MemoryLimitInBytes != 0 {
-		memoryLimit := resources.MemoryLimitInBytes
-		if memoryLimit < 0 {
-			memoryLimit = -1
-		}
-		r.MemoryLimit = &memoryLimit
-	}
-	if resources.CpusetCpus != "" {
-		cpusetCpus := resources.CpusetCpus
-		r.CPUSet = &cpusetCpus
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// MemoryLimitInBytes: 0 means not specified, negative values mean unlimited (-1)
 
 // FromNriLinuxResources extracts resource information from NRI's LinuxResources
 func (r *Resources) FromNriLinuxResources(resources *api.LinuxResources) {
-	if resources == nil {
-		return
-	}
-	// Extract CPU resources
-	if cpu := resources.GetCpu(); cpu != nil {
-		if shares := cpu.GetShares(); shares != nil && shares.Value != 0 {
-			cpuShares := int64(shares.Value)
-			r.CPUShares = &cpuShares
-		}
-		if quota := cpu.GetQuota(); quota != nil && quota.Value != 0 {
-			cfsQuota := quota.Value
-			r.CFSQuota = &cfsQuota
-		}
-		if cpus := cpu.GetCpus(); cpus != "" {
-			r.CPUSet = &cpus
-		}
-	}
-	// Extract Memory resources
-	if memory := resources.GetMemory(); memory != nil {
-		if limit := memory.GetLimit(); limit != nil && limit.Value != 0 {
-			memoryLimit := limit.Value
-			if memoryLimit < 0 {
-				memoryLimit = -1
-			}
-			r.MemoryLimit = &memoryLimit
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Extract CPU resources
+
+// Extract Memory resources
 
 type Mount struct {
 	Destination string   `protobuf:"bytes,1,opt,name=destination,proto3" json:"destination,omitempty"`
@@ -203,79 +123,46 @@ type Mount struct {
 }
 
 func injectCPUShares(cgroupParent string, cpuShares int64, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	cpuShareStr := strconv.FormatInt(cpuShares, 10)
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.CPUSharesName, cgroupParent, cpuShareStr, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectCPUSet(cgroupParent string, cpuset string, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.CPUSetCPUSName, cgroupParent, cpuset, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectCPUQuota(cgroupParent string, cpuQuota int64, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	cpuQuotaStr := strconv.FormatInt(cpuQuota, 10)
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.CPUCFSQuotaName, cgroupParent, cpuQuotaStr, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectMemoryLimit(cgroupParent string, memoryLimit int64, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	memoryLimitStr := strconv.FormatInt(memoryLimit, 10)
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.MemoryLimitName, cgroupParent, memoryLimitStr, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectCPUBvt(cgroupParent string, bvtValue int64, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	bvtValueStr := strconv.FormatInt(bvtValue, 10)
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.CPUBVTWarpNsName, cgroupParent, bvtValueStr, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectCPUIdle(cgroupParent string, idleValue int64, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	idleValueStr := strconv.FormatInt(idleValue, 10)
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.CPUIdleName, cgroupParent, idleValueStr, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectNetClsClassId(cgroupParent string, classId uint32, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	clsIdStr := strconv.FormatUint(uint64(classId), 10)
-	updater, err := resourceexecutor.DefaultCgroupUpdaterFactory.New(sysutil.NetClsClassIdName, cgroupParent, clsIdStr, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func createCatGroup(closid string, a *audit.EventHelper, e resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	updater, err := resourceexecutor.NewCatGroupResource(closid, a)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }
 
 func injectResctrl(closid string, schemata string, e *audit.EventHelper, executor resourceexecutor.ResourceUpdateExecutor) (resourceexecutor.ResourceUpdater, error) {
-	updater, err := resourceexecutor.NewResctrlSchemataResource(closid, schemata, e)
-	if err != nil {
-		return nil, err
-	}
-	return updater, nil
+	_ = "STUB: not implemented"
+	return *new(resourceexecutor.ResourceUpdater), nil
 }

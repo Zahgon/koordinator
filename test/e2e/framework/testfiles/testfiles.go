@@ -26,13 +26,6 @@ package testfiles
 
 import (
 	"embed"
-	"errors"
-	"fmt"
-	"io/fs"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
 )
 
 var filesources []FileSource
@@ -40,9 +33,7 @@ var filesources []FileSource
 // AddFileSource registers another provider for files that may be
 // needed at runtime. Should be called during initialization of a test
 // binary.
-func AddFileSource(filesource FileSource) {
-	filesources = append(filesources, filesource)
-}
+func AddFileSource(filesource FileSource) { _ = "STUB: not implemented"; return }
 
 // FileSource implements one way of retrieving test file content.  For
 // example, one file source could read from the original source code
@@ -66,44 +57,15 @@ type FileSource interface {
 
 // Read tries to retrieve the desired file content from
 // one of the registered file sources.
-func Read(filePath string) ([]byte, error) {
-	if len(filesources) == 0 {
-		return nil, fmt.Errorf("no file sources registered (yet?), cannot retrieve test file %s", filePath)
-	}
-	for _, filesource := range filesources {
-		data, err := filesource.ReadTestFile(filePath)
-		if err != nil {
-			return nil, fmt.Errorf("fatal error retrieving test file %s: %s", filePath, err)
-		}
-		if data != nil {
-			return data, nil
-		}
-	}
-	// Here we try to generate an error that points test authors
-	// or users in the right direction for resolving the problem.
-	error := fmt.Sprintf("Test file %q was not found.\n", filePath)
-	for _, filesource := range filesources {
-		error += filesource.DescribeFiles()
-		error += "\n"
-	}
-	return nil, errors.New(error)
-}
+func Read(filePath string) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
+
+// Here we try to generate an error that points test authors
+// or users in the right direction for resolving the problem.
 
 // Exists checks whether a file could be read. Unexpected errors
 // are handled by calling the fail function, which then should
 // abort the current test.
-func Exists(filePath string) (bool, error) {
-	for _, filesource := range filesources {
-		data, err := filesource.ReadTestFile(filePath)
-		if err != nil {
-			return false, err
-		}
-		if data != nil {
-			return true, nil
-		}
-	}
-	return false, nil
-}
+func Exists(filePath string) (bool, error) { _ = "STUB: not implemented"; return false, nil }
 
 // RootFileSource looks for files relative to a root directory.
 type RootFileSource struct {
@@ -115,37 +77,20 @@ type RootFileSource struct {
 // in a test that has its own method of determining where
 // files are, then the path will be used directly.
 func (r RootFileSource) ReadTestFile(filePath string) ([]byte, error) {
-	var fullPath string
-	if path.IsAbs(filePath) {
-		fullPath = filePath
-	} else {
-		fullPath = filepath.Join(r.Root, filePath)
-	}
-	data, err := os.ReadFile(fullPath)
-	if os.IsNotExist(err) {
-		// Not an error (yet), some other provider may have the file.
-		return nil, nil
-	}
-	return data, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Not an error (yet), some other provider may have the file.
 
 // DescribeFiles explains that it looks for files inside a certain
 // root directory.
-func (r RootFileSource) DescribeFiles() string {
-	description := fmt.Sprintf("Test files are expected in %q", r.Root)
-	if !path.IsAbs(r.Root) {
-		// The default in test_context.go is the relative path
-		// ../../, which doesn't really help locating the
-		// actual location. Therefore we add also the absolute
-		// path if necessary.
-		abs, err := filepath.Abs(r.Root)
-		if err == nil {
-			description += fmt.Sprintf(" = %q", abs)
-		}
-	}
-	description += "."
-	return description
-}
+func (r RootFileSource) DescribeFiles() string { _ = "STUB: not implemented"; return "" }
+
+// The default in test_context.go is the relative path
+// ../../, which doesn't really help locating the
+// actual location. Therefore we add also the absolute
+// path if necessary.
 
 // EmbeddedFileSource handles files stored in a package generated with bindata.
 type EmbeddedFileSource struct {
@@ -156,38 +101,11 @@ type EmbeddedFileSource struct {
 
 // ReadTestFile looks for an embedded file with the given path.
 func (e EmbeddedFileSource) ReadTestFile(filepath string) ([]byte, error) {
-	relativePath := strings.TrimPrefix(filepath, fmt.Sprintf("%s/", e.Root))
-
-	b, err := e.EmbeddedFS.ReadFile(relativePath)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	return b, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DescribeFiles explains that it is looking inside an embedded filesystem
-func (e EmbeddedFileSource) DescribeFiles() string {
-	var lines []string
-	lines = append(lines, "The following files are embedded into the test executable:")
+func (e EmbeddedFileSource) DescribeFiles() string { _ = "STUB: not implemented"; return "" }
 
-	if len(e.fileList) == 0 {
-		e.populateFileList()
-	}
-	lines = append(lines, e.fileList...)
-
-	return strings.Join(lines, "\n\t")
-}
-
-func (e *EmbeddedFileSource) populateFileList() {
-	fs.WalkDir(e.EmbeddedFS, ".", func(path string, d fs.DirEntry, err error) error {
-		if !d.IsDir() {
-			e.fileList = append(e.fileList, filepath.Join(e.Root, path))
-		}
-
-		return nil
-	})
-}
+func (e *EmbeddedFileSource) populateFileList() { _ = "STUB: not implemented"; return }

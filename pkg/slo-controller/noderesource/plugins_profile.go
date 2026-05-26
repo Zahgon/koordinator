@@ -39,13 +39,9 @@ func init() {
 }
 
 func addPlugins(filter framework.FilterFn) {
+	_ = "STUB: not implemented"
 	// NOTE: plugins run in order of the registration.
-	framework.RegisterSetupExtender(filter, setupPlugins...)
-	framework.RegisterNodePreUpdateExtender(filter, nodePreUpdatePlugins...)
-	framework.RegisterNodePrepareExtender(filter, nodePreparePlugins...)
-	framework.RegisterNodeStatusCheckExtender(filter, nodeStatusCheckPlugins...)
-	framework.RegisterNodeMetaCheckExtender(filter, nodeMetaCheckPlugins...)
-	framework.RegisterResourceCalculateExtender(filter, resourceCalculatePlugins...)
+	return
 }
 
 var (

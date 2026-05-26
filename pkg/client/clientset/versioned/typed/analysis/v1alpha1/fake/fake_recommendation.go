@@ -31,22 +31,6 @@ type fakeRecommendations struct {
 }
 
 func newFakeRecommendations(fake *FakeAnalysisV1alpha1, namespace string) analysisv1alpha1.RecommendationInterface {
-	return &fakeRecommendations{
-		gentype.NewFakeClientWithList[*v1alpha1.Recommendation, *v1alpha1.RecommendationList](
-			fake.Fake,
-			namespace,
-			v1alpha1.SchemeGroupVersion.WithResource("recommendations"),
-			v1alpha1.SchemeGroupVersion.WithKind("Recommendation"),
-			func() *v1alpha1.Recommendation { return &v1alpha1.Recommendation{} },
-			func() *v1alpha1.RecommendationList { return &v1alpha1.RecommendationList{} },
-			func(dst, src *v1alpha1.RecommendationList) { dst.ListMeta = src.ListMeta },
-			func(list *v1alpha1.RecommendationList) []*v1alpha1.Recommendation {
-				return gentype.ToPointerSlice(list.Items)
-			},
-			func(list *v1alpha1.RecommendationList, items []*v1alpha1.Recommendation) {
-				list.Items = gentype.FromPointerSlice(items)
-			},
-		),
-		fake,
-	}
+	_ = "STUB: not implemented"
+	return *new(analysisv1alpha1.RecommendationInterface)
 }

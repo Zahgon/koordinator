@@ -17,7 +17,6 @@ limitations under the License.
 package adaptor
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	clientset "k8s.io/client-go/kubernetes"
 	metricscollector "sigs.k8s.io/descheduler/pkg/descheduler/metricscollector"
@@ -36,46 +35,47 @@ type frameworkHandleAdaptor struct {
 }
 
 func NewFrameworkHandleAdaptor(handle framework.Handle) k8sdeschedulerframework.Handle {
-	return &frameworkHandleAdaptor{
-		handle: handle,
-	}
+	_ = "STUB: not implemented"
+	return *new(k8sdeschedulerframework.Handle)
 }
 
 // ClientSet returns a kubernetes clientSet.
 func (a *frameworkHandleAdaptor) ClientSet() clientset.Interface {
-	return a.handle.ClientSet()
+	_ = "STUB: not implemented"
+	return *new(clientset.Interface)
 }
 
 func (a *frameworkHandleAdaptor) Evictor() k8sdeschedulerframework.Evictor {
-	return &evictorAdaptor{
-		evictor: a.handle.Evictor(),
-	}
+	_ = "STUB: not implemented"
+	return *new(k8sdeschedulerframework.Evictor)
 }
 
 func (a *frameworkHandleAdaptor) GetPodsAssignedToNodeFunc() podutil.GetPodsAssignedToNodeFunc {
-	return func(s string, filterFunc podutil.FilterFunc) ([]*corev1.Pod, error) {
-		fn := a.handle.GetPodsAssignedToNodeFunc()
-		return fn(s, func(pod *corev1.Pod) bool {
-			return filterFunc(pod)
-		})
-	}
+	_ = "STUB: not implemented"
+	return *new(podutil.GetPodsAssignedToNodeFunc)
 }
 
 func (a *frameworkHandleAdaptor) SharedInformerFactory() informers.SharedInformerFactory {
-	return a.handle.SharedInformerFactory()
+	_ = "STUB: not implemented"
+	return *new(informers.SharedInformerFactory)
 }
 
 // MetricsCollector returns nil as this adaptor does not support metrics collection.
 func (a *frameworkHandleAdaptor) MetricsCollector() *metricscollector.MetricsCollector {
+	_ = "STUB: not implemented"
+
+	// PluginInstanceID returns a unique identifier for this plugin instance.
 	return nil
 }
 
-// PluginInstanceID returns a unique identifier for this plugin instance.
 func (a *frameworkHandleAdaptor) PluginInstanceID() string {
+	_ = "STUB: not implemented"
+
+	// PrometheusClient returns nil as this adaptor does not support prometheus.
 	return ""
 }
 
-// PrometheusClient returns nil as this adaptor does not support prometheus.
 func (a *frameworkHandleAdaptor) PrometheusClient() promapi.Client {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(promapi.Client)
 }

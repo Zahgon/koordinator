@@ -17,9 +17,6 @@ limitations under the License.
 package transformer
 
 import (
-	"k8s.io/client-go/tools/cache"
-
-	apiext "github.com/koordinator-sh/koordinator/apis/extension"
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
 )
 
@@ -28,31 +25,11 @@ var deviceTransformers = []func(device *schedulingv1alpha1.Device){
 }
 
 func TransformDevice(obj interface{}) (interface{}, error) {
-	var device *schedulingv1alpha1.Device
-	switch t := obj.(type) {
-	case *schedulingv1alpha1.Device:
-		device = t
-	case cache.DeletedFinalStateUnknown:
-		device, _ = t.Obj.(*schedulingv1alpha1.Device)
-	}
-	if device == nil {
-		return obj, nil
-	}
-
-	for _, fn := range deviceTransformers {
-		fn(device)
-	}
-
-	if unknown, ok := obj.(cache.DeletedFinalStateUnknown); ok {
-		unknown.Obj = device
-		return unknown, nil
-	}
-	return device, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func TransformDeviceWithDeprecatedResources(device *schedulingv1alpha1.Device) {
-	for i := range device.Spec.Devices {
-		deviceInfo := &device.Spec.Devices[i]
-		replaceAndEraseWithResourcesMapper(deviceInfo.Resources, apiext.DeprecatedDeviceResourcesMapper)
-	}
+	_ = "STUB: not implemented"
+	return
 }

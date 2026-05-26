@@ -27,14 +27,11 @@ type memoryStorage struct {
 	value sync.Map
 }
 
-func NewMemoryStorage() KVStorage {
-	return &memoryStorage{value: sync.Map{}}
-}
+func NewMemoryStorage() KVStorage { _ = "STUB: not implemented"; return *new(KVStorage) }
 
 func (ms *memoryStorage) Get(key interface{}) (interface{}, bool) {
-	return ms.value.Load(key)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (ms *memoryStorage) Set(key, value interface{}) {
-	ms.value.Store(key, value)
-}
+func (ms *memoryStorage) Set(key, value interface{}) { _ = "STUB: not implemented"; return }

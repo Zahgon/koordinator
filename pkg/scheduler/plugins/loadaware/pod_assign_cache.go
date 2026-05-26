@@ -17,26 +17,20 @@ limitations under the License.
 package loadaware
 
 import (
-	"reflect"
 	"sync"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
-	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
 	"k8s.io/utils/clock"
 
 	"github.com/koordinator-sh/koordinator/apis/extension"
 	slov1alpha1 "github.com/koordinator-sh/koordinator/apis/slo/v1alpha1"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/apis/config"
 	"github.com/koordinator-sh/koordinator/pkg/scheduler/plugins/loadaware/estimator"
-	"github.com/koordinator-sh/koordinator/pkg/util"
-	reservationutil "github.com/koordinator-sh/koordinator/pkg/util/reservation"
 )
 
 // podAssignCache stores the NodeMetric and Pod information that has been successfully scheduled or is about to be bound.
@@ -137,13 +131,9 @@ type NamespacedName struct {
 	Name      string
 }
 
-func (n NamespacedName) GetName() string {
-	return n.Name
-}
+func (n NamespacedName) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (n NamespacedName) GetNamespace() string {
-	return n.Namespace
-}
+func (n NamespacedName) GetNamespace() string { _ = "STUB: not implemented"; return "" }
 
 type aggUsageKey struct {
 	Type extension.AggregationType
@@ -152,115 +142,39 @@ type aggUsageKey struct {
 }
 
 func newPodAssignCache(estimator estimator.Estimator, vectorizer ResourceVectorizer, args *config.LoadAwareSchedulingArgs) *podAssignCache {
-	return &podAssignCache{
-		estimator:  estimator,
-		vectorizer: vectorizer,
-		clock:      clock.RealClock{},
-		args:       args,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *podAssignCache) GetNodeMetricAndEstimatedOfExisting(name string, prodPod bool,
 	aggregatedDuration metav1.Duration, aggregationType extension.AggregationType, logEnabled bool) (
 	nodeMetric *slov1alpha1.NodeMetric, estimated ResourceVector, estimatedPods []NamespacedName, _ error) {
-	n, exists := p.getNodeInfo(name)
-	if !exists || n == nil {
-		return nil, nil, nil, errors.NewNotFound(slov1alpha1.Resource("nodemetric"), name)
-	}
-	n.RLock()
-	defer n.RUnlock()
-	if nodeMetric = n.nodeMetric; nodeMetric == nil {
-		return nil, nil, nil, errors.NewNotFound(slov1alpha1.Resource("nodemetric"), name)
-	}
-	estimated = p.vectorizer.EmptyVec()
-	var pods sets.Set[NamespacedName]
-	if prodPod {
-		estimated.Add(n.prodUsage)
-		estimated.Add(n.prodDelta)
-		pods = n.prodDeltaPods
-	} else {
-		var nodeUsage ResourceVector
-		if aggregationType != "" {
-			nodeUsage = n.getTargetAggregatedUsage(aggregatedDuration, aggregationType)
-		} else {
-			nodeUsage = n.nodeUsage
-		}
-		if nodeUsage != nil {
-			estimated.Add(nodeUsage)
-			estimated.Add(n.nodeDelta)
-			pods = n.nodeDeltaPods
-		} else {
-			estimated.Add(n.nodeEstimated)
-			pods = n.nodeEstimatedPods
-		}
-	}
-	if logEnabled {
-		estimatedPods = pods.UnsortedList()
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil, *new(ResourceVector), nil, nil
 }
 
 func (n *nodeInfo) getTargetAggregatedUsage(aggregatedDuration metav1.Duration, aggregationType extension.AggregationType) ResourceVector {
+	_ = "STUB: not implemented"
 	// If no specific period is set, the non-empty maximum period recorded by NodeMetrics will be used by default.
 	// This is a default policy.
-	d := aggregatedDuration.Duration
-	vec := n.aggUsages[aggUsageKey{Type: aggregationType, Duration: d}]
-	if vec == nil && d == 0 {
-		// All values in aggregatedDuration are empty, downgrade to use the values in NodeUsage
-		vec = n.nodeUsage
-	}
-	return vec
+	return *new(ResourceVector)
 }
 
+// All values in aggregatedDuration are empty, downgrade to use the values in NodeUsage
+
 func (p *podAssignCache) getPodAssignInfo(nodeName string, pod *corev1.Pod) *podAssignInfo {
-	if nodeName == "" {
-		return nil
-	}
-	n, exists := p.getNodeInfo(nodeName)
-	if !exists || n == nil {
-		return nil
-	}
-	n.RLock()
-	defer n.RUnlock()
-	return n.podInfos[pod.UID]
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *podAssignCache) getClonedNodeInfo(nodeName string) *nodeInfo {
-	ret := &nodeInfo{}
-	if nodeName == "" {
-		return ret
-	}
-	n, exists := p.getNodeInfo(nodeName)
-	if !exists || n == nil {
-		return ret
-	}
-	n.RLock()
-	defer n.RUnlock()
-	*ret = nodeInfo{
-		podInfos:          make(map[types.UID]*podAssignInfo, len(n.podInfos)),
-		nodeMetric:        n.nodeMetric,
-		updateTime:        n.updateTime,
-		reportInterval:    n.reportInterval,
-		prodUsage:         n.prodUsage.Clone().(ResourceVector),
-		nodeDelta:         n.nodeDelta.Clone().(ResourceVector),
-		prodDelta:         n.prodDelta.Clone().(ResourceVector),
-		nodeEstimated:     n.nodeEstimated.Clone().(ResourceVector),
-		nodeDeltaPods:     n.nodeDeltaPods.Clone(),
-		prodDeltaPods:     n.prodDeltaPods.Clone(),
-		nodeEstimatedPods: n.nodeEstimatedPods.Clone(),
-	}
-	for uid, pod := range n.podInfos {
-		ret.podInfos[uid] = pod
-	}
-	return ret
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *podAssignCache) getNodeInfo(nodeName string) (*nodeInfo, bool) {
-	v, ok := p.items.Load(nodeName)
-	if !ok {
-		return nil, ok
-	}
-	return v.(*nodeInfo), ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // getOrCreateNodeInfo returns the nodeInfo for the given nodeName.
@@ -269,431 +183,115 @@ func (p *podAssignCache) getNodeInfo(nodeName string) (*nodeInfo, bool) {
 //
 // NOTICE: it should only be called in objects' add or update methods.
 func (p *podAssignCache) getOrCreateNodeInfo(nodeName string) (_ *nodeInfo, created bool) {
-	n := &nodeInfo{}
-	n.Lock()
-	v, loaded := p.items.LoadOrStore(nodeName, n)
-	return v.(*nodeInfo), !loaded
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // tryCleanup cleans up the nodeInfo from cache.items if it's empty.
 //
 // NOTICE: nodeInfo should be locked before calling this method.
-func (p *podAssignCache) tryCleanup(name string, n *nodeInfo) {
-	if n.nodeMetric == nil && len(n.podInfos) == 0 {
-		n.deleted = true
-		// only delete action has the chance that goroutine holds two locks,
-		// and the order always will be nodeInfo lock first, then podAssignCache.items lock
-		p.items.CompareAndDelete(name, n)
-	}
-}
+func (p *podAssignCache) tryCleanup(name string, n *nodeInfo) { _ = "STUB: not implemented"; return }
+
+// only delete action has the chance that goroutine holds two locks,
+// and the order always will be nodeInfo lock first, then podAssignCache.items lock
 
 // add or update pod with node name provided
 func (p *podAssignCache) assign(nodeName string, pod *corev1.Pod) {
-	if nodeName == "" || util.IsPodTerminated(pod) || reservationutil.IsReservePod(pod) {
-		return
-	}
-	var estimated ResourceVector
-	if list, err := p.estimator.EstimatePod(pod); err == nil && len(list) != 0 {
-		if vec := p.vectorizer.ToFactorVec(list); !vec.Empty() {
-			estimated = vec
-		}
-	}
-	var timestamp time.Time
-	// try to use time from PodScheduled condition first
-	if _, c := podutil.GetPodCondition(&pod.Status, corev1.PodScheduled); c != nil && c.Status == corev1.ConditionTrue && !c.LastTransitionTime.IsZero() {
-		timestamp = c.LastTransitionTime.Time
-	} else {
-		// if PodScheduled condition not found, fallback to use assign timestamp from scheduler internal, which cannot be zero.
-		timestamp = p.clock.Now()
-	}
-	estimatedDeadline := p.shouldEstimatePodDeadline(pod, timestamp)
-	newPod := &podAssignInfo{
-		timestamp:         timestamp,
-		pod:               pod,
-		estimated:         estimated,
-		estimatedDeadline: estimatedDeadline,
-	}
-
-	// We only try 2 times here, to avoid any bug in AddOrUpdate that keeps returning false and retrying forever,
-	// which will block the whole informer event handling procedure.
-	for i := 0; i < 2; i++ {
-		n, created := p.getOrCreateNodeInfo(nodeName)
-		// if nodeInfo is created in getOrCreate, it is locked already
-		if n.AddOrUpdatePod(newPod, created) {
-			return
-		}
-	}
-	klog.ErrorS(nil, "Failed to assign pod in cache after retried", "pod", klog.KObj(pod), "node", nodeName)
+	_ = "STUB: not implemented"
+	return
 }
+
+// try to use time from PodScheduled condition first
+
+// if PodScheduled condition not found, fallback to use assign timestamp from scheduler internal, which cannot be zero.
+
+// We only try 2 times here, to avoid any bug in AddOrUpdate that keeps returning false and retrying forever,
+// which will block the whole informer event handling procedure.
+
+// if nodeInfo is created in getOrCreate, it is locked already
 
 func (p *podAssignCache) shouldEstimatePodDeadline(pod *corev1.Pod, timestamp time.Time) time.Time {
-	var afterPodScheduled, afterInitialized int64 = -1, -1
-	if p.args.AllowCustomizeEstimation {
-		afterPodScheduled = extension.GetCustomEstimatedSecondsAfterPodScheduled(pod)
-		afterInitialized = extension.GetCustomEstimatedSecondsAfterInitialized(pod)
-	}
-	if s := p.args.EstimatedSecondsAfterPodScheduled; s != nil && afterPodScheduled < 0 {
-		afterPodScheduled = *s
-	}
-	if s := p.args.EstimatedSecondsAfterInitialized; s != nil && afterInitialized < 0 {
-		afterInitialized = *s
-	}
-	if afterInitialized > 0 {
-		if _, c := podutil.GetPodCondition(&pod.Status, corev1.PodInitialized); c != nil && c.Status == corev1.ConditionTrue {
-			// if EstimatedSecondsAfterPodScheduled is set and pod is initialized, ignore EstimatedSecondsAfterPodScheduled
-			// EstimatedSecondsAfterPodScheduled might be set to a long duration to wait for time consuming init containers in pod.
-			if t := c.LastTransitionTime; !t.IsZero() {
-				return t.Add(time.Duration(afterInitialized) * time.Second)
-			}
-		}
-	}
-	if afterPodScheduled > 0 && !timestamp.IsZero() {
-		return timestamp.Add(time.Duration(afterPodScheduled) * time.Second)
-	}
-	return time.Time{}
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
+// if EstimatedSecondsAfterPodScheduled is set and pod is initialized, ignore EstimatedSecondsAfterPodScheduled
+// EstimatedSecondsAfterPodScheduled might be set to a long duration to wait for time consuming init containers in pod.
+
 func (p *podAssignCache) unAssign(nodeName string, pod *corev1.Pod) {
-	if nodeName == "" {
-		return
-	}
-	if n, ok := p.getNodeInfo(nodeName); ok {
-		n.DeletePod(nodeName, pod.UID, p)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *podAssignCache) OnAdd(obj interface{}, isInInitialList bool) {
-	pod, ok := obj.(*corev1.Pod)
-	if !ok {
-		return
-	}
-	p.assign(pod.Spec.NodeName, pod)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (p *podAssignCache) OnUpdate(oldObj, newObj interface{}) {
-	pod, ok := newObj.(*corev1.Pod)
-	if !ok || pod == nil {
-		return
-	}
-	switch oldPodInfo := p.getPodAssignInfo(pod.Spec.NodeName, pod); {
-	case oldPodInfo == nil: // pod was not cached
-		p.assign(pod.Spec.NodeName, pod)
-	case util.IsPodTerminated(pod): // pod has nodeName & pod become terminated
-		p.unAssign(pod.Spec.NodeName, pod)
-	case !reflect.DeepEqual(&pod.Spec, &oldPodInfo.pod.Spec) ||
-		!reflect.DeepEqual(pod.Status.Conditions, oldPodInfo.pod.Status.Conditions):
-		// pod spec or pod conditions changed, renew cached pod
-		p.assign(pod.Spec.NodeName, pod)
-	}
-}
+func (p *podAssignCache) OnUpdate(oldObj, newObj interface{}) { _ = "STUB: not implemented"; return }
 
-func (p *podAssignCache) OnDelete(obj interface{}) {
-	var pod *corev1.Pod
-	switch t := obj.(type) {
-	case *corev1.Pod:
-		pod = t
-	case cache.DeletedFinalStateUnknown:
-		var ok bool
-		pod, ok = t.Obj.(*corev1.Pod)
-		if !ok {
-			return
-		}
-	default:
-		return
-	}
-	p.unAssign(pod.Spec.NodeName, pod)
-}
+// pod was not cached
+
+// pod has nodeName & pod become terminated
+
+// pod spec or pod conditions changed, renew cached pod
+
+func (p *podAssignCache) OnDelete(obj interface{}) { _ = "STUB: not implemented"; return }
 
 // AddOrUpdatePod add or update pod to nodeInfo.
 // It returns false is nodeInfo is already deleted and caller should get a new nodeInfo and retry.
 // Unlock is called whether nodeInfo is locked before calling or not.
 func (n *nodeInfo) AddOrUpdatePod(pod *podAssignInfo, locked bool) bool {
-	if n.deleted {
-		if locked {
-			n.Unlock()
-		}
-		return false
-	}
-	if !locked {
-		n.Lock()
-	}
-	defer n.Unlock()
-	if n.deleted {
-		return false
-	}
-	var oldPod *podAssignInfo
-	if n.podInfos == nil {
-		n.podInfos = map[types.UID]*podAssignInfo{}
-	} else {
-		oldPod = n.podInfos[pod.pod.UID]
-	}
-	n.podInfos[pod.pod.UID] = pod
-	if n.nodeMetric != nil {
-		if oldPod == nil {
-			n.addPod(pod)
-		} else {
-			n.updatePod(oldPod, pod)
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (n *nodeInfo) DeletePod(name string, uid types.UID, p *podAssignCache) {
-	if n.deleted {
-		return
-	}
-	n.Lock()
-	defer n.Unlock()
-	if n.deleted {
-		return
-	}
-	oldPod := n.podInfos[uid]
-	if oldPod != nil {
-		delete(n.podInfos, uid)
-	}
-	if n.nodeMetric != nil && oldPod != nil {
-		n.deletePod(oldPod)
-	}
-	p.tryCleanup(name, n)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *podAssignCache) NodeMetricHandler() cache.ResourceEventHandler {
-	return cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj any) {
-			if m, ok := obj.(*slov1alpha1.NodeMetric); ok && m != nil {
-				p.AddOrUpdateNodeMetric(m)
-			}
-		},
-		UpdateFunc: func(_ any, obj any) {
-			if m, ok := obj.(*slov1alpha1.NodeMetric); ok && m != nil {
-				p.AddOrUpdateNodeMetric(m)
-			}
-		},
-		DeleteFunc: func(obj any) {
-			var m *slov1alpha1.NodeMetric
-			switch o := obj.(type) {
-			case *slov1alpha1.NodeMetric:
-				m = o
-			case cache.DeletedFinalStateUnknown:
-				var ok bool
-				if m, ok = o.Obj.(*slov1alpha1.NodeMetric); !ok {
-					return
-				}
-			default:
-				return
-			}
-			p.DeleteNodeMetric(m.Name)
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(cache.ResourceEventHandler)
 }
 
 func (p *podAssignCache) AddOrUpdateNodeMetric(metric *slov1alpha1.NodeMetric) {
+	_ = "STUB: not implemented"
 	// We only try 2 times here, to avoid any bug in AddOrUpdate that keeps returning false and retrying forever,
 	// which will block the whole informer event handling procedure.
-	for i := 0; i < 2; i++ {
-		n, created := p.getOrCreateNodeInfo(metric.Name)
-		// if nodeInfo is created in getOrCreate, it is locked already
-		if n.AddOrUpdateNodeMetric(metric, p, created) {
-			return
-		}
-	}
-	klog.ErrorS(nil, "Failed to add or update nodemetric in cache after retried", "node", klog.KObj(metric))
+	return
 }
 
-func (p *podAssignCache) DeleteNodeMetric(name string) {
-	if n, ok := p.getNodeInfo(name); ok {
-		n.DeleteNodeMetric(name, p)
-	}
-}
+// if nodeInfo is created in getOrCreate, it is locked already
+
+func (p *podAssignCache) DeleteNodeMetric(name string) { _ = "STUB: not implemented"; return }
 
 // AddOrUpdateNodeMetric add or update node metric to nodeInfo.
 // It returns false is nodeInfo is already deleted and caller should get a new nodeInfo and retry.
 // Unlock is called whether nodeInfo is locked before calling or not.
 func (n *nodeInfo) AddOrUpdateNodeMetric(metric *slov1alpha1.NodeMetric, p *podAssignCache, locked bool) bool {
-	if n.deleted {
-		if locked {
-			n.Unlock()
-		}
-		return false
-	}
-	var podUsages map[NamespacedName]ResourceVector
-	var prodPods sets.Set[NamespacedName]
-	var nodeUsage, prodUsage ResourceVector = nil, p.vectorizer.EmptyVec()
-	var aggUsages map[aggUsageKey]ResourceVector
-	if info := metric.Status.NodeMetric; info != nil {
-		nodeUsage = p.vectorizer.ToVec(info.NodeUsage.ResourceList)
-		if aggLen := len(info.AggregatedNodeUsages); aggLen > 0 {
-			typeLen := len(info.AggregatedNodeUsages[0].Usage)
-			aggUsages = make(map[aggUsageKey]ResourceVector, (aggLen+1)*typeLen)
-			maxDurations := make(map[extension.AggregationType]time.Duration, typeLen)
-			for _, aggInfo := range info.AggregatedNodeUsages {
-				d := aggInfo.Duration.Duration
-				for t, u := range aggInfo.Usage {
-					if len(u.ResourceList) == 0 {
-						continue
-					}
-					key := aggUsageKey{Type: t, Duration: d}
-					vec := p.vectorizer.ToVec(u.ResourceList)
-					aggUsages[key] = vec
-					if md := maxDurations[t]; d > md {
-						maxDurations[t] = d
-					}
-				}
-			}
-			for t, d := range maxDurations {
-				aggUsages[aggUsageKey{Type: t}] = aggUsages[aggUsageKey{Type: t, Duration: d}]
-			}
-		}
-		if p.args.ProdUsageIncludeSys {
-			prodUsage.Add(p.vectorizer.ToVec(info.SystemUsage.ResourceList))
-		}
-	}
-	if infos := metric.Status.PodsMetric; len(infos) != 0 {
-		podUsages = make(map[NamespacedName]ResourceVector, len(infos))
-		prodPods = sets.New[NamespacedName]()
-		for _, info := range infos {
-			if info == nil {
-				continue
-			}
-			if len(info.PodUsage.ResourceList) == 0 {
-				continue
-			}
-			key := NamespacedName{Namespace: info.Namespace, Name: info.Name}
-			vec := p.vectorizer.ToVec(info.PodUsage.ResourceList)
-			podUsages[key] = vec
-			if info.Priority == extension.PriorityProd {
-				prodPods.Insert(key)
-			}
-		}
-	}
-	if !locked {
-		n.Lock()
-	}
-	defer n.Unlock()
-	if n.deleted {
-		return false
-	}
-	n.nodeMetric = metric
-	n.reportInterval = getNodeMetricReportInterval(metric)
-	if metric.Status.UpdateTime != nil {
-		n.updateTime = metric.Status.UpdateTime.Time
-	}
-	n.podUsages, n.prodPods = podUsages, prodPods
-	n.nodeUsage = nodeUsage
-	n.prodUsage = prodUsage
-	n.aggUsages = aggUsages
-	n.nodeDelta = p.vectorizer.EmptyVec()
-	n.prodDelta = p.vectorizer.EmptyVec()
-	n.nodeEstimated = p.vectorizer.EmptyVec()
-	n.nodeDeltaPods = sets.New[NamespacedName]()
-	n.prodDeltaPods = sets.New[NamespacedName]()
-	n.nodeEstimatedPods = sets.New[NamespacedName]()
-	for _, pod := range n.podInfos {
-		n.addPod(pod)
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (n *nodeInfo) DeleteNodeMetric(name string, p *podAssignCache) {
-	if n.deleted {
-		return
-	}
-	n.Lock()
-	defer n.Unlock()
-	if n.deleted {
-		return
-	}
-	n.nodeMetric = nil
-	p.tryCleanup(name, n)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (n *nodeInfo) addPod(pod *podAssignInfo) {
-	key := NamespacedName{Namespace: pod.pod.Namespace, Name: pod.pod.Name}
-	u := n.podUsages[key]
-	prod := extension.GetPodPriorityClassWithDefault(pod.pod) == extension.PriorityProd
-	// Only use prod pod's usage when both pod claims and node metric reports it as prod.
-	// 1. pod priority class are updated dynamically
-	// 2. prod / non prod pod is wrongly reported or terminated pod is leaked in node metrics status
-	activeProd := prod && n.prodPods.Has(key)
-	if activeProd {
-		n.prodUsage.Add(u)
-	}
+func (n *nodeInfo) addPod(pod *podAssignInfo) { _ = "STUB: not implemented"; return }
 
-	e := pod.estimated
-	if e == nil {
-		return
-	}
-	// 1. when usage is not collected
-	// 2. when pod miss lastest metrics update
-	// 3. when pod metrics is still in the report interval
-	// 4. when pod is configured in estimation
-	should := u == nil ||
-		n.updateTime.Add(-n.reportInterval).Before(pod.timestamp) ||
-		(!pod.estimatedDeadline.IsZero() && pod.estimatedDeadline.After(n.updateTime))
-	if should {
-		if n.nodeDelta.AddDelta(e, u) && n.nodeDeltaPods != nil {
-			n.nodeDeltaPods.Insert(key)
-		}
-	}
-	n.nodeEstimated.Add(e)
-	if n.nodeEstimatedPods != nil {
-		n.nodeEstimatedPods.Insert(key)
-	}
+// Only use prod pod's usage when both pod claims and node metric reports it as prod.
+// 1. pod priority class are updated dynamically
+// 2. prod / non prod pod is wrongly reported or terminated pod is leaked in node metrics status
 
-	if !prod {
-		return
-	}
-	if !activeProd && u != nil {
-		u, should = nil, true
-	}
-	if should {
-		if n.prodDelta.AddDelta(e, u) && n.prodDeltaPods != nil {
-			n.prodDeltaPods.Insert(key)
-		}
-	}
-}
+// 1. when usage is not collected
+// 2. when pod miss lastest metrics update
+// 3. when pod metrics is still in the report interval
+// 4. when pod is configured in estimation
 
-func (n *nodeInfo) updatePod(oldPod, newPod *podAssignInfo) {
-	n.deletePod(oldPod)
-	n.addPod(newPod)
-}
+func (n *nodeInfo) updatePod(oldPod, newPod *podAssignInfo) { _ = "STUB: not implemented"; return }
 
 // reverse procedure of addPod
-func (n *nodeInfo) deletePod(pod *podAssignInfo) {
-	key := NamespacedName{Namespace: pod.pod.Namespace, Name: pod.pod.Name}
-	u := n.podUsages[key]
-	prod := extension.GetPodPriorityClassWithDefault(pod.pod) == extension.PriorityProd
-	activeProd := prod && n.prodPods.Has(key)
-	if activeProd {
-		n.prodUsage.Sub(u)
-	}
-
-	e := pod.estimated
-	if e == nil {
-		return
-	}
-	should := u == nil ||
-		n.updateTime.Add(-n.reportInterval).Before(pod.timestamp) ||
-		(!pod.estimatedDeadline.IsZero() && pod.estimatedDeadline.After(n.updateTime))
-	if should {
-		if n.nodeDelta.SubDelta(e, u) && n.nodeDeltaPods != nil {
-			n.nodeDeltaPods.Delete(key)
-		}
-	}
-	n.nodeEstimated.Sub(e)
-	if n.nodeEstimatedPods != nil {
-		n.nodeEstimatedPods.Delete(key)
-	}
-
-	if !prod {
-		return
-	}
-	if !activeProd && u != nil {
-		u, should = nil, true
-	}
-	if should {
-		if n.prodDelta.SubDelta(e, u) && n.prodDeltaPods != nil {
-			n.prodDeltaPods.Delete(key)
-		}
-	}
-}
+func (n *nodeInfo) deletePod(pod *podAssignInfo) { _ = "STUB: not implemented"; return }

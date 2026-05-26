@@ -17,19 +17,10 @@ limitations under the License.
 package metriccache
 
 import (
-	"context"
-	"fmt"
-	"os"
 	"time"
 
-	"github.com/go-kit/log"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/prometheus/model/labels"
 	promstorage "github.com/prometheus/prometheus/storage"
 	"github.com/prometheus/prometheus/tsdb"
-	"k8s.io/klog/v2"
-
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/metrics"
 )
 
 // TSDBStorage defines time-series type DB, providing insert and query interface
@@ -91,58 +82,25 @@ type tsdbStorage struct {
 	db *tsdb.DB
 }
 
-func (t *tsdbStorage) Appender() Appender {
-	return &tsdbAppender{
-		appender: t.db.Appender(context.TODO()),
-	}
-}
+func (t *tsdbStorage) Appender() Appender { _ = "STUB: not implemented"; return *new(Appender) }
 
 func (t *tsdbStorage) Querier(startTime, endTime time.Time) (Querier, error) {
-	klog.V(7).Infof("query start %v, end %v", startTime.UnixMilli(), endTime.UnixMilli())
-	q, err := t.db.Querier(context.TODO(), startTime.UnixMilli(), endTime.UnixMilli())
-	if err != nil {
-		return nil, err
-	}
-	return &tsdbQuerier{
-		querier: q,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Querier), nil
 }
 
-func (t *tsdbStorage) Close() error {
-	return t.db.Close()
-}
+func (t *tsdbStorage) Close() error { _ = "STUB: not implemented"; return nil }
 
 func NewTSDBStorage(conf *Config) (TSDBStorage, error) {
-	tsdbOpt := tsdb.DefaultOptions()
-	tsdbOpt.RetentionDuration = int64(conf.TSDBRetentionDuration / time.Millisecond)
-	tsdbOpt.StripeSize = conf.TSDBStripeSize
-	tsdbOpt.MaxBytes = conf.TSDBMaxBytes
-	tsdbOpt.WALSegmentSize = conf.TSDBWALSegmentSize
-	tsdbOpt.MaxBlockChunkSegmentSize = conf.TSDBMaxBlockChunkSegmentSize
-	tsdbOpt.MinBlockDuration = int64(conf.TSDBMinBlockDuration / time.Millisecond)
-	tsdbOpt.MaxBlockDuration = int64(conf.TSDBMaxBlockDuration / time.Millisecond)
-	tsdbOpt.HeadChunksWriteBufferSize = conf.TSDBHeadChunksWriteBufferSize
-	// avoid conflicts using prometheus.tsdb v0.39 or higher
-	// prometheus.tsdb(0.37) requires all sample must following the time order
-	// new sample >= TSDB.MaxTime, out of order sample could not be appended until v0.39 with outOfOrderTimeWindow
-	// option enabled.
-	// oooTimeWindow must follow the grain of metric series
-	tsdbOpt.OutOfOrderTimeWindow = int64(time.Minute / time.Millisecond)
-	klog.V(5).Infof("ready to start tsdb with option %+v", tsdbOpt)
-
-	var promReg prometheus.Registerer
-	if conf.TSDBEnablePromMetrics {
-		promReg = metrics.ExternalRegistry
-	}
-	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
-	db, err := tsdb.Open(conf.TSDBPath, log.With(logger, "component", "tsdb"), promReg, tsdbOpt, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &tsdbStorage{
-		db: db,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(TSDBStorage), nil
 }
+
+// avoid conflicts using prometheus.tsdb v0.39 or higher
+// prometheus.tsdb(0.37) requires all sample must following the time order
+// new sample >= TSDB.MaxTime, out of order sample could not be appended until v0.39 with outOfOrderTimeWindow
+// option enabled.
+// oooTimeWindow must follow the grain of metric series
 
 var _ Appender = &tsdbAppender{}
 
@@ -151,24 +109,11 @@ type tsdbAppender struct {
 	appender promstorage.Appender
 }
 
-func (t *tsdbAppender) Append(samples []MetricSample) error {
-	for _, s := range samples {
-		l := s.GetProperties()
-		l[metricLabelName] = s.GetKind()
-		klog.V(7).Infof("append labels %v, ts %v, value %v", labels.FromMap(l).String(), s.timestamp(), s.value())
-		// TODO cache the seriesRef to accelerate calls
-		_, err := t.appender.Append(0, labels.FromMap(l), s.timestamp(), s.value())
-		if err != nil {
-			rollbackErr := t.appender.Rollback()
-			return fmt.Errorf("append error %v, rollback error %v", err, rollbackErr)
-		}
-	}
-	return nil
-}
+func (t *tsdbAppender) Append(samples []MetricSample) error { _ = "STUB: not implemented"; return nil }
 
-func (t *tsdbAppender) Commit() error {
-	return t.appender.Commit()
-}
+// TODO cache the seriesRef to accelerate calls
+
+func (t *tsdbAppender) Commit() error { _ = "STUB: not implemented"; return nil }
 
 var _ Querier = &tsdbQuerier{}
 
@@ -178,43 +123,13 @@ type tsdbQuerier struct {
 }
 
 func (t *tsdbQuerier) Query(meta MetricMeta, hints *QueryHints, result MetricResult) error {
-	properties := meta.GetProperties()
-	labelMatchers := make([]*labels.Matcher, 0, len(properties)+1)
-
-	nameLabelMatcher, err := labels.NewMatcher(labels.MatchEqual, metricLabelName, meta.GetKind())
-	if err != nil {
-		return err
-	}
-	labelMatchers = append(labelMatchers, nameLabelMatcher)
-
-	for k, v := range properties {
-		matcher, err := labels.NewMatcher(labels.MatchEqual, k, v)
-		if err != nil {
-			return err
-		}
-		labelMatchers = append(labelMatchers, matcher)
-	}
-
-	ss := t.querier.Select(false, nil, labelMatchers...)
-	for ss.Next() {
-		if ss.Err() != nil {
-			return ss.Err()
-		}
-		series := ss.At()
-		if err := result.AddSeries(series); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (t *tsdbQuerier) QueryAndClose(meta MetricMeta, hints *QueryHints, result MetricResult) error {
-	defer t.Close()
-	return t.Query(meta, hints, result)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t *tsdbQuerier) Close() {
-	if err := t.querier.Close(); err != nil {
-		klog.Warningf("close querier error %v", err)
-	}
-}
+func (t *tsdbQuerier) Close() { _ = "STUB: not implemented"; return }

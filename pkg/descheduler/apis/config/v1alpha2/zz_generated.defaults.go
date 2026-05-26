@@ -28,26 +28,21 @@ import (
 // RegisterDefaults adds defaulters functions to the given scheme.
 // Public to allow building arbitrary schemes.
 // All generated defaulters are covering - they call all nested defaulters.
-func RegisterDefaults(scheme *runtime.Scheme) error {
-	scheme.AddTypeDefaultingFunc(&CustomPriorityArgs{}, func(obj interface{}) { SetObjectDefaults_CustomPriorityArgs(obj.(*CustomPriorityArgs)) })
-	scheme.AddTypeDefaultingFunc(&DeschedulerConfiguration{}, func(obj interface{}) { SetObjectDefaults_DeschedulerConfiguration(obj.(*DeschedulerConfiguration)) })
-	scheme.AddTypeDefaultingFunc(&LowNodeLoadArgs{}, func(obj interface{}) { SetObjectDefaults_LowNodeLoadArgs(obj.(*LowNodeLoadArgs)) })
-	scheme.AddTypeDefaultingFunc(&MigrationControllerArgs{}, func(obj interface{}) { SetObjectDefaults_MigrationControllerArgs(obj.(*MigrationControllerArgs)) })
-	return nil
-}
+func RegisterDefaults(scheme *runtime.Scheme) error { _ = "STUB: not implemented"; return nil }
 
 func SetObjectDefaults_CustomPriorityArgs(in *CustomPriorityArgs) {
-	SetDefaults_CustomPriorityArgs(in)
+	_ = "STUB: not implemented"
+	return
 }
 
 func SetObjectDefaults_DeschedulerConfiguration(in *DeschedulerConfiguration) {
-	SetDefaults_DeschedulerConfiguration(in)
+	_ = "STUB: not implemented"
+	return
 }
 
-func SetObjectDefaults_LowNodeLoadArgs(in *LowNodeLoadArgs) {
-	SetDefaults_LowNodeLoadArgs(in)
-}
+func SetObjectDefaults_LowNodeLoadArgs(in *LowNodeLoadArgs) { _ = "STUB: not implemented"; return }
 
 func SetObjectDefaults_MigrationControllerArgs(in *MigrationControllerArgs) {
-	SetDefaults_MigrationControllerArgs(in)
+	_ = "STUB: not implemented"
+	return
 }

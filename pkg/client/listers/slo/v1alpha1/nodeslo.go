@@ -44,5 +44,6 @@ type nodeSLOLister struct {
 
 // NewNodeSLOLister returns a new NodeSLOLister.
 func NewNodeSLOLister(indexer cache.Indexer) NodeSLOLister {
-	return &nodeSLOLister{listers.New[*slov1alpha1.NodeSLO](indexer, slov1alpha1.Resource("nodeslo"))}
+	_ = "STUB: not implemented"
+	return *new(NodeSLOLister)
 }

@@ -30,76 +30,40 @@ type NodeSelection struct {
 
 // setNodeAffinityRequirement sets affinity with specified operator to nodeName to nodeSelection
 func setNodeAffinityRequirement(nodeSelection *NodeSelection, operator v1.NodeSelectorOperator, nodeName string) {
+	_ = "STUB: not implemented"
 	// Add node-anti-affinity.
-	if nodeSelection.Affinity == nil {
-		nodeSelection.Affinity = &v1.Affinity{}
-	}
-	if nodeSelection.Affinity.NodeAffinity == nil {
-		nodeSelection.Affinity.NodeAffinity = &v1.NodeAffinity{}
-	}
-	if nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution == nil {
-		nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution = &v1.NodeSelector{}
-	}
-	nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms = append(nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms,
-		v1.NodeSelectorTerm{
-			MatchFields: []v1.NodeSelectorRequirement{
-				{Key: "metadata.name", Operator: operator, Values: []string{nodeName}},
-			},
-		})
+	return
 }
 
 // SetNodeAffinityTopologyRequirement sets node affinity to a specified topology
 func SetNodeAffinityTopologyRequirement(nodeSelection *NodeSelection, topology map[string]string) {
-	if nodeSelection.Affinity == nil {
-		nodeSelection.Affinity = &v1.Affinity{}
-	}
-	if nodeSelection.Affinity.NodeAffinity == nil {
-		nodeSelection.Affinity.NodeAffinity = &v1.NodeAffinity{}
-	}
-	if nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution == nil {
-		nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution = &v1.NodeSelector{}
-	}
-	for k, v := range topology {
-		nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms = append(nodeSelection.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms,
-			v1.NodeSelectorTerm{
-				MatchExpressions: []v1.NodeSelectorRequirement{
-					{Key: k, Operator: v1.NodeSelectorOpIn, Values: []string{v}},
-				},
-			})
-
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // SetAffinity sets affinity to nodeName to nodeSelection
-func SetAffinity(nodeSelection *NodeSelection, nodeName string) {
-	setNodeAffinityRequirement(nodeSelection, v1.NodeSelectorOpIn, nodeName)
-}
+func SetAffinity(nodeSelection *NodeSelection, nodeName string) { _ = "STUB: not implemented"; return }
 
 // SetAntiAffinity sets anti-affinity to nodeName to nodeSelection
 func SetAntiAffinity(nodeSelection *NodeSelection, nodeName string) {
-	setNodeAffinityRequirement(nodeSelection, v1.NodeSelectorOpNotIn, nodeName)
+	_ = "STUB: not implemented"
+	return
 }
 
 // SetNodeAffinity modifies the given pod object with
 // NodeAffinity to the given node name.
-func SetNodeAffinity(podSpec *v1.PodSpec, nodeName string) {
-	nodeSelection := &NodeSelection{}
-	SetAffinity(nodeSelection, nodeName)
-	podSpec.Affinity = nodeSelection.Affinity
-}
+func SetNodeAffinity(podSpec *v1.PodSpec, nodeName string) { _ = "STUB: not implemented"; return }
 
 // SetNodeSelection modifies the given pod object with
 // the specified NodeSelection
 func SetNodeSelection(podSpec *v1.PodSpec, nodeSelection NodeSelection) {
-	podSpec.NodeSelector = nodeSelection.Selector
-	podSpec.Affinity = nodeSelection.Affinity
-	// pod.Spec.NodeName should not be set directly because
-	// it will bypass the scheduler, potentially causing
-	// kubelet to Fail the pod immediately if it's out of
-	// resources. Instead, we want the pod to remain
-	// pending in the scheduler until the node has resources
-	// freed up.
-	if nodeSelection.Name != "" {
-		SetNodeAffinity(podSpec, nodeSelection.Name)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// pod.Spec.NodeName should not be set directly because
+// it will bypass the scheduler, potentially causing
+// kubelet to Fail the pod immediately if it's out of
+// resources. Instead, we want the pod to remain
+// pending in the scheduler until the node has resources
+// freed up.

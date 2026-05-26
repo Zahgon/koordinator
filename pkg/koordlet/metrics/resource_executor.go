@@ -47,5 +47,6 @@ var (
 )
 
 func RecordResourceUpdateDuration(updaterType, status string, seconds float64) {
-	resourceUpdateDurationMilliSeconds.WithLabelValues(updaterType, status).Observe(seconds * 1000)
+	_ = "STUB: not implemented"
+	return
 }

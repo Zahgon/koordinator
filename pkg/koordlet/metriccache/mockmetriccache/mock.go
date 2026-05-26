@@ -27,7 +27,6 @@
 package mock_metriccache
 
 import (
-	reflect "reflect"
 	time "time"
 
 	metriccache "github.com/koordinator-sh/koordinator/pkg/koordlet/metriccache"
@@ -48,96 +47,73 @@ type MockMetricCacheMockRecorder struct {
 
 // NewMockMetricCache creates a new mock instance.
 func NewMockMetricCache(ctrl *gomock.Controller) *MockMetricCache {
-	mock := &MockMetricCache{ctrl: ctrl}
-	mock.recorder = &MockMetricCacheMockRecorder{mock}
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMetricCache) EXPECT() *MockMetricCacheMockRecorder {
-	return m.recorder
+	_ = "STUB: not implemented"
+
+	// Appender mocks base method.
+	return nil
 }
 
-// Appender mocks base method.
 func (m *MockMetricCache) Appender() metriccache.Appender {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Appender")
-	ret0, _ := ret[0].(metriccache.Appender)
-	return ret0
+	_ = "STUB: not implemented"
+	return *new(metriccache.Appender)
 }
 
 // Appender indicates an expected call of Appender.
 func (mr *MockMetricCacheMockRecorder) Appender() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Appender", reflect.TypeOf((*MockMetricCache)(nil).Appender))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Close mocks base method.
-func (m *MockMetricCache) Close() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Close")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
+func (m *MockMetricCache) Close() error { _ = "STUB: not implemented"; return nil }
 
 // Close indicates an expected call of Close.
-func (mr *MockMetricCacheMockRecorder) Close() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockMetricCache)(nil).Close))
-}
+func (mr *MockMetricCacheMockRecorder) Close() *gomock.Call { _ = "STUB: not implemented"; return nil }
 
 // Get mocks base method.
 func (m *MockMetricCache) Get(key any) (any, bool) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(any)
-	ret1, _ := ret[1].(bool)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 // Get indicates an expected call of Get.
 func (mr *MockMetricCacheMockRecorder) Get(key any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockMetricCache)(nil).Get), key)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Querier mocks base method.
 func (m *MockMetricCache) Querier(startTime, endTime time.Time) (metriccache.Querier, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Querier", startTime, endTime)
-	ret0, _ := ret[0].(metriccache.Querier)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	_ = "STUB: not implemented"
+	return *new(metriccache.Querier), nil
 }
 
 // Querier indicates an expected call of Querier.
 func (mr *MockMetricCacheMockRecorder) Querier(startTime, endTime any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Querier", reflect.TypeOf((*MockMetricCache)(nil).Querier), startTime, endTime)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Run mocks base method.
-func (m *MockMetricCache) Run(stopCh <-chan struct{}) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Run", stopCh)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
+func (m *MockMetricCache) Run(stopCh <-chan struct{}) error { _ = "STUB: not implemented"; return nil }
 
 // Run indicates an expected call of Run.
 func (mr *MockMetricCacheMockRecorder) Run(stopCh any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockMetricCache)(nil).Run), stopCh)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Set mocks base method.
-func (m *MockMetricCache) Set(key, value any) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Set", key, value)
-}
+func (m *MockMetricCache) Set(key, value any) { _ = "STUB: not implemented"; return }
 
 // Set indicates an expected call of Set.
 func (mr *MockMetricCacheMockRecorder) Set(key, value any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockMetricCache)(nil).Set), key, value)
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -40,13 +40,11 @@ type reservationMutateBuilder struct {
 }
 
 func (b *reservationMutateBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *reservationMutateBuilder) Build() admission.Handler {
-	return &ReservationMutatingHandler{
-		Client:  b.mgr.GetClient(),
-		Decoder: admission.NewDecoder(b.mgr.GetScheme()),
-	}
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

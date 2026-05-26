@@ -22,7 +22,6 @@ import (
 	_ "net/http/pprof"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
@@ -32,8 +31,6 @@ import (
 	agent "github.com/koordinator-sh/koordinator/pkg/koordlet"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/audit"
 	"github.com/koordinator-sh/koordinator/pkg/koordlet/config"
-	"github.com/koordinator-sh/koordinator/pkg/koordlet/metrics"
-	metricsutil "github.com/koordinator-sh/koordinator/pkg/util/metrics"
 )
 
 func main() {
@@ -90,19 +87,10 @@ func main() {
 	d.Run(stopCtx.Done())
 }
 
-func installHTTPHandler() {
-	klog.Infof("Starting prometheus server on %v", *options.ServerAddr)
-	mux := http.NewServeMux()
-	mux.Handle(metrics.ExternalHTTPPath, promhttp.HandlerFor(metrics.ExternalRegistry, promhttp.HandlerOpts{}))
-	mux.Handle(metrics.InternalHTTPPath, promhttp.HandlerFor(metrics.InternalRegistry, promhttp.HandlerOpts{}))
-	// merge internal and external
-	mux.Handle(metrics.DefaultHTTPPath, promhttp.HandlerFor(
-		metricsutil.MergedGatherFunc(metrics.InternalRegistry, metrics.ExternalRegistry), promhttp.HandlerOpts{}))
-	if features.DefaultKoordletFeatureGate.Enabled(features.AuditEventsHTTPHandler) {
-		mux.HandleFunc("/events", audit.HttpHandler())
-	}
-	// install extended HTTP handlers
-	options.InstallExtendedHTTPHandler(mux)
-	// http.HandleFunc("/healthz", d.HealthzHandler())
-	klog.Fatalf("Prometheus monitoring failed: %v", http.ListenAndServe(*options.ServerAddr, mux))
-}
+func installHTTPHandler() { _ = "STUB: not implemented"; return }
+
+// merge internal and external
+
+// install extended HTTP handlers
+
+// http.HandleFunc("/healthz", d.HealthzHandler())

@@ -18,12 +18,10 @@ package helper
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"sync"
 	"time"
 
-	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -32,27 +30,17 @@ var (
 	registrations   []cache.ResourceEventHandlerRegistration
 )
 
-func addRegistration(reg cache.ResourceEventHandlerRegistration) {
-	registrationsMu.Lock()
-	defer registrationsMu.Unlock()
-	registrations = append(registrations, reg)
-}
+func addRegistration(reg cache.ResourceEventHandlerRegistration) { _ = "STUB: not implemented"; return }
 
 // GetRegistrations returns a snapshot of all collected registrations.
 func GetRegistrations() []cache.ResourceEventHandlerRegistration {
-	registrationsMu.Lock()
-	defer registrationsMu.Unlock()
-	return append([]cache.ResourceEventHandlerRegistration{}, registrations...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ResetRegistrations clears all collected registrations and any startup hooks
 // registered alongside them. Only for testing.
-func ResetRegistrations() {
-	registrationsMu.Lock()
-	registrations = nil
-	registrationsMu.Unlock()
-	ResetStartupHooks()
-}
+func ResetRegistrations() { _ = "STUB: not implemented"; return }
 
 // forceSyncEventHandler holds configuration for event handler registration.
 type forceSyncEventHandler struct {
@@ -70,9 +58,8 @@ type Option func(*forceSyncEventHandler)
 
 // WithResyncPeriod sets the resync period for the event handler registration.
 func WithResyncPeriod(resyncPeriod time.Duration) Option {
-	return func(handler *forceSyncEventHandler) {
-		handler.resyncPeriod = resyncPeriod
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // ForceSyncFromInformer registers handler via standard AddEventHandler and collects
@@ -82,26 +69,15 @@ func WithResyncPeriod(resyncPeriod time.Duration) Option {
 func ForceSyncFromInformer(stopCh <-chan struct{}, cacheSyncer CacheSyncer,
 	informer cache.SharedInformer, handler cache.ResourceEventHandler,
 	options ...Option) (cache.ResourceEventHandlerRegistration, error) {
-	cfg := &forceSyncEventHandler{}
-	for _, fn := range options {
-		fn(cfg)
-	}
-	// Replace nil handler with a no-op handler to avoid panics when events are delivered.
-	if handler == nil {
-		handler = cache.ResourceEventHandlerFuncs{}
-	}
-	reg, err := informer.AddEventHandlerWithResyncPeriod(handler, cfg.resyncPeriod)
-	if err != nil {
-		return nil, err
-	}
-	// Avoid double-registration: forceSyncsharedIndexInformer.AddEventHandlerWithResyncPeriod
-	// already calls addRegistration internally, so skip it here to prevent duplicates
-	// in GetRegistrations() and redundant work in waitForKoordinatorHandlersSync.
-	if _, isWrapper := informer.(*forceSyncsharedIndexInformer); !isWrapper {
-		addRegistration(reg)
-	}
-	return reg, nil
+	_ = "STUB: not implemented"
+	return *new(cache.ResourceEventHandlerRegistration), nil
 }
+
+// Replace nil handler with a no-op handler to avoid panics when events are delivered.
+
+// Avoid double-registration: forceSyncsharedIndexInformer.AddEventHandlerWithResyncPeriod
+// already calls addRegistration internally, so skip it here to prevent duplicates
+// in GetRegistrations() and redundant work in waitForKoordinatorHandlersSync.
 
 // ForceSyncFromInformerWithReplace registers handler via ForceSyncFromInformer and, when
 // replaceHandler is non-nil, registers an AfterPluginInformersSynced startup hook that
@@ -122,37 +98,17 @@ func ForceSyncFromInformerWithReplace(stopCh <-chan struct{}, cacheSyncer CacheS
 	informer cache.SharedInformer, handler cache.ResourceEventHandler,
 	replaceHandler func([]interface{}) error,
 	options ...Option) (cache.ResourceEventHandlerRegistration, error) {
-	reg, err := ForceSyncFromInformer(stopCh, cacheSyncer, informer, handler, options...)
-	if err != nil || replaceHandler == nil {
-		return reg, err
-	}
-	// Register a startup hook that fires AFTER the hosting plugin informer factory has
-	// started and synced. At that point the registered handler has already consumed the
-	// initial list, so informer.GetStore().List() returns a complete snapshot. The hook
-	// runs synchronously relative to the startup pipeline, so its completion is totally
-	// ordered before any main informer begins delivering events.
-	RegisterAfterPluginInformersSynced(func(ctx context.Context) error {
-		if !cache.WaitForCacheSync(ctx.Done(), reg.HasSynced) {
-			if ctx.Err() != nil {
-				return ctx.Err()
-			}
-			return fmt.Errorf("ForceSyncFromInformerWithReplace: handler registration never synced")
-		}
-		return replaceHandler(informer.GetStore().List())
-	})
-	return reg, nil
+	_ = "STUB: not implemented"
+	return *new(cache.ResourceEventHandlerRegistration), nil
 }
+
+// Register a startup hook that fires AFTER the hosting plugin informer factory has
+// started and synced. At that point the registered handler has already consumed the
+// initial list, so informer.GetStore().List() returns a complete snapshot. The hook
+// runs synchronously relative to the startup pipeline, so its completion is totally
+// ordered before any main informer begins delivering events.
 
 // WaitForHandlersSync waits until all collected handler registrations have synced.
 // It is intended for use in tests: call it after starting informer factories so that
 // all OnAdd events delivered by the initial list have been processed before assertions.
-func WaitForHandlersSync(ctx context.Context) error {
-	return wait.PollUntilContextCancel(ctx, 100*time.Millisecond, true, func(ctx context.Context) (bool, error) {
-		for _, reg := range GetRegistrations() {
-			if !reg.HasSynced() {
-				return false, nil
-			}
-		}
-		return true, nil
-	})
-}
+func WaitForHandlersSync(ctx context.Context) error { _ = "STUB: not implemented"; return nil }

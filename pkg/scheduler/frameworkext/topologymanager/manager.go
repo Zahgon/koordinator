@@ -20,12 +20,10 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 	"k8s.io/kube-scheduler/framework"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
-	"github.com/koordinator-sh/koordinator/pkg/scheduler/frameworkext/schedulingphase"
 )
 
 const (
@@ -57,98 +55,35 @@ type NUMATopologyHintProviderFactory interface {
 }
 
 func New(hintProviderFactory NUMATopologyHintProviderFactory) Interface {
-	return &topologyManager{
-		hintProviderFactory: hintProviderFactory,
-	}
+	_ = "STUB: not implemented"
+	return *new(Interface)
 }
 
 func (m *topologyManager) Admit(ctx context.Context, cycleState framework.CycleState, pod *corev1.Pod, node *corev1.Node, numaNodes []int, policyType apiext.NUMATopologyPolicy, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) *fwktype.Status {
-	s, err := cycleState.Read(affinityStateKey)
-	if err != nil {
-		return fwktype.AsStatus(err)
-	}
-	store := s.(*Store)
-
-	policy := createNUMATopologyPolicy(policyType, numaNodes)
-	bestHint, ok := store.GetAffinity(node.Name)
-	extensionPointBeingExecuted := schedulingphase.GetExtensionPointBeingExecuted(cycleState)
-	klog.V(5).Infof("extensionPointBeingExecuted: %v, bestHint: %v, nodeName: %v, pod: %v", extensionPointBeingExecuted, bestHint, klog.KObj(node), pod.Name)
-	if !ok || extensionPointBeingExecuted == schedulingphase.PostFilter {
-		bestHint, admit, reasons := m.calculateAffinity(ctx, cycleState, policy, pod, node, exclusivePolicy, allNUMANodeStatus)
-		klog.V(4).Infof("Best TopologyHint for (pod: %v): %+v on node %s, policy %T, exclusivePolicy %s, admit %v, reasons %v",
-			klog.KObj(pod), bestHint, klog.KObj(node), policy, exclusivePolicy, admit, reasons)
-		if !admit {
-			if len(reasons) != 0 {
-				return fwktype.NewStatus(fwktype.Unschedulable, reasons...)
-			}
-		}
-		// TODO If the Affinity above is confirmed to be allocatable, it seems unnecessary to call this again here.
-		status := m.allocateResources(ctx, cycleState, bestHint, pod, node)
-		if !status.IsSuccess() {
-			return status
-		}
-		store.SetAffinity(node.Name, bestHint)
-	} else {
-		status := m.allocateResources(ctx, cycleState, bestHint, pod, node)
-		if !status.IsSuccess() {
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// TODO If the Affinity above is confirmed to be allocatable, it seems unnecessary to call this again here.
+
 func (m *topologyManager) calculateAffinity(ctx context.Context, cycleState framework.CycleState, policy Policy, pod *corev1.Pod, node *corev1.Node, exclusivePolicy apiext.NumaTopologyExclusive, allNUMANodeStatus []apiext.NumaNodeStatus) (NUMATopologyHint, bool, []string) {
-	providersHints, reasons := m.accumulateProvidersHints(ctx, cycleState, pod, node)
-	if len(reasons) != 0 {
-		return NUMATopologyHint{}, false, reasons
-	}
-	bestHint, admit, reasons := policy.Merge(providersHints, exclusivePolicy, allNUMANodeStatus)
-	if !checkExclusivePolicy(bestHint, exclusivePolicy, allNUMANodeStatus) {
-		klog.V(5).Infof("bestHint violated the exclusivePolicy requirement: bestHint: %v, policy: %v, numaStatus: %v, nodeName: %v, pod: %v",
-			bestHint, exclusivePolicy, allNUMANodeStatus, klog.KObj(node), pod.Name)
-	}
-	klog.V(5).Infof("PodTopologyHint: %v", bestHint)
-	return bestHint, admit, reasons
+	_ = "STUB: not implemented"
+	return *new(NUMATopologyHint), false, nil
 }
 
 func (m *topologyManager) accumulateProvidersHints(ctx context.Context, cycleState framework.CycleState, pod *corev1.Pod, node *corev1.Node) ([]map[string][]NUMATopologyHint, []string) {
-	var providersHints []map[string][]NUMATopologyHint
-
-	hintProviders := m.hintProviderFactory.GetNUMATopologyHintProvider()
-	var reasons []string
-	for _, provider := range hintProviders {
-		// Get the TopologyHints for a Pod from a provider.
-		hints, status := provider.GetPodTopologyHints(ctx, cycleState, pod, node)
-		if !status.IsSuccess() {
-			reasons = append(reasons, status.Message())
-			continue
-		}
-		providersHints = append(providersHints, hints)
-		klog.V(4).Infof("TopologyHints for pod '%v' by provider %T: %+v on node: %v, status: %s/%s", klog.KObj(pod), provider, hints, klog.KObj(node), status.Code(), status.Message())
-	}
-	return providersHints, reasons
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// Get the TopologyHints for a Pod from a provider.
+
 func (m *topologyManager) allocateResources(ctx context.Context, cycleState framework.CycleState, affinity NUMATopologyHint, pod *corev1.Pod, node *corev1.Node) *fwktype.Status {
-	hintProviders := m.hintProviderFactory.GetNUMATopologyHintProvider()
-	for _, provider := range hintProviders {
-		status := provider.Allocate(ctx, cycleState, affinity, pod, node)
-		if !status.IsSuccess() {
-			return status
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func createNUMATopologyPolicy(policyType apiext.NUMATopologyPolicy, numaNodes []int) Policy {
-	var p Policy
-	switch policyType {
-	case apiext.NUMATopologyPolicyBestEffort:
-		p = NewBestEffortPolicy(numaNodes)
-	case apiext.NUMATopologyPolicyRestricted:
-		p = NewRestrictedPolicy(numaNodes)
-	case apiext.NUMATopologyPolicySingleNUMANode:
-		p = NewSingleNumaNodePolicy(numaNodes)
-	}
-	return p
+	_ = "STUB: not implemented"
+	return *new(Policy)
 }

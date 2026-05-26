@@ -23,5 +23,6 @@ type Handler struct{}
 var _ http.Handler = &Handler{}
 
 func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
+	_ = "STUB: not implemented"
+	return
 }

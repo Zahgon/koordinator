@@ -18,12 +18,8 @@ limitations under the License.
 package common
 
 import (
-	"bytes"
-	"text/template"
-
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	"github.com/koordinator-sh/koordinator/test/e2e/framework"
 	imageutils "github.com/koordinator-sh/koordinator/test/utils/image"
 )
 
@@ -87,15 +83,4 @@ func init() {
 }
 
 // SubstituteImageName replaces image name in content.
-func SubstituteImageName(content string) []byte {
-	contentWithImageName := new(bytes.Buffer)
-	tmpl, err := template.New("imagemanifest").Parse(content)
-	if err != nil {
-		framework.Failf("Failed Parse the template: %v", err)
-	}
-	err = tmpl.Execute(contentWithImageName, testImages)
-	if err != nil {
-		framework.Failf("Failed executing template: %v", err)
-	}
-	return contentWithImageName.Bytes()
-}
+func SubstituteImageName(content string) []byte { _ = "STUB: not implemented"; return nil }

@@ -17,11 +17,7 @@ limitations under the License.
 package deviceshare
 
 import (
-	"sort"
-
 	"k8s.io/apimachinery/pkg/util/sets"
-	quotav1 "k8s.io/apiserver/pkg/quota/v1"
-	"k8s.io/klog/v2"
 	fwktype "k8s.io/kube-scheduler/framework"
 
 	apiext "github.com/koordinator-sh/koordinator/apis/extension"
@@ -57,114 +53,43 @@ type AllocateContext struct {
 }
 
 func getRealUsed(originalUsed, refinedTotal, refinedUsed deviceResources) deviceResources {
-	realUsed := deviceResources{}
-	for minor := range originalUsed {
-		if _, ok := refinedTotal[minor]; !ok {
-			realUsed[minor] = nil
-		}
-	}
-	for minor := range refinedUsed {
-		realUsed[minor] = nil
-	}
-	return realUsed
+	_ = "STUB: not implemented"
+	return *new(deviceResources)
 }
 
 func (a *GPUAllocator) Allocate(requestCtx *requestContext, nodeDevice *nodeDevice, desiredCount int, maxDesiredCount int, preferredPCIEs sets.String) ([]*apiext.DeviceAllocation, *fwktype.Status) {
-	gpuRequirements := requestCtx.gpuRequirements
-	if gpuRequirements == nil {
-		return nil, fwktype.NewStatus(fwktype.Unschedulable, ErrNoGPURequirements)
-	}
-	nodeHonorPartition := nodeDevice.nodeHonorGPUPartition
-	gpuPartitionIndexer := nodeDevice.gpuPartitionIndexer
-	if gpuPartitionIndexer == nil {
-		gpuPartitionIndexer, nodeHonorPartition = GetDesignatedGPUPartitionIndexer(requestCtx.node)
-	}
-	honorGPUPartition := gpuRequirements.honorGPUPartition || nodeHonorPartition
-	realUsed := getRealUsed(requestCtx.nodeDevice.deviceUsed[schedulingv1alpha1.GPU], nodeDevice.deviceTotal[schedulingv1alpha1.GPU], nodeDevice.deviceUsed[schedulingv1alpha1.GPU])
-	allocateContext := &AllocateContext{
-		deviceUsedMinorsHash: hashDevices(realUsed),
-		deviceFree:           nodeDevice.deviceFree[schedulingv1alpha1.GPU],
-		deviceTotal:          removeZeroDevice(nodeDevice.deviceTotal[schedulingv1alpha1.GPU]),
-		allocationScorer:     requestCtx.allocationScorer,
-	}
-
-	allocations, status := allocateByTemplate(requestCtx, nodeDevice, desiredCount, maxDesiredCount, allocateContext)
-	if !status.IsSuccess() {
-		return nil, status
-	}
-	// if pod does not enforce GPU shared resource template, allocateByTemplate may return (nil, nil), so we should check if allocations is nil
-	if len(allocations) != 0 {
-		return allocations, nil
-	}
-
-	allocations, status = allocateByPartition(honorGPUPartition, gpuRequirements, gpuPartitionIndexer, allocateContext)
-	if !status.IsSuccess() {
-		return nil, status
-	}
-	// if honorGPUPartition is false, allocateByPartition may return (nil, nil), so we should check if allocations is nil
-	if len(allocations) != 0 {
-		return allocations, nil
-	}
-
-	return generalAllocate(requestCtx, nodeDevice, desiredCount, maxDesiredCount, allocateContext)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// if pod does not enforce GPU shared resource template, allocateByTemplate may return (nil, nil), so we should check if allocations is nil
+
+// if honorGPUPartition is false, allocateByPartition may return (nil, nil), so we should check if allocations is nil
+
 func removeZeroDevice(originalResources deviceResources) deviceResources {
-	refinedResources := deviceResources{}
-	for minor, resource := range originalResources {
-		if !quotav1.IsZero(resource) {
-			refinedResources[minor] = resource
-		}
-	}
-	return refinedResources
+	_ = "STUB: not implemented"
+	return *new(deviceResources)
 }
 
 func generalAllocate(requestCtx *requestContext, nodeDevice *nodeDevice, desiredCount int, maxDesiredCount int, allocateContext *AllocateContext) ([]*apiext.DeviceAllocation, *fwktype.Status) {
-	allocations, status := allocateByDeviceTopology(requestCtx.gpuRequirements, nodeDevice.gpuTopologyScope, allocateContext)
-	if !status.IsSuccess() {
-		return nil, status
-	}
-	// if same NUMANode or PCIE are not required, allocateByDeviceTopology may return (nil, nil), so we should check if allocations is nil
-	if len(allocations) != 0 {
-		return allocations, nil
-	}
-
-	return defaultAllocateDevices(nodeDevice, requestCtx, requestCtx.gpuRequirements.requestsPerGPU, desiredCount, maxDesiredCount, schedulingv1alpha1.GPU, nil)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// if same NUMANode or PCIE are not required, allocateByDeviceTopology may return (nil, nil), so we should check if allocations is nil
 
 func allocateByTemplate(requestCtx *requestContext, nodeDevice *nodeDevice, desiredCount int, maxDesiredCount int, allocateContext *AllocateContext) ([]*apiext.DeviceAllocation, *fwktype.Status) {
-	if !requestCtx.gpuRequirements.enforceGPUSharedResourceTemplate {
-		return nil, nil
-	}
-
-	key := buildGPUSharedResourceTemplatesKey(requestCtx.node.Labels[apiext.LabelGPUVendor], requestCtx.node.Labels[apiext.LabelGPUModel])
-	candidateTemplates := requestCtx.gpuRequirements.candidateGPUSharedResourceTemplates[key]
-	if len(candidateTemplates) == 0 {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrNoMatchedGPUSharedResourceTemplate)
-	} else if len(candidateTemplates) == 1 {
-		// koord style: matching only one template for accurate resources specified by user
-		allocations, status := generalAllocate(requestCtx, nodeDevice, desiredCount, maxDesiredCount, allocateContext)
-		if status.IsSuccess() {
-			var templateName string
-			for name := range candidateTemplates {
-				templateName = name
-			}
-			appendTemplateInfoToAllocations(allocations, templateName)
-		}
-		return allocations, status
-	} else {
-		// TODO(zqzten): volcano style: automatically choose a template which meets user's requirement
-		return nil, nil
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// koord style: matching only one template for accurate resources specified by user
+
+// TODO(zqzten): volcano style: automatically choose a template which meets user's requirement
+
 func appendTemplateInfoToAllocations(allocations []*apiext.DeviceAllocation, templateName string) {
-	for _, allocation := range allocations {
-		if allocation.Extension == nil {
-			allocation.Extension = &apiext.DeviceAllocationExtension{}
-		}
-		allocation.Extension.GPUSharedResourceTemplate = templateName
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 type GPUPartitionIndexer map[int][]*PartitionsOfAllocationScore
@@ -175,83 +100,21 @@ type PartitionsOfAllocationScore struct {
 }
 
 func allocateByPartition(honorGPUPartition bool, gpuRequirements *GPURequirements, gpuPartitionIndexer GPUPartitionIndexer, allocateContext *AllocateContext) (allocations []*apiext.DeviceAllocation, status *fwktype.Status) {
-	defer func() {
-		if !status.IsSuccess() {
-			klog.V(5).Infof("gpuRequirements: %+v, gpuPartitionIndexer: %+v, status: %+v", *gpuRequirements, gpuPartitionIndexer, status)
-		}
-		if !honorGPUPartition {
-			// if honorGPUPartition is false, allocateByPartition should return (allocation, nil)
-			status = nil
-		}
-	}()
-	if gpuRequirements.gpuShared {
-		// TODO when allocate shared gpu, partition binPack logic is equivalent with topology binPack in most machine models. Bus there may be still some unexpected machine model need to be considered
-		return nil, nil
-	}
-	if gpuPartitionIndexer == nil {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrNodeMissingGPUPartitionTable)
-	}
-	indexerOfAllocationScore, ok := gpuPartitionIndexer[gpuRequirements.numberOfGPUs]
-	if !ok || indexerOfAllocationScore == nil {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrUnsupportedGPURequests)
-	}
-
-	// we have to calculate this hash during scheduling cycle because reservation restore and preemption may happen
-	deviceTotalMinorsHash := hashDevices(allocateContext.deviceTotal)
-
-	var feasiblePartitions []*apiext.GPUPartition
-	for _, candidatePartitions := range indexerOfAllocationScore {
-		for _, partition := range candidatePartitions.Partitions {
-			if partition.MinorsHash&allocateContext.deviceUsedMinorsHash > 0 {
-				continue
-			}
-			if deviceTotalMinorsHash&partition.MinorsHash != partition.MinorsHash {
-				continue
-			}
-			if gpuRequirements.rindBusBandwidth != nil {
-				if partition.RingBusBandwidth == nil {
-					continue
-				}
-				if gpuRequirements.rindBusBandwidth.Cmp(*partition.RingBusBandwidth) > 0 {
-					continue
-				}
-			}
-			feasiblePartitions = append(feasiblePartitions, partition)
-		}
-		// we definitely prefer the partition with the higher allocation score
-		if len(feasiblePartitions) > 0 || gpuRequirements.restrictedGPUPartition {
-			break
-		}
-	}
-	if len(feasiblePartitions) == 0 {
-		return nil, fwktype.NewStatus(fwktype.Unschedulable, ErrInsufficientPartitionedDevice)
-	}
-	selectedPartition := selectPartitionByBinPack(allocateContext.deviceUsedMinorsHash, feasiblePartitions, gpuPartitionIndexer, gpuRequirements.numberOfGPUs)
-	for _, minor := range selectedPartition.Minors {
-		allocations = append(allocations, &apiext.DeviceAllocation{
-			Minor:     int32(minor),
-			Resources: gpuRequirements.requestsPerGPU,
-		})
-	}
-	return allocations, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func hashDevices(resources deviceResources) int {
-	var minors []int
-	for minor := range resources {
-		minors = append(minors, minor)
-	}
-	return hashMinors(minors)
-}
+// if honorGPUPartition is false, allocateByPartition should return (allocation, nil)
 
-func hashMinors(minors []int) int {
-	hash := 0
-	for _, minor := range minors {
-		minorHash := 1 << minor
-		hash = hash | minorHash
-	}
-	return hash
-}
+// TODO when allocate shared gpu, partition binPack logic is equivalent with topology binPack in most machine models. Bus there may be still some unexpected machine model need to be considered
+
+// we have to calculate this hash during scheduling cycle because reservation restore and preemption may happen
+
+// we definitely prefer the partition with the higher allocation score
+
+func hashDevices(resources deviceResources) int { _ = "STUB: not implemented"; return 0 }
+
+func hashMinors(minors []int) int { _ = "STUB: not implemented"; return 0 }
 
 type partitionOfBinPackScore struct {
 	Partition    *apiext.GPUPartition
@@ -259,40 +122,8 @@ type partitionOfBinPackScore struct {
 }
 
 func selectPartitionByBinPack(deviceUsedMinorsHash int, feasiblePartitions []*apiext.GPUPartition, partitionIndexer GPUPartitionIndexer, desiredNumberOfGPU int) *apiext.GPUPartition {
-	if len(feasiblePartitions) == 1 {
-		return feasiblePartitions[0]
-	}
-	scoreOfNumOfGPUs := map[int]int{8: 10000, 4: 100, 2: 1}
-	listOfNumberOfGPU := []int{8, 4, 2}
-	var partitionsWithBinPackScore []*partitionOfBinPackScore
-	for _, feasiblePartition := range feasiblePartitions {
-		score := 0
-		allocatedMinorsHash := deviceUsedMinorsHash | feasiblePartition.MinorsHash
-		for _, numberOfGPUs := range listOfNumberOfGPU {
-			if numberOfGPUs < desiredNumberOfGPU {
-				continue
-			}
-			indexerOfGPUNumber, ok := partitionIndexer[numberOfGPUs]
-			if !ok || len(indexerOfGPUNumber) == 0 {
-				continue
-			}
-			for _, partition := range indexerOfGPUNumber[0].Partitions {
-				if partition.MinorsHash&allocatedMinorsHash > 0 {
-					continue
-				}
-				score += scoreOfNumOfGPUs[numberOfGPUs] * partition.AllocationScore
-			}
-		}
-		partitionsWithBinPackScore = append(partitionsWithBinPackScore, &partitionOfBinPackScore{
-			Partition:    feasiblePartition,
-			BinPackScore: score,
-		})
-	}
-
-	sort.Slice(partitionsWithBinPackScore, func(i, j int) bool {
-		return partitionsWithBinPackScore[i].BinPackScore > partitionsWithBinPackScore[j].BinPackScore
-	})
-	return partitionsWithBinPackScore[0].Partition
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type GPUTopologyScope struct {
@@ -310,30 +141,10 @@ type GPUTopologyScope struct {
 }
 
 func allocateByDeviceTopology(gpuRequirements *GPURequirements, gpuTopologyScope *GPUTopologyScope, allocateContext *AllocateContext) (allocations []*apiext.DeviceAllocation, status *fwktype.Status) {
-	defer func() {
-		// if allocateByDeviceTopology is not required and unsupported in some cases, then we can return nil instead of fwktype.UnschedulableAndUnresolvable to give the change of success
-		if gpuRequirements.requiredTopologyScope == "" && status.Code() == fwktype.UnschedulableAndUnresolvable {
-			status = nil
-		}
-	}()
-	if gpuTopologyScope == nil {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrNodeMissingGPUDeviceTopologyTree)
-	}
-	if gpuRequirements.gpuShared && gpuRequirements.numberOfGPUs > 1 {
-		return nil, fwktype.NewStatus(fwktype.UnschedulableAndUnresolvable, ErrUnsupportedMultiSharedGPU)
-	}
-	allocateResultInfo := allocateFromScope(gpuRequirements, gpuTopologyScope, allocateContext, ScopeLevelContext{
-		cumulativeNotEmpties: 0,
-		depth:                0,
-		contextOfDevices:     make(map[int]*DeviceLevelContext, len(gpuTopologyScope.minors)),
-	})
-	if allocateResultInfo == nil {
-		if gpuRequirements.requiredTopologyScope != "" {
-			return nil, fwktype.NewStatus(fwktype.Unschedulable, ErrInsufficientTopologyScopedGPUDevices)
-		}
-		return nil, fwktype.NewStatus(fwktype.Unschedulable, ErrInsufficientGPUDevices)
-	}
-	return allocateResultInfo.allocations, nil
+	_ = "STUB: not implemented"
+
+	// if allocateByDeviceTopology is not required and unsupported in some cases, then we can return nil instead of fwktype.UnschedulableAndUnresolvable to give the change of success
+	return nil, nil
 }
 
 type ScopeLevelContext struct {
@@ -355,97 +166,6 @@ type ScopeLevelAllocateResult struct {
 }
 
 func allocateFromScope(requirements *GPURequirements, scope *GPUTopologyScope, allocateContext *AllocateContext, scopeLevelContext ScopeLevelContext) *ScopeLevelAllocateResult {
-	if len(scope.minors) < requirements.numberOfGPUs {
-		return nil
-	}
-	scopeLevelContext.depth++
-	allocatedMinorHashOfScope := scope.minorsHash & allocateContext.deviceUsedMinorsHash
-	if allocatedMinorHashOfScope > 0 {
-		scopeLevelContext.cumulativeNotEmpties++
-	}
-	var bestAllocateResult *ScopeLevelAllocateResult
-	for _, childScope := range scope.childScopes {
-		if len(childScope.minors) < requirements.numberOfGPUs {
-			continue
-		}
-		allocateResultInfo := allocateFromScope(requirements, childScope, allocateContext, scopeLevelContext)
-		if allocateResultInfo != nil && len(allocateResultInfo.allocations) > 0 {
-			if bestAllocateResult == nil {
-				bestAllocateResult = allocateResultInfo
-				continue
-			}
-			if bestAllocateResult.depth < allocateResultInfo.depth ||
-				(bestAllocateResult.depth == allocateResultInfo.depth && bestAllocateResult.cumulativeNotEmpties < allocateResultInfo.cumulativeNotEmpties) {
-				bestAllocateResult = allocateResultInfo
-			}
-			if requirements.gpuShared &&
-				bestAllocateResult.depth == allocateResultInfo.depth &&
-				bestAllocateResult.cumulativeNotEmpties == allocateResultInfo.cumulativeNotEmpties &&
-				bestAllocateResult.score < allocateResultInfo.score {
-				bestAllocateResult = allocateResultInfo
-			}
-		}
-	}
-	if bestAllocateResult != nil && len(bestAllocateResult.allocations) > 0 {
-		return bestAllocateResult
-	}
-
-	if requirements.requiredTopologyScopeLevel > scope.scopeLevel {
-		return nil
-	}
-
-	var candidateMinors []int
-	bestMinorWhenShared := -1
-	bestScoreWhenShared := int64(-1)
-	var satisfied bool
-	for _, minor := range scope.minors {
-		totalResources := scope.minorsResources[minor]
-		freeResources := allocateContext.deviceFree[minor]
-		contextOfDevice, ok := scopeLevelContext.contextOfDevices[minor]
-		if !ok {
-			contextOfDevice = &DeviceLevelContext{}
-			scopeLevelContext.contextOfDevices[minor] = contextOfDevice
-			contextOfDevice.satisfied, _ = quotav1.LessThanOrEqual(requirements.requestsPerGPU, freeResources)
-			_, belongToTotal := allocateContext.deviceTotal[minor]
-			contextOfDevice.satisfied = contextOfDevice.satisfied && belongToTotal
-			if contextOfDevice.satisfied && requirements.gpuShared && allocateContext.allocationScorer != nil {
-				contextOfDevice.score = allocateContext.allocationScorer.scoreDevice(requirements.requestsPerGPU, freeResources, totalResources)
-			}
-		}
-		if !contextOfDevice.satisfied {
-			continue
-		}
-		if !requirements.gpuShared {
-			candidateMinors = append(candidateMinors, minor)
-			if len(candidateMinors) == requirements.numberOfGPUs {
-				satisfied = true
-				break
-			}
-			continue
-		}
-		satisfied = true
-		if contextOfDevice.score > bestScoreWhenShared {
-			bestMinorWhenShared = minor
-			bestScoreWhenShared = contextOfDevice.score
-		}
-	}
-	if !satisfied {
-		return nil
-	}
-	allocateResult := &ScopeLevelAllocateResult{
-		cumulativeNotEmpties: scopeLevelContext.cumulativeNotEmpties,
-		depth:                scopeLevelContext.depth,
-		score:                bestScoreWhenShared,
-	}
-	if requirements.gpuShared {
-		candidateMinors = append(candidateMinors, bestMinorWhenShared)
-	}
-	for _, minor := range candidateMinors {
-		allocateResult.allocations = append(allocateResult.allocations, &apiext.DeviceAllocation{
-			Minor:     int32(minor),
-			Resources: requirements.requestsPerGPU,
-		})
-	}
-	return allocateResult
-
+	_ = "STUB: not implemented"
+	return nil
 }

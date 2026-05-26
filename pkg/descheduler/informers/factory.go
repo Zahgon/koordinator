@@ -17,7 +17,6 @@ limitations under the License.
 package informers
 
 import (
-	"context"
 	"reflect"
 	"sync"
 	"time"
@@ -48,7 +47,6 @@ import (
 	storagemigration "k8s.io/client-go/informers/storagemigration"
 	"k8s.io/client-go/tools/cache"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.
@@ -67,171 +65,153 @@ type sharedInformerFactory struct {
 
 // WithCustomResyncConfig sets a custom resync period for the specified informer types.
 func WithCustomResyncConfig(resyncConfig map[v1.Object]time.Duration) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		for k, v := range resyncConfig {
-			factory.customResync[reflect.TypeOf(k)] = v
-		}
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // WithTweakListOptions sets a custom filter on all listers of the configured SharedInformerFactory.
 func WithTweakListOptions(tweakListOptions internalinterfaces.TweakListOptionsFunc) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		factory.tweakListOptions = tweakListOptions
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // WithNamespace limits the SharedInformerFactory to the specified namespace.
 func WithNamespace(namespace string) SharedInformerOption {
-	return func(factory *sharedInformerFactory) *sharedInformerFactory {
-		factory.namespace = namespace
-		return factory
-	}
+	_ = "STUB: not implemented"
+	return *new(SharedInformerOption)
 }
 
 // NewSharedInformerFactory constructs a new instance of sharedInformerFactory for all namespaces.
 func NewSharedInformerFactory(mgr ctrl.Manager, defaultResync time.Duration) informers.SharedInformerFactory {
-	return NewSharedInformerFactoryWithOptions(mgr, defaultResync)
+	_ = "STUB: not implemented"
+	return *new(informers.SharedInformerFactory)
 }
 
 // NewSharedInformerFactoryWithOptions constructs a new instance of a SharedInformerFactory with additional options.
 func NewSharedInformerFactoryWithOptions(mgr ctrl.Manager, defaultResync time.Duration, options ...SharedInformerOption) informers.SharedInformerFactory {
-	factory := &sharedInformerFactory{
-		manager:       mgr,
-		namespace:     v1.NamespaceAll,
-		defaultResync: defaultResync,
-		informers:     make(map[reflect.Type]cache.SharedIndexInformer),
-		customResync:  make(map[reflect.Type]time.Duration),
-	}
-
-	// Apply all options
-	for _, opt := range options {
-		factory = opt(factory)
-	}
-
-	return factory
+	_ = "STUB: not implemented"
+	return *new(informers.SharedInformerFactory)
 }
+
+// Apply all options
 
 // Start initializes all requested informers.
 func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
+	_ = "STUB: not implemented"
+
+	// WaitForCacheSync waits for all started informers' cache were synced.
+	return
 }
 
-// WaitForCacheSync waits for all started informers' cache were synced.
 func (f *sharedInformerFactory) WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool {
-	f.manager.GetCache().WaitForCacheSync(context.TODO())
-	f.lock.Lock()
-	defer f.lock.Unlock()
-
-	res := map[reflect.Type]bool{}
-	for k, v := range f.informers {
-		res[k] = v.HasSynced()
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // InformerFor returns the SharedIndexInformer for obj using an internal client.
 func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer {
-	gvk, err := apiutil.GVKForObject(obj, f.manager.GetScheme())
-	if err != nil {
-		panic(err)
-	}
-
-	f.lock.Lock()
-	defer f.lock.Unlock()
-
-	informer, err := f.manager.GetCache().GetInformerForKind(context.TODO(), gvk)
-	if err != nil {
-		panic(err)
-	}
-
-	sharedIndexerInformer := informer.(cache.SharedIndexInformer)
-	informerType := reflect.TypeOf(obj)
-	f.informers[informerType] = sharedIndexerInformer
-
-	return sharedIndexerInformer
+	_ = "STUB: not implemented"
+	return *new(cache.SharedIndexInformer)
 }
 
-func (f *sharedInformerFactory) Shutdown() {
-}
+func (f *sharedInformerFactory) Shutdown() { _ = "STUB: not implemented"; return }
 
 func (f *sharedInformerFactory) Admissionregistration() admissionregistration.Interface {
-	return admissionregistration.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(admissionregistration.Interface)
 }
 
 func (f *sharedInformerFactory) Internal() apiserverinternal.Interface {
-	return apiserverinternal.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(apiserverinternal.Interface)
 }
 
 func (f *sharedInformerFactory) Apps() apps.Interface {
-	return apps.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(apps.Interface)
 }
 
 func (f *sharedInformerFactory) Autoscaling() autoscaling.Interface {
-	return autoscaling.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(autoscaling.Interface)
 }
 
 func (f *sharedInformerFactory) Batch() batch.Interface {
-	return batch.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(batch.Interface)
 }
 
 func (f *sharedInformerFactory) Certificates() certificates.Interface {
-	return certificates.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(certificates.Interface)
 }
 
 func (f *sharedInformerFactory) Coordination() coordination.Interface {
-	return coordination.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(coordination.Interface)
 }
 
 func (f *sharedInformerFactory) Core() core.Interface {
-	return core.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(core.Interface)
 }
 
 func (f *sharedInformerFactory) Discovery() discovery.Interface {
-	return discovery.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(discovery.Interface)
 }
 
 func (f *sharedInformerFactory) Events() events.Interface {
-	return events.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(events.Interface)
 }
 
 func (f *sharedInformerFactory) Extensions() extensions.Interface {
-	return extensions.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(extensions.Interface)
 }
 
 func (f *sharedInformerFactory) Flowcontrol() flowcontrol.Interface {
-	return flowcontrol.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(flowcontrol.Interface)
 }
 
 func (f *sharedInformerFactory) Networking() networking.Interface {
-	return networking.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(networking.Interface)
 }
 
 func (f *sharedInformerFactory) Node() node.Interface {
-	return node.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(node.Interface)
 }
 
 func (f *sharedInformerFactory) Policy() policy.Interface {
-	return policy.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(policy.Interface)
 }
 
 func (f *sharedInformerFactory) Rbac() rbac.Interface {
-	return rbac.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(rbac.Interface)
 }
 
 func (f *sharedInformerFactory) Resource() resource.Interface {
-	return resource.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(resource.Interface)
 }
 
 func (f *sharedInformerFactory) Scheduling() scheduling.Interface {
-	return scheduling.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(scheduling.Interface)
 }
 
 func (f *sharedInformerFactory) Storage() storage.Interface {
-	return storage.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(storage.Interface)
 }
 
 func (f *sharedInformerFactory) Storagemigration() storagemigration.Interface {
-	return storagemigration.New(f, f.namespace, f.tweakListOptions)
+	_ = "STUB: not implemented"
+	return *new(storagemigration.Interface)
 }

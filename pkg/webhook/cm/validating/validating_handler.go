@@ -18,21 +18,13 @@ package validating
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"time"
 
-	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/koordinator-sh/koordinator/pkg/util"
 	"github.com/koordinator-sh/koordinator/pkg/webhook/cm/plugins"
-	"github.com/koordinator-sh/koordinator/pkg/webhook/cm/plugins/sloconfig"
-	"github.com/koordinator-sh/koordinator/pkg/webhook/metrics"
 )
 
 // +kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch
@@ -45,103 +37,45 @@ type ConfigMapValidatingHandler struct {
 }
 
 func NewConfigMapValidatingHandler(c client.Client, d admission.Decoder) *ConfigMapValidatingHandler {
-	handler := &ConfigMapValidatingHandler{
-		Client:  c,
-		Decoder: d,
-	}
-	return handler
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ admission.Handler = &ConfigMapValidatingHandler{}
 
 func ShouldIgnoreIfNotConfigMap(req admission.Request) bool {
+	_ = "STUB: not implemented"
 	// Ignore all calls to sub resources or resources other than configmaps.
-	if len(req.AdmissionRequest.SubResource) != 0 ||
-		req.AdmissionRequest.Resource.Resource != "configmaps" {
-		return true
-	}
 	return false
 }
 
 // Handle handles admission requests.
 func (h *ConfigMapValidatingHandler) Handle(ctx context.Context, req admission.Request) (resp admission.Response) {
-	klog.V(3).Infof("enter validating handler,type:%v,name:%v,user:%s", req.Kind, req.Name, req.UserInfo.Username)
-	if ShouldIgnoreIfNotConfigMap(req) {
-		return admission.ValidationResponse(true, "")
-	}
-
-	obj, oldObj := newDecodeObj()
-	var err error
-	if req.Operation != admissionv1.Delete {
-		err = h.Decoder.Decode(req, obj)
-		if err != nil {
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-	} else {
-		if len(req.OldObject.Raw) != 0 {
-			if err = h.Decoder.DecodeRaw(req.OldObject, obj); err != nil {
-				return admission.Errored(http.StatusBadRequest, err)
-			}
-		}
-	}
-
-	if req.Operation == admissionv1.Update {
-		err = h.Decoder.DecodeRaw(req.OldObject, oldObj)
-		if err != nil {
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-	}
-
-	defer func() {
-		if !resp.Allowed {
-			klog.Warningf("Webhook finish validating info %s, allowed: %v, result: %v",
-				getCMInfo(obj), resp.Allowed, util.DumpJSON(resp.Result))
-		}
-	}()
-
-	pls := h.getPlugins()
-
-	for _, plugin := range pls {
-		start := time.Now()
-		if err = plugin.Validate(ctx, req, obj, oldObj); err != nil {
-			metrics.RecordWebhookDurationMilliseconds(metrics.ValidatingWebhook,
-				metrics.ConfigMap, string(req.Operation), err, plugin.Name(), time.Since(start).Seconds())
-			return admission.Errored(http.StatusBadRequest, err)
-		}
-		metrics.RecordWebhookDurationMilliseconds(metrics.ValidatingWebhook,
-			metrics.ConfigMap, string(req.Operation), nil, plugin.Name(), time.Since(start).Seconds())
-	}
-
-	return admission.ValidationResponse(true, "")
+	_ = "STUB: not implemented"
+	return *new(admission.Response)
 }
 
 func (h *ConfigMapValidatingHandler) getPlugins() []plugins.ConfigMapPlugin {
-	return []plugins.ConfigMapPlugin{sloconfig.NewPlugin(h.Decoder, h.Client)}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // var _ inject.Client = &ConfigMapValidatingHandler{}
 
 // InjectClient injects the client into the ValidatingHandler
 func (h *ConfigMapValidatingHandler) InjectClient(c client.Client) error {
-	h.Client = c
+	_ = "STUB: not implemented"
 	return nil
-}
 
-// var _ admission.DecoderInjector = &ConfigMapValidatingHandler{}
+	// var _ admission.DecoderInjector = &ConfigMapValidatingHandler{}
+}
 
 // InjectDecoder injects the decoder into the ValidatingHandler
 func (h *ConfigMapValidatingHandler) InjectDecoder(d admission.Decoder) error {
-	h.Decoder = d
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func newDecodeObj() (obj, oldObj *corev1.ConfigMap) {
-	obj = &corev1.ConfigMap{}
-	oldObj = &corev1.ConfigMap{}
-	return obj, oldObj
-}
+func newDecodeObj() (obj, oldObj *corev1.ConfigMap) { _ = "STUB: not implemented"; return nil, nil }
 
-func getCMInfo(obj runtime.Object) string {
-	cm := obj.(*corev1.ConfigMap)
-	return fmt.Sprintf("configMap %s/%s", cm.Namespace, cm.Name)
-}
+func getCMInfo(obj runtime.Object) string { _ = "STUB: not implemented"; return "" }

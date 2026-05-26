@@ -40,10 +40,11 @@ type nodeValidateBuilder struct {
 }
 
 func (b *nodeValidateBuilder) WithControllerManager(mgr ctrl.Manager) framework.HandlerBuilder {
-	b.mgr = mgr
-	return b
+	_ = "STUB: not implemented"
+	return *new(framework.HandlerBuilder)
 }
 
 func (b *nodeValidateBuilder) Build() admission.Handler {
-	return NewNodeValidatingHandler(b.mgr.GetClient(), admission.NewDecoder(b.mgr.GetScheme()))
+	_ = "STUB: not implemented"
+	return *new(admission.Handler)
 }

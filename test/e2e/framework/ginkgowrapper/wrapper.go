@@ -20,14 +20,7 @@ limitations under the License.
 package ginkgowrapper
 
 import (
-	"bufio"
-	"bytes"
 	"regexp"
-	"runtime"
-	"runtime/debug"
-	"strings"
-
-	"github.com/onsi/ginkgo/v2"
 )
 
 // FailurePanic is the value that will be panicked from Fail.
@@ -39,62 +32,25 @@ type FailurePanic struct {
 }
 
 // String makes FailurePanic look like the old Ginkgo panic when printed.
-func (FailurePanic) String() string {
-	ginkgo.Fail("Test failed due to panic", 1)
-	return "panic"
-}
+func (FailurePanic) String() string { _ = "STUB: not implemented"; return "" }
 
 // Fail wraps ginkgo.Fail so that it panics with more useful
 // information about the failure. This function will panic with a
 // FailurePanic.
-func Fail(message string, callerSkip ...int) {
-	skip := 1
-	if len(callerSkip) > 0 {
-		skip += callerSkip[0]
-	}
-
-	_, file, line, _ := runtime.Caller(skip)
-	fp := FailurePanic{
-		Message:        message,
-		Filename:       file,
-		Line:           line,
-		FullStackTrace: pruneStack(skip),
-	}
-
-	defer func() {
-		e := recover()
-		if e != nil {
-			panic(fp)
-		}
-	}()
-
-	ginkgo.Fail(message, skip)
-}
+func Fail(message string, callerSkip ...int) { _ = "STUB: not implemented"; return }
 
 // ginkgo adds a lot of test running infrastructure to the stack, so
 // we filter those out
 var stackSkipPattern = regexp.MustCompile(`onsi/ginkgo`)
 
 func pruneStack(skip int) string {
-	skip += 2 // one for pruneStack and one for debug.Stack
-	stack := debug.Stack()
-	scanner := bufio.NewScanner(bytes.NewBuffer(stack))
-	var prunedStack []string
-
-	// skip the top of the stack
-	for i := 0; i < 2*skip+1; i++ {
-		scanner.Scan()
-	}
-
-	for scanner.Scan() {
-		if stackSkipPattern.Match(scanner.Bytes()) {
-			scanner.Scan() // these come in pairs
-		} else {
-			prunedStack = append(prunedStack, scanner.Text())
-			scanner.Scan() // these come in pairs
-			prunedStack = append(prunedStack, scanner.Text())
-		}
-	}
-
-	return strings.Join(prunedStack, "\n")
+	_ = "STUB: not implemented"
+	// one for pruneStack and one for debug.Stack
+	return ""
 }
+
+// skip the top of the stack
+
+// these come in pairs
+
+// these come in pairs

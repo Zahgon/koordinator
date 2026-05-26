@@ -16,10 +16,6 @@ limitations under the License.
 
 package extension
 
-import (
-	"encoding/json"
-)
-
 const (
 	AnnotationNodeSystemQOSResource = NodeDomainPrefix + "/system-qos-resource"
 )
@@ -33,21 +29,12 @@ type SystemQOSResource struct {
 }
 
 func (r *SystemQOSResource) IsCPUSetExclusive() bool {
+	_ = "STUB: not implemented"
 	// CPUSetExclusive default is true
-	return r.CPUSetExclusive == nil || *r.CPUSetExclusive
+	return false
 }
 
 func GetSystemQOSResource(anno map[string]string) (*SystemQOSResource, error) {
-	if anno == nil {
-		return nil, nil
-	}
-	systemQOSRes := &SystemQOSResource{}
-	data, ok := anno[AnnotationNodeSystemQOSResource]
-	if !ok {
-		return systemQOSRes, nil
-	}
-	if err := json.Unmarshal([]byte(data), systemQOSRes); err != nil {
-		return nil, err
-	}
-	return systemQOSRes, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

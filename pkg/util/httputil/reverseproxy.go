@@ -23,19 +23,12 @@ limitations under the License.
 package httputil
 
 import (
-	"context"
-	"fmt"
 	"io"
 	"log"
-	"net"
 	"net/http"
-	"net/textproto"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/net/http/httpguts"
 )
 
 // ReverseProxy is an HTTP Handler that takes an incoming request and
@@ -115,38 +108,12 @@ type BufferPool interface {
 	Put([]byte)
 }
 
-func singleJoiningSlash(a, b string) string {
-	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasPrefix(b, "/")
-	switch {
-	case aslash && bslash:
-		return a + b[1:]
-	case !aslash && !bslash:
-		return a + "/" + b
-	}
-	return a + b
-}
+func singleJoiningSlash(a, b string) string { _ = "STUB: not implemented"; return "" }
 
-func joinURLPath(a, b *url.URL) (path, rawpath string) {
-	if a.RawPath == "" && b.RawPath == "" {
-		return singleJoiningSlash(a.Path, b.Path), ""
-	}
-	// Same as singleJoiningSlash, but uses EscapedPath to determine
-	// whether a slash should be added
-	apath := a.EscapedPath()
-	bpath := b.EscapedPath()
+func joinURLPath(a, b *url.URL) (path, rawpath string) { _ = "STUB: not implemented"; return "", "" }
 
-	aslash := strings.HasSuffix(apath, "/")
-	bslash := strings.HasPrefix(bpath, "/")
-
-	switch {
-	case aslash && bslash:
-		return a.Path + b.Path[1:], apath + bpath[1:]
-	case !aslash && !bslash:
-		return a.Path + "/" + b.Path, apath + "/" + bpath
-	}
-	return a.Path + b.Path, apath + bpath
-}
+// Same as singleJoiningSlash, but uses EscapedPath to determine
+// whether a slash should be added
 
 // NewSingleHostReverseProxy returns a new ReverseProxy that routes
 // URLs to the scheme, host, and base path provided in target. If the
@@ -156,31 +123,13 @@ func joinURLPath(a, b *url.URL) (path, rawpath string) {
 // To rewrite Host headers, use ReverseProxy directly with a custom
 // Director policy.
 func NewSingleHostReverseProxy(target *url.URL) *ReverseProxy {
-	targetQuery := target.RawQuery
-	director := func(req *http.Request) {
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.URL.Path, req.URL.RawPath = joinURLPath(target, req.URL)
-		if targetQuery == "" || req.URL.RawQuery == "" {
-			req.URL.RawQuery = targetQuery + req.URL.RawQuery
-		} else {
-			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
-		}
-		if _, ok := req.Header["User-Agent"]; !ok {
-			// explicitly disable User-Agent so it's not set to default value
-			req.Header.Set("User-Agent", "")
-		}
-	}
-	return &ReverseProxy{Director: director}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func copyHeader(dst, src http.Header) {
-	for k, vv := range src {
-		for _, v := range vv {
-			dst.Add(k, v)
-		}
-	}
-}
+// explicitly disable User-Agent so it's not set to default value
+
+func copyHeader(dst, src http.Header) { _ = "STUB: not implemented"; return }
 
 // Hop-by-hop headers. These are removed when sent to the backend.
 // As of RFC 7230, hop-by-hop headers are required to appear in the
@@ -200,187 +149,71 @@ var hopHeaders = []string{
 }
 
 func (p *ReverseProxy) defaultErrorHandler(rw http.ResponseWriter, req *http.Request, err error) {
-	p.logf("http: proxy error: %v", err)
-	rw.WriteHeader(http.StatusBadGateway)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ReverseProxy) getErrorHandler() func(http.ResponseWriter, *http.Request, error) {
-	if p.ErrorHandler != nil {
-		return p.ErrorHandler
-	}
-	return p.defaultErrorHandler
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // modifyResponse conditionally runs the optional ModifyResponse hook
 // and reports whether the request should proceed.
 func (p *ReverseProxy) modifyResponse(rw http.ResponseWriter, res *http.Response, req *http.Request) bool {
-	if p.ModifyResponse == nil {
-		return true
-	}
-	if err := p.ModifyResponse(res); err != nil {
-		res.Body.Close()
-		p.getErrorHandler()(rw, req, err)
-		return false
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *ReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	transport := p.Transport
-	if transport == nil {
-		transport = http.DefaultTransport
-	}
-
-	ctx := req.Context()
-	if cn, ok := rw.(http.CloseNotifier); ok {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithCancel(ctx)
-		defer cancel()
-		notifyChan := cn.CloseNotify()
-		go func() {
-			select {
-			case <-notifyChan:
-				cancel()
-			case <-ctx.Done():
-			}
-		}()
-	}
-
-	outreq := req.Clone(ctx)
-	if req.ContentLength == 0 {
-		outreq.Body = nil // Issue 16036: nil Body for http.Transport retries
-	}
-	if outreq.Body != nil {
-		// Reading from the request body after returning from a handler is not
-		// allowed, and the RoundTrip goroutine that reads the Body can outlive
-		// this handler. This can lead to a crash if the handler panics (see
-		// Issue 46866). Although calling Close doesn't guarantee there isn't
-		// any Read in flight after the handle returns, in practice it's safe to
-		// read after closing it.
-		defer outreq.Body.Close()
-	}
-	if outreq.Header == nil {
-		outreq.Header = make(http.Header) // Issue 33142: historical behavior was to always allocate
-	}
-
-	p.Director(outreq)
-	outreq.Close = false
-
-	reqUpType := upgradeType(outreq.Header)
-	removeConnectionHeaders(outreq.Header)
-
-	// Remove hop-by-hop headers to the backend. Especially
-	// important is "Connection" because we want a persistent
-	// connection, regardless of what the client sent to us.
-	for _, h := range hopHeaders {
-		outreq.Header.Del(h)
-	}
-
-	// Issue 21096: tell backend applications that care about trailer support
-	// that we support trailers. (We do, but we don't go out of our way to
-	// advertise that unless the incoming client request thought it was worth
-	// mentioning.) Note that we look at req.Header, not outreq.Header, since
-	// the latter has passed through removeConnectionHeaders.
-	if httpguts.HeaderValuesContainsToken(req.Header["Te"], "trailers") {
-		outreq.Header.Set("Te", "trailers")
-	}
-
-	// After stripping all the hop-by-hop connection headers above, add back any
-	// necessary for protocol upgrades, such as for websockets.
-	if reqUpType != "" {
-		outreq.Header.Set("Connection", "Upgrade")
-		outreq.Header.Set("Upgrade", reqUpType)
-	}
-
-	if clientIP, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
-		// If we aren't the first proxy retain prior
-		// X-Forwarded-For information as a comma+space
-		// separated list and fold multiple headers into one.
-		prior, ok := outreq.Header["X-Forwarded-For"]
-		omit := ok && prior == nil // Issue 38079: nil now means don't populate the header
-		if len(prior) > 0 {
-			clientIP = strings.Join(prior, ", ") + ", " + clientIP
-		}
-		if !omit {
-			outreq.Header.Set("X-Forwarded-For", clientIP)
-		}
-	}
-
-	res, err := transport.RoundTrip(outreq)
-	if err != nil {
-		p.getErrorHandler()(rw, outreq, err)
-		return
-	}
-
-	// Deal with 101 Switching Protocols responses: (WebSocket, h2c, etc)
-	if res.StatusCode == http.StatusSwitchingProtocols {
-		if !p.modifyResponse(rw, res, outreq) {
-			return
-		}
-		p.handleUpgradeResponse(rw, outreq, res)
-		return
-	}
-
-	removeConnectionHeaders(res.Header)
-
-	for _, h := range hopHeaders {
-		res.Header.Del(h)
-	}
-
-	if !p.modifyResponse(rw, res, outreq) {
-		return
-	}
-
-	copyHeader(rw.Header(), res.Header)
-
-	// The "Trailer" header isn't included in the Transport's response,
-	// at least for *http.Transport. Build it up from Trailer.
-	announcedTrailers := len(res.Trailer)
-	if announcedTrailers > 0 {
-		trailerKeys := make([]string, 0, len(res.Trailer))
-		for k := range res.Trailer {
-			trailerKeys = append(trailerKeys, k)
-		}
-		rw.Header().Add("Trailer", strings.Join(trailerKeys, ", "))
-	}
-
-	rw.WriteHeader(res.StatusCode)
-
-	err = p.copyResponse(rw, res.Body, p.flushInterval(res))
-	if err != nil {
-		defer res.Body.Close()
-		// Since we're streaming the response, if we run into an error all we can do
-		// is abort the request. Issue 23643: ReverseProxy should use ErrAbortHandler
-		// on read error while copying body.
-		if !shouldPanicOnCopyError(req) {
-			p.logf("suppressing panic for copyResponse error in test; copy error: %v", err)
-			return
-		}
-		panic(http.ErrAbortHandler)
-	}
-	res.Body.Close() // close now, instead of defer, to populate res.Trailer
-
-	if len(res.Trailer) > 0 {
-		// Force chunking if we saw a response trailer.
-		// This prevents net/http from calculating the length for short
-		// bodies and adding a Content-Length.
-		if fl, ok := rw.(http.Flusher); ok {
-			fl.Flush()
-		}
-	}
-
-	if len(res.Trailer) == announcedTrailers {
-		copyHeader(rw.Header(), res.Trailer)
-		return
-	}
-
-	for k, vv := range res.Trailer {
-		k = http.TrailerPrefix + k
-		for _, v := range vv {
-			rw.Header().Add(k, v)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Issue 16036: nil Body for http.Transport retries
+
+// Reading from the request body after returning from a handler is not
+// allowed, and the RoundTrip goroutine that reads the Body can outlive
+// this handler. This can lead to a crash if the handler panics (see
+// Issue 46866). Although calling Close doesn't guarantee there isn't
+// any Read in flight after the handle returns, in practice it's safe to
+// read after closing it.
+
+// Issue 33142: historical behavior was to always allocate
+
+// Remove hop-by-hop headers to the backend. Especially
+// important is "Connection" because we want a persistent
+// connection, regardless of what the client sent to us.
+
+// Issue 21096: tell backend applications that care about trailer support
+// that we support trailers. (We do, but we don't go out of our way to
+// advertise that unless the incoming client request thought it was worth
+// mentioning.) Note that we look at req.Header, not outreq.Header, since
+// the latter has passed through removeConnectionHeaders.
+
+// After stripping all the hop-by-hop connection headers above, add back any
+// necessary for protocol upgrades, such as for websockets.
+
+// If we aren't the first proxy retain prior
+// X-Forwarded-For information as a comma+space
+// separated list and fold multiple headers into one.
+
+// Issue 38079: nil now means don't populate the header
+
+// Deal with 101 Switching Protocols responses: (WebSocket, h2c, etc)
+
+// The "Trailer" header isn't included in the Transport's response,
+// at least for *http.Transport. Build it up from Trailer.
+
+// Since we're streaming the response, if we run into an error all we can do
+// is abort the request. Issue 23643: ReverseProxy should use ErrAbortHandler
+// on read error while copying body.
+
+// close now, instead of defer, to populate res.Trailer
+
+// Force chunking if we saw a response trailer.
+// This prevents net/http from calculating the length for short
+// bodies and adding a Content-Length.
 
 var inOurTests bool // whether we're in our own tests
 
@@ -390,117 +223,51 @@ var inOurTests bool // whether we're in our own tests
 // weren't expecting panics. Only panic in our own tests, or when
 // running under the HTTP server.
 func shouldPanicOnCopyError(req *http.Request) bool {
-	if inOurTests {
-		// Our tests know to handle this panic.
-		return true
-	}
-	if req.Context().Value(http.ServerContextKey) != nil {
-		// We seem to be running under an HTTP server, so
-		// it'll recover the panic.
-		return true
-	}
-	// Otherwise act like Go 1.10 and earlier to not break
-	// existing tests.
+	_ = "STUB: not implemented"
+
+	// Our tests know to handle this panic.
 	return false
 }
 
+// We seem to be running under an HTTP server, so
+// it'll recover the panic.
+
+// Otherwise act like Go 1.10 and earlier to not break
+// existing tests.
+
 // removeConnectionHeaders removes hop-by-hop headers listed in the "Connection" header of h.
 // See RFC 7230, section 6.1
-func removeConnectionHeaders(h http.Header) {
-	for _, f := range h["Connection"] {
-		for _, sf := range strings.Split(f, ",") {
-			if sf = textproto.TrimString(sf); sf != "" {
-				h.Del(sf)
-			}
-		}
-	}
-}
+func removeConnectionHeaders(h http.Header) { _ = "STUB: not implemented"; return }
 
 // flushInterval returns the p.FlushInterval value, conditionally
 // overriding its value for a specific request/response.
 func (p *ReverseProxy) flushInterval(res *http.Response) time.Duration {
-	resCT := res.Header.Get("Content-Type")
-
-	// For Server-Sent Events responses, flush immediately.
-	// The MIME type is defined in https://www.w3.org/TR/eventsource/#text-event-stream
-	if resCT == "text/event-stream" {
-		return -1 // negative means immediately
-	}
-
-	// We might have the case of streaming for which Content-Length might be unset.
-	if res.ContentLength == -1 {
-		return -1
-	}
-
-	return p.FlushInterval
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
+
+// For Server-Sent Events responses, flush immediately.
+// The MIME type is defined in https://www.w3.org/TR/eventsource/#text-event-stream
+
+// negative means immediately
+
+// We might have the case of streaming for which Content-Length might be unset.
 
 func (p *ReverseProxy) copyResponse(dst io.Writer, src io.Reader, flushInterval time.Duration) error {
-	if flushInterval != 0 {
-		if wf, ok := dst.(writeFlusher); ok {
-			mlw := &maxLatencyWriter{
-				dst:     wf,
-				latency: flushInterval,
-			}
-			defer mlw.stop()
-
-			// set up initial timer so headers get flushed even if body writes are delayed
-			mlw.flushPending = true
-			mlw.t = time.AfterFunc(flushInterval, mlw.delayedFlush)
-
-			dst = mlw
-		}
-	}
-
-	var buf []byte
-	if p.BufferPool != nil {
-		buf = p.BufferPool.Get()
-		defer p.BufferPool.Put(buf)
-	}
-	_, err := p.copyBuffer(dst, src, buf)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// set up initial timer so headers get flushed even if body writes are delayed
 
 // copyBuffer returns any write errors or non-EOF read errors, and the amount
 // of bytes written.
 func (p *ReverseProxy) copyBuffer(dst io.Writer, src io.Reader, buf []byte) (int64, error) {
-	if len(buf) == 0 {
-		buf = make([]byte, 32*1024)
-	}
-	var written int64
-	for {
-		nr, rerr := src.Read(buf)
-		if rerr != nil && rerr != io.EOF && rerr != context.Canceled {
-			p.logf("httputil: ReverseProxy read error during body copy: %v", rerr)
-		}
-		if nr > 0 {
-			nw, werr := dst.Write(buf[:nr])
-			if nw > 0 {
-				written += int64(nw)
-			}
-			if werr != nil {
-				return written, werr
-			}
-			if nr != nw {
-				return written, io.ErrShortWrite
-			}
-		}
-		if rerr != nil {
-			if rerr == io.EOF {
-				rerr = nil
-			}
-			return written, rerr
-		}
-	}
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
-func (p *ReverseProxy) logf(format string, args ...interface{}) {
-	if p.ErrorLog != nil {
-		p.ErrorLog.Printf(format, args...)
-	} else {
-		log.Printf(format, args...)
-	}
-}
+func (p *ReverseProxy) logf(format string, args ...interface{}) { _ = "STUB: not implemented"; return }
 
 type writeFlusher interface {
 	io.Writer
@@ -517,120 +284,27 @@ type maxLatencyWriter struct {
 }
 
 func (m *maxLatencyWriter) Write(p []byte) (n int, err error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	n, err = m.dst.Write(p)
-	if m.latency < 0 {
-		m.dst.Flush()
-		return
-	}
-	if m.flushPending {
-		return
-	}
-	if m.t == nil {
-		m.t = time.AfterFunc(m.latency, m.delayedFlush)
-	} else {
-		m.t.Reset(m.latency)
-	}
-	m.flushPending = true
-	return
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
-func (m *maxLatencyWriter) delayedFlush() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if !m.flushPending { // if stop was called but AfterFunc already started this goroutine
-		return
-	}
-	m.dst.Flush()
-	m.flushPending = false
-}
+func (m *maxLatencyWriter) delayedFlush() { _ = "STUB: not implemented"; return }
 
-func (m *maxLatencyWriter) stop() {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.flushPending = false
-	if m.t != nil {
-		m.t.Stop()
-	}
-}
+// if stop was called but AfterFunc already started this goroutine
 
-func upgradeType(h http.Header) string {
-	if !httpguts.HeaderValuesContainsToken(h["Connection"], "Upgrade") {
-		return ""
-	}
-	return strings.ToLower(h.Get("Upgrade"))
-}
+func (m *maxLatencyWriter) stop() { _ = "STUB: not implemented"; return }
+
+func upgradeType(h http.Header) string { _ = "STUB: not implemented"; return "" }
 
 func (p *ReverseProxy) handleUpgradeResponse(rw http.ResponseWriter, req *http.Request, res *http.Response) {
-	reqUpType := upgradeType(req.Header)
-	resUpType := upgradeType(res.Header)
-	if reqUpType != resUpType {
-		p.getErrorHandler()(rw, req, fmt.Errorf("backend tried to switch protocol %q when %q was requested", resUpType, reqUpType))
-		return
-	}
-
-	hj, ok := rw.(http.Hijacker)
-	if !ok {
-		p.getErrorHandler()(rw, req, fmt.Errorf("can't switch protocols using non-Hijacker ResponseWriter type %T", rw))
-		return
-	}
-	backConn, ok := res.Body.(io.ReadWriteCloser)
-	if !ok {
-		p.getErrorHandler()(rw, req, fmt.Errorf("internal error: 101 switching protocols response with non-writable body"))
-		return
-	}
-
-	backConnCloseCh := make(chan bool)
-	go func() {
-		// Ensure that the cancelation of a request closes the backend.
-		// See issue https://golang.org/issue/35559.
-		select {
-		case <-req.Context().Done():
-		case <-backConnCloseCh:
-		}
-		backConn.Close()
-	}()
-
-	defer close(backConnCloseCh)
-
-	conn, brw, err := hj.Hijack()
-	if err != nil {
-		p.getErrorHandler()(rw, req, fmt.Errorf("hijack failed on protocol switch: %v", err))
-		return
-	}
-	defer conn.Close()
-
-	copyHeader(rw.Header(), res.Header)
-
-	res.Header = rw.Header()
-	res.Body = nil // so res.Write only writes the headers; we have res.Body in backConn above
-	if err := res.Write(brw); err != nil {
-		p.getErrorHandler()(rw, req, fmt.Errorf("response write: %v", err))
-		return
-	}
-	if err := brw.Flush(); err != nil {
-		p.getErrorHandler()(rw, req, fmt.Errorf("response flush: %v", err))
-		return
-	}
-	stdoutDone := make(chan error)
-	stdinDone := make(chan struct{})
-	spc := switchProtocolCopier{user: conn, backend: backConn}
-	go func() {
-		spc.copyToBackend()
-		if c, ok := backConn.(CloseWriter); ok {
-			c.CloseWrite()
-		}
-		close(stdinDone)
-	}()
-	go spc.copyFromBackend(stdoutDone)
-	select {
-	case <-stdoutDone:
-	case <-stdinDone:
-		<-stdoutDone
-	}
+	_ = "STUB: not implemented"
 	return
 }
+
+// Ensure that the cancelation of a request closes the backend.
+// See issue https://golang.org/issue/35559.
+
+// so res.Write only writes the headers; we have res.Body in backConn above
 
 // CloseWriter implement CloseWrite method
 type CloseWriter interface {
@@ -643,12 +317,6 @@ type switchProtocolCopier struct {
 	user, backend io.ReadWriter
 }
 
-func (c switchProtocolCopier) copyFromBackend(errc chan<- error) {
-	_, err := io.Copy(c.user, c.backend)
-	errc <- err
-}
+func (c switchProtocolCopier) copyFromBackend(errc chan<- error) { _ = "STUB: not implemented"; return }
 
-func (c switchProtocolCopier) copyToBackend() error {
-	_, err := io.Copy(c.backend, c.user)
-	return err
-}
+func (c switchProtocolCopier) copyToBackend() error { _ = "STUB: not implemented"; return nil }

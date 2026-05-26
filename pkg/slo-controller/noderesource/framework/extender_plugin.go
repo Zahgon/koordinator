@@ -18,10 +18,8 @@ package framework
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 
 	"github.com/koordinator-sh/koordinator/apis/configuration"
-	"github.com/koordinator-sh/koordinator/pkg/slo-controller/metrics"
 )
 
 // The plugins called in the node resource initialization:
@@ -56,31 +54,13 @@ type SetupPlugin interface {
 }
 
 func RegisterSetupExtender(filter FilterFn, plugins ...SetupPlugin) {
-	ps := make([]Plugin, 0, len(plugins))
-	for i := range plugins {
-		if filter(plugins[i].Name()) {
-			ps = append(ps, plugins[i])
-		}
-	}
-	globalSetupExtender.MustRegister(ps...)
+	_ = "STUB: not implemented"
+	return
 }
 
-func RunSetupExtenders(opt *Option) {
-	for _, p := range globalSetupExtender.GetAll() {
-		plugin := p.(SetupPlugin)
-		if err := plugin.Setup(opt); err != nil {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), false, "Setup")
-			klog.ErrorS(err, "run setup plugin failed", "plugin", plugin.Name())
-		} else {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "Setup")
-			klog.V(5).InfoS("run setup plugin successfully", "plugin", plugin.Name())
-		}
-	}
-}
+func RunSetupExtenders(opt *Option) { _ = "STUB: not implemented"; return }
 
-func UnregisterSetupExtender(name string) {
-	globalSetupExtender.Unregister(name)
-}
+func UnregisterSetupExtender(name string) { _ = "STUB: not implemented"; return }
 
 // NodePreUpdatePlugin implements preprocessing for the calculated results called before updating the Node.
 // There are mainly two use cases for this stage:
@@ -95,33 +75,16 @@ type NodePreUpdatePlugin interface {
 }
 
 func RegisterNodePreUpdateExtender(filter FilterFn, plugins ...NodePreUpdatePlugin) {
-	ps := make([]Plugin, 0, len(plugins))
-	for i := range plugins {
-		if filter(plugins[i].Name()) {
-			ps = append(ps, plugins[i])
-		}
-	}
-	globalNodePreUpdateExtender.MustRegister(ps...)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RunNodePreUpdateExtenders(strategy *configuration.ColocationStrategy, node *corev1.Node, nr *NodeResource) {
-	for _, p := range globalNodePreUpdateExtender.GetAll() {
-		plugin := p.(NodePreUpdatePlugin)
-		if err := plugin.PreUpdate(strategy, node, nr); err != nil {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), false, "NodePreUpdate")
-			klog.ErrorS(err, "run node pre update plugin failed", "plugin", plugin.Name(),
-				"node", node.Name)
-		} else {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "NodePreUpdate")
-			klog.V(5).InfoS("run node pre update plugin successfully", "plugin", plugin.Name(),
-				"node", node.Name)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func UnregisterNodePreUpdateExtender(name string) {
-	globalNodePreUpdateExtender.Unregister(name)
-}
+func UnregisterNodePreUpdateExtender(name string) { _ = "STUB: not implemented"; return }
 
 // NodePreparePlugin implements node resource preparing for the calculated results.
 // For example, assign extended resources in the node allocatable.
@@ -133,33 +96,16 @@ type NodePreparePlugin interface {
 }
 
 func RegisterNodePrepareExtender(filter FilterFn, plugins ...NodePreparePlugin) {
-	ps := make([]Plugin, 0, len(plugins))
-	for i := range plugins {
-		if filter(plugins[i].Name()) {
-			ps = append(ps, plugins[i])
-		}
-	}
-	globalNodePrepareExtender.MustRegister(ps...)
+	_ = "STUB: not implemented"
+	return
 }
 
 func RunNodePrepareExtenders(strategy *configuration.ColocationStrategy, node *corev1.Node, nr *NodeResource) {
-	for _, p := range globalNodePrepareExtender.GetAll() {
-		plugin := p.(NodePreparePlugin)
-		if err := plugin.Prepare(strategy, node, nr); err != nil {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), false, "NodePrepare")
-			klog.ErrorS(err, "run node prepare plugin failed", "plugin", plugin.Name(),
-				"node", node.Name)
-		} else {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "NodePrepare")
-			klog.V(5).InfoS("run node prepare plugin successfully", "plugin", plugin.Name(),
-				"node", node.Name)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func UnregisterNodePrepareExtender(name string) {
-	globalNodePrepareExtender.Unregister(name)
-}
+func UnregisterNodePrepareExtender(name string) { _ = "STUB: not implemented"; return }
 
 // NodeStatusCheckPlugin implements the check of resource updating.
 // For example, trigger an update if the values of the current is more than 10% different with the former.
@@ -169,33 +115,14 @@ type NodeStatusCheckPlugin interface {
 }
 
 func RegisterNodeStatusCheckExtender(filter FilterFn, plugins ...NodeStatusCheckPlugin) {
-	ps := make([]Plugin, 0, len(plugins))
-	for i := range plugins {
-		if filter(plugins[i].Name()) {
-			ps = append(ps, plugins[i])
-		}
-	}
-	globalNodeStatusCheckExtender.MustRegister(ps...)
+	_ = "STUB: not implemented"
+	return
 }
 
-func UnregisterNodeStatusCheckExtender(name string) {
-	globalNodeStatusCheckExtender.Unregister(name)
-}
+func UnregisterNodeStatusCheckExtender(name string) { _ = "STUB: not implemented"; return }
 
 func RunNodeStatusCheckExtenders(strategy *configuration.ColocationStrategy, oldNode, newNode *corev1.Node) bool {
-	for _, p := range globalNodeStatusCheckExtender.GetAll() {
-		plugin := p.(NodeStatusCheckPlugin)
-		needSync, msg := plugin.NeedSync(strategy, oldNode, newNode)
-		metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "NodeStatusCheck")
-		if needSync {
-			klog.V(4).InfoS("run node status check plugin, need sync", "plugin", plugin.Name(),
-				"node", newNode.Name, "message", msg)
-			return true
-		} else {
-			klog.V(6).InfoS("run node status check plugin, no need to sync", "plugin", plugin.Name(),
-				"node", newNode.Name)
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -205,33 +132,14 @@ type NodeMetaCheckPlugin interface {
 }
 
 func RegisterNodeMetaCheckExtender(filter FilterFn, plugins ...NodeMetaCheckPlugin) {
-	ps := make([]Plugin, 0, len(plugins))
-	for i := range plugins {
-		if filter(plugins[i].Name()) {
-			ps = append(ps, plugins[i])
-		}
-	}
-	globalNodeMetaCheckExtender.MustRegister(ps...)
+	_ = "STUB: not implemented"
+	return
 }
 
-func UnregisterNodeMetaCheckExtender(name string) {
-	globalNodeMetaCheckExtender.Unregister(name)
-}
+func UnregisterNodeMetaCheckExtender(name string) { _ = "STUB: not implemented"; return }
 
 func RunNodeMetaCheckExtenders(strategy *configuration.ColocationStrategy, oldNode, newNode *corev1.Node) bool {
-	for _, p := range globalNodeMetaCheckExtender.GetAll() {
-		plugin := p.(NodeMetaCheckPlugin)
-		needSync, msg := plugin.NeedSyncMeta(strategy, oldNode, newNode)
-		metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "NodeStatusCheckMeta")
-		if needSync {
-			klog.V(4).InfoS("run node meta check plugin, need sync", "plugin", plugin.Name(),
-				"node", newNode.Name, "message", msg)
-			return true
-		} else {
-			klog.V(6).InfoS("run node meta check plugin, no need to sync",
-				"plugin", plugin.Name(), "node", newNode.Name)
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
@@ -241,14 +149,8 @@ type ResourceResetPlugin interface {
 }
 
 func RunResourceResetExtenders(nr *NodeResource, node *corev1.Node, message string) {
-	for _, p := range globalResourceCalculateExtender.GetAll() {
-		plugin := p.(ResourceCalculatePlugin)
-		resourceItems := plugin.Reset(node, message)
-		nr.Set(resourceItems...)
-		metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "ResourceReset")
-		klog.V(5).InfoS("run resource reset plugin successfully", "plugin", plugin.Name(),
-			"node", node.Name, "resource items", resourceItems, "message", message)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // ResourceCalculatePlugin implements resource counting and overcommitment algorithms.
@@ -260,33 +162,14 @@ type ResourceCalculatePlugin interface {
 }
 
 func RegisterResourceCalculateExtender(filter FilterFn, plugins ...ResourceCalculatePlugin) {
-	ps := make([]Plugin, 0, len(plugins))
-	for i := range plugins {
-		if filter(plugins[i].Name()) {
-			ps = append(ps, plugins[i])
-		}
-	}
-	globalResourceCalculateExtender.MustRegister(ps...)
+	_ = "STUB: not implemented"
+	return
 }
 
-func UnregisterResourceCalculateExtender(name string) {
-	globalResourceCalculateExtender.Unregister(name)
-}
+func UnregisterResourceCalculateExtender(name string) { _ = "STUB: not implemented"; return }
 
 func RunResourceCalculateExtenders(nr *NodeResource, strategy *configuration.ColocationStrategy, node *corev1.Node,
 	podList *corev1.PodList, resourceMetrics *ResourceMetrics) {
-	for _, p := range globalResourceCalculateExtender.GetAll() {
-		plugin := p.(ResourceCalculatePlugin)
-		resourceItems, err := plugin.Calculate(strategy, node, podList, resourceMetrics)
-		if err != nil {
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), false, "ResourceCalculate")
-			klog.ErrorS(err, "run resource calculate plugin failed", "plugin", plugin.Name(),
-				"node", node.Name)
-		} else {
-			nr.Set(resourceItems...)
-			metrics.RecordNodeResourceRunPluginStatus(plugin.Name(), true, "ResourceCalculate")
-			klog.V(5).InfoS("run resource calculate plugin successfully",
-				"plugin", plugin.Name(), "node", node.Name, "resource items", resourceItems)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }

@@ -22,7 +22,6 @@ import (
 	context "context"
 
 	schedulingv1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	scheme "github.com/koordinator-sh/koordinator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -57,14 +56,6 @@ type podMigrationJobs struct {
 
 // newPodMigrationJobs returns a PodMigrationJobs
 func newPodMigrationJobs(c *SchedulingV1alpha1Client) *podMigrationJobs {
-	return &podMigrationJobs{
-		gentype.NewClientWithList[*schedulingv1alpha1.PodMigrationJob, *schedulingv1alpha1.PodMigrationJobList](
-			"podmigrationjobs",
-			c.RESTClient(),
-			scheme.ParameterCodec,
-			"",
-			func() *schedulingv1alpha1.PodMigrationJob { return &schedulingv1alpha1.PodMigrationJob{} },
-			func() *schedulingv1alpha1.PodMigrationJobList { return &schedulingv1alpha1.PodMigrationJobList{} },
-		),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

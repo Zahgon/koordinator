@@ -18,14 +18,11 @@ package evictor
 
 import (
 	"context"
-	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 
 	sev1alpha1 "github.com/koordinator-sh/koordinator/apis/scheduling/v1alpha1"
-	"github.com/koordinator-sh/koordinator/pkg/descheduler/evictions"
-	"github.com/koordinator-sh/koordinator/pkg/util"
 )
 
 func init() {
@@ -42,20 +39,11 @@ type NativeEvictor struct {
 }
 
 func NewNativeEvictor(client kubernetes.Interface) (Interface, error) {
-	policyGroupVersion, err := util.SupportEviction(client)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch eviction groupVersion: %v", err)
-	}
-	if len(policyGroupVersion) == 0 {
-		return nil, fmt.Errorf("server does not support eviction policy")
-	}
-
-	return &NativeEvictor{
-		client:             client,
-		policyGroupVersion: policyGroupVersion,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(Interface), nil
 }
 
 func (e *NativeEvictor) Evict(ctx context.Context, job *sev1alpha1.PodMigrationJob, pod *corev1.Pod) error {
-	return evictions.EvictPod(ctx, e.client, pod, e.policyGroupVersion, job.Spec.DeleteOptions)
+	_ = "STUB: not implemented"
+	return nil
 }

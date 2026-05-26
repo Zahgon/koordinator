@@ -17,7 +17,6 @@ limitations under the License.
 package configuration
 
 import (
-	"github.com/mohae/deepcopy"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -127,29 +126,9 @@ type ExtensionCfg struct {
 	NodeStrategies  []NodeExtensionStrategy `json:"nodeStrategies,omitempty"`
 }
 
-func (in *ExtensionCfg) DeepCopyInto(out *ExtensionCfg) {
-	*out = *in
-	if in.ClusterStrategy != nil {
-		outIf := deepcopy.Copy(in.ClusterStrategy)
-		out.ClusterStrategy = outIf
-	}
-	if in.NodeStrategies != nil {
-		in, out := &in.NodeStrategies, &out.NodeStrategies
-		*out = make([]NodeExtensionStrategy, len(*in))
-		for i := range *in {
-			(*in)[i].DeepCopyInto(&(*out)[i])
-		}
-	}
-}
+func (in *ExtensionCfg) DeepCopyInto(out *ExtensionCfg) { _ = "STUB: not implemented"; return }
 
-func (in *ExtensionCfg) DeepCopy() *ExtensionCfg {
-	if in == nil {
-		return nil
-	}
-	out := new(ExtensionCfg)
-	in.DeepCopyInto(out)
-	return out
-}
+func (in *ExtensionCfg) DeepCopy() *ExtensionCfg { _ = "STUB: not implemented"; return nil }
 
 // +k8s:deepcopy-gen=false
 type NodeExtensionStrategy struct {
@@ -158,21 +137,13 @@ type NodeExtensionStrategy struct {
 }
 
 func (in *NodeExtensionStrategy) DeepCopyInto(out *NodeExtensionStrategy) {
-	*out = *in
-	in.NodeCfgProfile.DeepCopyInto(&out.NodeCfgProfile)
-	if in.NodeStrategy != nil {
-		outIf := deepcopy.Copy(in.NodeStrategy)
-		out.NodeStrategy = outIf
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (in *NodeExtensionStrategy) DeepCopy() *NodeExtensionStrategy {
-	if in == nil {
-		return nil
-	}
-	out := new(NodeExtensionStrategy)
-	in.DeepCopyInto(out)
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CalculatePolicy defines the calculate policy for resource overcommitment.
@@ -216,23 +187,9 @@ type ColocationStrategyExtender struct {
 // +k8s:deepcopy-gen=false
 type ExtraFields map[string]interface{}
 
-func (in *ExtraFields) DeepCopyInto(out *ExtraFields) {
-	if in == nil {
-		return
-	} else {
-		outIf := deepcopy.Copy(*in)
-		*out = outIf.(ExtraFields)
-	}
-}
+func (in *ExtraFields) DeepCopyInto(out *ExtraFields) { _ = "STUB: not implemented"; return }
 
-func (in *ExtraFields) DeepCopy() *ExtraFields {
-	if in == nil {
-		return nil
-	}
-	out := new(ExtraFields)
-	in.DeepCopyInto(out)
-	return out
-}
+func (in *ExtraFields) DeepCopy() *ExtraFields { _ = "STUB: not implemented"; return nil }
 
 // ColocationStrategy defines the strategy for node colocation.
 // +k8s:deepcopy-gen=true

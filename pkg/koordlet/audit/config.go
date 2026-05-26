@@ -32,23 +32,6 @@ type Config struct {
 	TickerDuration       time.Duration
 }
 
-func NewDefaultConfig() *Config {
-	return &Config{
-		LogDir:               "/var/log/koordlet",
-		Verbose:              3,
-		MaxDiskSpaceMB:       16,
-		MaxConcurrentReaders: 4,
-		ActiveReaderTTL:      time.Minute * 10,
-		DefaultEventsLimit:   256,
-		MaxEventsLimit:       2048,
-		TickerDuration:       time.Minute,
-	}
-}
+func NewDefaultConfig() *Config { _ = "STUB: not implemented"; return nil }
 
-func (c *Config) InitFlags(fs *flag.FlagSet) {
-	fs.StringVar(&c.LogDir, "audit-log-dir", c.LogDir, "The dir of audit log")
-	fs.IntVar(&c.Verbose, "audit-verbose", c.Verbose, "The verbose of the audit log")
-	fs.IntVar(&c.MaxDiskSpaceMB, "audit-max-disk-space-mb", c.MaxDiskSpaceMB, "Max disk space occupied of audit log")
-	fs.IntVar(&c.MaxConcurrentReaders, "audit-max-concurrent-readers", c.MaxConcurrentReaders, "Max concurrent readers of the audit log")
-	fs.IntVar(&c.MaxEventsLimit, "audit-max-events-limit", c.MaxEventsLimit, "Max events limit in one request of the audit log")
-}
+func (c *Config) InitFlags(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
